@@ -9,7 +9,7 @@
 typedef struct {
     const uint8_t widthBits; // width, in bits (or pixels), of the character
     const uint16_t offset;   // offset of the character's bitmap, in bytes,
-                             // into the the FONT_INFO's data array
+                             // into the the struct FONT_DEF's data array
 } FONT_CHAR_INFO;
 
 

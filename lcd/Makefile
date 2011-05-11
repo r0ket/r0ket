@@ -8,7 +8,16 @@ TARGET = LPC13xx
 
 OBJS =
 OBJS += smallfonts.o
+
+OBJS += dejavusans9.o
+OBJS += dejavusansbold9.o
+OBJS += dejavusanscondensed9.o
+OBJS += dejavusansmono8.o
+OBJS += dejavusansmonobold8.o
+OBJS += veramono11.o
 OBJS += veramono9.o
+OBJS += veramonobold11.o
+OBJS += veramonobold9.o
 
 OBJS += display.o
 OBJS += render.o
