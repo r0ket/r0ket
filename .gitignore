@@ -1,0 +1,9 @@
+lpcrc.exe
+lpcrc
+firmware.bin
+firmware.elf
+*.org
+*.o
+*.a
+*.swp
+lpc1xxx/memory.ld
