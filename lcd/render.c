@@ -12,26 +12,29 @@ int DoChar(int sx, int sy, char c){
 	int x;
 	int y;
 
+	/* how many bytes is it high? */
+	char height=(font->u8Height-1)/8+1;
+
 	/* "real" coordinates. Our physical display is upside down */
 	int rx=RESX-sx-1;
 	int ry=RESY-sy-font->u8Height;
-
-	/* how many bytes is it high? */
-	char height=(font->u8Height-1)/8+1;
+//	int ry=RESY-sy-height*8;
 
 	/* Does this font provide this character? */
 	if(c<font->u8FirstChar || c>font->u8LastChar)
 		c=font->u8FirstChar+1; // error
 
 	/* starting offset into character source data */
-	int off,width; 
+	int off,width,blank; 
 	if(font->u8Width==0){
 		off=font->charInfo[c-font->u8FirstChar].offset;
 		width=font->charInfo[c-font->u8FirstChar].widthBits;
 //		width=(font->charInfo[c-font->u8FirstChar].offset-off)/8;
+		blank=1;
 	}else{
 		off=(c-font->u8FirstChar)*font->u8Width*height;
 		width=font->u8Width;
+		blank=0;
 	};
 
 	/* raw character data */
@@ -56,19 +59,14 @@ int DoChar(int sx, int sy, char c){
 		if(y==0){
 			mask=mask>>(yoff);
 		} else if(y==height){
-			if(font->u8Height==6)
-				mask=252;
-			if(font->u8Height==10)
-				mask=192;
-			if(font->u8Height==16)
-				mask=255;
+			mask=mask<<((8-(font->u8Height%8))%8);
 			mask=mask<<(8-yoff);
 		};
 
 		if(font_direction==FONT_DIR_LTR)
 			flip(mask);
 
-		for(x=0;x<font->u8Width;x++){
+		for(x=0;x<width;x++){
 			unsigned char b1,b2;
 			if(y==0)
 				b1=0;
@@ -86,8 +84,12 @@ int DoChar(int sx, int sy, char c){
 			buffer[(rx+dmul*x)+(yidx+y)*RESX]&=~mask;
 			buffer[(rx+dmul*x)+(yidx+y)*RESX]|=byte;
 		};
+		if(blank){
+			buffer[(rx+dmul*x)+(yidx+y)*RESX]&=~mask;
+		};
+
 	};
-	return sx-dmul*x;
+	return sx-dmul*(x+blank);
 };
 
 int DoString(int sx, int sy, char *s){
