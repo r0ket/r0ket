@@ -18,9 +18,18 @@
 
 void ReinvokeISP(void);
 
-#include <lcd/smallfonts.h>
-#include <lcd/veramono9.h>
 #include <lcd/render.h>
+#include <lcd/smallfonts.h>
+#include <lcd/dejavusans9.h>
+#include <lcd/dejavusansbold9.h>
+#include <lcd/dejavusanscondensed9.h>
+#include <lcd/dejavusansmono8.h>
+#include <lcd/dejavusansmonobold8.h>
+#include <lcd/veramono11.h>
+#include <lcd/veramono9.h>
+#include <lcd/veramonobold11.h>
+#include <lcd/veramonobold9.h>
+
 
 /**************************************************************************/
 
@@ -49,10 +58,12 @@ int main(void)
   //pmuSleep();
   //pmuPowerDown();
   init(); // display
+  /*
   gpioSetDir(CFG_LED_PORT, CFG_LED_PIN, 0);
   IOCON_PIO1_11 = 0x41;
   adcInit();
-  fill(0);
+  */
+  fill(255);
   display(0);
   uint32_t j=0;
 
@@ -67,6 +78,7 @@ int main(void)
 
   font_direction=FONT_DIR_LTR; // LeftToRight is the default
   font= &Font_8x8      ;
+  /*
   DoString(0,yctr,"Hallo Welt");
   yctr+=9;
   font= &Font_8x8Thin  ;
@@ -81,12 +93,15 @@ int main(void)
   font= &Font_3x6;
   DoString(0,yctr,"HALLO WELT");
   yctr+=6;
+  */
 
   yctr+=1;
+  yctr=8;
 
   /* Read & display serial number */
 #include "core/iap/iap.h"
 
+/*
   IAP_return_t iap_return;
   iap_return = iapReadSerialNumber();
 
@@ -100,31 +115,54 @@ int main(void)
 	  dx=DoIntX(x,y,iap_return.Result[3]); y+=font->u8Height;
 	  font= &Font_7x8;
   };
+  */
 
+	static FONT fonts[]=
+	{
+	 & Font_dejaVu9pt,
+	 & Font_dejaVuBold9pt,
+	 & Font_dejaVuCondensed9pt,
+	 & Font_dejaVuMono8pt,
+	 & Font_dejaVuMonoBold8pt,
+	 & Font_VeraMono11pt,
+	 & Font_VeraMono9pt,
+	 & Font_VeraMonoBold11pt,
+	 & Font_VeraMonoBold9pt,
+	 & Font_7x8
+	};
+	int fontctr=0;
 
   while (1)
   {
     display(j);
     delayms(10);
     // Toggle LED once per second ... rollover = 136 years :)
+	/*
     currentSecond = systickGetSecondsActive();
     if (currentSecond != lastSecond){
 		dx=DoString(0,yctr,"UP:");
 		DoInt(dx,yctr,currentSecond);
 	};
-//	DoString(95,0,"Hallo Welt!");
+	*/
 
+	font=fonts[fontctr];
+	DoString(1,yctr,"Hallo Welt!");
 
-	if(0 && gpioGetValue(3,3)==0){
+	if(1 && gpioGetValue(3,3)==0){
 		gpioSetValue (CFG_LED_PORT, CFG_LED_PIN, CFG_LED_ON); 
 		while(gpioGetValue(3,3)==0);
 		gpioSetValue (CFG_LED_PORT, CFG_LED_PIN, CFG_LED_OFF); 
-		yctr++;
+		fill(255);
+		fontctr++;
+		if(fontctr>9)
+			fontctr=0;
 	};
 
+	/*
 	uint32_t results = adcRead(7);
 	dx=DoString(0,yctr+9,"LED:");
 	DoInt(dx,yctr+9,results);
+	*/
 
 	/*
       lastSecond = currentSecond;
