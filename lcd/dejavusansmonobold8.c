@@ -1060,7 +1060,7 @@ const FONT_CHAR_INFO dejaVuSansMonoBold8ptCharDescriptors[] =
 };
 
 /* Font information for DejaVu Sans Mono 8pt */
-const struct FONT_DEF Font_dejaVuMonoBold8pt = {8,16,' ','~',
+const struct FONT_DEF Font_dejaVuMonoBold8pt = {8,13,' ','~',
 	dejaVuSansMonoBold8ptCharBitmaps, /*  Character bitmap array */
 	dejaVuSansMonoBold8ptCharDescriptors, /*  Character decriptor array */
 };

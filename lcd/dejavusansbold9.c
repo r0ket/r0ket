@@ -904,7 +904,7 @@ const FONT_CHAR_INFO dejaVuSansBold9ptCharDescriptors[] =
 };
 
 /* Font information for DejaVu Sans 9pt */
-const struct FONT_DEF Font_dejaVuBold9pt = {0,16,' ','~',
+const struct FONT_DEF Font_dejaVuBold9pt = {0,13,' ','~',
 	dejaVuSansBold9ptCharBitmaps, /*  Character bitmap array */
 	dejaVuSansBold9ptCharDescriptors, /*  Character decriptor array */
 };

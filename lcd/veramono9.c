@@ -1060,7 +1060,7 @@ const FONT_CHAR_INFO bitstreamVeraSansMono9ptCharDescriptors[] =
 };
 
 /* Font information for Bitstream Vera Sans Mono 9pt */
-const struct FONT_DEF Font_VeraMono9pt = {8, 10, ' ', '~', 
+const struct FONT_DEF Font_VeraMono9pt = {8, 14, ' ', '~', 
 	bitstreamVeraSansMono9ptCharBitmaps,
 	bitstreamVeraSansMono9ptCharDescriptors
 };
