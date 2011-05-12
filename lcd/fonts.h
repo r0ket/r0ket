@@ -22,6 +22,6 @@ struct FONT_DEF {
     const FONT_CHAR_INFO *charInfo; /* Pointer to array of char information */
 };
 
-typedef struct FONT_DEF * FONT;
+typedef const struct FONT_DEF * FONT;
 
 #endif
