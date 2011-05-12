@@ -4,6 +4,6 @@
 #include "fonts.h"
 
 /* Font data for Bitstream Vera Sans Mono Bold 9pt */
-extern const struct FONT_DEF bFont_VeraMonoBold9pt;
+extern const struct FONT_DEF Font_VeraMonoBold9pt;
 
 #endif
