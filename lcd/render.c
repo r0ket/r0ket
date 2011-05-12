@@ -55,13 +55,21 @@ int DoChar(int sx, int sy, char c){
 
 	/* multiple 8-bit-lines */
 	for(y=0;y<=height;y++){
-		mask=255; // XXX: Fixme
+		int m=yoff+font->u8Height-8*y;
+		if(m>8)m=8;
+		if(m<0)m=0;
+		mask=255<<(8-m);
+
 		if(y==0){
 			mask=mask>>(yoff);
 		} else if(y==height){
-			mask=mask<<((8-(font->u8Height%8))%8);
-			mask=mask<<(8-yoff);
+//			mask=mask<<((8-(font->u8Height%8))%8);
+//			mask=mask<<(8-yoff);
 		};
+
+		if(mask==0)
+			break;
+//		buffer[(rx-dmul)+(yidx+y)*RESX]=5;
 
 		if(font_direction==FONT_DIR_LTR)
 			flip(mask);
