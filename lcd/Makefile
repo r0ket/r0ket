@@ -19,6 +19,10 @@ OBJS += veramono9.o
 OBJS += veramonobold11.o
 OBJS += veramonobold9.o
 
+OBJS += vera11.o
+OBJS += vera17.o
+OBJS += vera23.o
+
 OBJS += display.o
 OBJS += render.o
 

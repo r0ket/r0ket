@@ -80,7 +80,7 @@ all: firmware
 core/libcore.a: core/projectconfig.h
 	cd core && $(MAKE)
 
-lcd/libfont.a:
+lcd/libfont.a lcd/render.o lcd/display.o:
 	cd lcd && $(MAKE)
 
 tools/lpcrc:
@@ -106,3 +106,7 @@ clean:
 	@cd core && $(MAKE) clean
 	@cd tools && $(MAKE) clean
 	@cd lcd && $(MAKE) clean
+
+
+.PHONY: lcd/libfont.a
+
