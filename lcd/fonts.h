@@ -12,6 +12,12 @@ typedef struct {
                              // into the the struct FONT_DEF's data array
 } FONT_CHAR_INFO;
 
+typedef struct {
+    const uint8_t widthBits; // width, in bits (or pixels), of the character
+    const uint8_t preblank;  // How many blanks 
+    const uint8_t blank;     // How many blanks 
+} FONT_CHAR_INFO_v2;
+
 
 struct FONT_DEF {
     uint8_t u8Width;                /* Character width for storage          */
