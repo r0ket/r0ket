@@ -9,7 +9,7 @@ char font_direction = FONT_DIR_LTR;
 /* Exported Functions */
 
 int DoChar(int sx, int sy, char c){
-	int x;
+	int x=0;
 	int y;
 
 	/* how many bytes is it high? */
@@ -18,24 +18,37 @@ int DoChar(int sx, int sy, char c){
 	/* "real" coordinates. Our physical display is upside down */
 	int rx=RESX-sx-1;
 	int ry=RESY-sy-font->u8Height;
-//	int ry=RESY-sy-height*8;
 
 	/* Does this font provide this character? */
 	if(c<font->u8FirstChar || c>font->u8LastChar)
 		c=font->u8FirstChar+1; // error
 
 	/* starting offset into character source data */
-	int off,width,blank; 
+	int off,width,preblank,blank; 
 	if(font->u8Width==0){
 		off=font->charInfo[c-font->u8FirstChar].offset;
 		width=font->charInfo[c-font->u8FirstChar].widthBits;
-//		width=(font->charInfo[c-font->u8FirstChar].offset-off)/8;
+		preblank=0;
 		blank=1;
+	}else if(font->u8Width==1){
+		FONT_CHAR_INFO_v2 * fci=(FONT_CHAR_INFO_v2*)font->charInfo;
+		off=0;
+		width=fci[c-font->u8FirstChar].widthBits;
+		for(y=0;y<c-font->u8FirstChar;y++)
+			off+=fci[y].widthBits;
+		off*=height;
+		preblank=fci[y].preblank;
+		blank=fci[y].blank;
 	}else{
 		off=(c-font->u8FirstChar)*font->u8Width*height;
 		width=font->u8Width;
+		preblank=0;
 		blank=0;
 	};
+
+	// boundary sanity checks
+	if(sx<0 || sy<0 || sx >= RESX || (sy+font->u8Height) >= RESY)
+		return sx; // nothing printed.
 
 	/* raw character data */
 	int byte;
@@ -43,15 +56,21 @@ int DoChar(int sx, int sy, char c){
 
 	/* print forward or backward? */
 	int dmul=0;
-	if(font_direction==FONT_DIR_RTL)
+	if(font_direction==FONT_DIR_RTL){
 		dmul=1;
-	else if (font_direction==FONT_DIR_LTR)
+		if(sx-(width+preblank+blank)<=0) // sanity check for left side
+			return sx;
+	} else if (font_direction==FONT_DIR_LTR){
 		dmul=-1;
-
+		if(sx+(width+preblank+blank)>=RESX) // sanity check for right side
+			return sx;
+	};
 
 	/* break down the position on byte boundaries */
 	char yidx=ry/8;
 	char yoff=ry%8;
+
+	rx+=dmul*preblank;
 
 	/* multiple 8-bit-lines */
 	for(y=0;y<=height;y++){
@@ -61,19 +80,19 @@ int DoChar(int sx, int sy, char c){
 		mask=255<<(8-m);
 
 		if(y==0){
-			mask=mask>>(yoff);
-		} else if(y==height){
-//			mask=mask<<((8-(font->u8Height%8))%8);
-//			mask=mask<<(8-yoff);
+			mask=mask>>yoff;
 		};
 
-		if(mask==0)
+		if(mask==0) // Optimize :-)
 			break;
 //		buffer[(rx-dmul)+(yidx+y)*RESX]=5;
 
 		if(font_direction==FONT_DIR_LTR)
 			flip(mask);
 
+		for(m=1;m<=preblank;m++){
+			buffer[(rx-dmul*(m))+(yidx+y)*RESX]&=~mask;
+		};
 		for(x=0;x<width;x++){
 			unsigned char b1,b2;
 			if(y==0)
@@ -92,12 +111,11 @@ int DoChar(int sx, int sy, char c){
 			buffer[(rx+dmul*x)+(yidx+y)*RESX]&=~mask;
 			buffer[(rx+dmul*x)+(yidx+y)*RESX]|=byte;
 		};
-		if(blank){
-			buffer[(rx+dmul*x)+(yidx+y)*RESX]&=~mask;
+		for(m=0;m<blank;m++){
+			buffer[(rx+dmul*(x+m))+(yidx+y)*RESX]&=~mask;
 		};
-
 	};
-	return sx-dmul*(x+blank);
+	return sx-dmul*(x+preblank+blank);
 };
 
 int DoString(int sx, int sy, char *s){
