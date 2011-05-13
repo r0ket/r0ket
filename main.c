@@ -29,6 +29,9 @@ void ReinvokeISP(void);
 #include <lcd/veramono9.h>
 #include <lcd/veramonobold11.h>
 #include <lcd/veramonobold9.h>
+#include <lcd/vera11.h>
+#include <lcd/vera17.h>
+#include <lcd/vera23.h>
 
 
 /**************************************************************************/
@@ -119,6 +122,9 @@ int main(void)
 
 	static FONT fonts[]=
 	{
+//	 & Font_Vera11pt, // 2 byte-font
+	 & Font_Vera17pt, // 3 byte-font
+	 & Font_Vera23pt, // 4 byte-font
 	 & Font_dejaVu9pt,
 	 & Font_dejaVuBold9pt,
 	 & Font_dejaVuCondensed9pt,
@@ -128,9 +134,9 @@ int main(void)
 	 & Font_VeraMono9pt,
 	 & Font_VeraMonoBold11pt,
 	 & Font_VeraMonoBold9pt,
-	 & Font_7x8
 	};
 	int fontctr=0;
+	yctr=12;
 
   while (1)
   {
@@ -146,14 +152,15 @@ int main(void)
 	*/
 
 	font=fonts[fontctr];
-	DoString(1,yctr,"Hallo Welt!");
+	DoString(1,yctr,"Hey Y!");
 
 	if(1 && gpioGetValue(3,3)==0){
 		gpioSetValue (CFG_LED_PORT, CFG_LED_PIN, CFG_LED_ON); 
 		while(gpioGetValue(3,3)==0);
 		gpioSetValue (CFG_LED_PORT, CFG_LED_PIN, CFG_LED_OFF); 
-		fill(255);
+		fill(0);
 		fontctr++;
+//		yctr++;
 		if(fontctr>9)
 			fontctr=0;
 	};
