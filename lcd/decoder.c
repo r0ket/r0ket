@@ -9,9 +9,11 @@ uint8_t * pk_decode(const uint8_t * data,int*len){
 //	int off=0;				// Offset into au8FontTable for bytestream
 	int length=*len;		// Length of character bytestream
 	int height;				// Height of character in bytes
+	int hoff;				// bit position for non-integer heights
 	uint8_t * bufptr=buf;	// Output buffer for decoded character
 
 	height=(font->u8Height-1)/8+1;
+	hoff=font->u8Height%8;
 
 	// Local function: Get next nibble.
 	int ctr=0;  // offset for next nibble
@@ -92,12 +94,18 @@ uint8_t * pk_decode(const uint8_t * data,int*len){
 
 //		printf("have %d bits. Got %d (%d)-bits...(r=%d)",pos, nyb, curbit,repeat);
 		while(nyb-->0){
+			if(pos==0){
+				*bufptr=0;
+			};
 			if(curbit==1){
 				*bufptr|=1<<(7-pos);
-			}else{
-				*bufptr&=~(1<<(7-pos));
 			};
 			pos++;
+			if(((bufptr-buf)%height)==(height-1) && (pos==hoff)){
+				// Finish incomplete last byte per column
+				pos=8;
+			};
+
 			if(pos==8){
 //				printf("BYTE: 0x%02x\n",*bufptr);
 				bufptr++;
