@@ -53,9 +53,17 @@ int DoChar(int sx, int sy, char c){
 			toff+=font->charInfo[y].widthBits;
 		width=font->charInfo[c-font->u8FirstChar].widthBits;
 
-		data=pk_decode(&font->au8FontTable[toff],&width);
-		preblank=0;
-		blank=0;
+		if(font->au8FontTable[toff]>>4 == 15){ // It's a raw character!
+			preblank = font->au8FontTable[toff+1];
+			blank= font->au8FontTable[toff+2];
+			data=&font->au8FontTable[toff+3];
+			width/=height;
+			width-=1;
+		}else{
+			data=pk_decode(&font->au8FontTable[toff],&width);
+			preblank=0;
+			blank=0;
+		}
 	}else{
 		toff=(c-font->u8FirstChar)*font->u8Width*height;
 		width=font->u8Width;
