@@ -1,4 +1,3 @@
-
 #include <fonts.h>
 #include <render.h>
 
@@ -6,10 +5,10 @@
 static uint8_t buf[MAXCHR];
 
 uint8_t * pk_decode(const uint8_t * data,int * len){
-	int length=*len;		// Length of character bytestream
-	int height;				// Height of character in bytes
-	int hoff;				// bit position for non-integer heights
-	uint8_t * bufptr=buf;	// Output buffer for decoded character
+	int length=*len;      // Length of character bytestream
+	int height;           // Height of character in bytes
+	int hoff;             // bit position for non-integer heights
+	uint8_t * bufptr=buf; // Output buffer for decoded character
 
 	height=(font->u8Height-1)/8+1;
 	hoff=font->u8Height%8;
@@ -32,7 +31,7 @@ uint8_t * pk_decode(const uint8_t * data,int * len){
 	};
 
 	// Local function: Unpack "long run".
-	int upl(int off){ // unpack "long" run.
+	int upl(int off){
 		int retval;
 
 		while((retval=gnn())==0){
@@ -45,17 +44,16 @@ uint8_t * pk_decode(const uint8_t * data,int * len){
 		return retval;
 	};
 
-#define DNY (12)  // Decoder parameter: Fixed value for now.
+#define DYN (12)  // Decoder parameter: Fixed value for now.
 	int repeat=0; // Decoder internal: repeat colum?
 	int curbit=0; // Decoder internal: current bit (1 or 0)
-	int pos=0;	  // Decoder internal: current bit position (0..7)
+	int pos=0;    // Decoder internal: current bit position (0..7)
 	int nyb;      // Decoder internal: current nibble / value
 
 	while(ctr<length){ /* Iterate the whole input stream */
 
 		/* Get next encoded nibble and decode */
 		nyb=gnn();
-
 
 		if(nyb==15){
 			repeat++;
@@ -65,19 +63,18 @@ uint8_t * pk_decode(const uint8_t * data,int * len){
 			nyb+=1;
 			repeat+=nyb;
 			continue;
-		}else if(nyb>DNY){
-			nyb=(16*(nyb-DNY-1))+gnn()+DNY+1;
+		}else if(nyb>DYN){
+			nyb=(16*(nyb-DYN-1))+gnn()+DYN+1;
 		}else if(nyb==0){
 			nyb=upl(1);
-			nyb+=(16*(13-DNY)+DNY)-16;
+			nyb+=(16*(13-DYN)+DYN)-16;
 		};
 
 		/* Generate & output bits */
 
 		while(nyb-->0){
-			if(pos==0){
+			if(pos==0) // Clear each byte before we start.
 				*bufptr=0;
-			};
 			if(curbit==1){
 				*bufptr|=1<<(7-pos);
 			};
