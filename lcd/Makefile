@@ -9,22 +9,12 @@ TARGET = LPC13xx
 OBJS =
 OBJS += smallfonts.o
 
-OBJS += dejavusans9.o
-OBJS += dejavusansbold9.o
-OBJS += dejavusanscondensed9.o
-OBJS += dejavusansmono8.o
-OBJS += dejavusansmonobold8.o
-OBJS += veramono11.o
-OBJS += veramono9.o
-OBJS += veramonobold11.o
-OBJS += veramonobold9.o
-
-OBJS += vera11.o
 OBJS += vera17.o
-OBJS += vera23.o
+OBJS += comic15.o
 
 OBJS += display.o
 OBJS += render.o
+OBJS += decoder.o
 
 ##########################################################################
 # GNU GCC compiler prefix and location
@@ -63,7 +53,7 @@ CPU_TYPE = cortex-$(CORTEX_TYPE)
 # Compiler settings, parameters and flags
 ##########################################################################
 
-CFLAGS  = -c -g -Os $(INCLUDE_PATHS) -Wall -mthumb -ffunction-sections -fdata-sections -fmessage-length=0 -mcpu=$(CPU_TYPE) -DTARGET=$(TARGET) -fno-builtin
+CFLAGS  = -std=c99 -c -g -Os $(INCLUDE_PATHS) -Wall -mthumb -ffunction-sections -fdata-sections -fmessage-length=0 -mcpu=$(CPU_TYPE) -DTARGET=$(TARGET) -fno-builtin
 LDFLAGS = -nostartfiles -mthumb -mcpu=$(CPU_TYPE) -Wl,--gc-sections
 
 all: libfont.a
