@@ -1,5 +1,6 @@
 #include <sysdefs.h>
 #include <render.h>
+#include <decoder.h>
 #include <fonts.h>
 
 /* Global Variables */
@@ -8,10 +9,8 @@ char font_direction = FONT_DIR_LTR;
 
 /* Exported Functions */
 
-uint8_t * pk_decode(const uint8_t * data,int*len);
 int DoChar(int sx, int sy, char c){
 	int x=0;
-	int y;
 
 	/* how many bytes is it high? */
 	char height=(font->u8Height-1)/8+1;
@@ -27,28 +26,18 @@ int DoChar(int sx, int sy, char c){
 		c=font->u8FirstChar+1; // error
 
 	/* starting offset into character source data */
-	int toff,width,preblank,blank; 
+	int toff=0,width,preblank=0,blank=0; 
+
 	if(font->u8Width==0){
-		toff=0;
-		width=font->charInfo[c-font->u8FirstChar].widthBits;
-		for(y=0;y<c-font->u8FirstChar;y++)
+		for(int y=0;y<c-font->u8FirstChar;y++)
 			toff+=font->charInfo[y].widthBits;
+		width=font->charInfo[c-font->u8FirstChar].widthBits;
+
 		toff*=height;
 		data=&font->au8FontTable[toff];
-		preblank=0;
 		blank=1;
-/*	}else if(font->u8Width==1){
-		FONT_CHAR_INFO_v2 * fci=(FONT_CHAR_INFO_v2*)font->charInfo;
-		off=0;
-		width=fci[c-font->u8FirstChar].widthBits;
-		for(y=0;y<c-font->u8FirstChar;y++)
-			off+=fci[y].widthBits;
-		off*=height;
-		preblank=fci[y].preblank;
-		blank=fci[y].blank; */
 	}else if(font->u8Width==1){ // NEW CODE
 		// Find offset and length for our character
-		toff=0;
 		for(int y=0;y<c-font->u8FirstChar;y++)
 			toff+=font->charInfo[y].widthBits;
 		width=font->charInfo[c-font->u8FirstChar].widthBits;
@@ -57,19 +46,14 @@ int DoChar(int sx, int sy, char c){
 			preblank = font->au8FontTable[toff+1];
 			blank= font->au8FontTable[toff+2];
 			data=&font->au8FontTable[toff+3];
-			width/=height;
-			width-=1;
+			width=(width/height)-1;
 		}else{
 			data=pk_decode(&font->au8FontTable[toff],&width);
-			preblank=0;
-			blank=0;
 		}
 	}else{
 		toff=(c-font->u8FirstChar)*font->u8Width*height;
 		width=font->u8Width;
 		data=&font->au8FontTable[toff];
-		preblank=0;
-		blank=0;
 	};
 
 	// boundary sanity checks
@@ -99,7 +83,7 @@ int DoChar(int sx, int sy, char c){
 	rx+=dmul*preblank;
 
 	/* multiple 8-bit-lines */
-	for(y=0;y<=height;y++){
+	for(int y=0;y<=height;y++){
 		int m=yoff+font->u8Height-8*y;
 		if(m>8)m=8;
 		if(m<0)m=0;
@@ -111,12 +95,11 @@ int DoChar(int sx, int sy, char c){
 
 		if(mask==0) // Optimize :-)
 			break;
-//		buffer[(rx-dmul)+(yidx+y)*RESX]=5;
 
 		if(font_direction==FONT_DIR_LTR)
 			flip(mask);
 
-		for(m=1;m<=preblank;m++){
+		for(int m=1;m<=preblank;m++){
 			buffer[(rx-dmul*(m))+(yidx+y)*RESX]&=~mask;
 		};
 		for(x=0;x<width;x++){
@@ -137,7 +120,7 @@ int DoChar(int sx, int sy, char c){
 			buffer[(rx+dmul*x)+(yidx+y)*RESX]&=~mask;
 			buffer[(rx+dmul*x)+(yidx+y)*RESX]|=byte;
 		};
-		for(m=0;m<blank;m++){
+		for(int m=0;m<blank;m++){
 			buffer[(rx+dmul*(x+m))+(yidx+y)*RESX]&=~mask;
 		};
 	};
