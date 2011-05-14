@@ -20,18 +20,8 @@ void ReinvokeISP(void);
 
 #include <lcd/render.h>
 #include <lcd/smallfonts.h>
-#include <lcd/dejavusans9.h>
-#include <lcd/dejavusansbold9.h>
-#include <lcd/dejavusanscondensed9.h>
-#include <lcd/dejavusansmono8.h>
-#include <lcd/dejavusansmonobold8.h>
-#include <lcd/veramono11.h>
-#include <lcd/veramono9.h>
-#include <lcd/veramonobold11.h>
-#include <lcd/veramonobold9.h>
-#include <lcd/vera11.h>
 #include <lcd/vera17.h>
-#include <lcd/vera23.h>
+#include <lcd/comic15.h>
 
 
 /**************************************************************************/
@@ -122,21 +112,12 @@ int main(void)
 
 	static FONT fonts[]=
 	{
-//	 & Font_Vera11pt, // 2 byte-font
+	 & Font_8x8,
 	 & Font_Vera17pt, // 3 byte-font
-	 & Font_Vera23pt, // 4 byte-font
-	 & Font_dejaVu9pt,
-	 & Font_dejaVuBold9pt,
-	 & Font_dejaVuCondensed9pt,
-	 & Font_dejaVuMono8pt,
-	 & Font_dejaVuMonoBold8pt,
-	 & Font_VeraMono11pt,
-	 & Font_VeraMono9pt,
-	 & Font_VeraMonoBold11pt,
-	 & Font_VeraMonoBold9pt,
+	 & Font_Comic15pt, 
 	};
 	int fontctr=0;
-	yctr=12;
+	yctr=18;
 
   while (1)
   {
@@ -158,10 +139,10 @@ int main(void)
 		gpioSetValue (CFG_LED_PORT, CFG_LED_PIN, CFG_LED_ON); 
 		while(gpioGetValue(3,3)==0);
 		gpioSetValue (CFG_LED_PORT, CFG_LED_PIN, CFG_LED_OFF); 
-		fill(0);
+		fill(255);
 		fontctr++;
 //		yctr++;
-		if(fontctr>9)
+		if(fontctr>2)
 			fontctr=0;
 	};
 
