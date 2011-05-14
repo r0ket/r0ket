@@ -5,8 +5,7 @@
 #define MAXCHR (24*3)
 static uint8_t buf[MAXCHR];
 
-uint8_t * pk_decode(const uint8_t * data,int*len){
-//	int off=0;				// Offset into au8FontTable for bytestream
+uint8_t * pk_decode(const uint8_t * data,int * len){
 	int length=*len;		// Length of character bytestream
 	int height;				// Height of character in bytes
 	int hoff;				// bit position for non-integer heights
@@ -40,25 +39,11 @@ uint8_t * pk_decode(const uint8_t * data,int*len){
 			off++;
 		};
 		while(off-->0){
-//			printf("- rv: %x\n",retval);
 			retval=retval<<4;
 			retval+=gnn();
 		};
-//			printf("> rv: %x\n",retval);
 		return retval;
 	};
-
-	if(data[0]>>4 == 15){
-		// This is a raw character!
-		int preblank,postblank;
-		const uint8_t *rawptr;
-		preblank=  data[1];
-		postblank= data[2];
-		rawptr=&data[3];
-//		printf("Raw character: pre=%d, post=%d\n",preblank,postblank);
-		return;
-	};
-
 
 #define DNY (12)  // Decoder parameter: Fixed value for now.
 	int repeat=0; // Decoder internal: repeat colum?
@@ -71,7 +56,6 @@ uint8_t * pk_decode(const uint8_t * data,int*len){
 		/* Get next encoded nibble and decode */
 		nyb=gnn();
 
-//		printf("\nCtr: %d, byte: %x, Process: %d\n",ctr, data[ctr], nyb);
 
 		if(nyb==15){
 			repeat++;
@@ -79,7 +63,6 @@ uint8_t * pk_decode(const uint8_t * data,int*len){
 		}else if(nyb==14){
 			nyb=upl(0);
 			nyb+=1;
-//			printf("14-decode: %d\n",nyb);
 			repeat+=nyb;
 			continue;
 		}else if(nyb>DNY){
@@ -87,12 +70,10 @@ uint8_t * pk_decode(const uint8_t * data,int*len){
 		}else if(nyb==0){
 			nyb=upl(1);
 			nyb+=(16*(13-DNY)+DNY)-16;
-//			printf("0-decode: %d\n",nyb);
 		};
 
 		/* Generate & output bits */
 
-//		printf("have %d bits. Got %d (%d)-bits...(r=%d)",pos, nyb, curbit,repeat);
 		while(nyb-->0){
 			if(pos==0){
 				*bufptr=0;
@@ -107,7 +88,6 @@ uint8_t * pk_decode(const uint8_t * data,int*len){
 			};
 
 			if(pos==8){
-//				printf("BYTE: 0x%02x\n",*bufptr);
 				bufptr++;
 				if((bufptr-buf)%height==0){ // End of column?
 					while(repeat>0){
@@ -115,7 +95,6 @@ uint8_t * pk_decode(const uint8_t * data,int*len){
 							bufptr[0]=bufptr[-3];
 							bufptr++;
 						};
-//						printf("repeated last line\n");
 						repeat--;
 					};
 				};
@@ -125,8 +104,6 @@ uint8_t * pk_decode(const uint8_t * data,int*len){
 		curbit=1-curbit;
 	};
 		
-//	printf("\n");
-
 	*len=(bufptr-buf)/height; // return size of output buffer.
 	return buf;
 };
