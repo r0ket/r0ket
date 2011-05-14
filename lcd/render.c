@@ -8,12 +8,15 @@ char font_direction = FONT_DIR_LTR;
 
 /* Exported Functions */
 
+uint8_t * pk_decode(const uint8_t * data,int*len);
 int DoChar(int sx, int sy, char c){
 	int x=0;
 	int y;
 
 	/* how many bytes is it high? */
 	char height=(font->u8Height-1)/8+1;
+
+	const uint8_t * data;
 
 	/* "real" coordinates. Our physical display is upside down */
 	int rx=RESX-sx-1;
@@ -24,13 +27,17 @@ int DoChar(int sx, int sy, char c){
 		c=font->u8FirstChar+1; // error
 
 	/* starting offset into character source data */
-	int off,width,preblank,blank; 
+	int toff,width,preblank,blank; 
 	if(font->u8Width==0){
-		off=font->charInfo[c-font->u8FirstChar].offset;
+		toff=0;
 		width=font->charInfo[c-font->u8FirstChar].widthBits;
+		for(y=0;y<c-font->u8FirstChar;y++)
+			toff+=font->charInfo[y].widthBits;
+		toff*=height;
+		data=&font->au8FontTable[toff];
 		preblank=0;
 		blank=1;
-	}else if(font->u8Width==1){
+/*	}else if(font->u8Width==1){
 		FONT_CHAR_INFO_v2 * fci=(FONT_CHAR_INFO_v2*)font->charInfo;
 		off=0;
 		width=fci[c-font->u8FirstChar].widthBits;
@@ -38,10 +45,21 @@ int DoChar(int sx, int sy, char c){
 			off+=fci[y].widthBits;
 		off*=height;
 		preblank=fci[y].preblank;
-		blank=fci[y].blank;
+		blank=fci[y].blank; */
+	}else if(font->u8Width==1){ // NEW CODE
+		// Find offset and length for our character
+		toff=0;
+		for(int y=0;y<c-font->u8FirstChar;y++)
+			toff+=font->charInfo[y].widthBits;
+		width=font->charInfo[c-font->u8FirstChar].widthBits;
+
+		data=pk_decode(&font->au8FontTable[toff],&width);
+		preblank=0;
+		blank=0;
 	}else{
-		off=(c-font->u8FirstChar)*font->u8Width*height;
+		toff=(c-font->u8FirstChar)*font->u8Width*height;
 		width=font->u8Width;
+		data=&font->au8FontTable[toff];
 		preblank=0;
 		blank=0;
 	};
@@ -98,11 +116,11 @@ int DoChar(int sx, int sy, char c){
 			if(y==0)
 				b1=0;
 			else
-				b1=font->au8FontTable[off+x*height+y-1];
+				b1=data[x*height+y-1];
 			if(y==height)
 				b2=0;
 			else
-				b2=font->au8FontTable[off+x*height+y];
+				b2=data[x*height+y];
 
 			byte= (b1<<(8-yoff)) | (b2>>yoff);
 			if(font_direction==FONT_DIR_LTR)

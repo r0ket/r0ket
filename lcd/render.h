@@ -12,13 +12,6 @@
 #define RESX 96
 #define RESY 68
 
-
-#define FONT_DIR_LTR  0
-#define FONT_DIR_RTL  1
-// Not yet implemented
-// #define FONT_DIR_UP   2
-// #define FONT_DIR_DOWN 3
-
 // ARM supports byte flip natively. Yay!
 #define flip(byte) \
 	__asm("rbit %[value], %[value];" \
@@ -33,13 +26,9 @@
 	}while(0)
 */
 
-extern const struct FONT_DEF * font;
-extern char font_direction;
-
 int DoChar(int sx, int sy, char c);
 int DoString(int sx, int sy, char *s);
 int DoInt(int sx, int sy, int num);
 int DoIntX(int sx, int sy, unsigned int num);
-
 
 #endif
