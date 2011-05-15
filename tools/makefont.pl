@@ -1,19 +1,10 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 use GD;
 use strict;
 use warnings;
+use Getopt::Long;
 
 $|=1;
-
-#for(1..500){
-#	printf "%3d | %-10s | %-10s\n",
-#		   $_,
-#		   join(" ",map {sprintf "%x",$_} (0,pk_encode_long($_))),
-#		   join(" ",map {sprintf "%x",$_} pk_encode_long($_+16));
-#}
-#exit(1);
-
-use constant VERBOSE=>0;
 
 ###
 ### Configure me
@@ -24,14 +15,19 @@ for(32..126){
 	$charlist.=chr $_;
 };
 
-my $size=shift||17;
+# Runtime Options
+my ($verbose,$raw);
+my $size=17;
 my ($font,$title);
 
-$font="/usr/local/lib/X11/fonts/bitstream-vera/Vera.ttf";
-$title="Bitstream Vera Sans ".$size."pt";
+$font="../ttf/Ubuntu-Regular.ttf";
+$title="Ubuntu Sans ".$size."pt";
 
-#$font="./Comic_Sans_MS_KOI8.ttf";
-#$title="Comic Sans ".$size."pt";
+GetOptions ("size=i" => \$size,    # numeric
+            "font=s"   => \$font,    # string
+            "verbose"  => \$verbose, # flag
+			"raw"      => \$raw,     # flag
+			);
 
 ###
 ### Code starts here.
@@ -140,7 +136,7 @@ for (1..length$charlist){
 		};
 #		print "<\n";
 	};
-	print "### Start $char\n" if(VERBOSE);
+	print "### Start $char\n" if($verbose);
 
 	print C " /* Char ",ord $char," is ",scalar@char,"px wide \@ $offset */\n";
 
@@ -186,15 +182,14 @@ for (1..length$charlist){
 	$c2size+=1;
 
 	# If encoding is bigger, fall back to original char
-	my $rawpretty=0;
 	if($#enc>$#raw+3){
 		warn "Compression failure: Encoding char $char raw.\n";
-		@enc=(255,$preblank,$postblank,@raw);
-		$rawpretty=1;
+		$raw=1;
 	};
 
 	# Generate C source
-	if($rawpretty){
+	if($raw){
+		@enc=(255,$preblank,$postblank,@raw);
 		my @out=@enc;
 		printf C "  0x%02x, %2d, %2d, /* rawmode, preblank, postblank */\n",
 			   (shift@out), (shift@out), (shift@out);
@@ -227,7 +222,7 @@ for (1..length$charlist){
 
 	$offset+=scalar(@enc);
 
-	if(VERBOSE){
+	if($verbose){
 		print "-"x80,"\n";
 	};
 };
@@ -398,11 +393,11 @@ sub make_bytes{
 sub do_pk {
 	my $char=shift;
 	my $size=scalar @$char * $byte;
-	print "Input char is $size bytes\n" if VERBOSE;
+	print "Input char is $size bytes\n" if $verbose;
 
 	$char=pk_dedup($char);
 	
-	if(VERBOSE){
+	if($verbose){
 		for (@$char){
 			print "dedup: $_\n";
 		};
@@ -410,13 +405,13 @@ sub do_pk {
 
 	my @rle=pk_rle ($char);
 
-	if(VERBOSE){
+	if($verbose){
 		print "RLE: ",join(",",@rle),"\n";
 	};
 
 	my @enc=pk_encode (@rle);
 
-	if(VERBOSE){
+	if($verbose){
 		print "encoded stream: ",join(",",@enc),"\n";
 	};
 
