@@ -50,6 +50,11 @@ uint8_t * pk_decode(const uint8_t * data,int * len){
 	int pos=0;    // Decoder internal: current bit position (0..7)
 	int nyb;      // Decoder internal: current nibble / value
 
+	if(data[ctr]>>4 == 14){ // Char starts with 1-bits. 
+		gnn();
+		curbit=1;
+	};
+
 	while(ctr<length){ /* Iterate the whole input stream */
 
 		/* Get next encoded nibble and decode */

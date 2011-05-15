@@ -307,9 +307,6 @@ sub pk_rle {
 
 	my $line=join("",@$char);;
 
-	my $fpx=substr($line,0,1);
-	warn "first pixel ==1 - Encoder will do stupid things..." if $fpx ==1 ;
-
 	my @out;
 	while($line=~/./){
 		$line=~s/^(0*)(\[\d+\])?(1*)(\[\d+\])?//;
@@ -362,8 +359,12 @@ sub pk_encode {
 				my $n=$1-1; # this deviates from PK spec, i think.
 				push @enc,14,pk_encode_long($1-1);
 			};
-		}elsif($_ == 0){
-			warn "Encoder asked to encode a zero?"; # Shouldn't happen.
+		}elsif($_ == 0){ # Encoding a 0 will only happen at the start of
+                         # character if "first pixel" is 1 instead of 0.
+                         # HACK:  We transmit this fact to the decoder
+                         #        by encoding a "14"-nibble which would be
+                         #        illegal at this point anyway.
+			push @enc,14;
 		}elsif($_ <= $dyn){ # Short length
 			push @enc,$_;
 		}elsif($_ <= 16*(13-$dyn)+$dyn){ # Medium length
@@ -417,3 +418,4 @@ sub do_pk {
 
 	return make_bytes(@enc);
 };
+

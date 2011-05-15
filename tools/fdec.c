@@ -89,6 +89,13 @@ int decode(char c){
 	int curbit=0; // Decoder internal: current bit (1 or 0)
 	int pos=0;	  // Decoder internal: current bit position (0..7)
 	int nyb;      // Decoder internal: current nibble / value
+
+	if(font->au8FontTable[off+0]>>4 == 14){
+		// HACK: char starts with 1-bits, 
+		gnn();
+		curbit=1;
+	};
+
 	while(ctr<length){ /* Iterate the whole input stream */
 
 		/* Get next encoded nibble and decode */
@@ -168,3 +175,4 @@ int main(void){
 
 	exit(0);
 }
+
