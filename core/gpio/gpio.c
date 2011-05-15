@@ -339,18 +339,18 @@ void gpioSetInterrupt (uint32_t portNum, uint32_t bitPos, gpioInterruptSense_t s
       break;
   }
 
-  if (gpioInterruptSense_Edge)
+  if (sense == gpioInterruptSense_Edge)
   {
     *gpiois &= ~(0x1<<bitPos);
     /* single or double only applies when sense is 0(edge trigger). */
-    gpioInterruptEdge_Single ? (*gpioibe &= ~(0x1<<bitPos)) : (*gpioibe |= (0x1<<bitPos));
+    edge == gpioInterruptEdge_Single ? (*gpioibe &= ~(0x1<<bitPos)) : (*gpioibe |= (0x1<<bitPos));
   }
   else
   {
     *gpiois |= (0x1<<bitPos);
   }
 
-  gpioInterruptEvent_ActiveHigh ? (*gpioiev &= ~(0x1<<bitPos)) : (*gpioiev |= (0x1<<bitPos));
+  event == gpioInterruptEvent_ActiveLow ? (*gpioiev &= ~(0x1<<bitPos)) : (*gpioiev |= (0x1<<bitPos));
 
   return;
 }
@@ -481,6 +481,15 @@ uint32_t gpioIntStatus (uint32_t portNum, uint32_t bitPos)
                 The port number (0..3)
     @param[in]  bitPos
                 The bit position (0..31)
+
+    @code
+    // Clear Interrupt
+    gpioIntClear(2,9);
+    // Wait 2 cycles for NVIC/GPIO synch
+    asm('nop');
+    asm('nop');
+    @endcode
+
 */
 /**************************************************************************/
 void gpioIntClear (uint32_t portNum, uint32_t bitPos)
