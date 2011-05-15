@@ -283,7 +283,7 @@ sub pk_dedup {
 
 		if($echar[$idx-1] eq $echar[$idx]){
 			my $dl=1;
-			$dl++ while ($dl<$#echar && $echar[$idx] eq $echar[$idx+$dl]);
+			$dl++ while ($idx+$dl<$#echar && $echar[$idx] eq $echar[$idx+$dl]);
 
 #			print "dupline found\n";
 			if( $echar[$idx-1]=~ s/01/0[$dl]1/ ){
