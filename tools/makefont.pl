@@ -18,10 +18,8 @@ for(32..126){
 # Runtime Options
 my ($verbose,$raw);
 my $size=17;
-my ($font,$title);
 
-$font="../ttf/Ubuntu-Regular.ttf";
-$title="Ubuntu Sans ".$size."pt";
+my $font="../ttf/Ubuntu-Regular.ttf";
 
 GetOptions ("size=i" => \$size,    # numeric
             "font=s"   => \$font,    # string
@@ -41,6 +39,11 @@ my $origsize;
 my $c1size;
 my $c2size;
 
+my $title=getfontname($font);
+die "Couldn't get font name?" if !defined $title;
+
+$title.=" ${size}pt";
+
 my $fonts=$title;
 $fonts=~s/ //g;
 $fonts=~s/Bitstream//;
@@ -49,6 +52,10 @@ $fonts=~s/Sans//;
 my $file=$fonts;
 $file=~s/pt$//;
 $file=~y/A-Z/a-z/;
+
+$file.="-raw" if($raw);
+
+print "Rasterizing $title into ${file}.c\n";
 
 ### Get & optimize bounding box
 
@@ -419,3 +426,44 @@ sub do_pk {
 	return make_bytes(@enc);
 };
 
+sub getfontname {
+	my $file = shift;
+	use constant SEEK_SET => 0;
+	use Encode qw(decode);
+
+	open (my $fh,"<",$file) || die "Can't open $font: $!";
+
+	my($buf,$str);
+
+	sysread($fh,$buf,12); # OFFSET_TABLE
+	my($maj,$min,$num,undef,undef,undef)=unpack("nnnnnn",$buf);
+
+	die "It's not a truetype font!" if ($maj != 1 || $min != 0);
+
+	for(1..$num){
+		sysread($fh,$buf,16); # TABLE_DIRECTORY
+		my($name,undef,$off1,$len)=unpack("A4NNN",$buf);
+		if ($name eq "name"){
+			seek($fh,$off1,SEEK_SET);
+			sysread($fh,$buf,6);
+			my(undef,$cnt,$off2)=unpack("nnn",$buf);
+			sysread($fh,$buf,12*$cnt);
+			while(length($buf)){
+				my(undef,$enc,undef,$id,$len,$off3)=unpack("nnnnnn",$buf);
+				substr($buf,0,12)="";
+				seek($fh,$off1+$off2+$off3,SEEK_SET);
+				sysread($fh,$str,$len);
+				if($enc==1){
+					$str=decode("UCS-2",$str);
+				};
+				# 0: Copyright, 1: Name, ...
+				if ($id == 4){
+					return $str;
+				};
+#				print "- $str\n";
+			};
+			last;
+		};
+	};
+	return undef;
+};
