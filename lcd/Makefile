@@ -9,8 +9,7 @@ TARGET = LPC13xx
 OBJS =
 OBJS += smallfonts.o
 
-OBJS += vera17.o
-OBJS += comic15.o
+OBJS += ubuntu18.o
 
 OBJS += display.o
 OBJS += render.o

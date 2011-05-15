@@ -113,8 +113,8 @@ int main(void)
 	static FONT fonts[]=
 	{
 	 & Font_8x8,
-	 & Font_Vera17pt, // 3 byte-font
-	 & Font_Comic15pt, 
+	 & Font_Ubuntu18pt, // 3 byte-font
+	 & Font_7x8, 
 	};
 	int fontctr=0;
 	yctr=18;
