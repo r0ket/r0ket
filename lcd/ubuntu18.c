@@ -1,6 +1,12 @@
 #include "ubuntu18.h"
 
-/* Font data for Ubuntu 18pt */
+/* Font data for Ubuntu Regular 18pt */
+
+/* Copyright 2010 Canonical Ltd.  Licensed under the Ubuntu Font Licence 1.0
+ * 
+ */
+
+/* This file created by makefont.pl by Sec <sec.org> */
 
 /* Bitmaps */
 const uint8_t Ubuntu18ptBitmaps[] = {
@@ -1539,3 +1545,10 @@ const struct FONT_DEF Font_Ubuntu18pt = {
 	126,   /* last char */
     Ubuntu18ptBitmaps, Ubuntu18ptLengths
 };
+
+/* Font metadata: 
+ * Name:          Ubuntu Regular 18pt
+ * Height:        23 px (3 bytes)
+ * Maximum width: 23 px
+ * Storage size:  1778 bytes (compressed by 53%)
+ */

@@ -10,6 +10,7 @@ OBJS =
 OBJS += smallfonts.o
 
 OBJS += ubuntu18.o
+OBJS += orbitron14.o
 
 OBJS += display.o
 OBJS += render.o
