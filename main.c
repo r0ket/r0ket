@@ -20,8 +20,7 @@ void ReinvokeISP(void);
 
 #include <lcd/render.h>
 #include <lcd/smallfonts.h>
-#include <lcd/vera17.h>
-#include <lcd/comic15.h>
+#include <lcd/ubuntu18.h>
 
 
 /**************************************************************************/
