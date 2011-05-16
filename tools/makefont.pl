@@ -1,4 +1,16 @@
 #!/usr/bin/perl
+
+# makefont.pl - by <sec@42.org> 05/2011, BSD Licence
+#
+# This script rasterizes a font at a given size, then compresses it using a
+# simple RLE encoding and writes its definition into compilable .c/.h files
+
+# Rasterisation is done via GD which in turn uses freetype
+# Compression is done similar to the PK compressed fonts used by LaTex
+# For a verbose description see:
+# - <http://www.davidsalomon.name/DC4advertis/PKfonts.pdf> or
+# - <http://www.tug.org/TUGboat/tb06-3/tb13pk.pdf>
+
 use GD;
 use strict;
 use warnings;
@@ -15,7 +27,10 @@ for(32..126){
 	$charlist.=chr $_;
 };
 
-# Runtime Options
+###
+### Runtime Options
+###
+
 my ($verbose,$raw);
 my $size=18;
 
@@ -25,6 +40,17 @@ GetOptions ("size=i"   => \$size,    # numeric
             "font=s"   => \$font,    # string
             "verbose"  => \$verbose, # flag
 			"raw"      => \$raw,     # flag
+			"help"     => sub {
+			print <<HELP;
+Uasge: makefont.pl [-r] [-v] [-f fontfile] [-s size]
+
+Options:
+--verbose         Be verbose.
+--raw             Create raw/uncompressed font.
+--font <filename> Source .ttf file to use. [Default: $font]
+--size <size>     Pointsize the font should be rendered at. [Default: $size]
+HELP
+			exit(-1);}
 			);
 
 ###
@@ -120,7 +146,7 @@ print C <<EOF
 /* Font data for $title */
 $licence
 
-/* This file created by makefont.pl by Sec <sec@42.org> */
+/* This file created by makefont.pl by Sec <sec\@42.org> */
 
 /* Bitmaps */
 const uint8_t ${fonts}Bitmaps[] = {
