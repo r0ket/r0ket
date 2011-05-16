@@ -17,11 +17,11 @@ for(32..126){
 
 # Runtime Options
 my ($verbose,$raw);
-my $size=17;
+my $size=18;
 
 my $font="../ttf/Ubuntu-Regular.ttf";
 
-GetOptions ("size=i" => \$size,    # numeric
+GetOptions ("size=i"   => \$size,    # numeric
             "font=s"   => \$font,    # string
             "verbose"  => \$verbose, # flag
 			"raw"      => \$raw,     # flag
@@ -39,15 +39,16 @@ my $origsize;
 my $c1size;
 my $c2size;
 
-my $title=getfontname($font);
+my ($title,$licence)=getfontname($font);
 die "Couldn't get font name?" if !defined $title;
 
 $title.=" ${size}pt";
 
 my $fonts=$title;
-$fonts=~s/ //g;
+$fonts=~s/[ -]//g;
 $fonts=~s/Bitstream//;
 $fonts=~s/Sans//;
+$fonts=~s/Regular//;
 
 my $file=$fonts;
 $file=~s/pt$//;
@@ -105,16 +106,21 @@ print "Removed ",$top-$bounds[7],"px at top\n";
 print "Removed ",$my-$bottom,"px at bottom\n";
 print "Chars are ",$bottom-$top+1,"px ($byte bytes) high\n";
 
-#print "x: $bounds[6] - $bounds[2]\n";
-#print "y: $bounds[7] - $bounds[3]\n";
-
 open (C,">",$file.".c")||die;
-open (H,">",$file.".h")||die;
+if(defined $licence){
+	$licence=~s/\n/\n * /g;
+	$licence="\n/* ".$licence."\n */";
+}else{
+	$licence="";
+};
 
 print C <<EOF
 #include "$file.h"
 
 /* Font data for $title */
+$licence
+
+/* This file created by makefont.pl by Sec <sec@42.org> */
 
 /* Bitmaps */
 const uint8_t ${fonts}Bitmaps[] = {
@@ -196,7 +202,9 @@ for (1..length$charlist){
 
 	# Generate C source
 	if($raw){
+		$c2size-=scalar(@enc);
 		@enc=(255,$preblank,$postblank,@raw);
+		$c2size+=scalar(@enc);
 		my @out=@enc;
 		printf C "  0x%02x, %2d, %2d, /* rawmode, preblank, postblank */\n",
 			   (shift@out), (shift@out), (shift@out);
@@ -258,20 +266,32 @@ const struct FONT_DEF Font_$fonts = {
 };
 ",1,$pxsize,$first,$last,"${fonts}Bitmaps","${fonts}Lengths";
 
+printf C "\n";
+printf C "/* Font metadata: \n";
+printf C " * Name:          %s\n", $title;
+printf C " * Height:        %d px (%d bytes)\n", $bottom-$top+1,$byte;
+printf C " * Maximum width: %d px\n",$maxsz;
+printf C " * Storage size:  %d bytes (compressed by %2d%%)\n",
+	$c2size,(1-$c2size/$origsize)*100;
+printf C " */\n";
+
+close(C);
+
+open (H,">",$file.".h")||die;
 print H <<EOF;
 #include "fonts.h"
 
 extern const struct FONT_DEF Font_$fonts;
 EOF
-
-close(C);
 close(H);
 
-print "\ndone.\n\n";
+print "\ndone.\n" if($verbose);
+print "\n";
 print "Original size: $origsize\n";
 print "Simple compression: $c1size\n";
 print "PK compression: $c2size\n";
-print "Maximum character size: $byte*$maxsz bytes\n";
+print "Maximum character size is: $byte*$maxsz bytes\n";
+
 
 exit(0);
 
@@ -430,6 +450,7 @@ sub getfontname {
 	my $file = shift;
 	use constant SEEK_SET => 0;
 	use Encode qw(decode);
+	my @font;
 
 	open (my $fh,"<",$file) || die "Can't open $font: $!";
 
@@ -456,14 +477,41 @@ sub getfontname {
 				if($enc==1){
 					$str=decode("UCS-2",$str);
 				};
-				# 0: Copyright, 1: Name, ...
-				if ($id == 4){
-					return $str;
-				};
+				# 0 	Copyright notice
+				# 1 	Font Family name.
+				# 2 	Font Subfamily name.
+				# 3 	Unique font identifier.
+				# 4 	Full font name.
+				# 5 	Version string.
+				# 6 	Postscript name for the font.
+				# 7 	Trademark
+				# 8 	Manufacturer Name.
+				# 9 	Designer.
+				# 10 	Description.
+				# 11 	URL Vendor.
+				# 12 	URL Designer.
+				# 13 	License description
+				# 14 	License information URL.
+				$font[$id]=$str;
 #				print "- $str\n";
 			};
 			last;
 		};
 	};
-	return undef;
+	my($fontname,$licence);
+	$fontname=$font[1];
+
+	if(defined $font[2]){
+		$fontname.=" ".$font[2];
+	}elsif (defined $font[4]){
+		$fontname=$font[4];
+	};
+	$licence=$font[0]."\n";
+	$licence.="\n".$font[13]."\n" if defined $font[13];
+	$licence.="\nSee also: ".$font[14]."\n" if defined $font[14];
+	if(wantarray()){
+		return ($fontname,$licence);
+	}else{
+		return $fontname;
+	};
 };
