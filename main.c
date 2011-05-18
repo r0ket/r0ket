@@ -29,7 +29,9 @@ int main(void)
 {
   // Configure cpu and mandatory peripherals
   systemInit();
-  //pmuInit();
+
+  //enable clocks to adc and watchdog
+  pmuInit();
 
   uint32_t currentSecond, lastSecond;
   currentSecond = lastSecond = 0;
@@ -38,7 +40,7 @@ int main(void)
   gpioSetDir(1, 9, 1);
   gpioSetValue (1, 9, 0); 
 
-  //backlight off
+  //backlight on
   gpioSetDir(1, 10, 1);
   gpioSetValue (1, 10, 1); 
   
@@ -50,19 +52,21 @@ int main(void)
   //pmuSleep();
   //pmuPowerDown();
   init(); // display
-  /*
+  
+  //Make PIO1_11 an analog input
   gpioSetDir(CFG_LED_PORT, CFG_LED_PIN, 0);
   IOCON_PIO1_11 = 0x41;
   adcInit();
-  */
+  
   fill(255);
   display(0);
   uint32_t j=0;
 
-  // Set GPIO1.4 to input
+  // Set GPIO3.3 to input
   gpioSetDir(3, 3, gpioDirection_Input);
   // Disable the internal pullup/down resistor
 //  gpioSetPullup(&IOCON_PIO3_3, gpioPullupMode_Inactive);
+  //disable the JTAG on PIO3_3
   IOCON_PIO3_3 = 0x10;
 
   int yctr=0;
@@ -145,11 +149,29 @@ int main(void)
 			fontctr=0;
 	};
 
-	/*
-	uint32_t results = adcRead(7);
-	dx=DoString(0,yctr+9,"LED:");
-	DoInt(dx,yctr+9,results);
-	*/
+    uint32_t results = adcRead(7);
+    //dx=DoString(0,yctr+10,"LED:");
+    //DoInt(dx,yctr+9,results);
+
+    results = adcRead(1);
+    dx=DoString(0,yctr+20,"Voltage:");
+    results *= 10560;
+    results /= 1024;
+    DoInt(dx,yctr+20,results);
+
+    if( results < 3500 ){
+        DoString(0,yctr+30,"Shutdown");
+        //external vcc off
+        gpioSetDir(1, 9, 0);
+        gpioSetValue (1, 9, 0); 
+        //backlight off
+        gpioSetValue (1, 10, 0); 
+        SCB_SCR |= SCB_SCR_SLEEPDEEP;
+        PMU_PMUCTRL = PMU_PMUCTRL_DPDEN_DEEPPOWERDOWN;
+        __asm volatile ("WFI");
+    }else{
+        DoString(0,yctr+30,"OK           ");
+    }
 
 	/*
       lastSecond = currentSecond;
