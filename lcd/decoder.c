@@ -4,18 +4,10 @@
 #define MAXCHR (24*3)
 static uint8_t buf[MAXCHR];
 
-uint8_t * pk_decode(const uint8_t * data,int * len){
-	int length=*len;      // Length of character bytestream
-	int height;           // Height of character in bytes
-	int hoff;             // bit position for non-integer heights
-	uint8_t * bufptr=buf; // Output buffer for decoded character
-
-	height=(font->u8Height-1)/8+1;
-	hoff=font->u8Height%8;
-
 	// Local function: Get next nibble.
 	int ctr=0;  // offset for next nibble
 	int hilo=0; // 0= high nibble next, 1=low nibble next
+	const uint8_t * data;
 	char gnn(){ // Get next nibble
 		static int byte;
 		int val;
@@ -43,6 +35,17 @@ uint8_t * pk_decode(const uint8_t * data,int * len){
 		};
 		return retval;
 	};
+
+
+uint8_t * pk_decode(const uint8_t * ldata,int * len){
+	data=ldata;
+	int length=*len;      // Length of character bytestream
+	int height;           // Height of character in bytes
+	int hoff;             // bit position for non-integer heights
+	uint8_t * bufptr=buf; // Output buffer for decoded character
+
+	height=(font->u8Height-1)/8+1;
+	hoff=font->u8Height%8;
 
 #define DYN (12)  // Decoder parameter: Fixed value for now.
 	int repeat=0; // Decoder internal: repeat colum?
