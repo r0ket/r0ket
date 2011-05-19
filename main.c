@@ -22,6 +22,8 @@ void ReinvokeISP(void);
 #include <lcd/smallfonts.h>
 #include <lcd/ubuntu18.h>
 
+#include "core/i2c/i2c.h"
+#include "eeprom/eeprom.h"
 
 /**************************************************************************/
 
@@ -32,6 +34,9 @@ int main(void)
 
   //enable clocks to adc and watchdog
   pmuInit();
+
+  //enable I2C
+  i2cInit(I2CMASTER);
 
   uint32_t currentSecond, lastSecond;
   currentSecond = lastSecond = 0;
@@ -115,12 +120,15 @@ int main(void)
 
 	static FONT fonts[]=
 	{
-	 & Font_8x8,
-	 & Font_Ubuntu18pt, // 3 byte-font
 	 & Font_7x8, 
+	 & Font_Ubuntu18pt, // 3 byte-font
+	 & Font_8x8,
 	};
 	int fontctr=0;
 	yctr=18;
+
+    uint8_t written = 0;
+    uint8_t eeprom_val = 0;
 
   while (1)
   {
@@ -136,7 +144,34 @@ int main(void)
 	*/
 
 	font=fonts[fontctr];
-	DoString(1,yctr,"Hey Y!");
+	//DoString(1,yctr,"Hey Y!");
+
+    if (!written) {
+        if (eeprom_ready()) {
+            if (eeprom_write_byte(127,15,42)) {
+                DoString(1, yctr, "Write OK!");
+                written++;
+            } else {
+                DoString(1, yctr, "Write NOK!");
+            }
+        } else {
+            DoString(1, yctr, "NOT READY!");
+        }
+    } else {
+        if (eeprom_ready()) {
+            if (eeprom_read_byte(127,15,&eeprom_val)) {
+                if (eeprom_val == 42) {
+                    DoString(1, yctr, "verified!");
+                } else {
+                    DoString(1, yctr, "failed!");
+                }
+            } else {
+                DoString(1, yctr, "Read NOK!");
+            }
+        } else {
+            DoString(1, yctr, "NOT READY!!");
+        }
+    }
 
 	if(1 && gpioGetValue(3,3)==0){
 		gpioSetValue (CFG_LED_PORT, CFG_LED_PIN, CFG_LED_ON); 
