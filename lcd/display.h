@@ -15,12 +15,12 @@
 
 
 /* Display buffer */
-extern uint8_t buffer[RESX*RESY_B];
+extern uint8_t lcdBuffer[RESX*RESY_B];
 
-void write(uint8_t cd, uint8_t data);
-void read(uint8_t data);
-void init(void);
-void fill(char f);
-void display(uint32_t shift);
+void lcdWrite(uint8_t cd, uint8_t data);
+void lcdRead(uint8_t data);
+void lcdInit(void);
+void lcdFill(char f);
+void lcdDisplay(uint32_t shift);
 
 #endif

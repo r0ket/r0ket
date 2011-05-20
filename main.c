@@ -1,12 +1,13 @@
 #include <sysinit.h>
 
+#include "basic/basic.h"
+
 #include "lcd/render.h"
 #include "lcd/smallfonts.h"
 #include "lcd/ubuntu18.h"
 
 #include "pmu/pmu.h"
 #include "eeprom/eeprom.h"
-#include "basic/basic.h"
 
 void ReinvokeISP(void);
 
@@ -22,7 +23,7 @@ int main(void) {
     // initialise basic badge functions
     rbInit();
   
-    init(); // display
+    lcdInit(); // display
   
     //Make PIO1_11 an analog input
     gpioSetDir(RB_LED3, gpioDirection_Input);
@@ -30,8 +31,8 @@ int main(void) {
 
     adcInit();
 
-    fill(255);
-    display(0);
+    lcdFill(255);
+    lcdDisplay(0);
     uint32_t j=0;
 
     //disable the JTAG on PIO3_3
@@ -56,7 +57,7 @@ int main(void) {
     uint8_t eeprom_val = 0;
 
     while (1) {
-	display(j);
+	lcdDisplay(j);
 	delayms(10);
 
 	font=fonts[fontctr];
@@ -93,7 +94,7 @@ int main(void) {
 		while(gpioGetValue(RB_LED3) == 0){
 		};
 		gpioSetValue (RB_LED3, 1); 
-		fill(255);
+		lcdFill(255);
 		fontctr++;
 		if(fontctr > 2) {
 		    fontctr = 0;

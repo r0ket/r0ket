@@ -3,7 +3,6 @@
 #include "lpc134x.h"
 #include "gpio/gpio.h"
 
-
 /**************************************************************************/
 /*! 
     Approximates a 1 millisecond delay using "nop".  This is less
@@ -30,14 +29,22 @@ void delayms(uint32_t ms)
 /* Utility routines to manage nokia display */
 /**************************************************************************/
 
-uint8_t buffer[RESX*RESY_B];
+uint8_t lcdBuffer[RESX*RESY_B];
+
+/*
+//TODO FIXME why doenst that work ?
+#define CS 	RB_LCD_CS
+#define SCK 	RB_SPI_SCK
+#define SDA 	RB_SPI_MOSI
+#define RST 	RB_LCD_RST
+*/
 
 #define CS 2,1
 #define SCK 0,10
 #define SDA 0,9
 #define RST 2,2
 
-void write(uint8_t cd, uint8_t data)
+void lcdWrite(uint8_t cd, uint8_t data)
 {
     uint8_t i;
 
@@ -67,7 +74,7 @@ void write(uint8_t cd, uint8_t data)
     //delayms(0);
 }
 
-void read(uint8_t data)
+void lcdRead(uint8_t data)
 {
     uint8_t i;
 
@@ -106,7 +113,7 @@ void read(uint8_t data)
     delayms(1);
 }
 
-void init(void)
+void lcdInit(void)
 {
     IOCON_SWCLK_PIO0_10 = 0x51;
 
@@ -124,34 +131,36 @@ void init(void)
     gpioSetValue(RST, 1); 
     delayms(100);
 
-    write(0,0xE2);
+    lcdWrite(0,0xE2);
     delayms(5);
-    write(0,0xAF);
-    write(0,0xA4);
-    write(0,0x2F);
-    write(0,0xB0);
-    write(0,0x10);
-    write(0,0x00);
+    lcdWrite(0,0xAF);
+    lcdWrite(0,0xA4);
+    lcdWrite(0,0x2F);
+    lcdWrite(0,0xB0);
+    lcdWrite(0,0x10);
+    lcdWrite(0,0x00);
 
     uint16_t i;
     for(i=0; i<100; i++)
-        write(1,0x00);
+        lcdWrite(1,0x00);
 }
 
-void fill(char f){
+void lcdFill(char f){
 	int x;
-	for(x=0;x<RESX*RESY_B;x++)
-		buffer[x]=f;
+	for(x=0;x<RESX*RESY_B;x++) {
+		lcdBuffer[x]=f;
+	}
 };
 
-void display(uint32_t shift)
+void lcdDisplay(uint32_t shift)
 {
-    write(0,0xB0);
-    write(0,0x10);
-    write(0,0x00);
+    lcdWrite(0,0xB0);
+    lcdWrite(0,0x10);
+    lcdWrite(0,0x00);
     uint16_t i,page;
-    for(page=0; page<RESY_B;page++)
-        for(i=0; i<RESX; i++)
-            write(1,buffer[page*RESX+((i+shift)%RESX)]);
+    for(page=0; page<RESY_B;page++) {
+        for(i=0; i<RESX; i++) {
+            lcdWrite(1,lcdBuffer[page*RESX+((i+shift)%RESX)]);
+        }
+    }
 }
-

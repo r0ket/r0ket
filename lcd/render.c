@@ -100,7 +100,7 @@ int DoChar(int sx, int sy, char c){
 			flip(mask);
 
 		for(int m=1;m<=preblank;m++){
-			buffer[(rx-dmul*(m))+(yidx+y)*RESX]&=~mask;
+			lcdBuffer[(rx-dmul*(m))+(yidx+y)*RESX]&=~mask;
 		};
 		for(x=0;x<width;x++){
 			unsigned char b1,b2;
@@ -117,11 +117,11 @@ int DoChar(int sx, int sy, char c){
 			if(font_direction==FONT_DIR_LTR)
 				flip(byte);
 
-			buffer[(rx+dmul*x)+(yidx+y)*RESX]&=~mask;
-			buffer[(rx+dmul*x)+(yidx+y)*RESX]|=byte;
+			lcdBuffer[(rx+dmul*x)+(yidx+y)*RESX]&=~mask;
+			lcdBuffer[(rx+dmul*x)+(yidx+y)*RESX]|=byte;
 		};
 		for(int m=0;m<blank;m++){
-			buffer[(rx+dmul*(x+m))+(yidx+y)*RESX]&=~mask;
+			lcdBuffer[(rx+dmul*(x+m))+(yidx+y)*RESX]&=~mask;
 		};
 	};
 	return sx-dmul*(x+preblank+blank);
