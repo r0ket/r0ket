@@ -21,6 +21,7 @@ OBJS = main.o
 
 VPATH +=
 OBJS +=
+OBJS += basic/basic.o
 OBJS += eeprom/eeprom.o
 LIBS += core/libcore.a lcd/libfont.a
 
