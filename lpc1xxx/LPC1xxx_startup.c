@@ -36,7 +36,7 @@ extern unsigned char _bss;
 extern unsigned char _ebss;
 
 // Prototype the required startup functions
-extern void main(void);
+extern int main(void);
 
 // The entry point of the application, prepare segments,
 // initialize the cpu and execute main()
