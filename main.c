@@ -1,238 +1,128 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include <sysinit.h>
 
-#include "sysinit.h"
+#include "lcd/render.h"
+#include "lcd/smallfonts.h"
+#include "lcd/ubuntu18.h"
 
-#include "core/gpio/gpio.h"
-#include "core/adc/adc.h"
-#include "core/systick/systick.h"
-
-#include "lpc134x.h"
-#include "sysdefs.h"
-
-#define CFG_LED_PORT                (1)
-#define CFG_LED_PIN                 (11)
-#define CFG_LED_ON                  (1)
-#define CFG_LED_OFF                 (0)
+#include "pmu/pmu.h"
+#include "eeprom/eeprom.h"
+#include "basic/basic.h"
 
 void ReinvokeISP(void);
 
-#include <lcd/render.h>
-#include <lcd/smallfonts.h>
-#include <lcd/ubuntu18.h>
-
-#include "core/i2c/i2c.h"
-#include "eeprom/eeprom.h"
-
 /**************************************************************************/
 
-int main(void)
-{
-  // Configure cpu and mandatory peripherals
-  systemInit();
+int main(void) {
+    // Configure cpu and mandatory peripherals
+    systemInit();
 
-  //enable clocks to adc and watchdog
-  pmuInit();
+    //enable clocks to adc and watchdog
+    pmuInit();
 
-  //enable I2C
-  i2cInit(I2CMASTER);
-
-  uint32_t currentSecond, lastSecond;
-  currentSecond = lastSecond = 0;
+    // initialise basic badge functions
+    rbInit();
   
-  //external vcc on
-  gpioSetDir(1, 9, 1);
-  gpioSetValue (1, 9, 0); 
-
-  //backlight on
-  gpioSetDir(1, 10, 1);
-  gpioSetValue (1, 10, 1); 
+    init(); // display
   
-  //gpioSetDir(0, 1, 0);
-  //gpioSetValue (0, 1, 1); 
+    //Make PIO1_11 an analog input
+    gpioSetDir(RB_LED3, gpioDirection_Input);
+    IOCON_PIO1_11 = 0x41;
 
-  //gpioSetValue (CFG_LED_PORT, CFG_LED_PIN, CFG_LED_ON); 
-//  gpioSetValue (CFG_LED_PORT, CFG_LED_PIN, 0); 
-  //pmuSleep();
-  //pmuPowerDown();
-  init(); // display
-  
-  //Make PIO1_11 an analog input
-  gpioSetDir(CFG_LED_PORT, CFG_LED_PIN, 0);
-  IOCON_PIO1_11 = 0x41;
-  adcInit();
-  
-  fill(255);
-  display(0);
-  uint32_t j=0;
+    adcInit();
 
-  // Set GPIO3.3 to input
-  gpioSetDir(3, 3, gpioDirection_Input);
-  // Disable the internal pullup/down resistor
-//  gpioSetPullup(&IOCON_PIO3_3, gpioPullupMode_Inactive);
-  //disable the JTAG on PIO3_3
-  IOCON_PIO3_3 = 0x10;
+    fill(255);
+    display(0);
+    uint32_t j=0;
 
-  int yctr=0;
-  int dx=0;
+    //disable the JTAG on PIO3_3
+    IOCON_PIO3_3 = 0x10;
 
-  font_direction=FONT_DIR_LTR; // LeftToRight is the default
-  font= &Font_8x8      ;
-  /*
-  DoString(0,yctr,"Hallo Welt");
-  yctr+=9;
-  font= &Font_8x8Thin  ;
-  DoString(0,yctr,"Hallo Welt");
-  yctr+=9;
-  font= &Font_7x8;
-  DoString(0,yctr,"Hallo Welt");
-  yctr+=9;
-  font= &Font_5x8;
-  DoString(0,yctr,"Hallo Welt");
-  yctr+=9;
-  font= &Font_3x6;
-  DoString(0,yctr,"HALLO WELT");
-  yctr+=6;
-  */
+    int yctr=8;
+    int dx=0;
 
-  yctr+=1;
-  yctr=8;
+    font_direction = FONT_DIR_LTR; // LeftToRight is the default
+    font = &Font_8x8;
 
-  /* Read & display serial number */
-#include "core/iap/iap.h"
+    static FONT fonts[] = {
+	 &Font_7x8, 
+	 &Font_Ubuntu18pt, // 3 byte-font
+	 &Font_8x8,
+    };
 
-/*
-  IAP_return_t iap_return;
-  iap_return = iapReadSerialNumber();
-
-  if (iap_return.ReturnCode == 0) {
-	  int x,y;
-	  font= &Font_3x6;
-	  x=RESX-(8*font->u8Width)-1;y=28;
-	  dx=DoIntX(x,y,iap_return.Result[0]); y+=font->u8Height;
-	  dx=DoIntX(x,y,iap_return.Result[1]); y+=font->u8Height;
-	  dx=DoIntX(x,y,iap_return.Result[2]); y+=font->u8Height;
-	  dx=DoIntX(x,y,iap_return.Result[3]); y+=font->u8Height;
-	  font= &Font_7x8;
-  };
-  */
-
-	static FONT fonts[]=
-	{
-	 & Font_7x8, 
-	 & Font_Ubuntu18pt, // 3 byte-font
-	 & Font_8x8,
-	};
-	int fontctr=0;
-	yctr=18;
+    int fontctr=0;
+    yctr=18;
 
     uint8_t written = 0;
     uint8_t eeprom_val = 0;
 
-  while (1)
-  {
-    display(j);
-    delayms(10);
-    // Toggle LED once per second ... rollover = 136 years :)
-	/*
-    currentSecond = systickGetSecondsActive();
-    if (currentSecond != lastSecond){
-		dx=DoString(0,yctr,"UP:");
-		DoInt(dx,yctr,currentSecond);
-	};
-	*/
+    while (1) {
+	display(j);
+	delayms(10);
 
 	font=fonts[fontctr];
-	//DoString(1,yctr,"Hey Y!");
 
-    if (!written) {
-        if (eeprom_ready()) {
-            if (eeprom_write_byte(127,15,42)) {
-                DoString(1, yctr, "Write OK!");
-                written++;
-            } else {
-                DoString(1, yctr, "Write NOK!");
-            }
-        } else {
-            DoString(1, yctr, "NOT READY!");
-        }
-    } else {
-        if (eeprom_ready()) {
-            if (eeprom_read_byte(127,15,&eeprom_val)) {
-                if (eeprom_val == 42) {
-                    DoString(1, yctr, "verified!");
-                } else {
-                    DoString(1, yctr, "failed!");
-                }
-            } else {
-                DoString(1, yctr, "Read NOK!");
-            }
-        } else {
-            DoString(1, yctr, "NOT READY!!");
-        }
-    }
+	if (!written) {
+	    if (eeprom_ready()) {
+		if (eeprom_write_byte(127,15,42)) {
+		    DoString(1, yctr, "Write OK!");
+		    written++;
+		} else {
+		    DoString(1, yctr, "Write NOK!");
+		}
+	    } else {
+		DoString(1, yctr, "NOT READY!");
+	    }
+	} else {
+	    if (eeprom_ready()) {
+		if (eeprom_read_byte(127,15,&eeprom_val)) {
+		    if (eeprom_val == 42) {
+			DoString(1, yctr, "verified!");
+		    } else {
+			DoString(1, yctr, "failed!");
+		    }
+		} else {
+		    DoString(1, yctr, "Read NOK!");
+		}
+	    } else {
+		DoString(1, yctr, "NOT READY!!");
+	    }
+	}
 
-	if(1 && gpioGetValue(3,3)==0){
-		gpioSetValue (CFG_LED_PORT, CFG_LED_PIN, CFG_LED_ON); 
-		while(gpioGetValue(3,3)==0);
-		gpioSetValue (CFG_LED_PORT, CFG_LED_PIN, CFG_LED_OFF); 
+	if(1 && gpioGetValue(RB_LED3) == 0){
+		gpioSetValue (RB_LED3, 0); 
+		while(gpioGetValue(RB_LED3) == 0){
+		};
+		gpioSetValue (RB_LED3, 1); 
 		fill(255);
 		fontctr++;
-//		yctr++;
-		if(fontctr>2)
-			fontctr=0;
+		if(fontctr > 2) {
+		    fontctr = 0;
+		}
 	};
 
-    uint32_t results = adcRead(7);
-    //dx=DoString(0,yctr+10,"LED:");
-    //DoInt(dx,yctr+9,results);
+	uint32_t results = adcRead(7);
 
-    results = adcRead(1);
-    dx=DoString(0,yctr+20,"Voltage:");
-    results *= 10560;
-    results /= 1024;
-    DoInt(dx,yctr+20,results);
+	results = adcRead(1);
+	dx=DoString(0,yctr+20,"Voltage:");
+	results *= 10560;
+	results /= 1024;
+	DoInt(dx,yctr+20,results);
 
-    if( results < 3500 ){
-        DoString(0,yctr+30,"Shutdown");
-        //external vcc off
-        gpioSetDir(1, 9, 0);
-        gpioSetValue (1, 9, 0); 
-        //backlight off
-        gpioSetValue (1, 10, 0); 
-        SCB_SCR |= SCB_SCR_SLEEPDEEP;
-        PMU_PMUCTRL = PMU_PMUCTRL_DPDEN_DEEPPOWERDOWN;
-        __asm volatile ("WFI");
-    }else{
-        DoString(0,yctr+30,"OK           ");
+	if( results < 3500 ){
+	    DoString(0,yctr+30,"Shutdown");
+	    gpioSetValue (RB_PWR_GOOD, 0); 
+	    gpioSetValue (RB_LCD_BL, 0); 
+	    SCB_SCR |= SCB_SCR_SLEEPDEEP;
+	    PMU_PMUCTRL = PMU_PMUCTRL_DPDEN_DEEPPOWERDOWN;
+	    __asm volatile ("WFI");
+	}else{
+	    DoString(0,yctr+30,"OK           ");
+	}
+
     }
 
-	/*
-      lastSecond = currentSecond;
-	  yctr++;
-//      uint32_t results = adcRead(7);
-//      if( results < 400 )
-//        gpioSetValue (1, 10, 1); 
-//      else
-//        gpioSetValue (1, 10, 0); 
-        
-      if (gpioGetValue(CFG_LED_PORT, CFG_LED_PIN) == CFG_LED_OFF)
-      {
-        gpioSetValue (CFG_LED_PORT, CFG_LED_PIN, CFG_LED_ON); 
-        //gpioSetValue (1, 10, 1); 
-      }
-      else
-      {
-        gpioSetValue (CFG_LED_PORT, CFG_LED_PIN, CFG_LED_OFF); 
-        //gpioSetValue (1, 10, 0); 
-      }
-    }
-	*/
+    return 0;
 
-  }
-
-  return 0;
 }
 
 /* This data must be global so it is not read from the stack */
@@ -248,8 +138,7 @@ uint32_t command[5], result[4];
    project.
    */
 
-void ReinvokeISP(void)
-{
+void ReinvokeISP(void) {
 	command[0] = 57;
 	/* Disable SYSTICK timer and interrupt before calling into ISP */
 	SYSTICK_STCTRL &= ~(SYSTICK_STCTRL_ENABLE | SYSTICK_STCTRL_TICKINT);
@@ -269,11 +158,12 @@ void ReinvokeISP(void)
 	/* Set stack pointer to ROM value (reset default) This must be the last
 	   piece of code executed before calling ISP, because most C expressions
 	   and function returns will fail after the stack pointer is changed. */
-//	__set_MSP(*((uint32_t *)0x1FFF0000)); /* inline asm function */
 
-		*((uint32_t *)(0x10000054)) = 0x0;
+	//__set_MSP(*((uint32_t *)0x1FFF0000)); /* inline asm function */
 
-//set stack pointer
+	*((uint32_t *)(0x10000054)) = 0x0;
+
+	//set stack pointer
 	__asm("  ldr    r0, =%0\n"
 			"  mov    sp, r0\n"
 			:
@@ -292,7 +182,6 @@ void ReinvokeISP(void)
 			"  ldr   r4,=0x1fff1ff1\n"
 			"  bx   r4\n"
 			);
-//	my_iap_entry(command, result);
+	//my_iap_entry(command, result);
 	// Not supposed to come back!
 }
-
