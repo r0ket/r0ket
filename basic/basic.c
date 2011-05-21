@@ -109,8 +109,7 @@ void rbInit() {
     gpioSetPullup (&RB_BUSINT_IO, gpioPullupMode_PullUp);
     gpioSetInterrupt(RB_BUSINT, gpioInterruptSense_Edge, gpioInterruptEdge_Single, gpioInterruptEvent_ActiveLow);
     gpioIntEnable(RB_BUSINT);
-    // 1. remove PIOINT3_IRQHandler from gpio/gpio.c
-    // 2. add this to catch interrupt:
+    // add this to catch interrupt:
     /*
 	void PIOINT3_IRQHandler(void) {    
 	    if (gpioIntStatus(RB_BUSINT)) {
