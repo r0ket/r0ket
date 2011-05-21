@@ -3,8 +3,7 @@
 #include "basic/basic.h"
 
 #include "lcd/render.h"
-#include "lcd/smallfonts.h"
-#include "lcd/ubuntu18.h"
+#include "lcd/allfonts.h"
 
 void ReinvokeISP(void);
 

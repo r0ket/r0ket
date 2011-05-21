@@ -8,3 +8,4 @@ firmware.elf
 *.swp
 lpc1xxx/memory.ld
 modules/wrapper.c
+lcd/allfonts.h

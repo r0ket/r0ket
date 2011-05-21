@@ -3,8 +3,6 @@
 #include "basic/basic.h"
 
 #include "lcd/render.h"
-#include "lcd/smallfonts.h"
-#include "lcd/ubuntu18.h"
 
 #include "pmu/pmu.h"
 #include "eeprom/eeprom.h"
