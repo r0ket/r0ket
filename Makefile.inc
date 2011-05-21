@@ -40,8 +40,4 @@ CPU_TYPE = cortex-$(CORTEX_TYPE)
 
 CFLAGS  = -std=c99 -c -g -Os $(INCLUDE_PATHS) -Wall -mthumb -ffunction-sections -fdata-sections -fmessage-length=0 -mcpu=$(CPU_TYPE) -DTARGET=$(TARGET) -fno-builtin
 LDFLAGS = -nostartfiles -mthumb -mcpu=$(CPU_TYPE) -Wl,--gc-sections
-LDLIBS  = -lm
-LDLIBS += -Lcore -lcore
-LDLIBS += -Llcd -lfont
-OCFLAGS = --strip-unneeded
 

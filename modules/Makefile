@@ -1,0 +1,50 @@
+##########################################################################
+# User configuration and firmware specific object files	
+##########################################################################
+
+OBJS = default.o
+OBJS += $(foreach mod,$(MODULE),$(mod).o)
+
+ifndef MODULE
+ME_OBJ=$(USERNAME)
+
+ifeq "$(ME_OBJ)" ""
+ME_OBJ=nouser
+endif
+OBJS += $(ME_OBJ).o
+endif
+
+WRAP=wrapper
+LIBNAME=modules
+
+##########################################################################
+# GNU GCC compiler flags
+##########################################################################
+ROOT_PATH?= ..
+INCLUDE_PATHS = -I$(ROOT_PATH) -I../core -I.
+
+include $(ROOT_PATH)/Makefile.inc
+
+WRAPOBJ=$(WRAP).o
+WRAPSRC=$(WRAP).c
+LIBFILE=lib$(LIBNAME).a
+
+##########################################################################
+# Compiler settings, parameters and flags
+##########################################################################
+
+all: $(LIBFILE)
+
+$(LIBFILE): $(OBJS) $(WRAPOBJ)
+	$(AR) rcs $@ $(OBJS) $(WRAPOBJ)
+	
+%.o : %.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+clean:
+	rm -f $(OBJS) $(WRAPOBJ) $(WRAPSRC) $(LIBFILE) *.o
+
+$(WRAPSRC):
+	./mkwrapper $(OBJS) > $@
+
+.PHONY: $(LIBFILE)

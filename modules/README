@@ -1,0 +1,7 @@
+Call make as 
+
+make MODULE=eeprom
+
+to build a specific module.
+
+The module defaults to $(USERNAME) so everyone can have its own default module
