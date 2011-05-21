@@ -7,3 +7,4 @@ firmware.elf
 *.a
 *.swp
 lpc1xxx/memory.ld
+modules/wrapper.c

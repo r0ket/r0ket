@@ -11,6 +11,7 @@ OBJS += orbitron14.o
 OBJS += display.o
 OBJS += render.o
 OBJS += decoder.o
+OBJS += backlight.o
 
 ##########################################################################
 # GNU GCC compiler flags
