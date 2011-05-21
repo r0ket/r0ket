@@ -31,7 +31,7 @@ int main(void) {
 
     adcInit();
 
-    lcdFill(255);
+    lcdFill(0);
     lcdDisplay(0);
     uint32_t j=0;
 
@@ -55,53 +55,71 @@ int main(void) {
 
     uint8_t written = 0;
     uint8_t eeprom_val = 0;
+    uint8_t trigger;
 
+#define SEND
+#ifdef SEND
+  trigger=200;
+  gpioSetDir(RB_LED0, gpioDirection_Output);
+  IOCON_JTAG_TDI_PIO0_11 = 0x11;
+#else
+  trigger=380;
+  gpioSetDir(RB_LED0, gpioDirection_Input);
+  IOCON_JTAG_TDI_PIO0_11 = 0x42;
+#endif
+
+
+    uint32_t ctr=0;
     while (1) {
+	ctr++;
+	uint32_t results;
 	lcdDisplay(j);
 	delayms(10);
 
 	font=fonts[fontctr];
 
-	if (!written) {
-	    if (eeprom_ready()) {
-		if (eeprom_write_byte(127,15,42)) {
-		    DoString(1, yctr, "Write OK!");
-		    written++;
-		} else {
-		    DoString(1, yctr, "Write NOK!");
-		}
-	    } else {
-		DoString(1, yctr, "NOT READY!");
-	    }
-	} else {
-	    if (eeprom_ready()) {
-		if (eeprom_read_byte(127,15,&eeprom_val)) {
-		    if (eeprom_val == 42) {
-			DoString(1, yctr, "verified!");
-		    } else {
-			DoString(1, yctr, "failed!");
-		    }
-		} else {
-		    DoString(1, yctr, "Read NOK!");
-		}
-	    } else {
-		DoString(1, yctr, "NOT READY!!");
-	    }
-	}
+	if(gpioGetValue(RB_BTN3)==0){
+		while(gpioGetValue(RB_BTN3)==0);
+		trigger +=10;
+	};
+	if(gpioGetValue(RB_BTN2)==0){
+		while(gpioGetValue(RB_BTN2)==0);
+		trigger -=10;
+	};
+	dx=DoString(0,0,"Trig:");
+	dx=DoInt(dx,0,trigger);
+	DoString(dx,0," ");
 
-	if(1 && gpioGetValue(RB_LED3) == 0){
-		gpioSetValue (RB_LED3, 0); 
-		while(gpioGetValue(RB_LED3) == 0){
-		};
-		gpioSetValue (RB_LED3, 1); 
-		lcdFill(255);
-		fontctr++;
-		if(fontctr > 2) {
-		    fontctr = 0;
-		}
+	if(gpioGetValue(RB_BTN0)==0){
+		while(gpioGetValue(RB_BTN0)==0);
+		DoString(0,8,"Enter ISP!");
+		lcdDisplay(0);
+		ReinvokeISP();
 	};
 
-	uint32_t results = adcRead(7);
+	dx=DoString(0,20,"LED:");
+#ifdef SEND
+	if(ctr++>trigger/10){
+		ctr=0;
+		if (gpioGetValue(RB_LED0) == CFG_LED_OFF){
+			gpioSetValue (RB_LED0, CFG_LED_ON); 
+			DoString(dx,20,"ON!");
+		} else {
+			gpioSetValue (RB_LED0, CFG_LED_OFF); 
+			DoString(dx,20,"off");
+		};
+	};
+#else
+	results = adcRead(0);
+	DoInt(dx,20,results);
+
+	if(results>trigger){
+		DoString(dx,30,"YES!");
+	}else{
+		DoString(dx,30," no ");
+	};
+
+#endif
 
 	results = adcRead(1);
 	dx=DoString(0,yctr+20,"Voltage:");

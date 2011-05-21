@@ -9,6 +9,7 @@ VPATH +=
 OBJS +=
 OBJS += basic/basic.o
 OBJS += eeprom/eeprom.o
+OBJS += reinvoke_isp.o
 LIBS += core/libcore.a lcd/libfont.a
 
 ##########################################################################
