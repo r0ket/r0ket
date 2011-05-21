@@ -274,6 +274,8 @@ int strcmp(const char *s1, const char *s2)
   return (*(unsigned char *)s1 - *(unsigned char *)--s2);
 }
 
+char *strtok_r(char *s, const char *delim, char **last);
+
 char *strtok(char *s, const char *delim)
 {
   static char *last;
