@@ -44,7 +44,16 @@ $(LIBFILE): $(OBJS) $(WRAPOBJ)
 clean:
 	rm -f $(OBJS) $(WRAPOBJ) $(WRAPSRC) $(LIBFILE) *.o
 
+%.c:
+	@echo 
+	@echo "You need to create $@ first"
+	@echo "It should contain a single function void module_filename(void)"
+	@echo 
+	@exit 1
+
 $(WRAPSRC):
 	./mkwrapper $(OBJS) > $@
 
 .PHONY: $(LIBFILE)
+
+.SUFFIXES:
