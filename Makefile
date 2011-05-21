@@ -9,7 +9,8 @@ VPATH +=
 OBJS +=
 OBJS += basic/basic.o
 OBJS += eeprom/eeprom.o
-LIBS += core/libcore.a lcd/libfont.a
+OBJS += reinvoke_isp.o
+LIBS += core/libcore.a lcd/libfont.a modules/libmodules.a
 
 ##########################################################################
 # GNU GCC compiler flags
@@ -25,6 +26,11 @@ OBJS += $(TARGET)_handlers.o LPC1xxx_startup.o
 ##########################################################################
 # Startup files
 ##########################################################################
+LDLIBS  = -lm
+LDLIBS += -Lmodules -lmodules
+LDLIBS += -Lcore -lcore
+LDLIBS += -Llcd -lfont
+OCFLAGS = --strip-unneeded
 
 LD_PATH = lpc1xxx
 LD_SCRIPT = $(LD_PATH)/linkscript.ld
@@ -40,6 +46,9 @@ core/libcore.a: core/projectconfig.h
 
 lcd/libfont.a lcd/render.o lcd/display.o:
 	cd lcd && $(MAKE) ROOT_PATH=../$(ROOT_PATH)
+
+modules/libmodules.a:
+	cd modules && $(MAKE) ROOT_PATH=../$(ROOT_PATH)
 
 tools/lpcrc:
 	cd tools && $(MAKE) 
@@ -64,7 +73,8 @@ clean:
 	@cd core && $(MAKE) clean
 	@cd tools && $(MAKE) clean
 	@cd lcd && $(MAKE) clean
+	@cd modules && $(MAKE) clean
 
 
-.PHONY: lcd/libfont.a
+.PHONY: lcd/libfont.a modules/libmodules.a
 

@@ -1,0 +1,16 @@
+#!/bin/sh
+
+for a in $* ; do
+	base=${a%.o}
+	echo "void module_$base(void);" 
+done
+
+echo
+echo "void wrapper(void){" 
+
+for a in $* ; do
+	base=${a%.o}
+	echo "module_$base();"
+done
+
+echo "}"
