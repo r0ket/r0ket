@@ -9,8 +9,13 @@ ifndef MODULE
 ME_OBJ=$(USERNAME)
 
 ifeq "$(ME_OBJ)" ""
+ME_OBJ=$(USER)
+endif
+
+ifeq "$(ME_OBJ)" ""
 ME_OBJ=nouser
 endif
+
 OBJS += $(ME_OBJ).o
 endif
 
