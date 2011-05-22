@@ -1,0 +1,37 @@
+#!/usr/bin/env python
+# -*- coding: utf8 -*-
+
+import os
+import time
+
+flashed = []
+
+while True:
+    filelist = []
+    try:
+        filelist = os.listdir("/dev/lpcflash")
+    except:
+        pass
+    oldflashed = flashed
+    flashed = []
+    for x in oldflashed:
+        if x in filelist:
+            flashed.append(file)
+        else:
+            print "removed %s" % file
+    filelist = [x for x in filelist if x not in flashed]
+    for file in filelist:
+        try:
+            firmware = open("firmware.bin", "r")
+            dev = open("/dev/lpcflash/%s" % file, "w")
+            dev.seek(0x800)
+            dev.write(firmware.read())
+            firmware.close()
+            dev.close()
+            print "flashed %s" % file
+        except Exception, ex:
+            print "error!"
+            print ex
+        flashed.append(file)
+    time.sleep(1)
+

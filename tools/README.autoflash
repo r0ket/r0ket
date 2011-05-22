@@ -1,0 +1,6 @@
+1. place the udev rules 42-nxp-flash.rules in /etc/udev/rules.d/ and restart udevd
+2. run tools/autoflash from the project directory
+3. attach badges to flash
+4. legen ... wait for it ... dary ;)
+5. if autoflash says "flashed", remove the badge
+
