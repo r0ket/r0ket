@@ -9,10 +9,7 @@ OBJS += render.o
 OBJS += decoder.o
 OBJS += backlight.o
 
-FONTS =
-FONTS += smallfonts
-FONTS += ubuntu18
-FONTS += orbitron14
+FONTS = $(basename $(wildcard fonts/*.c))
 
 LIBNAME=lcd
 
@@ -42,10 +39,10 @@ $(LIBFILE): $(OBJS)
 $(FOBJS): $(foreach ft,$(FONTS),$(ft).h) fonts.h
 
 clean:
-	rm -f $(OBJS) $(LIBFILE) allfonts.h
+	rm -f $(OBJS) $(LIBFILE) fonts/*.o allfonts.h
 
 render.o: render.c render.h display.h fonts.h
 
 .PHONY: allfonts.h
 allfonts.h:
-	for a in $(FONTS) ; do echo "#include <lcd/$$a.h>"; done > $@
+	(echo "#include <lcd/fonts.h>";for a in $(FONTS) ; do echo "#include <lcd/$$a.h>"; done) > $@

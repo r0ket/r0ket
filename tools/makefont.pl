@@ -56,9 +56,9 @@ HELP
 ### Code starts here.
 ###
 
-my $width=2000;
+my $width=5000;
 my $height=100;
-my $xoff=30;
+my $xoff=90;
 
 my $origsize;
 my $c1size;
@@ -320,7 +320,7 @@ close(C);
 
 open (H,">",$file.".h")||die;
 print H <<EOF;
-#include "fonts.h"
+#include "lcd/fonts.h"
 
 extern const struct FONT_DEF Font_$fonts;
 EOF

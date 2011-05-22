@@ -103,7 +103,7 @@
  * 
  */
 
-/* This file created by makefont.pl by Sec <sec.org> */
+/* This file created by makefont.pl by Sec <sec@42.org> */
 
 /* Bitmaps */
 const uint8_t Orbitron14ptBitmaps[] = {
@@ -111,10 +111,10 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*                          */ 
   0x08, 0x40, 
 
- /* Char 33 is 6px wide @ 2 */
+ /* Char 33 is 5px wide @ 2 */
  /*      **  **********      */ 
  /*      *   **********      */ 
-  0x01, 0x12, 0x2a, 0xa1, 0x3a, 0x04, 0x10, 
+  0x01, 0x12, 0x2a, 0xa1, 0x3a, 0x02, 0x90, 
 
  /* Char 34 is 8px wide @ 9 */
  /*                 ***      */ 
@@ -125,7 +125,7 @@ const uint8_t Orbitron14ptBitmaps[] = {
   0x01, 0xcf, 0x30, 0x21, 0x3d, 0x82, 0x02, 0xa0, 
 
 
- /* Char 35 is 16px wide @ 17 */
+ /* Char 35 is 15px wide @ 17 */
  /*         **    *          */ 
  /*      *****    **         */ 
  /*       *****   **         */ 
@@ -144,9 +144,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
   0xd3, 0x8d, 0x32, 0x35, 0xd1, 0x24, 0x5d, 0x02, 
   0x42, 0xd0, 0x21, 0x24, 0x2d, 0x05, 0x42, 0xd3, 
   0x51, 0x2d, 0x32, 0x15, 0xd3, 0x24, 0x5d, 0x02, 
-  0x42, 0x12, 0xd6, 0x10, 0x15, 
+  0x42, 0x12, 0xd6, 0x19, 
 
- /* Char 36 is 16px wide @ 54 */
+ /* Char 36 is 15px wide @ 53 */
  /*       **    ******       */ 
  /*      **    **    **      */ 
  /*      **    **    **      */ 
@@ -163,9 +163,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*        ***               */ 
   0x01, 0x22, 0x46, 0xbe, 0x32, 0x42, 0x42, 0x8d, 
   0x58, 0xe3, 0x24, 0x24, 0x2b, 0x64, 0x2d, 0x03, 
-  0x01, 0xa0, 
+  0xd1, 
 
- /* Char 37 is 19px wide @ 72 */
+ /* Char 37 is 18px wide @ 70 */
  /*              *****       */ 
  /*              *   *       */ 
  /*       **    **   **      */ 
@@ -188,9 +188,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
   0xd2, 0x2d, 0xa2, 0xda, 0x2d, 0xa2, 0xd4, 0x32, 
   0x3d, 0x16, 0x22, 0xd1, 0x14, 0x13, 0x2d, 0x01, 
   0x41, 0x42, 0xc1, 0x41, 0x52, 0xb6, 0x61, 0xd0, 
-  0x30, 0x1a, 
+  0x3d, 0x10, 
 
- /* Char 38 is 19px wide @ 114 */
+ /* Char 38 is 18px wide @ 112 */
  /*       ******             */ 
  /*      *************       */ 
  /*      **     **  **       */ 
@@ -212,26 +212,26 @@ const uint8_t Orbitron14ptBitmaps[] = {
   0xa2, 0x32, 0x52, 0xa2, 0x31, 0x62, 0xa2, 0x22, 
   0x62, 0xa2, 0x21, 0x72, 0xa2, 0x12, 0x72, 0xa2, 
   0x11, 0x72, 0xb6, 0x52, 0xc5, 0xd6, 0x2d, 0x91, 
-  0x03, 0x50, 
+  0x01, 0xd0, 
 
- /* Char 39 is 6px wide @ 156 */
+ /* Char 39 is 5px wide @ 154 */
  /*                 ***      */ 
  /*                 ***      */ 
-  0x01, 0xcf, 0x30, 0x41, 
+  0x01, 0xcf, 0x30, 0x29, 
 
- /* Char 40 is 6px wide @ 160 */
+ /* Char 40 is 6px wide @ 158 */
  /*       ************       */ 
  /*      *************       */ 
  /*      **          **      */ 
   0x01, 0x2c, 0xbd, 0x0b, 0x2a, 0x20, 0x29, 
 
- /* Char 41 is 6px wide @ 167 */
+ /* Char 41 is 6px wide @ 165 */
  /*      **          **      */ 
  /*      *************       */ 
  /*       ***********        */ 
   0x01, 0x12, 0xa2, 0xad, 0x0c, 0xb0, 0x2b, 
 
- /* Char 42 is 10px wide @ 174 */
+ /* Char 42 is 10px wide @ 172 */
  /*                **        */ 
  /*            ** **         */ 
  /*             ****         */ 
@@ -242,7 +242,7 @@ const uint8_t Orbitron14ptBitmaps[] = {
   0x01, 0xb2, 0xd5, 0x21, 0x2d, 0x74, 0xd8, 0x6d, 
   0x44, 0xd6, 0x21, 0x2d, 0xa2, 0x02, 0xb0, 
 
- /* Char 43 is 9px wide @ 189 */
+ /* Char 43 is 9px wide @ 187 */
  /*           *              */ 
  /*           *              */ 
  /*           *              */ 
@@ -254,12 +254,12 @@ const uint8_t Orbitron14ptBitmaps[] = {
   0xae, 0x11, 0xd7, 0xf7, 0xd7, 0xe1, 0x10, 0x19, 
 
 
- /* Char 44 is 5px wide @ 197 */
+ /* Char 44 is 4px wide @ 195 */
  /*    ****                  */ 
  /*     **                   */ 
-  0xde, 0x4d, 0x82, 0x03, 0x60, 
+  0xde, 0x4d, 0x82, 0x01, 0xe0, 
 
- /* Char 45 is 11px wide @ 202 */
+ /* Char 45 is 10px wide @ 200 */
  /*           *              */ 
  /*           *              */ 
  /*           *              */ 
@@ -268,14 +268,14 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*           *              */ 
  /*           *              */ 
  /*           *              */ 
-  0x01, 0x6e, 0x61, 0x03, 0x10, 
+  0x01, 0x6e, 0x61, 0x01, 0x90, 
 
- /* Char 46 is 5px wide @ 207 */
+ /* Char 46 is 4px wide @ 205 */
  /*      **                  */ 
  /*      *                   */ 
-  0x01, 0x12, 0xd9, 0x10, 0x36, 
+  0x01, 0x12, 0xd9, 0x10, 0x1e, 
 
- /* Char 47 is 11px wide @ 212 */
+ /* Char 47 is 10px wide @ 210 */
  /*       **                 */ 
  /*        **                */ 
  /*         **               */ 
@@ -287,10 +287,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*                **        */ 
  /*                 **       */ 
   0x62, 0xda, 0x2d, 0xa2, 0xda, 0x2d, 0xa2, 0xda, 
-  0x3d, 0xa2, 0xda, 0x2d, 0xa2, 0xda, 0x20, 0x12, 
+  0x3d, 0xa2, 0xda, 0x2d, 0xa2, 0xda, 0x26, 
 
-
- /* Char 48 is 17px wide @ 228 */
+ /* Char 48 is 16px wide @ 225 */
  /*       ************       */ 
  /*      *************       */ 
  /*      ****        **      */ 
@@ -309,18 +308,18 @@ const uint8_t Orbitron14ptBitmaps[] = {
   0x2a, 0x22, 0x26, 0x2a, 0x23, 0x25, 0x2a, 0x23, 
   0x34, 0x2a, 0x24, 0x24, 0x2a, 0x25, 0x23, 0x2a, 
   0x26, 0x22, 0x2a, 0x27, 0x21, 0x2a, 0x27, 0x5a, 
-  0xd0, 0xcb, 0x02, 0xb0, 
+  0xd0, 0xcb, 0x01, 0x30, 
 
- /* Char 49 is 9px wide @ 264 */
+ /* Char 49 is 8px wide @ 261 */
  /*               **         */ 
  /*                **        */ 
  /*                 ***      */ 
  /*      **************      */ 
  /*      **************      */ 
-  0x01, 0xa2, 0xda, 0x2d, 0xa3, 0xaf, 0xd1, 0x04, 
-  0x10, 
+  0x01, 0xa2, 0xda, 0x2d, 0xa3, 0xaf, 0xd1, 0x02, 
+  0x90, 
 
- /* Char 50 is 17px wide @ 273 */
+ /* Char 50 is 16px wide @ 270 */
  /*      ******     **       */ 
  /*      *******    **       */ 
  /*      **    *     **      */ 
@@ -337,9 +336,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      **     *****        */ 
   0x01, 0x16, 0x52, 0xb7, 0x42, 0xbe, 0x72, 0x41, 
   0x52, 0xa2, 0x42, 0x42, 0xa2, 0x47, 0xb2, 0x55, 
-  0x02, 0xb0, 
+  0x01, 0x30, 
 
- /* Char 51 is 17px wide @ 291 */
+ /* Char 51 is 16px wide @ 288 */
  /*       **        **       */ 
  /*      **         **       */ 
  /*      **          **      */ 
@@ -355,9 +354,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      *************       */ 
  /*       *****              */ 
   0x01, 0x22, 0x82, 0xb2, 0x92, 0xb2, 0xa2, 0xae, 
-  0x72, 0x42, 0x42, 0xad, 0x0c, 0x50, 0x31, 
+  0x72, 0x42, 0x42, 0xad, 0x0c, 0x50, 0x19, 
 
- /* Char 52 is 15px wide @ 306 */
+ /* Char 52 is 14px wide @ 303 */
  /*          **              */ 
  /*         ****             */ 
  /*         ****             */ 
@@ -374,9 +373,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
   0x92, 0xd8, 0xf4, 0xd7, 0x21, 0x2d, 0x62, 0x22, 
   0xd5, 0x23, 0x2d, 0x42, 0x42, 0xd3, 0x24, 0x3d, 
   0x22, 0x53, 0xd1, 0x26, 0x3a, 0xd1, 0xd0, 0xf2, 
-  0x03, 0x20, 
+  0x01, 0xa0, 
 
- /* Char 53 is 17px wide @ 332 */
+ /* Char 53 is 16px wide @ 329 */
  /*       **   ********      */ 
  /*      ***   ********      */ 
  /*      **    **    **      */ 
@@ -392,9 +391,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      ********    **      */ 
  /*       ******     **      */ 
   0x01, 0x22, 0x38, 0xa3, 0x38, 0xae, 0x82, 0x42, 
-  0x42, 0xa8, 0x42, 0xb6, 0x52, 0x02, 0x90, 
+  0x42, 0xa8, 0x42, 0xb6, 0x52, 0x01, 0x10, 
 
- /* Char 54 is 17px wide @ 347 */
+ /* Char 54 is 16px wide @ 344 */
  /*       ************       */ 
  /*      *************       */ 
  /*      **    **    **      */ 
@@ -410,9 +409,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      ********            */ 
  /*       ******             */ 
   0x01, 0x2c, 0xbd, 0x0b, 0xe7, 0x24, 0x24, 0x2a, 
-  0x24, 0x24, 0x1b, 0x8d, 0x46, 0x03, 0x00, 
+  0x24, 0x24, 0x1b, 0x8d, 0x46, 0x01, 0x80, 
 
- /* Char 55 is 14px wide @ 362 */
+ /* Char 55 is 13px wide @ 359 */
  /*                  **      */ 
  /*                  **      */ 
  /*                  **      */ 
@@ -425,9 +424,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*                  **      */ 
  /*      *************       */ 
  /*      ***********         */ 
-  0xd4, 0xe8, 0x2a, 0xd0, 0xbb, 0x02, 0xc0, 
+  0xd4, 0xe8, 0x2a, 0xd0, 0xbb, 0x01, 0x40, 
 
- /* Char 56 is 17px wide @ 369 */
+ /* Char 56 is 16px wide @ 366 */
  /*       ************       */ 
  /*      *************       */ 
  /*      **    **    **      */ 
@@ -443,9 +442,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      *************       */ 
  /*       ***********        */ 
   0x01, 0x2c, 0xbd, 0x0b, 0xe8, 0x24, 0x24, 0x2a, 
-  0xd0, 0xcb, 0x02, 0xb0, 
+  0xd0, 0xcb, 0x01, 0x30, 
 
- /* Char 57 is 17px wide @ 381 */
+ /* Char 57 is 16px wide @ 378 */
  /*             ******       */ 
  /*      **    *******       */ 
  /*      **    *     **      */ 
@@ -461,19 +460,19 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      *************       */ 
  /*       ***********        */ 
   0x01, 0x86, 0xb2, 0x47, 0xbe, 0x82, 0x41, 0x52, 
-  0xad, 0x0c, 0xb0, 0x2b, 
+  0xad, 0x0c, 0xb0, 0x13, 
 
- /* Char 58 is 5px wide @ 393 */
+ /* Char 58 is 4px wide @ 390 */
  /*      **        *         */ 
  /*      *         *         */ 
-  0x01, 0x12, 0x81, 0xd0, 0x19, 0x10, 0x2c, 
+  0x01, 0x12, 0x81, 0xd0, 0x19, 0x10, 0x14, 
 
- /* Char 59 is 5px wide @ 400 */
+ /* Char 59 is 4px wide @ 397 */
  /*    ****        *         */ 
  /*     **         *         */ 
-  0xde, 0x48, 0x1c, 0x29, 0x10, 0x2c, 
+  0xde, 0x48, 0x1c, 0x29, 0x10, 0x14, 
 
- /* Char 60 is 10px wide @ 406 */
+ /* Char 60 is 9px wide @ 403 */
  /*          ***             */ 
  /*          ***             */ 
  /*         ** **            */ 
@@ -484,9 +483,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*       *       **         */ 
   0x9f, 0x3d, 0x72, 0x12, 0xd6, 0x22, 0x2d, 0x42, 
   0x32, 0xd4, 0x15, 0x2d, 0x22, 0x52, 0xd2, 0x17, 
-  0x20, 0x2c, 
+  0x20, 0x14, 
 
- /* Char 61 is 13px wide @ 424 */
+ /* Char 61 is 12px wide @ 421 */
  /*         *   *            */ 
  /*         *   *            */ 
  /*         *   *            */ 
@@ -497,9 +496,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*         *   *            */ 
  /*         *   *            */ 
  /*         *   *            */ 
-  0x01, 0x4e, 0x81, 0x31, 0x02, 0xf0, 
+  0x01, 0x4e, 0x81, 0x31, 0x01, 0x70, 
 
- /* Char 62 is 10px wide @ 430 */
+ /* Char 62 is 10px wide @ 427 */
  /*       *       **         */ 
  /*       **     **          */ 
  /*        **    **          */ 
@@ -512,7 +511,7 @@ const uint8_t Orbitron14ptBitmaps[] = {
   0xd3, 0x23, 0x2d, 0x52, 0x21, 0xd6, 0x21, 0x2d, 
   0x73, 0xd9, 0x20, 0x18, 
 
- /* Char 63 is 14px wide @ 450 */
+ /* Char 63 is 13px wide @ 447 */
  /*                  **      */ 
  /*                  **      */ 
  /*      **  **      **      */ 
@@ -526,10 +525,10 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*            *******       */ 
  /*             *****        */ 
   0x01, 0xdf, 0x2a, 0x22, 0x26, 0x2a, 0x13, 0x35, 
-  0x2d, 0x2e, 0x42, 0x52, 0xd3, 0x7d, 0x55, 0x01, 
-  0x30, 
+  0x2d, 0x2e, 0x42, 0x52, 0xd3, 0x7d, 0x55, 0x70, 
 
- /* Char 64 is 17px wide @ 467 */
+
+ /* Char 64 is 16px wide @ 463 */
  /*       ************       */ 
  /*      *************       */ 
  /*      **          **      */ 
@@ -547,9 +546,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
   0x01, 0x2c, 0xbd, 0x0b, 0xf2, 0xa2, 0xa2, 0x25, 
   0x32, 0xae, 0x22, 0x21, 0x41, 0x22, 0xa2, 0x25, 
   0x32, 0xaf, 0x22, 0x17, 0x2a, 0x22, 0x9b, 0x22, 
-  0x80, 0x2b, 
+  0x80, 0x13, 
 
- /* Char 65 is 17px wide @ 493 */
+ /* Char 65 is 16px wide @ 489 */
  /*      *************       */ 
  /*      *************       */ 
  /*           **     **      */ 
@@ -565,9 +564,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      *************       */ 
  /*      ************        */ 
   0x01, 0x1f, 0xd0, 0xd3, 0xe8, 0x25, 0x2a, 0xd0, 
-  0xbc, 0x02, 0xb0, 
+  0xbc, 0x01, 0x30, 
 
- /* Char 66 is 17px wide @ 504 */
+ /* Char 66 is 16px wide @ 500 */
  /*      **************      */ 
  /*      **************      */ 
  /*      **    **    **      */ 
@@ -583,9 +582,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      *************       */ 
  /*       *****              */ 
   0x01, 0x1f, 0xd1, 0xae, 0x82, 0x42, 0x42, 0xad, 
-  0x0c, 0x50, 0x31, 
+  0x0c, 0x50, 0x19, 
 
- /* Char 67 is 17px wide @ 515 */
+ /* Char 67 is 16px wide @ 511 */
  /*       ************       */ 
  /*      *************       */ 
  /*      **          **      */ 
@@ -601,9 +600,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      **          **      */ 
  /*      *           **      */ 
   0x01, 0x2c, 0xbd, 0x0b, 0xe9, 0x2a, 0x2a, 0x1b, 
-  0x20, 0x29, 
+  0x20, 0x11, 
 
- /* Char 68 is 17px wide @ 525 */
+ /* Char 68 is 16px wide @ 521 */
  /*      **************      */ 
  /*      **************      */ 
  /*      **          **      */ 
@@ -619,9 +618,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      *************       */ 
  /*       ***********        */ 
   0x01, 0x1f, 0xd1, 0xae, 0x82, 0xa2, 0xad, 0x0c, 
-  0xb0, 0x2b, 
+  0xb0, 0x13, 
 
- /* Char 69 is 15px wide @ 535 */
+ /* Char 69 is 15px wide @ 531 */
  /*      **************      */ 
  /*      **************      */ 
  /*      **    **    **      */ 
@@ -638,7 +637,7 @@ const uint8_t Orbitron14ptBitmaps[] = {
   0x01, 0x1f, 0xd1, 0xae, 0x62, 0x42, 0x42, 0xaf, 
   0x2a, 0x2a, 0x1b, 0x10, 0x12, 
 
- /* Char 70 is 15px wide @ 548 */
+ /* Char 70 is 14px wide @ 544 */
  /*      **************      */ 
  /*      **************      */ 
  /*            **    **      */ 
@@ -653,9 +652,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*                  **      */ 
  /*                  *       */ 
   0x01, 0x1f, 0xd1, 0xd3, 0xe6, 0x24, 0x2d, 0x9f, 
-  0x2d, 0x91, 0x01, 0x20, 
+  0x2d, 0x91, 0x60, 
 
- /* Char 71 is 17px wide @ 560 */
+ /* Char 71 is 16px wide @ 555 */
  /*       ************       */ 
  /*      *************       */ 
  /*      **          **      */ 
@@ -671,10 +670,10 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      *******    **       */ 
  /*        *****    *        */ 
   0x01, 0x2c, 0xbd, 0x0b, 0xe5, 0x2a, 0x2a, 0xe1, 
-  0x24, 0x15, 0x2a, 0x74, 0x2d, 0x05, 0x41, 0x02, 
-  0xb0, 
+  0x24, 0x15, 0x2a, 0x74, 0x2d, 0x05, 0x41, 0x01, 
+  0x30, 
 
- /* Char 72 is 17px wide @ 577 */
+ /* Char 72 is 16px wide @ 572 */
  /*      **************      */ 
  /*      *************       */ 
  /*            **            */ 
@@ -690,14 +689,14 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      *************       */ 
  /*      **************      */ 
   0x01, 0x1d, 0x1a, 0xd0, 0xd4, 0xe8, 0x2d, 0x3d, 
-  0x0b, 0xd1, 0x02, 0x90, 
+  0x0b, 0xd1, 0x01, 0x10, 
 
- /* Char 73 is 6px wide @ 589 */
+ /* Char 73 is 5px wide @ 584 */
  /*      **************      */ 
  /*      *************       */ 
-  0x01, 0x1d, 0x1a, 0xd0, 0x04, 0x20, 
+  0x01, 0x1d, 0x1a, 0xd0, 0x02, 0xa0, 
 
- /* Char 74 is 16px wide @ 595 */
+ /* Char 74 is 15px wide @ 590 */
  /*       **                 */ 
  /*      ***                 */ 
  /*      **                  */ 
@@ -713,9 +712,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      **************      */ 
  /*        ************      */ 
   0x62, 0xd8, 0x3d, 0x8e, 0x82, 0xd9, 0xd1, 0xcc, 
-  0x02, 0x90, 
+  0x01, 0x10, 
 
- /* Char 75 is 16px wide @ 605 */
+ /* Char 75 is 15px wide @ 600 */
  /*      **************      */ 
  /*      **************      */ 
  /*            **            */ 
@@ -731,9 +730,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      *            *      */ 
   0x01, 0x1f, 0xd1, 0xd3, 0xe2, 0x2d, 0x83, 0xd7, 
   0x5d, 0x53, 0x23, 0xd2, 0x25, 0x3d, 0x02, 0x73, 
-  0xb2, 0xa2, 0xa1, 0xc1, 0x02, 0x90, 
+  0xb2, 0xa2, 0xa1, 0xc1, 0x01, 0x10, 
 
- /* Char 76 is 16px wide @ 627 */
+ /* Char 76 is 15px wide @ 622 */
  /*      **************      */ 
  /*      **************      */ 
  /*      **                  */ 
@@ -748,10 +747,10 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      **                  */ 
  /*      **                  */ 
  /*      *                   */ 
-  0x01, 0x1f, 0xd1, 0xae, 0x92, 0xd9, 0x10, 0x1e, 
+  0x01, 0x1f, 0xd1, 0xae, 0x92, 0xd9, 0x1d, 0x50, 
 
 
- /* Char 77 is 19px wide @ 635 */
+ /* Char 77 is 18px wide @ 630 */
  /*      **************      */ 
  /*      **************      */ 
  /*                 **       */ 
@@ -770,10 +769,10 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      **************      */ 
   0x01, 0x1f, 0xd1, 0xd8, 0x2d, 0x82, 0xd7, 0x3d, 
   0x73, 0xd7, 0x3d, 0x72, 0xd9, 0x3d, 0x93, 0xda, 
-  0x2d, 0xa2, 0xda, 0x3d, 0x93, 0xaf, 0xd1, 0x02, 
-  0x90, 
+  0x2d, 0xa2, 0xda, 0x3d, 0x93, 0xaf, 0xd1, 0x01, 
+  0x10, 
 
- /* Char 78 is 17px wide @ 660 */
+ /* Char 78 is 16px wide @ 655 */
  /*      **************      */ 
  /*      **************      */ 
  /*                 **       */ 
@@ -790,9 +789,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      **************      */ 
   0x01, 0x1f, 0xd1, 0xd8, 0x2d, 0x82, 0xd7, 0x3d, 
   0x73, 0xd7, 0x3d, 0x72, 0xd8, 0x2d, 0x73, 0xd7, 
-  0x3d, 0x73, 0xd8, 0xfd, 0x10, 0x29, 
+  0x3d, 0x73, 0xd8, 0xfd, 0x10, 0x11, 
 
- /* Char 79 is 17px wide @ 682 */
+ /* Char 79 is 16px wide @ 677 */
  /*       ************       */ 
  /*      *************       */ 
  /*      **          **      */ 
@@ -808,9 +807,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      *************       */ 
  /*        **********        */ 
   0x01, 0x2c, 0xbd, 0x0b, 0xe8, 0x2a, 0x2a, 0xd0, 
-  0xd0, 0xa0, 0x2b, 
+  0xd0, 0xa0, 0x13, 
 
- /* Char 80 is 16px wide @ 693 */
+ /* Char 80 is 15px wide @ 688 */
  /*      **************      */ 
  /*      **************      */ 
  /*           **     **      */ 
@@ -826,9 +825,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*           ********       */ 
  /*             *****        */ 
   0x01, 0x1f, 0xd1, 0xd2, 0xe8, 0x25, 0x2d, 0x28, 
-  0xd5, 0x50, 0x13, 
+  0xd5, 0x57, 
 
- /* Char 81 is 18px wide @ 704 */
+ /* Char 81 is 17px wide @ 698 */
  /*       ************       */ 
  /*      *************       */ 
  /*      **          **      */ 
@@ -846,9 +845,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      **                  */ 
  /*      *                   */ 
   0x01, 0x2c, 0xbd, 0x0b, 0xe8, 0x2a, 0x2a, 0xd0, 
-  0xbc, 0xc2, 0xd9, 0x10, 0x1e, 
+  0xbc, 0xc2, 0xd9, 0x1d, 0x50, 
 
- /* Char 82 is 17px wide @ 717 */
+ /* Char 82 is 16px wide @ 711 */
  /*      **************      */ 
  /*      **************      */ 
  /*           **     **      */ 
@@ -865,9 +864,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*             *****        */ 
   0x01, 0x1f, 0xd1, 0xd2, 0xe4, 0x25, 0x2d, 0x13, 
   0x52, 0xc5, 0x52, 0xb3, 0x12, 0x52, 0xa3, 0x22, 
-  0x52, 0xa1, 0x48, 0xd5, 0x50, 0x2b, 
+  0x52, 0xa1, 0x48, 0xd5, 0x50, 0x13, 
 
- /* Char 83 is 17px wide @ 739 */
+ /* Char 83 is 16px wide @ 733 */
  /*       **    ******       */ 
  /*      **    *******       */ 
  /*      **    **    **      */ 
@@ -883,9 +882,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      *******    **       */ 
  /*        ****     *        */ 
   0x01, 0x22, 0x46, 0xb2, 0x47, 0xbe, 0x82, 0x42, 
-  0x42, 0xa7, 0x42, 0xd0, 0x45, 0x10, 0x2b, 
+  0x42, 0xa7, 0x42, 0xd0, 0x45, 0x10, 0x13, 
 
- /* Char 84 is 15px wide @ 754 */
+ /* Char 84 is 15px wide @ 748 */
  /*                  *       */ 
  /*                  **      */ 
  /*                  **      */ 
@@ -903,7 +902,7 @@ const uint8_t Orbitron14ptBitmaps[] = {
   0xd4, 0x1d, 0xae, 0x32, 0xaf, 0xd1, 0xd9, 0xe4, 
   0x20, 0x11, 
 
- /* Char 85 is 17px wide @ 764 */
+ /* Char 85 is 16px wide @ 758 */
  /*       *************      */ 
  /*      *************       */ 
  /*      **                  */ 
@@ -919,9 +918,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      **************      */ 
  /*        ************      */ 
   0x01, 0x2d, 0x0a, 0xd0, 0xbe, 0x82, 0xd9, 0xd1, 
-  0xcc, 0x02, 0x90, 
+  0xcc, 0x01, 0x10, 
 
- /* Char 86 is 20px wide @ 775 */
+ /* Char 86 is 19px wide @ 769 */
  /*                  **      */ 
  /*                ****      */ 
  /*               ***        */ 
@@ -942,9 +941,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
   0x01, 0xd2, 0xd7, 0x4d, 0x63, 0xd6, 0x3d, 0x64, 
   0xd6, 0x3d, 0x63, 0xd6, 0x3d, 0x82, 0xd9, 0x3d, 
   0xa3, 0xda, 0x3d, 0x94, 0xd9, 0x3d, 0xa3, 0xd9, 
-  0x4d, 0x92, 0x02, 0x90, 
+  0x4d, 0x92, 0x01, 0x10, 
 
- /* Char 87 is 23px wide @ 803 */
+ /* Char 87 is 22px wide @ 797 */
  /*                 ***      */ 
  /*              *****       */ 
  /*            *****         */ 
@@ -970,9 +969,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
   0xd6, 0x4d, 0x85, 0xd9, 0x5d, 0x95, 0xd9, 0x4d, 
   0x83, 0xd5, 0x5d, 0x35, 0xd4, 0x4d, 0x45, 0xd6, 
   0x4d, 0x95, 0xd8, 0x5d, 0x95, 0xd9, 0x4d, 0xa1, 
-  0x01, 0x10, 
+  0x50, 
 
- /* Char 88 is 16px wide @ 837 */
+ /* Char 88 is 16px wide @ 830 */
  /*      *            *      */ 
  /*      **          **      */ 
  /*       **       ***       */ 
@@ -991,7 +990,7 @@ const uint8_t Orbitron14ptBitmaps[] = {
   0x4d, 0x53, 0x22, 0xd3, 0x34, 0x3d, 0x02, 0x73, 
   0xb2, 0x93, 0xa1, 0xc1, 0x02, 0x90, 
 
- /* Char 89 is 16px wide @ 867 */
+ /* Char 89 is 16px wide @ 860 */
  /*                  **      */ 
  /*                 **       */ 
  /*               ***        */ 
@@ -1009,7 +1008,7 @@ const uint8_t Orbitron14ptBitmaps[] = {
   0xd7, 0x3d, 0x37, 0xda, 0x2d, 0xa3, 0xd9, 0x3d, 
   0xa2, 0xda, 0x2d, 0xa2, 0x02, 0x90, 
 
- /* Char 90 is 17px wide @ 889 */
+ /* Char 90 is 16px wide @ 882 */
  /*      ***         **      */ 
  /*      ***         **      */ 
  /*      ****        **      */ 
@@ -1028,15 +1027,15 @@ const uint8_t Orbitron14ptBitmaps[] = {
   0x2a, 0x22, 0x26, 0x2a, 0x23, 0x25, 0x2a, 0x23, 
   0x34, 0x2a, 0x24, 0x33, 0x2a, 0x25, 0x23, 0x2a, 
   0x26, 0x22, 0x2a, 0x27, 0x21, 0x2a, 0x28, 0x4a, 
-  0x29, 0x3a, 0x1a, 0x30, 0x29, 
+  0x29, 0x3a, 0x1a, 0x30, 0x11, 
 
- /* Char 91 is 6px wide @ 926 */
+ /* Char 91 is 6px wide @ 919 */
  /*      **************      */ 
  /*      **************      */ 
  /*      **          **      */ 
   0x01, 0x1f, 0xd1, 0xa2, 0xa2, 0x02, 0x90, 
 
- /* Char 92 is 11px wide @ 933 */
+ /* Char 92 is 10px wide @ 926 */
  /*                 **       */ 
  /*                **        */ 
  /*               **         */ 
@@ -1048,20 +1047,20 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*       ***                */ 
  /*       *                  */ 
   0xd3, 0x2d, 0x82, 0xd8, 0x2d, 0x82, 0xd7, 0x2d, 
-  0x82, 0xd8, 0x2d, 0x82, 0xd7, 0x3d, 0x81, 0x01, 
-  0xd0, 
+  0x82, 0xd8, 0x2d, 0x82, 0xd7, 0x3d, 0x81, 0xd4, 
 
- /* Char 93 is 6px wide @ 950 */
+
+ /* Char 93 is 6px wide @ 942 */
  /*      **          **      */ 
  /*      **************      */ 
  /*      **************      */ 
   0x01, 0x12, 0xa2, 0xaf, 0xd1, 0x02, 0x90, 
 
- /* Char 94 is 1px wide @ 957 */
+ /* Char 94 is 1px wide @ 949 */
  /*                          */ 
   0xdb, 
 
- /* Char 95 is 17px wide @ 958 */
+ /* Char 95 is 16px wide @ 950 */
  /*    **                    */ 
  /*    **                    */ 
  /*    **                    */ 
@@ -1076,14 +1075,14 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*    **                    */ 
  /*    **                    */ 
  /*    **                    */ 
-  0xde, 0xec, 0x20, 0x37, 
+  0xde, 0xec, 0x20, 0x1f, 
 
- /* Char 96 is 5px wide @ 962 */
+ /* Char 96 is 4px wide @ 954 */
  /*                       ** */ 
  /*                       *  */ 
-  0x02, 0x22, 0xd9, 0x10, 0x25, 
+  0x02, 0x22, 0xd9, 0x1d, 0xc0, 
 
- /* Char 97 is 14px wide @ 967 */
+ /* Char 97 is 13px wide @ 959 */
  /*       *****   **         */ 
  /*      ******   **         */ 
  /*      **   *   **         */ 
@@ -1096,10 +1095,10 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      **  ***  **         */ 
  /*      **********          */ 
   0x01, 0x25, 0x32, 0xd0, 0x63, 0x2d, 0x0e, 0x52, 
-  0x31, 0x32, 0xd0, 0x22, 0x32, 0x2d, 0x0a, 0x02, 
-  0xd0, 
+  0x31, 0x32, 0xd0, 0x22, 0x32, 0x2d, 0x0a, 0x01, 
+  0x50, 
 
- /* Char 98 is 14px wide @ 984 */
+ /* Char 98 is 13px wide @ 976 */
  /*      ***************     */ 
  /*      **************      */ 
  /*      **       **         */ 
@@ -1112,9 +1111,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      **       **         */ 
  /*       *********          */ 
   0x01, 0x1d, 0x29, 0xd1, 0xae, 0x62, 0x72, 0xd1, 
-  0x90, 0x2d, 
+  0x90, 0x15, 
 
- /* Char 99 is 14px wide @ 994 */
+ /* Char 99 is 13px wide @ 986 */
  /*       *********          */ 
  /*      ***********         */ 
  /*      **       **         */ 
@@ -1126,10 +1125,10 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      **       **         */ 
  /*      **       **         */ 
  /*      **       **         */ 
-  0x01, 0x29, 0xd1, 0xbd, 0x0e, 0x72, 0x72, 0x02, 
-  0xc0, 
+  0x01, 0x29, 0xd1, 0xbd, 0x0e, 0x72, 0x72, 0x01, 
+  0x40, 
 
- /* Char 100 is 14px wide @ 1003 */
+ /* Char 100 is 13px wide @ 995 */
  /*        *******           */ 
  /*      ***********         */ 
  /*      **       **         */ 
@@ -1143,9 +1142,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      ***************     */ 
  /*      **************      */ 
   0x77, 0xd2, 0xbd, 0x0e, 0x62, 0x72, 0xd0, 0xd2, 
-  0x9d, 0x10, 0x29, 
+  0x9d, 0x10, 0x11, 
 
- /* Char 101 is 14px wide @ 1014 */
+ /* Char 101 is 13px wide @ 1006 */
  /*       *********          */ 
  /*      ***********         */ 
  /*      **   *   **         */ 
@@ -1158,20 +1157,20 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      **   **  **         */ 
  /*      **   *****          */ 
   0x01, 0x29, 0xd1, 0xbd, 0x0e, 0x52, 0x31, 0x32, 
-  0xd0, 0x23, 0x22, 0x2d, 0x02, 0x35, 0x02, 0xd0, 
+  0xd0, 0x23, 0x22, 0x2d, 0x02, 0x35, 0x01, 0x50, 
 
 
- /* Char 102 is 9px wide @ 1030 */
+ /* Char 102 is 8px wide @ 1022 */
  /*      **************      */ 
  /*      **************      */ 
  /*               **  **     */ 
  /*               **  **     */ 
  /*               **  **     */ 
  /*               **  **     */ 
-  0x01, 0x1f, 0xd1, 0xd6, 0xe2, 0x22, 0x20, 0x28, 
+  0x01, 0x1f, 0xd1, 0xd6, 0xe2, 0x22, 0x2d, 0xf0, 
 
 
- /* Char 103 is 14px wide @ 1038 */
+ /* Char 103 is 13px wide @ 1030 */
  /*       *********          */ 
  /*      **       **         */ 
  /*  *   **       **         */ 
@@ -1184,9 +1183,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*  ***************         */ 
  /*   *************          */ 
   0x01, 0x29, 0xd1, 0x27, 0x29, 0xe5, 0x13, 0x27, 
-  0x29, 0xd2, 0xad, 0x00, 0x2d, 
+  0x29, 0xd2, 0xad, 0x00, 0x15, 
 
- /* Char 104 is 14px wide @ 1051 */
+ /* Char 104 is 13px wide @ 1043 */
  /*      ***************     */ 
  /*      **************      */ 
  /*               **         */ 
@@ -1199,20 +1198,20 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*               **         */ 
  /*      **********          */ 
   0x01, 0x1d, 0x29, 0xd1, 0xd6, 0xe6, 0x2d, 0x0a, 
-  0x02, 0xd0, 
+  0x01, 0x50, 
 
- /* Char 105 is 5px wide @ 1061 */
+ /* Char 105 is 4px wide @ 1053 */
  /*      ***********  **     */ 
  /*      ***********  *      */ 
-  0x01, 0x1b, 0x22, 0x9b, 0x21, 0x02, 0x90, 
+  0x01, 0x1b, 0x22, 0x9b, 0x21, 0x01, 0x10, 
 
- /* Char 106 is 6px wide @ 1068 */
+ /* Char 106 is 5px wide @ 1060 */
  /* **                       */ 
  /* **                       */ 
  /*  ***************  **     */ 
-  0xe2, 0xfd, 0xad, 0x22, 0x20, 0x40, 
+  0xe2, 0xfd, 0xad, 0x22, 0x20, 0x28, 
 
- /* Char 107 is 13px wide @ 1074 */
+ /* Char 107 is 12px wide @ 1066 */
  /*      ***************     */ 
  /*      **************      */ 
  /*           *              */ 
@@ -1226,16 +1225,16 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      *         *         */ 
   0x01, 0x1d, 0x29, 0xd1, 0xd2, 0xe1, 0x1d, 0x93, 
   0xd7, 0x21, 0x2d, 0x52, 0x32, 0xd2, 0x35, 0x3d, 
-  0x02, 0x72, 0xd0, 0x19, 0x10, 0x14, 
+  0x02, 0x72, 0xd0, 0x19, 0x18, 
 
- /* Char 108 is 7px wide @ 1096 */
+ /* Char 108 is 6px wide @ 1087 */
  /*       **************     */ 
  /*      **************      */ 
  /*      **                  */ 
  /*      **                  */ 
-  0x01, 0x2d, 0x19, 0xd1, 0xaf, 0x20, 0x35, 
+  0x01, 0x2d, 0x19, 0xd1, 0xaf, 0x20, 0x1d, 
 
- /* Char 109 is 20px wide @ 1103 */
+ /* Char 109 is 19px wide @ 1094 */
  /*      ***********         */ 
  /*      ***********         */ 
  /*               **         */ 
@@ -1254,9 +1253,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      ***********         */ 
  /*      **********          */ 
   0x01, 0x1f, 0xbd, 0x9e, 0x42, 0xd0, 0xbd, 0x9e, 
-  0x42, 0xd0, 0xbd, 0x0a, 0x02, 0xd0, 
+  0x42, 0xd0, 0xbd, 0x0a, 0x01, 0x50, 
 
- /* Char 110 is 14px wide @ 1117 */
+ /* Char 110 is 13px wide @ 1108 */
  /*      ***********         */ 
  /*      ***********         */ 
  /*               **         */ 
@@ -1268,10 +1267,10 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*               **         */ 
  /*               **         */ 
  /*      **********          */ 
-  0x01, 0x1f, 0xbd, 0x9e, 0x62, 0xd0, 0xa0, 0x2d, 
+  0x01, 0x1f, 0xbd, 0x9e, 0x62, 0xd0, 0xa0, 0x15, 
 
 
- /* Char 111 is 14px wide @ 1125 */
+ /* Char 111 is 13px wide @ 1116 */
  /*       *********          */ 
  /*      ***********         */ 
  /*      **       **         */ 
@@ -1284,9 +1283,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      **       **         */ 
  /*       *********          */ 
   0x01, 0x29, 0xd1, 0xbd, 0x0e, 0x62, 0x72, 0xd1, 
-  0x90, 0x2d, 
+  0x90, 0x15, 
 
- /* Char 112 is 14px wide @ 1135 */
+ /* Char 112 is 13px wide @ 1126 */
  /*  ***************         */ 
  /*  ***************         */ 
  /*      **       **         */ 
@@ -1299,9 +1298,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      **       **         */ 
  /*       *********          */ 
   0xdc, 0xfd, 0x2d, 0x0e, 0x62, 0x72, 0xd1, 0x90, 
-  0x2d, 
+  0x15, 
 
- /* Char 113 is 14px wide @ 1144 */
+ /* Char 113 is 13px wide @ 1135 */
  /*        *******           */ 
  /*      ***********         */ 
  /*      **       **         */ 
@@ -1315,9 +1314,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*  ***************         */ 
  /*  ***************         */ 
   0x77, 0xd2, 0xbd, 0x0e, 0x62, 0x72, 0x9f, 0xd2, 
-  0x02, 0xc0, 
+  0x01, 0x40, 
 
- /* Char 114 is 11px wide @ 1154 */
+ /* Char 114 is 10px wide @ 1145 */
  /*      **********          */ 
  /*      ***********         */ 
  /*               **         */ 
@@ -1327,10 +1326,10 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*               **         */ 
  /*               **         */ 
  /*                *         */ 
-  0x01, 0x1a, 0xd1, 0xbd, 0x9e, 0x42, 0xda, 0x10, 
-  0x14, 
+  0x01, 0x1a, 0xd1, 0xbd, 0x9e, 0x42, 0xda, 0x18, 
 
- /* Char 115 is 14px wide @ 1163 */
+
+ /* Char 115 is 13px wide @ 1153 */
  /*       **   ****          */ 
  /*      **   ******         */ 
  /*      **   *   **         */ 
@@ -1343,20 +1342,20 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      ******   **         */ 
  /*       ****   **          */ 
   0x01, 0x22, 0x34, 0xd1, 0x23, 0x6d, 0x0e, 0x52, 
-  0x31, 0x32, 0xd0, 0x63, 0x2d, 0x14, 0x32, 0x02, 
-  0xd0, 
+  0x31, 0x32, 0xd0, 0x63, 0x2d, 0x14, 0x32, 0x01, 
+  0x50, 
 
- /* Char 116 is 9px wide @ 1180 */
+ /* Char 116 is 8px wide @ 1170 */
  /*       **************     */ 
  /*      **************      */ 
  /*      **       **         */ 
  /*      **       **         */ 
  /*      **       **         */ 
  /*      **       **         */ 
-  0x01, 0x2d, 0x19, 0xd1, 0xae, 0x22, 0x72, 0x02, 
-  0xc0, 
+  0x01, 0x2d, 0x19, 0xd1, 0xae, 0x22, 0x72, 0x01, 
+  0x40, 
 
- /* Char 117 is 14px wide @ 1189 */
+ /* Char 117 is 13px wide @ 1179 */
  /*       **********         */ 
  /*      ***********         */ 
  /*      **                  */ 
@@ -1369,9 +1368,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*      **                  */ 
  /*       **********         */ 
   0x01, 0x2a, 0xd0, 0xbd, 0x0e, 0x62, 0xda, 0xa0, 
-  0x2c, 
+  0x14, 
 
- /* Char 118 is 16px wide @ 1198 */
+ /* Char 118 is 15px wide @ 1188 */
  /*               **         */ 
  /*             ****         */ 
  /*           ****           */ 
@@ -1387,9 +1386,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*               **         */ 
   0x01, 0xa2, 0xd7, 0x4d, 0x54, 0xd5, 0x4d, 0x63, 
   0xd6, 0x3d, 0x82, 0xd9, 0x4d, 0x94, 0xd9, 0x3d, 
-  0xa3, 0xd9, 0x4d, 0x92, 0x02, 0xc0, 
+  0xa3, 0xd9, 0x4d, 0x92, 0x01, 0x40, 
 
- /* Char 119 is 21px wide @ 1220 */
+ /* Char 119 is 20px wide @ 1210 */
  /*               **         */ 
  /*            *****         */ 
  /*          ****            */ 
@@ -1412,9 +1411,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
   0x01, 0xa2, 0xd6, 0x5d, 0x44, 0xd4, 0x5d, 0x54, 
   0xd7, 0x5d, 0x94, 0xd9, 0x4d, 0x94, 0xd8, 0x3d, 
   0x65, 0xd4, 0x5d, 0x44, 0xd5, 0xf4, 0xd9, 0x5d, 
-  0x94, 0xd9, 0x4d, 0xa1, 0x01, 0x40, 
+  0x94, 0xd9, 0x4d, 0xa1, 0x80, 
 
- /* Char 120 is 14px wide @ 1250 */
+ /* Char 120 is 13px wide @ 1239 */
  /*      *         *         */ 
  /*      **       **         */ 
  /*       **     **          */ 
@@ -1429,9 +1428,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
   0x01, 0x11, 0x91, 0xd0, 0x27, 0x2d, 0x12, 0x52, 
   0xd3, 0x32, 0x2d, 0x55, 0xd7, 0x3d, 0x75, 0xd5, 
   0x32, 0x2d, 0x32, 0x52, 0xd1, 0x27, 0x2d, 0x01, 
-  0x91, 0x02, 0xc0, 
+  0x91, 0x01, 0x40, 
 
- /* Char 121 is 14px wide @ 1277 */
+ /* Char 121 is 13px wide @ 1266 */
  /*       **********         */ 
  /*      **                  */ 
  /*  *   **                  */ 
@@ -1444,9 +1443,9 @@ const uint8_t Orbitron14ptBitmaps[] = {
  /*  ***************         */ 
  /*   **************         */ 
   0x01, 0x2a, 0xd0, 0x2d, 0x5e, 0x51, 0x32, 0xd5, 
-  0xd2, 0xad, 0x10, 0x2c, 
+  0xd2, 0xad, 0x10, 0x14, 
 
- /* Char 122 is 14px wide @ 1289 */
+ /* Char 122 is 13px wide @ 1278 */
  /*      ***      **         */ 
  /*      ***      **         */ 
  /*      ****     **         */ 
@@ -1461,37 +1460,182 @@ const uint8_t Orbitron14ptBitmaps[] = {
   0x01, 0x1f, 0x36, 0x2d, 0x04, 0x52, 0xd0, 0x21, 
   0x24, 0x2d, 0x0f, 0x22, 0x23, 0x2d, 0x02, 0x32, 
   0x22, 0xd0, 0x24, 0x21, 0x2d, 0x0f, 0x25, 0x4d, 
-  0x02, 0x63, 0x02, 0xc0, 
+  0x02, 0x63, 0x01, 0x40, 
 
- /* Char 123 is 7px wide @ 1317 */
+ /* Char 123 is 6px wide @ 1306 */
  /*            **            */ 
  /*        **********        */ 
  /*      ******  *****       */ 
  /*      **          **      */ 
-  0xb2, 0xd5, 0xac, 0x62, 0x5b, 0x2a, 0x20, 0x41, 
+  0xb2, 0xd5, 0xac, 0x62, 0x5b, 0x2a, 0x20, 0x29, 
 
 
- /* Char 124 is 5px wide @ 1325 */
+ /* Char 124 is 4px wide @ 1314 */
  /*    ******************    */ 
  /*    ******************    */ 
-  0xde, 0xfd, 0x50, 0x27, 
+  0xde, 0xfd, 0x5d, 0xe0, 
 
- /* Char 125 is 7px wide @ 1329 */
+ /* Char 125 is 6px wide @ 1318 */
  /*      **          **      */ 
  /*      ******  *****       */ 
  /*       ***********        */ 
  /*            **            */ 
   0x01, 0x12, 0xa2, 0xa6, 0x25, 0xcb, 0xd5, 0x20, 
-  0x2f, 
+  0x17, 
 
- /* Char 126 is 9px wide @ 1338 */
+ /* Char 126 is 8px wide @ 1327 */
  /*            *             */ 
  /*            *             */ 
  /*           *              */ 
  /*           *              */ 
  /*           *              */ 
  /*           *              */ 
-  0x01, 0x7f, 0x1d, 0x9e, 0x21, 0x03, 0x10, 
+  0x01, 0x7f, 0x1d, 0x9e, 0x21, 0x01, 0x90, 
+
+ /* Char 196 is 16px wide @ 1334 */
+ /*      *************       */ 
+ /*      *************       */ 
+ /*           **     **      */ 
+ /*           **     **      */ 
+ /*           **     **  **  */ 
+ /*           **     **  **  */ 
+ /*           **     **      */ 
+ /*           **     **      */ 
+ /*           **     **  **  */ 
+ /*           **     **      */ 
+ /*           **     **      */ 
+ /*           **     **      */ 
+ /*      *************       */ 
+ /*      ************        */ 
+  0x01, 0x1f, 0xd0, 0xd3, 0xf2, 0x52, 0xd2, 0xf2, 
+  0x52, 0x22, 0xbf, 0x25, 0x2d, 0x22, 0x52, 0x22, 
+  0xbe, 0x12, 0x52, 0xad, 0x0b, 0xc0, 0x13, 
+
+ /* Char 214 is 16px wide @ 1357 */
+ /*       ************       */ 
+ /*      *************       */ 
+ /*      **          **      */ 
+ /*      **          **      */ 
+ /*      **          **  **  */ 
+ /*      **          **  **  */ 
+ /*      **          **      */ 
+ /*      **          **      */ 
+ /*      **          **  **  */ 
+ /*      **          **      */ 
+ /*      **          **      */ 
+ /*      **          **      */ 
+ /*      *************       */ 
+ /*        **********        */ 
+  0x01, 0x2c, 0xbd, 0x0b, 0xf2, 0xa2, 0xaf, 0x2a, 
+  0x22, 0x26, 0xf2, 0xa2, 0xa2, 0xa2, 0x22, 0x6e, 
+  0x12, 0xa2, 0xad, 0x0d, 0x0a, 0x01, 0x30, 
+
+ /* Char 220 is 16px wide @ 1380 */
+ /*       *************      */ 
+ /*      *************       */ 
+ /*      **                  */ 
+ /*      **                  */ 
+ /*      **              **  */ 
+ /*      **              **  */ 
+ /*      **                  */ 
+ /*      **                  */ 
+ /*      **              **  */ 
+ /*      **                  */ 
+ /*      **                  */ 
+ /*      **                  */ 
+ /*      **************      */ 
+ /*        ************      */ 
+  0x01, 0x2d, 0x0a, 0xd0, 0xbf, 0x2d, 0x9f, 0x2d, 
+  0x12, 0x6f, 0x2d, 0x92, 0xd1, 0x26, 0xe1, 0x2d, 
+  0x9d, 0x1c, 0xc0, 0x11, 
+
+ /* Char 223 is 16px wide @ 1400 */
+ /*      *************       */ 
+ /*      **************      */ 
+ /*                  **      */ 
+ /*                  **      */ 
+ /*      *           **      */ 
+ /*      **    **    **      */ 
+ /*      **    **    **      */ 
+ /*      **    **    **      */ 
+ /*      **    **    **      */ 
+ /*      **    **    **      */ 
+ /*      **    **    **      */ 
+ /*      **    **    **      */ 
+ /*      **************      */ 
+ /*       ************       */ 
+  0x01, 0x1d, 0x0b, 0xd1, 0xd9, 0xf2, 0xa1, 0xb2, 
+  0xae, 0x52, 0x42, 0x42, 0xad, 0x1b, 0xc0, 0x12, 
+
+
+ /* Char 228 is 14px wide @ 1416 */
+ /*       *****   **         */ 
+ /*      ******   **         */ 
+ /*      **   *   **         */ 
+ /*      **   *   **    *    */ 
+ /*      **   *   **    *    */ 
+ /*      **   *   **         */ 
+ /*      **   *   **         */ 
+ /*      **   *   **   **    */ 
+ /*      **   *   **         */ 
+ /*      **  ***  **         */ 
+ /*      **********          */ 
+  0x01, 0x25, 0x32, 0xd0, 0x63, 0x2d, 0x02, 0x31, 
+  0x32, 0xd0, 0xf2, 0x31, 0x32, 0x41, 0x8f, 0x23, 
+  0x13, 0x2d, 0x02, 0x31, 0x32, 0x32, 0x82, 0x31, 
+  0x32, 0xd0, 0x22, 0x32, 0x2d, 0x0a, 0x02, 0xd0, 
+
+
+ /* Char 246 is 13px wide @ 1448 */
+ /*       *********          */ 
+ /*      ***********         */ 
+ /*      **       **         */ 
+ /*      **       **   **    */ 
+ /*      **       **    *    */ 
+ /*      **       **         */ 
+ /*      **       **    *    */ 
+ /*      **       **    *    */ 
+ /*      **       **         */ 
+ /*      **       **         */ 
+ /*       *********          */ 
+  0x01, 0x29, 0xd1, 0xbd, 0x02, 0x72, 0xd0, 0x27, 
+  0x23, 0x28, 0x27, 0x24, 0x18, 0x27, 0x2d, 0x0f, 
+  0x27, 0x24, 0x18, 0xf2, 0x72, 0xd1, 0x90, 0x15, 
+
+
+ /* Char 252 is 13px wide @ 1472 */
+ /*       **********         */ 
+ /*      ***********         */ 
+ /*      **                  */ 
+ /*      **            **    */ 
+ /*      **             *    */ 
+ /*      **                  */ 
+ /*      **             *    */ 
+ /*      **            **    */ 
+ /*      **                  */ 
+ /*      **                  */ 
+ /*       **********         */ 
+  0x01, 0x2a, 0xd0, 0xbd, 0x02, 0xd9, 0x2c, 0x28, 
+  0x2d, 0x01, 0x82, 0xd9, 0x2d, 0x01, 0x82, 0xc2, 
+  0x8f, 0x2d, 0xaa, 0x01, 0x40, 
+
+ /* Char 8364 is 15px wide @ 1493 */
+ /*          **  **          */ 
+ /*          **  **          */ 
+ /*       ************       */ 
+ /*      **  **  **  **      */ 
+ /*      **  **  **  **      */ 
+ /*      **  **  **  **      */ 
+ /*      **  **  **  **      */ 
+ /*      **  **  **  **      */ 
+ /*      **  **  **  **      */ 
+ /*      **  **  **  **      */ 
+ /*      **  **  **  **      */ 
+ /*      **          **      */ 
+ /*      **          **      */ 
+ /*      *                   */ 
+  0x01, 0x5f, 0x22, 0x2d, 0x2c, 0xbe, 0x62, 0x22, 
+  0x22, 0x22, 0xaf, 0x2a, 0x2a, 0x1d, 0x50, 
 
 };
 
@@ -1500,8 +1644,8 @@ const FONT_CHAR_INFO Orbitron14ptLengths[] = {
  { 2}, /*   */
  { 7}, /* ! */
  { 8}, /* " */
- {37}, /* # */
- {18}, /* $ */
+ {36}, /* # */
+ {17}, /* $ */
  {42}, /* % */
  {42}, /* & */
  { 4}, /* ' */
@@ -1512,7 +1656,7 @@ const FONT_CHAR_INFO Orbitron14ptLengths[] = {
  { 5}, /* , */
  { 5}, /* - */
  { 5}, /* . */
- {16}, /* / */
+ {15}, /* / */
  {36}, /* 0 */
  { 9}, /* 1 */
  {18}, /* 2 */
@@ -1528,14 +1672,14 @@ const FONT_CHAR_INFO Orbitron14ptLengths[] = {
  {18}, /* < */
  { 6}, /* = */
  {20}, /* > */
- {17}, /* ? */
+ {16}, /* ? */
  {26}, /* @ */
  {11}, /* A */
  {11}, /* B */
  {10}, /* C */
  {10}, /* D */
  {13}, /* E */
- {12}, /* F */
+ {11}, /* F */
  {17}, /* G */
  {12}, /* H */
  { 6}, /* I */
@@ -1545,19 +1689,19 @@ const FONT_CHAR_INFO Orbitron14ptLengths[] = {
  {25}, /* M */
  {22}, /* N */
  {11}, /* O */
- {11}, /* P */
+ {10}, /* P */
  {13}, /* Q */
  {22}, /* R */
  {15}, /* S */
  {10}, /* T */
  {11}, /* U */
  {28}, /* V */
- {34}, /* W */
+ {33}, /* W */
  {30}, /* X */
  {22}, /* Y */
  {37}, /* Z */
  { 7}, /* [ */
- {17}, /* \ */
+ {16}, /* \ */
  { 7}, /* ] */
  { 1}, /* ^ */
  { 4}, /* _ */
@@ -1572,19 +1716,19 @@ const FONT_CHAR_INFO Orbitron14ptLengths[] = {
  {10}, /* h */
  { 7}, /* i */
  { 6}, /* j */
- {22}, /* k */
+ {21}, /* k */
  { 7}, /* l */
  {14}, /* m */
  { 8}, /* n */
  {10}, /* o */
  { 9}, /* p */
  {10}, /* q */
- { 9}, /* r */
+ { 8}, /* r */
  {17}, /* s */
  { 9}, /* t */
  { 9}, /* u */
  {22}, /* v */
- {30}, /* w */
+ {29}, /* w */
  {27}, /* x */
  {12}, /* y */
  {28}, /* z */
@@ -1592,6 +1736,18 @@ const FONT_CHAR_INFO Orbitron14ptLengths[] = {
  { 4}, /* | */
  { 9}, /* } */
  { 7}, /* ~ */
+ {23}, /* Ä */
+ {23}, /* Ö */
+ {20}, /* Ü */
+ {16}, /* ß */
+ {32}, /* ä */
+ {24}, /* ö */
+ {21}, /* ü */
+ {15}, /* â‚¬ */
+};
+
+const uint16_t Orbitron14ptExtra[] = {
+196,214,220,223,228,246,252,8364,65535
 };
 
 /* Font info */
@@ -1600,12 +1756,12 @@ const struct FONT_DEF Font_Orbitron14pt = {
 	 24,   /* character height */
 	 32,   /* first char */
 	126,   /* last char */
-    Orbitron14ptBitmaps, Orbitron14ptLengths
+    Orbitron14ptBitmaps, Orbitron14ptLengths, Orbitron14ptExtra
 };
 
 /* Font metadata: 
  * Name:          Orbitron Regular 14pt
  * Height:        24 px (3 bytes)
- * Maximum width: 23 px
- * Storage size:  1440 bytes (compressed by 62%)
+ * Maximum width: 22 px
+ * Storage size:  1611 bytes (compressed by 58%)
  */

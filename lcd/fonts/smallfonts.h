@@ -38,7 +38,7 @@
 #ifndef __SMALLFONTS_H_
 #define __SMALLFONTS_H_
 
-#include "fonts.h"
+#include "lcd/fonts.h"
 
 /* Partially based on original code for the KS0108 by Stephane Rey */
 /* Current version by Kevin Townsend */
