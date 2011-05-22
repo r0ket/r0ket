@@ -5,7 +5,6 @@
 
 #define set_MSP(x) \
 	__asm(  "msr   MSP, %0\n" : : "r" (x) )
-		
 
 /* Jump back into bootcode, enable mass storage firmware flashing */
 
@@ -50,3 +49,25 @@ void ReinvokeISP(void) {
 
 	/* NOTREACHED */
 }
+
+void EnableWatchdog(uint32_t ms){
+	/* Enable WDT clock */
+	SCB_SYSAHBCLKCTRL |= 0x8000;
+
+	SCB_PDRUNCFG &= ~(1);
+	/* select internal RC */
+	SCB_WDTCLKSEL = SCB_WDTCLKSEL_SOURCE_INTERNALOSC;
+	/* enable */
+	SCB_WDTCLKUEN = 0;
+	SCB_WDTCLKUEN = 1;
+
+#define INTERNAL_RC_HZ 12000000
+	WDT_WDTC= ((INTERNAL_RC_HZ/4)/1000) *ms;
+
+	SCB_WDTCLKDIV = 1;
+	WDT_WDMOD =  WDT_WDMOD_WDRESET_ENABLED | WDT_WDMOD_WDEN_ENABLED;
+
+	// frob watchdog once.
+	WDT_WDFEED = WDT_WDFEED_FEED1;
+	WDT_WDFEED = WDT_WDFEED_FEED2;
+};
