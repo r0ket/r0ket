@@ -6,6 +6,8 @@
 #include "lcd/allfonts.h"
 
 void ReinvokeISP(void);
+void EnableWatchdog(uint32_t ms);
+void delayms(uint32_t ms);
 
 /**************************************************************************/
 
@@ -34,8 +36,6 @@ void module_sec(void) {
     int fontctr=0;
     yctr=18;
 
-    uint8_t written = 0;
-    uint8_t eeprom_val = 0;
     uint8_t trigger;
 
 #define SEND
@@ -75,20 +75,21 @@ void module_sec(void) {
 		while(gpioGetValue(RB_BTN0)==0);
 		DoString(0,8,"Enter ISP!");
 		lcdDisplay(0);
+		EnableWatchdog(1000*5);
 		ReinvokeISP();
 	};
 
-    font = &Font_Ubuntu18pt;
-	dx=DoString(0,14,"LED:");
+    font = &Font_Ubuntu36pt;
+	dx=DoString(0,0,"Sec");
 #ifdef SEND
 	if(ctr++>trigger/10){
 		ctr=0;
 		if (gpioGetValue(RB_LED0) == CFG_LED_OFF){
 			gpioSetValue (RB_LED0, CFG_LED_ON); 
-			DoString(dx,14,"ON!");
+//			DoString(dx,14,"ON!");
 		} else {
 			gpioSetValue (RB_LED0, CFG_LED_OFF); 
-			DoString(dx,14,"off");
+//			DoString(dx,14,"off");
 		};
 	};
 #else
@@ -105,10 +106,10 @@ void module_sec(void) {
 	font = &Font_7x8;
 
 	results = adcRead(1);
-	dx=DoString(0,yctr+20,"Voltage:");
+	dx=DoString(0,yctr+28,"Voltage:");
 	results *= 10560;
 	results /= 1024;
-	DoInt(dx,yctr+20,results);
+	DoInt(dx,yctr+28,results);
 
 	if( results < 3500 ){
 	    DoString(0,yctr+30,"Shutdown");
@@ -118,7 +119,8 @@ void module_sec(void) {
 	    PMU_PMUCTRL = PMU_PMUCTRL_DPDEN_DEEPPOWERDOWN;
 	    __asm volatile ("WFI");
 	}else{
-	    DoString(0,yctr+30,"OK           ");
+	    //DoString(0,yctr+30,"OK           ");
+		;
 	}
 
     }
