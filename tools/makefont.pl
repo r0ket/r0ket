@@ -11,10 +11,10 @@
 # - <http://www.davidsalomon.name/DC4advertis/PKfonts.pdf> or
 # - <http://www.tug.org/TUGboat/tb06-3/tb13pk.pdf>
 
-use GD;
 use strict;
 use warnings;
 use Getopt::Long;
+use Module::Load;
 
 $|=1;
 
@@ -34,6 +34,7 @@ my ($verbose,$raw);
 my $size=18;
 
 my $font="../ttf/Ubuntu-Regular.ttf";
+$font="6x9.bdf";
 
 GetOptions ("size=i"   => \$size,    # numeric
             "font=s"   => \$font,    # string
@@ -56,85 +57,32 @@ HELP
 ### Code starts here.
 ###
 
-my $width=5000;
-my $height=100;
-my $xoff=90;
-
 my $origsize;
 my $c1size;
 my $c2size;
 
-my ($title,$licence)=getfontname($font);
-die "Couldn't get font name?" if !defined $title;
+our ($licence);
+our ($title,$fonts);
+our ($heightb,$heightpx);
 
-$title.=" ${size}pt";
+@charlist=sort { $a <=> $b } @charlist;
+#init_ttf();
+init_bdf();
 
-my $fonts=$title;
-$fonts=~s/[ -]//g;
-$fonts=~s/Bitstream//;
-$fonts=~s/Sans//;
-$fonts=~s/Regular//;
+die "No font name?" if !defined $title;
 
 my $file=$fonts;
 $file=~s/pt$//;
 $file=~y/A-Z/a-z/;
-
 $file.="-raw" if($raw);
 
-print "Rasterizing $title into ${file}.c\n";
+print "Writing $title to ${file}.c\n";
 
-@charlist=sort { $a <=> $b } @charlist;
-my $charlist=join("",map {chr $_} @charlist);
-
-### Get & optimize bounding box
-
-my $im = new GD::Image($width,$height);
-my $white = $im->colorAllocate(255,255,255);
-my $black = $im->colorAllocate(0,0,0);
-
-my @bounds = $im->stringFT(-$black, $font, $size, 0, 0, $xoff,$charlist);
-
-my ($mx,$my)=($bounds[2],$bounds[3]);
-my ($top,$bottom)=($bounds[7],$my);
-
-die "Increase width" if $mx>$width;
-die "Increase height" if $my>$width;
-die "Increase xoff" if $bounds[7]<0;
-
-my $found;
-
-# Cut whitespace at top
-do {
-	$found=0;
-	for my $x (0..$mx){
-		if( $im->getPixel($x,$top) == 1){
-			$found=1;last;
-		}
-	};
-	$top++;
-}while($found==0);
-$top--;
-
-# Cut whitespace at bottom.
-do {
-	$found=0;
-	for my $x (0..$mx){
-		if( $im->getPixel($x,$bottom) == 1){
-			$found=1;last;
-		}
-	};
-	$bottom--;
-}while($found==0);
-$bottom++;
-
-my $pxsize=$bottom-$top+1;
-my $byte=int(($pxsize-1)/8)+1; # Round up
-
-print "Removed ",$top-$bounds[7],"px at top\n";
-print "Removed ",$my-$bottom,"px at bottom\n";
-print "Chars are ",$bottom-$top+1,"px ($byte bytes) high\n";
+$heightb=int(($heightpx-1)/8)+1; # Round up
+print "Chars are ",$heightpx,"px ($heightb bytes) high\n";
 
 open (C,">",$file.".c")||die;
+
 if(defined $licence){
 	$licence=~s/\n/\n * /g;
 	$licence="\n/* ".$licence."\n */";
@@ -158,32 +106,18 @@ EOF
 my $offset=0;
 my $maxsz=0;
 my @offsets;
-for (1..length$charlist){
-	my $char=substr($charlist,$_-1,1);
-
-	# create a new image
-	$im = new GD::Image(2*$height,$height);
-	$white = $im->colorAllocate(255,255,255);
-	$black = $im->colorAllocate(0,0,0);
-
-	@bounds = $im->stringFT(-$black, $font, $size, 0, 0, $xoff,$char.$charlist);
-
-	my @char;
-	for my $y ($top..$bottom){
-		for my $x (0..($bounds[2]-$mx)){
-			my $px= $im->getPixel($x,$y);
-			$char[$x].=$px;
-#			$px=~y/01/ */; print $px;
-		};
-#		print "<\n";
-	};
+for (0..$#charlist){
+	my $char=chr $charlist[$_];
 	print "### Start $char\n" if($verbose);
+
+#	my @char=render_ttf($_);
+	my @char=render_bdf($_);
 
 	print C " /* Char ",ord $char," is ",scalar@char,"px wide \@ $offset */\n";
 
 	$maxsz=scalar@char if scalar@char > $maxsz;
 
-	$origsize+=$byte * scalar @char;
+	$origsize+=$heightb * scalar @char;
 
 	# Whoops. Characters are upside down.
 	for (@char){
@@ -206,13 +140,13 @@ for (1..length$charlist){
 		$#char--;
 		$postblank++;
 	};
-	$c1size+=$byte*scalar@char;
+	$c1size+=$heightb*scalar@char;
 
 	my @raw;
 	### Raw character data
 	for (@char){
 		my $h= pack("B*",$_).(chr(0).chr(0));
-		for my $b (1..$byte){
+		for my $b (1..$heightb){
 			push @raw,ord(substr($h,$b-1,1));
 		};
 	};
@@ -238,7 +172,7 @@ for (1..length$charlist){
 			   (shift@out), (shift@out), (shift@out);
 		for (@char){
 			print C "  ";
-			printf C "0x%02x, ",shift@out for(1..$byte);
+			printf C "0x%02x, ",shift@out for(1..$heightb);
 			$_=~y/01/ */;
 			print C " /* $_ */ \n";
 		};
@@ -305,12 +239,12 @@ const struct FONT_DEF Font_$fonts = {
 	%3d,   /* last char */
     %s, %s, %s
 };
-",1,$pxsize,$first,$last,"${fonts}Bitmaps","${fonts}Lengths","${fonts}Extra";
+",1,$heightpx,$first,$last,"${fonts}Bitmaps","${fonts}Lengths","${fonts}Extra";
 
 printf C "\n";
 printf C "/* Font metadata: \n";
 printf C " * Name:          %s\n", $title;
-printf C " * Height:        %d px (%d bytes)\n", $bottom-$top+1,$byte;
+printf C " * Height:        %d px (%d bytes)\n", $heightpx,$heightb;
 printf C " * Maximum width: %d px\n",$maxsz;
 printf C " * Storage size:  %d bytes (compressed by %2d%%)\n",
 	$c2size,(1-$c2size/$origsize)*100;
@@ -331,7 +265,7 @@ print "\n";
 print "Original size: $origsize\n";
 print "Simple compression: $c1size\n";
 print "PK compression: $c2size\n";
-print "Maximum character size is: $byte*$maxsz bytes\n";
+print "Maximum character size is: $heightb*$maxsz bytes\n";
 
 
 exit(0);
@@ -461,7 +395,7 @@ sub make_bytes{
 
 sub do_pk {
 	my $char=shift;
-	my $size=scalar @$char * $byte;
+	my $size=scalar @$char * $heightb;
 	print "Input char is $size bytes\n" if $verbose;
 
 	$char=pk_dedup($char);
@@ -555,4 +489,179 @@ sub getfontname {
 	}else{
 		return $fontname;
 	};
+};
+######################################################################
+our $bdf;
+our %chars;
+sub init_bdf{
+	($title,$licence)=($font,"<licence>");
+	my($bb);
+
+	open($bdf,"<",$font) || die;
+
+	while(<$bdf>){
+		chomp;
+		/^PIXEL_SIZE (.*)/ && do { $heightpx=$1;$heightpx+=0;};
+#		/^FONT_ASCENT (.*)/ && do {$fonta=$1};
+#		/^FONT_DESCENT (\d+)/ && do {$fontd=$1;$byte=int(($fonta+$fontd-1)/8)+1;print "This will be a $byte byte font\n";};
+#		/^DWIDTH (\d+) (\d+)/ && do {$width=$1;die "H-offset?" if $2!=0};
+		/^FACE_NAME "(.*)"/ && do {$font=$1;};
+		/^COPYRIGHT "(.*)"/ && do {$licence=$1;};
+		/^FAMILY_NAME "(.*)"/ && do {$title=$1;};
+		/^FONTBOUNDINGBOX (\d+) (\d+)/ && do {$bb="$1x$2";};
+		
+		last if /^ENDPROPERTIES/;
+	};
+	$title.="-".$bb;
+
+	$fonts=$title;
+	$fonts=~s/[ -]//g;
+
+	my($bbw,$bbh,$bbx,$bby);
+	my($ccode,$inchar,@bchar);
+	while(<$bdf>){
+		chomp;
+		/^ENDCHAR/ && do {
+			warn "Char $ccode has strange height?\n" if ($#bchar+1 != $bbh);
+			for (1..$bby){
+				push @bchar,("0"x$bbw);
+			};
+			for (@bchar){
+				$_=("0"x$bbx).$_;
+			};
+			$inchar=0;
+
+
+			my $tw=length($bchar[0]);
+			my $th=$#bchar;
+
+			my @tchar;
+			@tchar=();
+			for my $xw (1..$tw){
+				my $pix="";
+				for my $yw (0..$th){
+					$pix.=substr($bchar[$yw],$xw-1,1);
+				};
+				push @tchar,$pix;
+			};
+
+			$chars{$ccode}=[@tchar];
+#			print "Char: $ccode:\n",join("\n",@tchar),"\nEND\n";
+			@bchar=();
+		};
+		if($inchar){
+			my $x=unpack("B*",pack("H*",$_));
+			$x=substr($x,0,$bbw);
+			push @bchar,$x;
+#			$x=~y/01/ */;
+#			print $x,"\n";
+			next;
+		};
+
+		/^BITMAP/ && do {$inchar=1;};
+		/^ENCODING (.*)/ && do {$ccode=$1; };
+		/^BBX (\d+) (\d+) (\d+) ([-\d]+)/ && do {$bbw=$1;$bbh=$2;$bbx=$3;$bby=$4;};
+	};
+
+	close($bdf);
+
+};
+
+sub render_bdf{
+	my $ccode=$charlist[shift];
+	my $tchar=$chars{$ccode};
+	print "Char: $ccode:\n",join("\n",@{$tchar}),"\nEND\n";
+	return @{$tchar};
+};
+
+######################################################################
+our($charlist);
+our($height,$width,$xoff);
+our($mx,$my);
+our($top,$bottom);
+sub init_ttf {
+	load GD;
+	($height,$width,$xoff)=(100,5000,90);
+
+	($title,$licence)=getfontname($font);
+	die "Couldn't get font name?" if !defined $title;
+
+	$title.=" ${size}pt";
+
+	$fonts=$title;
+	$fonts=~s/[ -]//g;
+	$fonts=~s/Bitstream//;
+	$fonts=~s/Sans//;
+	$fonts=~s/Regular//;
+
+	$charlist=join("",map {chr $_} @charlist);
+
+### Get & optimize bounding box
+
+	my $im = new GD::Image($width,$height);
+	my $white = $im->colorAllocate(255,255,255);
+	my $black = $im->colorAllocate(0,0,0);
+
+	my @bounds = $im->stringFT(-$black, $font, $size, 0, 0, $xoff,$charlist);
+
+	($mx,$my)=($bounds[2],$bounds[3]);
+	($top,$bottom)=($bounds[7],$my);
+
+	die "Increase width" if $mx>$width;
+	die "Increase height" if $my>$width;
+	die "Increase xoff" if $bounds[7]<0;
+
+	my $found;
+
+# Cut whitespace at top
+	do {
+		$found=0;
+		for my $x (0..$mx){
+			if( $im->getPixel($x,$top) == 1){
+				$found=1;last;
+			}
+		};
+		$top++;
+	}while($found==0);
+	$top--;
+
+# Cut whitespace at bottom.
+	do {
+		$found=0;
+		for my $x (0..$mx){
+			if( $im->getPixel($x,$bottom) == 1){
+				$found=1;last;
+			}
+		};
+		$bottom--;
+	}while($found==0);
+	$bottom++;
+
+	$heightpx=$bottom-$top+1;
+
+	print "Removed ",$top-$bounds[7],"px at top\n";
+	print "Removed ",$my-$bottom,"px at bottom\n";
+
+};
+
+sub render_ttf{
+	my $char=substr($charlist,shift,1);
+
+	# create a new image
+	my $im = new GD::Image(2*$height,$height);
+	my $white = $im->colorAllocate(255,255,255);
+	my $black = $im->colorAllocate(0,0,0);
+
+	my @bounds = $im->stringFT(-$black, $font, $size, 0, 0, $xoff,$char.$charlist);
+
+	my @char;
+	for my $y ($top..$bottom){
+		for my $x (0..($bounds[2]-$mx)){
+			my $px= $im->getPixel($x,$y);
+			$char[$x].=$px;
+#			$px=~y/01/ */; print $px;
+		};
+#		print "<\n";
+	};
+	return @char;
 };
