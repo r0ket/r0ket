@@ -38,6 +38,7 @@ static uint8_t buf[MAXCHR];
 
 
 uint8_t * pk_decode(const uint8_t * ldata,int * len){
+	ctr=0;hilo=0;
 	data=ldata;
 	int length=*len;      // Length of character bytestream
 	int height;           // Height of character in bytes
