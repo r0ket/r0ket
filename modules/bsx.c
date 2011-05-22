@@ -32,20 +32,25 @@ void module_bsx(void) {
             brightness++;
             if (brightness > 100) brightness = 100;
             backlightSetBrightness(brightness);
-        };
+        }
 
         if(gpioGetValue(RB_BTN0)==0){
             brightness--;
             if (brightness > 100) brightness = 0;
             backlightSetBrightness(brightness);
-        };
+        }
+
+        if (gpioGetValue(RB_BTN3) == 0) {
+            while(gpioGetValue(RB_BTN3)==0);
+            lcdInvert();
+        }
 
         if (gpioGetValue(RB_BTN4)==0) {
             while(gpioGetValue(RB_BTN4)==0);
             DoString(0,8,"Enter ISP!");
             lcdDisplay(0);
             ReinvokeISP();
-        };
+        }
 
         dx = DoString(0, yctr, "Bright:");
         dx = DoInt(dx, yctr, brightness);
@@ -72,3 +77,4 @@ void module_bsx(void) {
 
     return;
 }
+

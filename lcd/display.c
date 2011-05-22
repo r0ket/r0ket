@@ -30,6 +30,7 @@ void delayms(uint32_t ms)
 /**************************************************************************/
 
 uint8_t lcdBuffer[RESX*RESY_B];
+int inverted = 0;
 
 /*
 //TODO FIXME why doenst that work ?
@@ -160,7 +161,16 @@ void lcdDisplay(uint32_t shift)
     uint16_t i,page;
     for(page=0; page<RESY_B;page++) {
         for(i=0; i<RESX; i++) {
-            lcdWrite(1,lcdBuffer[page*RESX+((i+shift)%RESX)]);
+            if (inverted) {
+                lcdWrite(1,~lcdBuffer[page*RESX+((i+shift)%RESX)]);
+            } else {
+                lcdWrite(1,lcdBuffer[page*RESX+((i+shift)%RESX)]);
+            }
         }
     }
 }
+
+void lcdInvert(void) {
+    inverted = ~inverted;
+}
+
