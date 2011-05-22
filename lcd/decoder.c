@@ -98,7 +98,7 @@ uint8_t * pk_decode(const uint8_t * ldata,int * len){
 				if((bufptr-buf)%height==0){ // End of column?
 					while(repeat>0){
 						for(int y=0;y<height;y++){
-							bufptr[0]=bufptr[-3];
+							bufptr[0]=bufptr[-height];
 							bufptr++;
 						};
 						repeat--;
