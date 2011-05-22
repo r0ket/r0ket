@@ -78,16 +78,17 @@ void module_sec(void) {
 		ReinvokeISP();
 	};
 
-	dx=DoString(0,20,"LED:");
+    font = &Font_Ubuntu18pt;
+	dx=DoString(0,14,"LED:");
 #ifdef SEND
 	if(ctr++>trigger/10){
 		ctr=0;
 		if (gpioGetValue(RB_LED0) == CFG_LED_OFF){
 			gpioSetValue (RB_LED0, CFG_LED_ON); 
-			DoString(dx,20,"ON!");
+			DoString(dx,14,"ON!");
 		} else {
 			gpioSetValue (RB_LED0, CFG_LED_OFF); 
-			DoString(dx,20,"off");
+			DoString(dx,14,"off");
 		};
 	};
 #else
@@ -101,6 +102,7 @@ void module_sec(void) {
 	};
 
 #endif
+	font = &Font_7x8;
 
 	results = adcRead(1);
 	dx=DoString(0,yctr+20,"Voltage:");
