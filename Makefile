@@ -10,7 +10,7 @@ OBJS +=
 OBJS += basic/basic.o
 OBJS += eeprom/eeprom.o
 OBJS += reinvoke_isp.o
-LIBS += core/libcore.a lcd/libfont.a modules/libmodules.a
+LIBS += core/libcore.a lcd/liblcd.a modules/libmodules.a
 
 ##########################################################################
 # GNU GCC compiler flags
@@ -29,7 +29,7 @@ OBJS += $(TARGET)_handlers.o LPC1xxx_startup.o
 LDLIBS  = -lm
 LDLIBS += -Lmodules -lmodules
 LDLIBS += -Lcore -lcore
-LDLIBS += -Llcd -lfont
+LDLIBS += -Llcd -llcd
 OCFLAGS = --strip-unneeded
 
 LD_PATH = lpc1xxx
@@ -44,7 +44,7 @@ all: firmware
 core/libcore.a: core/projectconfig.h
 	cd core && $(MAKE) ROOT_PATH=../$(ROOT_PATH)
 
-lcd/libfont.a lcd/render.o lcd/display.o:
+lcd/liblcd.a lcd/render.o lcd/display.o:
 	cd lcd && $(MAKE) ROOT_PATH=../$(ROOT_PATH)
 
 modules/libmodules.a:
@@ -76,5 +76,5 @@ clean:
 	@cd modules && $(MAKE) clean
 
 
-.PHONY: lcd/libfont.a modules/libmodules.a
+.PHONY: lcd/liblcd.a modules/libmodules.a
 

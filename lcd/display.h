@@ -22,5 +22,6 @@ void lcdRead(uint8_t data);
 void lcdInit(void);
 void lcdFill(char f);
 void lcdDisplay(uint32_t shift);
+void lcdInvert(void);
 
 #endif
