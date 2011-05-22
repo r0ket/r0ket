@@ -548,9 +548,9 @@ const uint8_t au8Font8x8Thin[]= {
 };
 
 /* Global variables */
-const struct FONT_DEF Font_3x6     = {3, 6, 32, 96,  au8Font3x6,     NULL};
-const struct FONT_DEF Font_5x8     = {5, 8, 32, 128, au8Font5x8,     NULL};
-const struct FONT_DEF Font_7x8     = {7, 8, 32, 128, au8Font7x8,     NULL};
-const struct FONT_DEF Font_8x8     = {8, 8, 32, 128, au8Font8x8,     NULL};
-const struct FONT_DEF Font_8x8Thin = {8, 8, 32, 128, au8Font8x8Thin, NULL};
+const struct FONT_DEF Font_3x6     = {3, 6, 32,  96, au8Font3x6,    NULL,NULL};
+const struct FONT_DEF Font_5x8     = {5, 8, 32, 128, au8Font5x8,    NULL,NULL};
+const struct FONT_DEF Font_7x8     = {7, 8, 32, 128, au8Font7x8,    NULL,NULL};
+const struct FONT_DEF Font_8x8     = {8, 8, 32, 128, au8Font8x8,    NULL,NULL};
+const struct FONT_DEF Font_8x8Thin = {8, 8, 32, 128, au8Font8x8Thin,NULL,NULL};
 

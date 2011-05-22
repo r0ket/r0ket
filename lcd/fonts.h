@@ -17,6 +17,7 @@ struct FONT_DEF {
     uint8_t u8LastChar;             /* The last character available         */
     const uint8_t *au8FontTable;    /* Font table start address in memory   */
     const FONT_CHAR_INFO *charInfo; /* Pointer to array of char information */
+    const uint16_t *charExtra;      /* Pointer to array of extra char info  */
 };
 
 typedef const struct FONT_DEF * FONT;

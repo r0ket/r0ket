@@ -9,7 +9,7 @@ char font_direction = FONT_DIR_LTR;
 
 /* Exported Functions */
 
-int DoChar(int sx, int sy, char c){
+int DoChar(int sx, int sy, int c){
 	int x=0;
 
 	/* how many bytes is it high? */
@@ -22,8 +22,20 @@ int DoChar(int sx, int sy, char c){
 	int ry=RESY-sy-font->u8Height;
 
 	/* Does this font provide this character? */
-	if(c<font->u8FirstChar || c>font->u8LastChar)
+	if(c<font->u8FirstChar)
 		c=font->u8FirstChar+1; // error
+	if(c>font->u8LastChar && font->charExtra == NULL)
+		c=font->u8FirstChar+1; // error
+
+	if(c>font->u8LastChar && font->charExtra != NULL){
+		int cc=0;
+		while( font->charExtra[cc] < c)
+			cc++;
+		if(font->charExtra[cc] > c)
+			c=font->u8FirstChar+1; // error
+		else
+			c=font->u8LastChar+cc+1;
+	};
 
 	/* starting offset into character source data */
 	int toff=0,width,preblank=0,blank=0; 
@@ -127,9 +139,26 @@ int DoChar(int sx, int sy, char c){
 	return sx-dmul*(x+preblank+blank);
 };
 
+#define UTF8
+// decode 2 and 4-byte utf-8 strings.
+#define UT2(a,b)   ( ((a&31)<<6)  + (b&63) )
+#define UT3(a,b,c) ( ((a&15)<<12) + ((b&63)<<6) + (c&63) )
+
 int DoString(int sx, int sy, char *s){
 	char *c;
+	int uc;
 	for(c=s;*c!=0;c++){
+#ifdef UTF8
+		/* will b0rk on non-utf8 */
+		if((*c&(128+64+32))==(128+64)){
+			uc=UT2(*c,*(++c));
+			sx=DoChar(sx,sy,uc);
+		}else if( (*c&(128+64+32+16))==(128+64+32)){
+			uc=UT3(*c,*(++c),*(++c));
+			sx=DoChar(sx,sy,uc);
+		}else
+#endif
+
 		sx=DoChar(sx,sy,*c);
 	};
 	return sx;

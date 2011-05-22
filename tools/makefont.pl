@@ -22,10 +22,9 @@ $|=1;
 ### Configure me
 ### 
 
-my $charlist;
-for(32..126){
-	$charlist.=chr $_;
-};
+my @charlist=(32..126,0x20ac); #,0x3044 # hiragana I
+push @charlist,map {ord $_} qw(ä ö ü Ä Ö Ü ß);
+
 
 ###
 ### Runtime Options
@@ -83,6 +82,9 @@ $file=~y/A-Z/a-z/;
 $file.="-raw" if($raw);
 
 print "Rasterizing $title into ${file}.c\n";
+
+@charlist=sort { $a <=> $b } @charlist;
+my $charlist=join("",map {chr $_} @charlist);
 
 ### Get & optimize bounding box
 
@@ -278,9 +280,22 @@ EOF
 
 print C @offsets;
 
-my($first)=ord substr($charlist,0,1);
-my($last)=$first+length($charlist)-1;
-printf C "};
+my($first)=$charlist[0];
+my($last)=$first-1;
+for(@charlist){
+	last unless $_ == $last+1;
+	$last++;
+};
+print C <<EOF;
+};
+
+const uint16_t ${fonts}Extra[] = {
+EOF
+
+print C join(",",@charlist[($last-$first+1)..$#charlist],0xffff);
+
+printf C "
+};
 
 /* Font info */
 const struct FONT_DEF Font_$fonts = {
@@ -288,9 +303,9 @@ const struct FONT_DEF Font_$fonts = {
 	%3d,   /* character height */
 	%3d,   /* first char */
 	%3d,   /* last char */
-    %s, %s
+    %s, %s, %s
 };
-",1,$pxsize,$first,$last,"${fonts}Bitmaps","${fonts}Lengths";
+",1,$pxsize,$first,$last,"${fonts}Bitmaps","${fonts}Lengths","${fonts}Extra";
 
 printf C "\n";
 printf C "/* Font metadata: \n";
