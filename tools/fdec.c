@@ -10,17 +10,18 @@
 #define uint8_t unsigned char
 #define uint16_t unsigned short
 
-#include "ubuntu17.c"
+#include "fixed6x9.c"
 
-const struct FONT_DEF * font = &Font_Ubuntu17pt;
+const struct FONT_DEF * font = &Font_Fixed6x9;
 
-#define MAXCHR (24*3)
+#define MAXCHR (30*6)
 static uint8_t buf[MAXCHR];
+
+int height;				// Height of character in bytes
 
 int decode(char c){
 	int off=0;				// Offset into au8FontTable for bytestream
 	int length;				// Length of character bytestream
-	int height;				// Height of character in bytes
 	int hoff;
 	uint8_t * bufptr=buf;	// Output buffer for decoded character
 
@@ -39,14 +40,16 @@ int decode(char c){
 
 	// Local function: Get next nibble.
 	int ctr=0;  // offset for next nibble
+	int hilo=0; // 0= high nibble next, 1=low nibble next
 	char gnn(){ // Get next nibble
 		static int byte;
-		static int hilo=0; // 0= high nibble next, 1=low nibble next
 		int val;
+		if(hilo==1){
+			ctr++;
+		};
 		hilo=1-hilo;
 		if(hilo==1){
 			byte=font->au8FontTable[off+ctr];
-			ctr++;
 			val=byte>>4;
 		}else{
 			val=byte&0x0f;
@@ -98,9 +101,10 @@ int decode(char c){
 
 	while(ctr<length){ /* Iterate the whole input stream */
 
+		printf("\nCtr: %d/%d [%2x] => ",ctr,hilo,font->au8FontTable[off+ctr]);
 		/* Get next encoded nibble and decode */
 		nyb=gnn();
-		printf("\nCtr: %d, byte: %x, Process: %d\n",ctr, font->au8FontTable[off+ctr], nyb);
+		printf("Process: %d\n", nyb);
 
 		if(nyb==15){
 			repeat++;
@@ -122,7 +126,7 @@ int decode(char c){
 
 		/* Generate & output bits */
 
-		printf("have %d bits. Got %d (%d)-bits...(r=%d)",pos, nyb, curbit,repeat);
+		printf("have %d bits. Got %d (%d)-bits...(r=%d)\n",pos, nyb, curbit,repeat);
 		while(nyb-->0){
 			if(pos==0){
 				*bufptr=0;
@@ -133,7 +137,7 @@ int decode(char c){
 			pos++;
 			if( hoff>0 && ((bufptr-buf)%height)==(height-1) && (pos==hoff)){
 				// Incomplete last line.
-				printf("Incomplete last byte output: %d:",(bufptr-buf)%height);
+				printf("Incomplete byte (%d bits):",(bufptr-buf)%height);
 				pos=8;
 			};
 			if(pos==8 ){
@@ -142,7 +146,7 @@ int decode(char c){
 				if((bufptr-buf)%height==0){ // End of column?
 					while(repeat>0){
 						for(int y=0;y<height;y++){
-							bufptr[0]=bufptr[-3];
+							bufptr[0]=bufptr[-height];
 							bufptr++;
 						};
 						printf("repeated last line\n");
@@ -168,7 +172,7 @@ int main(void){
 	sz=decode('H');
 	for(x=0;x<sz;x++){
 		printf(" 0x%02x,",buf[x]);
-		if(x%3==2){
+		if(x%height==height-1){
 			printf("\n");
 		};
 	};

@@ -53,6 +53,15 @@ HELP
 			exit(-1);}
 			);
 
+my ($type);
+if($font=~/\.ttf/){
+	$type="ttf";
+}elsif($font=~/\.bdf/){
+	$type="bdf";
+}else{
+	die "Can only do .ttf or .bdf fonts\n";
+};
+
 ###
 ### Code starts here.
 ###
@@ -66,8 +75,8 @@ our ($title,$fonts);
 our ($heightb,$heightpx);
 
 @charlist=sort { $a <=> $b } @charlist;
-#init_ttf();
-init_bdf();
+
+$::{"init_$type"}();
 
 die "No font name?" if !defined $title;
 
@@ -110,8 +119,7 @@ for (0..$#charlist){
 	my $char=chr $charlist[$_];
 	print "### Start $char\n" if($verbose);
 
-#	my @char=render_ttf($_);
-	my @char=render_bdf($_);
+	my @char=$::{"render_$type"}($_);
 
 	print C " /* Char ",ord $char," is ",scalar@char,"px wide \@ $offset */\n";
 
@@ -387,7 +395,7 @@ sub make_bytes{
 	my @out;
 
 	while(@enc){
-		push @enc,0 if($#enc==2);
+		push @enc,1 if($#enc==2);
 		push @out,16*(shift@enc)+(shift@enc);
 	};
 	return @out;
@@ -570,7 +578,7 @@ sub init_bdf{
 sub render_bdf{
 	my $ccode=$charlist[shift];
 	my $tchar=$chars{$ccode};
-	print "Char: $ccode:\n",join("\n",@{$tchar}),"\nEND\n";
+#	print "Char: $ccode:\n",join("\n",@{$tchar}),"\nEND\n";
 	return @{$tchar};
 };
 
