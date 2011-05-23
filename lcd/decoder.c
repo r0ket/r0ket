@@ -11,10 +11,11 @@ static uint8_t buf[MAXCHR];
 	char gnn(){ // Get next nibble
 		static int byte;
 		int val;
+		if(hilo==1)
+			ctr++;
 		hilo=1-hilo;
 		if(hilo==1){
 			byte=data[ctr];
-			ctr++;
 			val=byte>>4;
 		}else{
 			val=byte&0x0f;
