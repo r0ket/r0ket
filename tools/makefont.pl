@@ -164,14 +164,15 @@ for (0..$#charlist){
 	$c1size+=3;
 	$c2size+=1;
 
+	my $oneraw;
 	# If encoding is bigger, fall back to original char
 	if($#enc>$#raw+3){
 		warn "Compression failure: Encoding char $char raw.\n";
-		$raw=1;
+		$oneraw=1;
 	};
 
 	# Generate C source
-	if($raw){
+	if($raw||$oneraw){
 		$c2size-=scalar(@enc);
 		@enc=(255,$preblank,$postblank,@raw);
 		$c2size+=scalar(@enc);
@@ -501,6 +502,7 @@ sub getfontname {
 ######################################################################
 our $bdf;
 our %chars;
+our $fallback;
 sub init_bdf{
 	($title,$licence)=($font,"<licence>");
 	my($bb);
@@ -517,6 +519,7 @@ sub init_bdf{
 		/^COPYRIGHT "(.*)"/ && do {$licence=$1;};
 		/^FAMILY_NAME "(.*)"/ && do {$title=$1;};
 		/^FONTBOUNDINGBOX (\d+) (\d+)/ && do {$bb="$1x$2";};
+		/^DEFAULT_CHAR (\d+)/ && do {$fallback=$1;};
 		
 		last if /^ENDPROPERTIES/;
 	};
@@ -577,8 +580,10 @@ sub init_bdf{
 
 sub render_bdf{
 	my $ccode=$charlist[shift];
+#	print "Char: $ccode:\n";
+	$ccode=$fallback if !defined $chars{$ccode};
 	my $tchar=$chars{$ccode};
-#	print "Char: $ccode:\n",join("\n",@{$tchar}),"\nEND\n";
+#	print join("\n",@{$tchar}),"\nEND\n";
 	return @{$tchar};
 };
 
