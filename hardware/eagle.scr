@@ -12,3 +12,6 @@ change drill 0.4;
 change shape octagon;
 
 #Set Used_layers 1 16 17 18 19 20 21 22 23 24 25 26 27 28 39 40 41 42 43 44 45;
+
+# Only cycle 45° bends
+set wire_bend @ 1 3;
