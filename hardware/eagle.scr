@@ -1,0 +1,14 @@
+#This file can be used to configure the editor windows.
+#Assign A+F3 'Window 4;';
+
+BRD:
+
+set width_menu 0.2 0.4 0.5;
+Change width 0.2;
+
+#set drill_menu 0.4;
+change drill 0.4;
+
+change shape octagon;
+
+#Set Used_layers 1 16 17 18 19 20 21 22 23 24 25 26 27 28 39 40 41 42 43 44 45;
