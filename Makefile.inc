@@ -24,7 +24,7 @@ SIZE = $(CROSS_COMPILE)size
 OBJCOPY = $(CROSS_COMPILE)objcopy
 OBJDUMP = $(CROSS_COMPILE)objdump
 OUTFILE = firmware
-LPCRC = tools/lpcrc
+LPCFIX = tools/lpcfix
 
 ifeq (LPC11xx,$(TARGET))
   CORTEX_TYPE=m0

@@ -36,7 +36,7 @@ LD_PATH = lpc1xxx
 LD_SCRIPT = $(LD_PATH)/linkscript.ld
 LD_TEMP = $(LD_PATH)/memory.ld
 
-all: firmware
+all: $(OUTFILE).bin
 
 %.o : %.c
 	$(CC) $(CFLAGS) -o $@ $<
@@ -50,10 +50,10 @@ lcd/liblcd.a lcd/render.o lcd/display.o:
 modules/libmodules.a:
 	cd modules && $(MAKE) ROOT_PATH=../$(ROOT_PATH)
 
-tools/lpcrc:
+tools/lpcfix:
 	cd tools && $(MAKE) 
 
-firmware: $(OBJS) $(SYS_OBJS) $(LIBS) $(LPCRC)
+$(OUTFILE).bin: $(OBJS) $(SYS_OBJS) $(LIBS) $(LPCFIX)
 	-@echo "MEMORY" > $(LD_TEMP)
 	-@echo "{" >> $(LD_TEMP)
 	-@echo "  flash(rx): ORIGIN = 0x00000000, LENGTH = $(FLASH)" >> $(LD_TEMP)
@@ -66,7 +66,10 @@ firmware: $(OBJS) $(SYS_OBJS) $(LIBS) $(LPCRC)
 	-@echo ""
 	$(OBJCOPY) $(OCFLAGS) -O binary $(OUTFILE).elf $(OUTFILE).bin
 	-@echo ""
-	$(LPCRC) $(OUTFILE).bin
+	$(LPCFIX) -c $(OUTFILE).bin
+
+protect: $(OUTFILE).bin
+	$(LPCFIX) -p 2 $(OUTFILE).bin
 
 clean:
 	rm -f $(OBJS) $(LD_TEMP) $(OUTFILE).elf $(OUTFILE).bin $(OUTFILE).hex
