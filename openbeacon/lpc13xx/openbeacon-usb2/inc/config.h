@@ -25,13 +25,13 @@
 #define __CONFIG_H__
 
 /* enable USB disk support */
-#define USB_DISK_SUPPORT
+//#define USB_DISK_SUPPORT
 #define USB_VENDOR_ID 0x2366
 #define USB_PROD_ID 0x0003
 #define USB_DEVICE 1
 
 /* SPI_CS(io_port, io_pin, CPSDVSR frequency, mode) */
-#define SPI_CS_FLASH SPI_CS( 2, 0, 24, SPI_CS_MODE_SKIP_TX ) /* 24.0MHz */
+//#define SPI_CS_FLASH SPI_CS( 2, 0, 24, SPI_CS_MODE_SKIP_TX ) /* 24.0MHz */
 #define SPI_CS_NRF   SPI_CS( 1,10, 24, SPI_CS_MODE_NORMAL  ) /*  9.6MHz */
 //#define SPI_CS_ACC3D SPI_CS( 0, 4, 6, SPI_CS_MODE_NORMAL  ) /*  8.0MHz */
 
