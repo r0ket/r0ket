@@ -33,13 +33,15 @@
 #include "nRF_API.h"
 #include "nRF_CMD.h"
 #include "openbeacon-proto.h"
+#include "display.h"
 
 /* OpenBeacon packet */
 static TBeaconEnvelope g_Beacon;
 
 /* Default TEA encryption key of the tag - MUST CHANGE ! */
 static const uint32_t xxtea_key[4] =
-{ 0x00112233, 0x44556677, 0x8899AABB, 0xCCDDEEFF };
+//{ 0x00112233, 0x44556677, 0x8899AABB, 0xCCDDEEFF };
+{ 0xb4595344, 0xd3e119b6, 0xa814d0ec, 0xeff5a24e };
 
 /* set nRF24L01 broadcast mac */
 static const unsigned char broadcast_mac[NRF_MAX_MAC_SIZE] =
@@ -196,7 +198,7 @@ void nRF_Task(void *pvParameters)
 	/* Initialize OpenBeacon nRF24L01 interface */
 	if (!nRFAPI_Init(81, broadcast_mac, sizeof(broadcast_mac), 0))
 		/* bail out if can't initialize */
-	//	for (;;)
+		for (;;)
 		{
 			pin_led(GPIO_LED0 | GPIO_LED1);
 			vTaskDelay(500 / portTICK_RATE_MS);
@@ -349,6 +351,9 @@ int main(void)
 	/* wait on boot - debounce */
 	for (i = 0; i < 2000000; i++)
 		;
+
+	//pmu_off(0);
+    lcdInit();
 	/* initialize  pins */
 	pin_init();
 	/* Init SPI */

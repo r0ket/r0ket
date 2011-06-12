@@ -41,8 +41,10 @@ int inverted = 0;
 */
 
 #define CS 2,1
-#define SCK 0,10
+#define SCK 2,11
+//#define SCK 2,8
 #define SDA 0,9
+//#define SDA 2,8
 #define RST 2,2
 
 void lcdWrite(uint8_t cd, uint8_t data)
@@ -116,8 +118,7 @@ void lcdRead(uint8_t data)
 
 void lcdInit(void)
 {
-    IOCON_SWCLK_PIO0_10 = 0x51;
-
+    //IOCON_SWCLK_PIO0_10 = 0x51;
     gpioSetValue(RST, 1); 
     gpioSetValue(CS, 1);
 

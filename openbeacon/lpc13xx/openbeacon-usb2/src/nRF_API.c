@@ -29,9 +29,10 @@
 #include "nRF_CMD.h"
 #include "nRF_API.h"
 
-#ifndef NRF_RFOPTIONS
+//#ifndef NRF_RFOPTIONS
+//#define NRF_RFOPTIONS 0x99
 #define NRF_RFOPTIONS 0x09
-#endif /*NRF_RFOPTIONS */
+//#endif /*NRF_RFOPTIONS */
 
 // set broadcast MAC to 'BCAST'
 const uint8_t rfbroadcast_mac[NRF_MAX_MAC_SIZE] = { 'T', 'S', 'A', 'C', 'B' };
@@ -91,12 +92,20 @@ nRFAPI_Init (uint8_t channel,
 	     const uint8_t * mac, uint8_t mac_size, uint8_t features)
 {
   uint8_t i;
-
   // init IO layer of nRF24L01
   nRFCMD_Init ();
 
   /* wait for nRF to boot */
   vTaskDelay(10 / portTICK_RATE_MS);
+
+  //nRFCMD_RegWriteStatusRead (CONFIG | WRITE_REG, 0x2);
+  // set selected channel
+  //nRFAPI_SetChannel (channel);
+
+  // set Tx power
+  //nRFAPI_SetTxPower (3);
+  //nRFCMD_CE(1);
+  //while(1);
 
   // check validity
   if (mac_size < 3 || mac_size > 5 || !nRFAPI_DetectChip ())

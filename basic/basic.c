@@ -2,7 +2,6 @@
 #include "core/gpio/gpio.h"
 
 void rbInit() {
-
     // TODO FIXME special port disable ? LEDs BTNs ?
 
     // prepare power
@@ -30,6 +29,9 @@ void rbInit() {
 
 
     // prepare LEDs
+    IOCON_JTAG_TDI_PIO0_11 &= ~IOCON_JTAG_TDI_PIO0_11_FUNC_MASK;
+    IOCON_JTAG_TDI_PIO0_11 |= IOCON_JTAG_TDI_PIO0_11_FUNC_GPIO; 
+ 
     gpioSetDir(RB_LED0, gpioDirection_Output);
     gpioSetValue (RB_LED0, 1); 
 
@@ -44,18 +46,23 @@ void rbInit() {
 
 
     // prepare IR
-    gpioSetDir(RB_IROUT, gpioDirection_Output);
-    gpioSetValue (RB_IROUT, 1); 
+    //gpioSetDir(RB_IROUT, gpioDirection_Output);
+    //gpioSetValue (RB_IROUT, 1); 
 
-    gpioSetDir(RB_IRIN, gpioDirection_Input);
-    gpioSetPullup (&RB_IRIN_IO, gpioPullupMode_PullUp);
+    //gpioSetDir(RB_IRIN, gpioDirection_Input);
+    //gpioSetPullup (&RB_IRIN_IO, gpioPullupMode_PullUp);
 
 
     // prepare lcd
     // TODO FIXME more init needed ?
     gpioSetDir(RB_LCD_BL, gpioDirection_Output);
-    gpioSetValue (RB_LCD_BL, 1); 
+    gpioSetValue (RB_LCD_BL, 0); 
 
+    // Set P0.0 to GPIO
+    RB_PWR_LCDBL_IO&= ~RB_PWR_LCDBL_IO_FUNC_MASK;
+    RB_PWR_LCDBL_IO|= RB_PWR_LCDBL_IO_FUNC_GPIO; 
+    gpioSetDir(RB_PWR_LCDBL, gpioDirection_Input);
+    gpioSetPullup(&RB_PWR_LCDBL_IO, gpioPullupMode_Inactive);
 
     // prepare I2C
     #ifdef __I2C_h

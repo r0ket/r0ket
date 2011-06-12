@@ -16,6 +16,8 @@ void module_sec(void) {
     gpioSetDir(RB_LED3, gpioDirection_Input);
     IOCON_PIO1_11 = 0x41;
 
+    backlightInit();
+
     uint32_t j=0;
 
     //disable the JTAG on PIO3_3

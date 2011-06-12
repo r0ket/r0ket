@@ -69,13 +69,13 @@ void delayms(int);
 uint8_t getInput(void) {
     uint8_t result = BTN_NONE;
 
-    if (gpioGetValue(RB_BTN1)==0) {
-        while(gpioGetValue(RB_BTN1)==0);
+    if (gpioGetValue(RB_BTN3)==0) {
+        while(gpioGetValue(RB_BTN3)==0);
         result += BTN_UP;
     }
 
-    if (gpioGetValue(RB_BTN0)==0) {
-        while(gpioGetValue(RB_BTN0)==0);
+    if (gpioGetValue(RB_BTN2)==0) {
+        while(gpioGetValue(RB_BTN2)==0);
         result += BTN_DOWN;
     }
 
@@ -84,13 +84,13 @@ uint8_t getInput(void) {
         result += BTN_ENTER;
     }
 
-    if (gpioGetValue(RB_BTN2)==0) {
-        while(gpioGetValue(RB_BTN2)==0);
+    if (gpioGetValue(RB_BTN0)==0) {
+        while(gpioGetValue(RB_BTN0)==0);
         result += BTN_LEFT;
     }
 
-    if (gpioGetValue(RB_BTN3)==0) {
-        while(gpioGetValue(RB_BTN3)==0);
+    if (gpioGetValue(RB_BTN1)==0) {
+        while(gpioGetValue(RB_BTN1)==0);
         result += BTN_RIGHT;
     }
 

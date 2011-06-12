@@ -26,10 +26,10 @@
 /* IO definitions */
 #define BUTTON0_PORT 2
 #define BUTTON0_BIT 7
-#define LED0_PORT 2
-#define LED0_BIT 5
-#define LED1_PORT 2
-#define LED1_BIT 4
+#define LED0_PORT 1
+#define LED0_BIT 11
+#define LED1_PORT 1
+#define LED1_BIT 7
 #define CPU_MODE_PMU_PORT 2
 #define CPU_MODE_PMU_BIT 8
 

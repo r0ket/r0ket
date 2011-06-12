@@ -20,6 +20,7 @@ int main(void) {
     //enable clocks to adc and watchdog
     pmuInit();
 
+
     // initialise basic badge functions
     rbInit();
   

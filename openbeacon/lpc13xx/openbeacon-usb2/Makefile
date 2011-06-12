@@ -13,6 +13,7 @@ APP_SRC= \
   src/nRF_API.c \
   src/pin.c \
   src/pmu.c \
+  src/display.c
 #  src/storage.c
 
 APP_SRC+=$(IMAGES_C)
