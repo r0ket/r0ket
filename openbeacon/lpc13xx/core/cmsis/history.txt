@@ -1,0 +1,8 @@
+History of updates to CMSISv1p30_LPC13xx
+========================================
+
+18 February 2010
+----------------
+system_LPC13xx.c updated to new version (dated 18 February 2010),
+changing value of SYSPLLCTRL_Val from 0x05 to 0x25
+
