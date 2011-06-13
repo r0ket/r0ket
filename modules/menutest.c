@@ -94,7 +94,7 @@ uint8_t getInput(void) {
         result += BTN_RIGHT;
     }
 
-    if (result == (BTN_LEFT+BTN_RIGHT)){ /* Development hack */
+    if (result == (BTN_LEFT+BTN_TOP+BTN_ENTER)){ /* Development hack */
         gotoISP();
     }
 
