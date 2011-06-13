@@ -126,4 +126,7 @@ void EnterISP(void);
 // delayms.c
 void delayms(uint32_t ms);
 
+// voltage.c
+void VoltageCheck(void);
+
 #endif
