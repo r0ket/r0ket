@@ -11,20 +11,10 @@
 uint8_t lcdBuffer[RESX*RESY_B];
 int inverted = 0;
 
-/*
-//TODO FIXME why doenst that work ?
-#define CS 	RB_LCD_CS
-#define SCK 	RB_SPI_SCK
-#define SDA 	RB_SPI_MOSI
-#define RST 	RB_LCD_RST
-*/
-
-#define CS 2,1
-#define SCK 2,11
-//#define SCK 2,8
-#define SDA 0,9
-//#define SDA 2,8
-#define RST 2,2
+#define CS      RB_LCD_CS
+#define SCK     RB_SPI_SCK
+#define SDA     RB_SPI_MOSI
+#define RST     RB_LCD_RST
 
 void lcdWrite(uint8_t cd, uint8_t data)
 {
