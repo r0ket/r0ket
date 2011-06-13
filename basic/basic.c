@@ -44,6 +44,7 @@ void rbInit() {
     gpioSetDir(RB_LED3, gpioDirection_Output);
     gpioSetValue (RB_LED3, 1); 
 
+    IOCON_PIO1_11 = 0x41;
 
     // prepare IR
     //gpioSetDir(RB_IROUT, gpioDirection_Output);
