@@ -128,5 +128,6 @@ void delayms(uint32_t ms);
 
 // voltage.c
 void VoltageCheck(void);
+uint32_t GetVoltage(void);
 
 #endif

@@ -2,9 +2,9 @@
 
 #include "basic/basic.h"
 
+uint32_t results=5000;
 
 void VoltageCheck(void){
-	uint32_t results;
 
 	results = adcRead(1);
 	results *= 10560;
@@ -17,4 +17,8 @@ void VoltageCheck(void){
 	    PMU_PMUCTRL = PMU_PMUCTRL_DPDEN_DEEPPOWERDOWN;
 	    __asm volatile ("WFI");
     };
+};
+
+uint32_t GetVoltage(void){
+    return results;
 };
