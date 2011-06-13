@@ -154,6 +154,17 @@ void lcdFill(char f){
 	}
 };
 
+void lcdSetPixel(char x, char y, bool f){
+	char y_byte = (RESY-(y+1)) / 8;
+	char y_off = (RESY-(y+1)) % 8;
+	char byte = lcdBuffer[y_byte*RESX+(RESX-x)%RESX];
+	if (f) {
+		byte |= (1 << y_off);
+	} else {
+		byte &= ~(1 << y_off);
+	}
+	lcdBuffer[y_byte*RESX+(RESX-x)%RESX] = byte;
+}
 void lcdDisplay(uint32_t shift)
 {
     lcdWrite(0,0xB0);
