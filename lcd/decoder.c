@@ -1,7 +1,7 @@
 #include <fonts.h>
 #include <render.h>
 
-#define MAXCHR (20*10)
+#define MAXCHR (30*20)
 static uint8_t buf[MAXCHR];
 
 	// Local function: Get next nibble.
