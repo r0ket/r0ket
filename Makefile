@@ -8,6 +8,7 @@ OBJS = main.o
 VPATH +=
 OBJS +=
 OBJS += basic/basic.o basic/reinvoke_isp.o basic/delayms.o basic/voltage.o
+OBJS += basic/keyin.o
 OBJS += eeprom/eeprom.o
 LIBS += core/libcore.a lcd/liblcd.a modules/libmodules.a
 
