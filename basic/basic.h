@@ -114,6 +114,8 @@
 
 #define RB_EEPROM_ADDR 		0xA0
 
+#define USB_CONNECT 0,6
+
 void rbInit(void);
 
 // reinvoke_isp.c
