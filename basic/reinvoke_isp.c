@@ -71,3 +71,9 @@ void EnableWatchdog(uint32_t ms){
 	WDT_WDFEED = WDT_WDFEED_FEED1;
 	WDT_WDFEED = WDT_WDFEED_FEED2;
 };
+
+void ISPandReset(int delay){
+		EnableWatchdog(1000*delay);
+		ReinvokeISP();
+};
+

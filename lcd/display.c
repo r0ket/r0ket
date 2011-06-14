@@ -2,28 +2,7 @@
 #include <sysdefs.h>
 #include "lpc134x.h"
 #include "gpio/gpio.h"
-
-/**************************************************************************/
-/*! 
-    Approximates a 1 millisecond delay using "nop".  This is less
-    accurate than a dedicated timer, but is useful in certain situations.
-
-    The number of ticks to delay depends on the optimisation level set
-    when compiling (-O).  Depending on the compiler settings, one of the
-    two defined values for 'delay' should be used.
-*/
-/**************************************************************************/
-void delayms(uint32_t ms)
-{
-  uint32_t delay = ms * ((CFG_CPU_CCLK / 100) / 45);      // Release Mode (-Os)
-  // uint32_t delay = ms * ((CFG_CPU_CCLK / 100) / 120);  // Debug Mode (No optimisations)
-
-  while (delay > 0)
-  {
-    __asm volatile ("nop");
-    delay--;
-  }
-}
+#include "basic/basic.h"
 
 /**************************************************************************/
 /* Utility routines to manage nokia display */
@@ -32,20 +11,10 @@ void delayms(uint32_t ms)
 uint8_t lcdBuffer[RESX*RESY_B];
 int inverted = 0;
 
-/*
-//TODO FIXME why doenst that work ?
-#define CS 	RB_LCD_CS
-#define SCK 	RB_SPI_SCK
-#define SDA 	RB_SPI_MOSI
-#define RST 	RB_LCD_RST
-*/
-
-#define CS 2,1
-#define SCK 2,11
-//#define SCK 2,8
-#define SDA 0,9
-//#define SDA 2,8
-#define RST 2,2
+#define CS      RB_LCD_CS
+#define SCK     RB_SPI_SCK
+#define SDA     RB_SPI_MOSI
+#define RST     RB_LCD_RST
 
 void lcdWrite(uint8_t cd, uint8_t data)
 {

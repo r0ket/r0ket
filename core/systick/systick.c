@@ -63,13 +63,10 @@
 
 #include "systick.h"
 
-#ifdef CFG_SDCARD
-#include "drivers/fatfs/diskio.h"
-volatile uint32_t fatTicks = 0;
-#endif
-
 volatile uint32_t systickTicks = 0;             // 1ms tick counter
 volatile uint32_t systickRollovers = 0;
+
+void tick_wrapper(void);
 
 /**************************************************************************/
 /*! 
@@ -83,14 +80,7 @@ void SysTick_Handler (void)
   // Increment rollover counter
   if (systickTicks == 0xFFFFFFFF) systickRollovers++;
 
-  #ifdef CFG_SDCARD
-  fatTicks++;
-  if (fatTicks == 10)
-  {
-    fatTicks = 0;
-    disk_timerproc();
-  }
-  #endif
+  tick_wrapper();
 }
 
 /**************************************************************************/

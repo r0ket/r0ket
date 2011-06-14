@@ -10,6 +10,9 @@ void rbInit() {
     gpioSetDir(RB_PWR_GOOD, gpioDirection_Output);
     gpioSetValue (RB_PWR_GOOD, 0); 
 
+    // Disable USB Connect (we don't want USB by default)
+    gpioSetDir(USB_CONNECT, gpioDirection_Output);
+    gpioSetValue(USB_CONNECT, 1);
 
     // prepare buttons
     gpioSetDir(RB_BTN0, gpioDirection_Input);

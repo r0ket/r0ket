@@ -114,6 +114,29 @@
 
 #define RB_EEPROM_ADDR 		0xA0
 
+#define USB_CONNECT 0,6
+
 void rbInit(void);
+
+// reinvoke_isp.c
+void ReinvokeISP(void);
+void EnableWatchdog(uint32_t ms);
+void ISPandReset(int delay);
+
+// delayms.c
+void delayms(uint32_t ms);
+
+// voltage.c
+void VoltageCheck(void);
+uint32_t GetVoltage(void);
+
+// keyin.c
+#define BTN_NONE 0
+#define BTN_UP   (1<<0)
+#define BTN_DOWN (1<<1)
+#define BTN_LEFT (1<<2)
+#define BTN_RIGHT (1<<3)
+#define BTN_ENTER (1<<4)
+uint8_t getInput(void);
 
 #endif

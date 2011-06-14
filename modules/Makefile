@@ -59,6 +59,6 @@ clean:
 $(WRAPSRC):
 	./mkwrapper $(OBJS) > $@
 
-.PHONY: $(LIBFILE)
+.PHONY: $(LIBFILE) $(WRAPSRC)
 
 .SUFFIXES:

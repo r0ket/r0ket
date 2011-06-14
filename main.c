@@ -17,16 +17,10 @@ int main(void) {
     // Configure cpu and mandatory peripherals
     systemInit();
 
-    //enable clocks to adc and watchdog
-    pmuInit();
-
-
     // initialise basic badge functions
     rbInit();
   
     lcdInit(); // display
-  
-    adcInit();
 
     lcdFill(0);
     lcdDisplay(0);
