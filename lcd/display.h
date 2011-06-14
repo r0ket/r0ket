@@ -24,5 +24,6 @@ void lcdFill(char f);
 void lcdDisplay(uint32_t shift);
 void lcdInvert(void);
 void lcdSetPixel(char x, char y, bool f);
+bool lcdGetPixel(char x, char y);
 
 #endif

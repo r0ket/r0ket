@@ -11,20 +11,10 @@
 uint8_t lcdBuffer[RESX*RESY_B];
 int inverted = 0;
 
-/*
-//TODO FIXME why doenst that work ?
-#define CS 	RB_LCD_CS
-#define SCK 	RB_SPI_SCK
-#define SDA 	RB_SPI_MOSI
-#define RST 	RB_LCD_RST
-*/
-
-#define CS 2,1
-#define SCK 2,11
-//#define SCK 2,8
-#define SDA 0,9
-//#define SDA 2,8
-#define RST 2,2
+#define CS      RB_LCD_CS
+#define SCK     RB_SPI_SCK
+#define SDA     RB_SPI_MOSI
+#define RST     RB_LCD_RST
 
 void lcdWrite(uint8_t cd, uint8_t data)
 {
@@ -136,14 +126,22 @@ void lcdFill(char f){
 void lcdSetPixel(char x, char y, bool f){
 	char y_byte = (RESY-(y+1)) / 8;
 	char y_off = (RESY-(y+1)) % 8;
-	char byte = lcdBuffer[y_byte*RESX+(RESX-x)%RESX];
+	char byte = lcdBuffer[y_byte*RESX+(RESX-(x+1))];
 	if (f) {
 		byte |= (1 << y_off);
 	} else {
 		byte &= ~(1 << y_off);
 	}
-	lcdBuffer[y_byte*RESX+(RESX-x)%RESX] = byte;
+	lcdBuffer[y_byte*RESX+(RESX-(x+1))] = byte;
 }
+
+bool lcdGetPixel(char x, char y){
+	char y_byte = (RESY-(y+1)) / 8;
+	char y_off = (RESY-(y+1)) % 8;
+	char byte = lcdBuffer[y_byte*RESX+(RESX-(x+1))];
+	return byte & (1 << y_off);
+}
+
 void lcdDisplay(uint32_t shift)
 {
     lcdWrite(0,0xB0);
