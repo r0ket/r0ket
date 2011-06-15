@@ -7,12 +7,16 @@
 #include "lcd/allfonts.h"
 
 #include "filesystem/ff.h"
+#include "filesystem/diskio.h"
+
+#include "core/ssp/ssp.h"
 
 void incBacklight(void);
 void decBacklight(void);
 void gotoISP(void);
 void fs_list(void);
 void fs_create(void);
+void fs_read(void);
 void fs_format(void);
 void fs_status(void);
 void fs_mount(void);
@@ -39,18 +43,21 @@ const struct MENU_DEF menu_mount =  {"FS Mount",    &fs_mount};
 const struct MENU_DEF menu_list =   {"FS List",     &fs_list};
 const struct MENU_DEF menu_create = {"FS Create",   &fs_create};
 const struct MENU_DEF menu_format = {"FS format",   &fs_format};
+const struct MENU_DEF menu_read   = {"FS read",     &fs_read};
 const struct MENU_DEF menu_nop =    {"---",   NULL};
 
 static menuentry menu[] = {
+    &menu_mount,
+    &menu_status,
+    &menu_list,
+    &menu_create,
+    &menu_read,
+    &menu_nop,
+    &menu_format,
+    &menu_nop,
     &menu_ISP,
     &menu_incBL,
     &menu_decBL,
-    &menu_mount,
-    &menu_status,
-    &menu_format,
-    &menu_nop,
-    &menu_list,
-    &menu_create,
     NULL,
 };
 
@@ -71,6 +78,7 @@ void module_fs(void) {
         lcdFill(0); // clear display buffer
 
         handleMenu(&mainmenu);
+        gotoISP();
     }
 
     return;
@@ -143,6 +151,8 @@ void handleMenu(const struct MENU *the_menu) {
                     the_menu->entries[menuselection]->callback();
                 break;
             case BTN_ENTER:
+                DoString(0,0,"Called....");
+                lcdDisplay(0);
                 lcdFill(0);
                 if (the_menu->entries[menuselection]->callback!=NULL)
                     the_menu->entries[menuselection]->callback();
@@ -192,21 +202,7 @@ void gotoISP(void) {
     ISPandReset(5);
 }
 
-void fs_list(void){
-};
-
-void fs_read(void){
-};
-
-void fs_create(void){
-};
-
-void fs_format(void){
-    f_mkfs(0,1,0);
-};
-
-void put_rc (FRESULT rc)
-{
+void put_rc_y (FRESULT rc, int y) {
 	const TCHAR *p =
 		_T("OK\0DISK_ERR\0INT_ERR\0NOT_READY\0NO_FILE\0NO_PATH\0INVALID_NAME\0")
 		_T("DENIED\0EXIST\0INVALID_OBJECT\0WRITE_PROTECTED\0INVALID_DRIVE\0")
@@ -217,9 +213,12 @@ void put_rc (FRESULT rc)
 	for (i = 0; i != rc && *p; i++) {
 		while(*p++) ;
 	}
-    DoString(0,0,p);
+    DoString(0,y,p);
 }
 
+void put_rc (FRESULT rc){
+    put_rc_y(rc,0);
+};
 
 
 long p1, p2, p3;
@@ -239,7 +238,7 @@ void fs_status(void){
 
     DWORD clusters;
 
-    res = f_getfree("/", &clusters, &fs);
+    res = f_getfree("0:", &clusters, &fs);
     put_rc(res);
     if(res){
         return;
@@ -247,39 +246,130 @@ void fs_status(void){
 
     dx=DoString(0,dy,"FAT type:");
     dx=DoInt(dx,dy,ft[fs->fs_type & 3]);
-    dx=DoString(dx,dy,"/noFats:");
+    dy+=8;
+    dx=DoString(0,dy,"noFats:");
     dx=DoInt(dx,dy,fs->n_fats);
 
     dy+=8;
-    dx=DoString(0,dy,"s/c-size:");
+    dx=DoString(0,dy,"s/c");
     dx=DoInt(dx,dy,fs->csize);
     dx=DoString(dx,dy,"*");
-    dx=DoInt(dx,dy,512);
+    dx=DoInt(dx,dy,clusters);
 
-    /*
-
-    if (fs->fs_type != FS_FAT32) _tprintf(_T("Root DIR entries = %u\n"), fs->n_rootdir);
-    _tprintf(_T("Sectors/FAT = %lu\nNumber of clusters = %lu\nFAT start sector = %lu\nDIR start %s = %lu\nData start sector = %lu\n\n..."),
-            fs->fsize, fs->n_fatent - 2, fs->fatbase, fs->fs_type == FS_FAT32 ? "cluster" : "sector", fs->dirbase, fs->database);
-    acc_size = acc_files = acc_dirs = 0;
-    res = scan_files(ptr);
-    if (res) { put_rc(res); break; }
-    p2 = (fs->n_fatent - 2) * fs->csize;
-    p3 = p1 * fs->csize;
-#if _MAX_SS != 512
-    p2 *= fs->ssize / 512;
-    p3 *= fs->ssize / 512;
-#endif
-    p2 /= 2;
-    p3 /= 2;
-    _tprintf(_T("\r%u files, %I64u bytes.\n%u folders.\n%lu KB total disk space.\n"),
-            acc_files, acc_size, acc_dirs, p2);
-    _tprintf(_T("%lu KB available.\n"), p3);
-    */
+    dy+=8;
+    dx=DoString(0,dy,"maxE");
+    dx=DoInt(dx,dy,fs->n_rootdir);
 };
 
-DWORD get_fattime () {
-    // ToDo!
-    return 0;
-}
+void fs_format(void){
+    res=f_mkfs(0,1,0);
+    put_rc(res);
+};
+
+void fs_list(void){
+    DIR dir;                /* Directory object */
+    FILINFO Finfo;
+
+    int yctr=8;
+
+    res = f_opendir(&dir, "0:");
+    put_rc(res);
+    if(res){
+        return;
+    };
+
+    for(;;) {
+        res = f_readdir(&dir, &Finfo);
+        if ((res != FR_OK) || !Finfo.fname[0]) break;
+
+/*
+_tprintf(_T("%c%c%c%c%c %u/%02u/%02u %02u:%02u %9lu  "),
+        (Finfo.fattrib & AM_DIR) ? 'D' : '-',
+        (Finfo.fattrib & AM_RDO) ? 'R' : '-',
+        (Finfo.fattrib & AM_HID) ? 'H' : '-',
+        (Finfo.fattrib & AM_SYS) ? 'S' : '-',
+        (Finfo.fattrib & AM_ARC) ? 'A' : '-',
+        (Finfo.fdate >> 9) + 1980, (Finfo.fdate >> 5) & 15, Finfo.fdate & 31,
+        (Finfo.ftime >> 11), (Finfo.ftime >> 5) & 63, Finfo.fsize);
+_tcscpy(pool, Finfo.fname);
+*/
+        if (Finfo.fattrib & AM_DIR){
+            DoString(0,yctr,"D");
+        }else{
+            DoString(0,yctr,"-");
+        };
+
+
+        int dx=10;
+        dx=DoString(dx,yctr,Finfo.fname);
+        dx=DoString(dx,yctr," <");
+        dx=DoInt(dx,yctr,Finfo.fsize);
+        dx=DoString(dx,yctr,">");
+
+        yctr+=8;
+    }
+    DoString(0,yctr,"<done>");
+};
+
+FIL file[2];            /* File objects */
+
+void fs_create(void){
+    BYTE Buff[10];
+    UINT written;
+
+    put_rc(f_open(&file[0], "test.r0", FA_OPEN_ALWAYS|FA_WRITE));
+    if(res){
+        return;
+    };
+
+    Buff[0]=42;
+    Buff[1]=23;
+    res = f_write(&file[0], Buff, 2, &written);
+    put_rc_y(res,8);
+    if(res){
+        return;
+    };
+
+    int dx;
+    dx=DoString(0,16,"wrote:");
+    dx=DoInt(dx,16,written);
+    DoString(dx,16,"b");
+
+    put_rc_y(f_close(&file[0]),24);
+    if(res){
+        return;
+    };
+};
+
+void fs_read(void){
+    BYTE Buff[10];
+    UINT readbytes;
+
+    put_rc(f_open(&file[0], "test.r0", FA_OPEN_EXISTING|FA_READ));
+    if(res){
+        return;
+    };
+
+    Buff[0]=0;
+    Buff[1]=0;
+    Buff[2]=0;
+    Buff[3]=0;
+
+    res = f_read(&file[0], Buff, 2, &readbytes);
+    put_rc_y(res,8);
+    if(res){
+        return;
+    };
+
+    int dx;
+    dx=DoString(0,16,"read: ");
+    DoInt(dx,16,readbytes);
+
+    DoIntX(0,24,((uint32_t*)Buff)[0]); // Hackety-Hack
+
+    put_rc_y(f_close(&file[0]),32);
+    if(res){
+        return;
+    };
+};
 

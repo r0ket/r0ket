@@ -185,5 +185,13 @@
 /* To enable file shareing feature, set _FS_SHARE to 1 or greater. The value
    defines how many files can be opened simultaneously. */
 
+/* While playing with the filesystem */
+#define FS_DEVEL
+#ifdef FS_DEVEL
+#undef _FS_MINIMIZE
+#define _FS_MINIMIZE	0
+#undef	_USE_MKFS
+#define	_USE_MKFS		1
+#endif
 
 #endif /* _FFCONFIG */
