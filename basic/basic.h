@@ -41,8 +41,6 @@
 // LCD
 #define RB_LCD_BL		1,9
 
-//#define RB_LCD_A0		2,0
-
 #define RB_LCD_CS		2,1
 
 #define RB_LCD_RST		2,2
@@ -60,6 +58,8 @@
 #define RB_SPI_MOSI		0,9
 
 #define RB_SPI_SCK		2,11
+
+#define RB_SPI_CS_DF	2,0
 
 #define RB_SPI_SS0		2,5
 
