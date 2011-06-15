@@ -5,6 +5,8 @@
 OBJS = default.o
 OBJS += $(foreach mod,$(MODULE),$(mod).o)
 
+SRCS = $(foreach mod,$(MODULE),$(mod).c)
+
 ifndef MODULE
 ME_OBJ=$(USERNAME)
 
@@ -59,6 +61,6 @@ clean:
 $(WRAPSRC):
 	./mkwrapper $(OBJS) > $@
 
-.PHONY: $(LIBFILE) $(WRAPSRC)
+.PHONY: $(LIBFILE) $(WRAPSRC) $(SRCS)
 
 .SUFFIXES:
