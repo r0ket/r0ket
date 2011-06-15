@@ -4,7 +4,7 @@
 
 #include "lcd/render.h"
 #include "lcd/backlight.h"
-#include "lcd/smallfonts.h"
+#include "lcd/allfonts.h"
 
 void ReinvokeISP(void);
 
