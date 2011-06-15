@@ -56,3 +56,17 @@
       #define CFG_LED_OFF                 (0)
 
 /*=========================================================================*/
+
+/*=========================================================================
+    SD CARD
+    -----------------------------------------------------------------------
+
+    CFG_HAVE_SDCARD           Indicates whether the SD Card code should be
+                              included in the filesystem access code.
+                              If the SD Card is enabled, the number of volumes
+                              in filesystem/ffconf.h must be increased accordingly.
+
+    -----------------------------------------------------------------------*/
+      #define CFG_HAVE_SDCARD             (0)
+/*=========================================================================*/
+

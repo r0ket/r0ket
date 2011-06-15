@@ -5,7 +5,6 @@
 #include "lcd/render.h"
 
 #include "pmu/pmu.h"
-#include "eeprom/eeprom.h"
 
 void ReinvokeISP(void);
 

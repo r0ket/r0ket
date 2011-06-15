@@ -1,6 +1,6 @@
 Call make as 
 
-make MODULE=eeprom
+make MODULE=menutest
 
 to build a specific module.
 

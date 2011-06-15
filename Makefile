@@ -9,8 +9,7 @@ VPATH +=
 OBJS +=
 OBJS += basic/basic.o basic/reinvoke_isp.o basic/delayms.o basic/voltage.o
 OBJS += basic/keyin.o
-OBJS += eeprom/eeprom.o
-LIBS += core/libcore.a lcd/liblcd.a modules/libmodules.a
+LIBS += core/libcore.a lcd/liblcd.a modules/libmodules.a filesystem/libfat.a
 
 ##########################################################################
 # GNU GCC compiler flags
@@ -30,6 +29,7 @@ LDLIBS  = -lm
 LDLIBS += -Lmodules -lmodules
 LDLIBS += -Lcore -lcore
 LDLIBS += -Llcd -llcd
+LDLIBS += -Lfilesystem -lfat
 OCFLAGS = --strip-unneeded
 
 LD_PATH = lpc1xxx
@@ -49,6 +49,9 @@ lcd/liblcd.a lcd/render.o lcd/display.o:
 
 modules/libmodules.a:
 	cd modules && $(MAKE) ROOT_PATH=../$(ROOT_PATH)
+
+filesystem/libfat.a:
+	cd filesystem && $(MAKE) ROOT_PATH=../$(ROOT_PATH)
 
 tools/lpcfix:
 	cd tools && $(MAKE) 
@@ -77,7 +80,8 @@ clean:
 	@cd tools && $(MAKE) clean
 	@cd lcd && $(MAKE) clean
 	@cd modules && $(MAKE) clean
+	@cd filesystem && $(MAKE) clean
 
 
-.PHONY: lcd/liblcd.a modules/libmodules.a
+.PHONY: lcd/liblcd.a modules/libmodules.a filesystem/libfat.a
 
