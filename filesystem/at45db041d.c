@@ -84,7 +84,7 @@ DRESULT dataflash_read(BYTE *buff, DWORD sector, BYTE count) {
     do {
         wait_for_ready();
         DWORD pageaddr = sector << 9; // lower 9 bits are byte address within the page
-        BYTE remaining = 255;
+        DWORD remaining = 256;
         CS_LOW();
         xmit_spi(OP_PAGEREAD);
         xmit_spi((BYTE)(pageaddr >> 16));
@@ -117,7 +117,7 @@ DRESULT dataflash_write(const BYTE *buff, DWORD sector, BYTE count) {
     do {
         wait_for_ready();
         DWORD pageaddr = sector << 9; // lower 9 bits are byte address within the page
-        BYTE remaining = 255;
+        DWORD remaining = 256;
 
         // write bytes into the dataflash buffer
         CS_LOW();
@@ -217,3 +217,9 @@ DRESULT dataflash_ioctl(BYTE ctrl, void *buff) {
 }
 #endif /* _USE_IOCTL != 0 */
 
+
+
+DWORD get_fattime () {
+    // ToDo!
+    return 0;
+}
