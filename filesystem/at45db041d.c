@@ -28,6 +28,8 @@
 #define SB_PROTECT        (1 << 1)
 #define SB_PAGESIZE       (1 << 0)
 
+#define MAX_PAGE          (2048)
+
 #define CS_LOW()    gpioSetValue(RB_SPI_CS_DF, 0)
 #define CS_HIGH()   gpioSetValue(RB_SPI_CS_DF, 1)
 
@@ -77,6 +79,7 @@ DRESULT dataflash_read(BYTE *buff, DWORD sector, BYTE count) {
     /* convert sector numbers to page numbers */
     sector *= 2;
     count  *= 2;
+    if (sector+count > MAX_PAGE) return RES_PARERR;
 
     do {
         wait_for_ready();
@@ -109,6 +112,7 @@ DRESULT dataflash_write(const BYTE *buff, DWORD sector, BYTE count) {
     /* convert sector numbers to page numbers */
     sector *= 2;
     count  *= 2;
+    if (sector+count > MAX_PAGE) return RES_PARERR;
 
     do {
         wait_for_ready();
@@ -193,7 +197,7 @@ DRESULT dataflash_ioctl(BYTE ctrl, void *buff) {
                 break;
             case GET_SECTOR_COUNT:
                 // TODO: read from device ID register
-                *(WORD*)buff = 2048;
+                *(WORD*)buff = MAX_PAGE/2;
                 res = RES_OK;
                 break;
             case GET_SECTOR_SIZE:
