@@ -28,8 +28,8 @@ OBJS += $(TARGET)_handlers.o LPC1xxx_startup.o
 LDLIBS  = -lm
 LDLIBS += -Lmodules -lmodules
 LDLIBS += -Lfilesystem -lfat
-LDLIBS += -Lcore -lcore
 LDLIBS += -Llcd -llcd
+LDLIBS += -Lcore -lcore
 OCFLAGS = --strip-unneeded
 
 LD_PATH = lpc1xxx

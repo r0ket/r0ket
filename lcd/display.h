@@ -17,8 +17,6 @@
 /* Display buffer */
 extern uint8_t lcdBuffer[RESX*RESY_B];
 
-void lcdWrite(uint8_t cd, uint8_t data);
-void lcdRead(uint8_t data);
 void lcdInit(void);
 void lcdFill(char f);
 void lcdDisplay(uint32_t shift);
