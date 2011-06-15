@@ -57,7 +57,7 @@ void module_mandelbrot(void) {
     double zoom = 1;
     int iteration_max = 300;
     int x_center = 45;
-    int y_center= 40;
+    int y_center= 20;
     while (1) {
         checkISP();
         lcdDisplay(0);
@@ -148,7 +148,7 @@ void module_mandelbrot(void) {
         //rmin*=zoom;
         //rmax*=zoom;
         
-        zoom *= 0.995;
+        zoom *= 0.996;
         iteration_max = iteration_max*1.02;
         
         x_center = RESX/2;
