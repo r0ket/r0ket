@@ -7,6 +7,7 @@
 TARGET = LPC13xx
 FLASH = 32K
 SRAM = 8K
+RAMCODE=1K
 
 # For USB HID support the LPC134x reserves 384 bytes from the sram,
 # if you don't want to use the USB features, just use 0 here.
@@ -19,7 +20,8 @@ SRAM_USB = 384
 CROSS_COMPILE = arm-none-eabi-
 AS = $(CROSS_COMPILE)gcc
 CC = $(CROSS_COMPILE)gcc
-LD = $(CROSS_COMPILE)gcc
+LD = $(CROSS_COMPILE)ld
+REALLD = $(CROSS_COMPILE)ld
 SIZE = $(CROSS_COMPILE)size
 OBJCOPY = $(CROSS_COMPILE)objcopy
 OBJDUMP = $(CROSS_COMPILE)objdump
@@ -39,5 +41,5 @@ CPU_TYPE = cortex-$(CORTEX_TYPE)
 ##########################################################################
 
 CFLAGS  = -std=c99 -c -g -Os $(INCLUDE_PATHS) -Wall -mthumb -ffunction-sections -fdata-sections -fmessage-length=0 -mcpu=$(CPU_TYPE) -DTARGET=$(TARGET) -fno-builtin
-LDFLAGS = -nostartfiles -mthumb -mcpu=$(CPU_TYPE) -Wl,--gc-sections
+LDFLAGS = -nostartfiles
 

@@ -1,0 +1,47 @@
+DIR?= loadable
+
+##########################################################################
+# User configuration and firmware specific object files	
+##########################################################################
+SRCS = $(wildcard $(DIR)/*.c)
+OBJS = $(foreach mod,$(SRCS),$(subst .c,.o,$(mod)))
+ELFS = $(foreach mod,$(SRCS),$(subst .c,.elf,$(mod)))
+BINS = $(foreach mod,$(SRCS),$(subst .c,.bin,$(mod)))
+HDRS = $(foreach mod,$(SRCS),$(subst .c,.h,$(mod)))
+
+##########################################################################
+# GNU GCC compiler flags
+##########################################################################
+ROOT_PATH?= .
+
+INCLUDE_PATHS = -I$(ROOT_PATH) -I$(ROOT_PATH)/core
+
+include $(ROOT_PATH)/Makefile.inc
+
+##########################################################################
+# Compiler settings, parameters and flags
+##########################################################################
+FIRMWARE=$(ROOT_PATH)/$(OUTFILE).elf
+LDFILE=$(DIR)/loadable.ld
+CFLAGS+=-mlong-calls
+LDFLAGS+= -R $(FIRMWARE)
+
+all: $(OBJS) $(ELFS) $(BINS) $(HDRS)
+
+%.o : %.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+%.elf: %.o $(FIRMWARE) $(LDFILE)
+	$(LD) $(LDFLAGS) -T $(LDFILE) -o $@ $<
+	$(SIZE) $@
+
+%.bin: %.elf
+	$(OBJCOPY) $(OCFLAGS) -O binary $< $@
+
+%.h: %.bin $(DIR)/bin2h.pl
+	$(DIR)/bin2h.pl $<
+    
+clean:
+	cd $(DIR) && rm -f *.o *.elf *.bin
+
+.SUFFIXES:

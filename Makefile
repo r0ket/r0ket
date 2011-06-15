@@ -19,6 +19,7 @@ INCLUDE_PATHS = -I$(ROOT_PATH) -I$(ROOT_PATH)/core
 
 include $(ROOT_PATH)/Makefile.inc
 
+LDFLAGS+= -Wl,--gc-sections
 VPATH += lpc1xxx
 OBJS += $(TARGET)_handlers.o LPC1xxx_startup.o
 
@@ -36,7 +37,26 @@ LD_PATH = lpc1xxx
 LD_SCRIPT = $(LD_PATH)/linkscript.ld
 LD_TEMP = $(LD_PATH)/memory.ld
 
+### User targets:
+
 all: $(OUTFILE).bin
+
+protect: $(OUTFILE).bin
+	$(LPCFIX) -p 2 $(OUTFILE).bin
+
+loadables: $(OUTFILE).elf
+	@cd loadable && $(MAKE)
+
+clean:
+	rm -f $(OBJS) $(LD_TEMP) $(OUTFILE).elf $(OUTFILE).bin $(OUTFILE).hex
+	@cd core && $(MAKE) clean
+	@cd tools && $(MAKE) clean
+	@cd lcd && $(MAKE) clean
+	@cd modules && $(MAKE) clean
+	@cd filesystem && $(MAKE) clean
+	@cd loadable && $(MAKE) clean
+
+### Internal targets
 
 %.o : %.c
 	$(CC) $(CFLAGS) -o $@ $<
@@ -56,32 +76,24 @@ filesystem/libfat.a:
 tools/lpcfix:
 	cd tools && $(MAKE) 
 
-$(OUTFILE).bin: $(OBJS) $(SYS_OBJS) $(LIBS) $(LPCFIX)
+$(LD_TEMP):
 	-@echo "MEMORY" > $(LD_TEMP)
 	-@echo "{" >> $(LD_TEMP)
 	-@echo "  flash(rx): ORIGIN = 0x00000000, LENGTH = $(FLASH)" >> $(LD_TEMP)
-	-@echo "  sram(rwx): ORIGIN = 0x10000000+$(SRAM_USB), LENGTH = $(SRAM)-$(SRAM_USB)" >> $(LD_TEMP)
+	-@echo "  sram(rwx): ORIGIN = 0x10000000+$(SRAM_USB), LENGTH = $(SRAM)-$(SRAM_USB)-$(RAMCODE)" >> $(LD_TEMP)
 	-@echo "}" >> $(LD_TEMP)
 	-@echo "INCLUDE $(LD_SCRIPT)" >> $(LD_TEMP)
-	$(LD) $(LDFLAGS) -T $(LD_TEMP) -o $(OUTFILE).elf $(OBJS) $(LDLIBS)
+
+$(OUTFILE).elf: $(OBJS) $(SYS_OBJS) $(LIBS) $(LPCFIX) $(LD_TEMP)
+	$(CC) $(LDFLAGS) -T $(LD_TEMP) -o $(OUTFILE).elf $(OBJS) $(LDLIBS)
 	-@echo ""
 	$(SIZE) $(OUTFILE).elf
 	-@echo ""
-	$(OBJCOPY) $(OCFLAGS) -O binary $(OUTFILE).elf $(OUTFILE).bin
+
+%.bin: %.elf
+	$(OBJCOPY) $(OCFLAGS) -O binary $< $@
 	-@echo ""
-	$(LPCFIX) -c $(OUTFILE).bin
+	$(LPCFIX) -c $@
 
-protect: $(OUTFILE).bin
-	$(LPCFIX) -p 2 $(OUTFILE).bin
-
-clean:
-	rm -f $(OBJS) $(LD_TEMP) $(OUTFILE).elf $(OUTFILE).bin $(OUTFILE).hex
-	@cd core && $(MAKE) clean
-	@cd tools && $(MAKE) clean
-	@cd lcd && $(MAKE) clean
-	@cd modules && $(MAKE) clean
-	@cd filesystem && $(MAKE) clean
-
-
-.PHONY: lcd/liblcd.a modules/libmodules.a filesystem/libfat.a
+.PHONY: $(LD_TEMP) lcd/liblcd.a modules/libmodules.a filesystem/libfat.a
 
