@@ -1,5 +1,5 @@
 #include <sysinit.h>
-
+#include <sysdefs.h>
 #include "basic/basic.h"
 
 #include "lcd/render.h"
@@ -11,13 +11,89 @@
 #define fixpt(a) ((long)(((a)*(1<<FIXSIZE))))
 #define integer(a) (((a)+(1<<(FIXSIZE-1)))>>FIXSIZE)
 
+#define ZOOM_RATIO 0.90
+#define ITERATION_MAX 150
+
 void ReinvokeISP(void);
 void EnableWatchdog(uint32_t ms);
 void delayms(uint32_t ms);
 
 /**************************************************************************/
+struct mb {
+    double rmin, rmax, imin, imax;
+    bool dirty;
+} mandel;
+
+void mandelInit() {
+    mandel.rmin = -2.2*0.9;
+    mandel.rmax = 1.0*0.9;
+    mandel.imin = -2.0*0.9;
+    mandel.imax = 2.0*0.9;
+    mandel.dirty = true;
+}
+
+void mandelMove() {
+    const double factor = 0.1;
+    double delta_r = (mandel.rmax - mandel.rmin)*factor;
+    double delta_i = (mandel.imax - mandel.imin)*factor;
+    
+    
+    if(gpioGetValue(RB_BTN0)==0) {
+        mandel.imax -= delta_i;
+        mandel.imin -= delta_i;
+        mandel.dirty = true;
+    } else if (gpioGetValue(RB_BTN1)==0) {
+        mandel.imax += delta_i;
+        mandel.imin += delta_i;
+        mandel.dirty = true;
+     } else if (gpioGetValue(RB_BTN2)==0) {
+        mandel.rmax += delta_r;
+        mandel.rmin += delta_r;
+         mandel.dirty = true;
+     } else if (gpioGetValue(RB_BTN3)==0) {
+        mandel.rmax -= delta_r;
+        mandel.rmin -= delta_r;
+         mandel.dirty = true;
+     } else if (gpioGetValue(RB_BTN4)==0) {
+        mandel.imin = mandel.imin + (mandel.imax-mandel.imin)*(1-ZOOM_RATIO);
+        mandel.imax = mandel.imax - (mandel.imax-mandel.imin)*(1-ZOOM_RATIO);
+        mandel.rmin = mandel.rmin +(mandel.rmax-mandel.rmin)*(1-ZOOM_RATIO);
+        mandel.rmax = mandel.rmax -(mandel.rmax-mandel.rmin)*(1-ZOOM_RATIO);
+         mandel.dirty = true;
+     }
+}
+    
+void mandelCalc() {
+    long r0,i0,rn, p,q;
+    double rs,is;
+    int iteration;
+    char x, y;
+    rs=(mandel.rmax-mandel.rmin)/68.0; 
+    is=(mandel.imax-mandel.imin)/96.0;
+    
+    for (x=0; x<RESX; x++){
+        for (y=0; y<RESY; y++) {           
+            p=fixpt(mandel.rmin+y*rs);
+            q=fixpt(mandel.imin+x*is);
+            rn=0;
+            r0=0;
+            i0=0;
+            iteration=0;
+            while ((mul(rn,rn)+mul(i0,i0))<fixpt(4) && ++iteration<ITERATION_MAX)  {
+                rn=mul((r0+i0),(r0-i0)) +p;           
+                i0=mul(fixpt(2),mul(r0,i0)) +q;
+                r0=rn;
+            }
+            if (iteration==ITERATION_MAX) iteration=1;
+            bool pixel = ( iteration>1);
+            lcdSetPixel(x, y, pixel);
+        }
+    }
+    mandel.dirty = false;
+}
+
 void checkISP(void) {
-    if(gpioGetValue(RB_BTN0)==0){
+    if(gpioGetValue(RB_BTN0)==0 && gpioGetValue(RB_BTN4)==0){
         gpioSetValue (RB_LED1, CFG_LED_ON); 
         delayms(200);
         gpioSetValue (RB_LED1, CFG_LED_OFF); 
@@ -40,72 +116,38 @@ void cross(char x, char y) {
     lcdDisplay(0);
 }
 
+void blink(){
+    gpioSetValue (RB_LED1, CFG_LED_ON); 
+    delayms(100);
+    gpioSetValue (RB_LED1, CFG_LED_OFF); 
+}
+
 void module_mandelbrot(void) {
     gpioSetValue (RB_LED1, CFG_LED_OFF); 
     backlightInit();
     
-    bool toggle = false;
-    int counter = 0;
-    
-    long r0,i0,p,q,rn,tot;
-    //double xmin=-2.5,ymin=-1.5,xmax=1.5,ymax=1.5,xs,ys;
-    
-    double rmin0=-2.2*0.9, imin0=-2.0*0.9, rmax0=1.0*0.9, imax0=2.0*0.9;
+    bool autozoom = false;
     double i_center=0, r_center=0;
-    double rmin=rmin0,imin=imin0,rmax=rmax0,imax=imax0,rs,is;
-    int iteration,r,i;
     double zoom = 1;
-    int iteration_max = 300;
     int x_center = 45;
     int y_center= 20;
+    
+    mandelInit();
     while (1) {
         checkISP();
+         
+        mandelMove();
+        
+        if (mandel.dirty) mandelCalc();
         lcdDisplay(0);
-        delayms(100);
         
-        rs=(rmax-rmin)/68.0; 
-        is=(imax-imin)/96.0; 
-        
-        
-        for (r=0;r<RESY;r++) {
-            for (i=0;i<RESX;i++) {
-                p=fixpt(rmin+r*rs);
-                q=fixpt(imin+i*is);
-                rn=0;
-                r0=0;
-                i0=0;
-                iteration=0;
-                while ((mul(rn,rn)+mul(i0,i0))<fixpt(4) && ++iteration<iteration_max)  {
-                    rn=mul((r0+i0),(r0-i0)) +p;           
-                    i0=mul(fixpt(2),mul(r0,i0)) +q;
-                    r0=rn;
-                }
-                tot+=iteration;
-                if (iteration==iteration_max) iteration=1;
-                bool pixel = ( iteration>1);
-                
-                lcdSetPixel (i,r,pixel);
-                //lcdSetPixel ((RESX-1)-i,r,pixel); 
-                checkISP();
-            }
+        //TODO fix this
+        if (!autozoom) {
+            continue;
         }
-        lcdDisplay(0);
-        
-        //for (int x=0; x<RESX;x++){
-        //    for(int y=0; y<RESY;y++){
-        //        bool p = lcdGetPixel(x,y);
-        //        lcdSetPixel(x,y,~p);
-        //        lcdDisplay(0);
-        //   }
-        //}
-        
         
         bool selected_val = lcdGetPixel(x_center, y_center);
         for (int delta = 0; delta<100; delta++){
-            double test_i = imin + (imax-imin)*x_center/96.0;
-            double test_r = rmin +(imax-rmin)*y_center/68.0;
-            //double dist = test_i * test_i + test_r * test_r;
-            //double dist = ((i_center - test_i)*(i_center - test_i) + (r_center - test_r)*(r_center - test_r))*1.0/zoom;
             double dist = 0;
             if (x_center + delta < RESX && lcdGetPixel(x_center+delta,y_center) != selected_val && dist <=2){
                 x_center +=delta-1;
@@ -125,47 +167,32 @@ void module_mandelbrot(void) {
                 break;
             }
         }
+        cross(x_center, y_center);
         
-       cross(x_center, y_center);
         
         i_center = x_center/96.0 -0.5;
         r_center = y_center/68.0 -0.5;
         
-        double i_off = (imax-imin)*i_center;
-        double r_off = (rmax-rmin)*r_center;
+        double i_off = (mandel.imax-mandel.imin)*i_center;
+        double r_off = (mandel.rmax-mandel.rmin)*r_center;
 
-        imin += i_off*1.0;
-        imax += i_off*1.0;
-        rmin += r_off*1.0;
-        rmax += r_off*1.0;
+        mandel.imin += i_off*1.0;
+        mandel.imax += i_off*1.0;
+        mandel.rmin += r_off*1.0;
+        mandel.rmax += r_off*1.0;
         
-        imin = imin + (imax-imin)*(1-zoom);
-        imax = imax - (imax-imin)*(1-zoom);
-        rmin = rmin +(rmax-rmin)*(1-zoom);
-        rmax = rmax -(rmax-rmin)*(1-zoom);
-        //imin*=zoom;
-        //imax*=zoom;
-        //rmin*=zoom;
-        //rmax*=zoom;
+        mandel.imin = mandel.imin + (mandel.imax-mandel.imin)*(1-zoom);
+        mandel.imax = mandel.imax - (mandel.imax-mandel.imin)*(1-zoom);
+        mandel.rmin = mandel.rmin +(mandel.rmax-mandel.rmin)*(1-zoom);
+        mandel.rmax = mandel.rmax -(mandel.rmax-mandel.rmin)*(1-zoom);
         
-        zoom *= 0.996;
-        iteration_max = iteration_max*1.02;
+        zoom *= ZOOM_RATIO;
+        //iteration_max = iteration_max*1.1;
         
         x_center = RESX/2;
         y_center= RESY/2;
         
         cross(x_center,y_center);
-        if (counter > 24) {
-            if (toggle) {
-                toggle = false;
-            } else {
-                toggle = true;
-            }
-            counter = 0;
-        } else {
-            counter ++;
-        }
-        
     }
     return;
 }
