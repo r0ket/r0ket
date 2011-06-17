@@ -91,6 +91,7 @@
 
 #include "ff.h"			/* FatFs configurations and declarations */
 #include "diskio.h"		/* Declarations of low level disk I/O functions */
+#include "basic/basic.h"
 
 
 /*--------------------------------------------------------------------------
@@ -3692,7 +3693,7 @@ FRESULT f_mkfs (
 		tbl[BS_BootSig32] = 0x29;			/* Extended boot signature */
 		mem_cpy(tbl+BS_VolLab32, "NO NAME    " "FAT32   ", 19);	/* Volume label, FAT signature */
 	} else {
-		ST_DWORD(tbl+BS_VolID, n);			/* VSN */
+		ST_DWORD(tbl+BS_VolID, GetUUID32());			/* VSN */
 		ST_WORD(tbl+BPB_FATSz16, n_fat);	/* Number of sectors per FAT */
 		tbl[BS_DrvNum] = 0x80;				/* Drive number */
 		tbl[BS_BootSig] = 0x29;				/* Extended boot signature */

@@ -139,4 +139,8 @@ uint32_t GetVoltage(void);
 #define BTN_ENTER (1<<4)
 uint8_t getInput(void);
 
+//uuid.c
+uint32_t GetUUID32(void);
+uint16_t GetUUID16(void);
+
 #endif
