@@ -117,7 +117,8 @@ DRESULT dataflash_random_write(const BYTE *buff, DWORD offset, DWORD length) {
 
     do {
         wait_for_ready();
-        DWORD pageaddr = ((offset/256) << 9) | (offset%256);
+        DWORD pageaddr = (offset/256) << 9;
+        DWORD buffaddr = (offset%256);
         DWORD remaining = 256 - offset%256;
         if (remaining > length) {
             remaining = length;
@@ -137,9 +138,9 @@ DRESULT dataflash_random_write(const BYTE *buff, DWORD offset, DWORD length) {
         // write bytes into the dataflash buffer
         CS_LOW();
         xmit_spi(OP_BUFFER1WRITE);
-        xmit_spi(0x00);
-        xmit_spi(0x00);
-        xmit_spi(0x00);
+        xmit_spi((BYTE)(buffaddr >> 16));
+        xmit_spi((BYTE)(buffaddr >> 8));
+        xmit_spi((BYTE)buffaddr);
         do {
             xmit_spi(*buff++);
         } while (--remaining);

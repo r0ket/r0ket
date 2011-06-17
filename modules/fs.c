@@ -9,6 +9,8 @@
 #include "filesystem/ff.h"
 #include "filesystem/diskio.h"
 
+#include "usb/usbmsc.h"
+
 #include "core/ssp/ssp.h"
 
 void incBacklight(void);
@@ -44,6 +46,7 @@ const struct MENU_DEF menu_list =   {"FS List",     &fs_list};
 const struct MENU_DEF menu_create = {"FS Create",   &fs_create};
 const struct MENU_DEF menu_format = {"FS format",   &fs_format};
 const struct MENU_DEF menu_read   = {"FS read",     &fs_read};
+const struct MENU_DEF menu_usb   =  {"USB mount",   &usbMSCInit};
 const struct MENU_DEF menu_nop =    {"---",   NULL};
 
 static menuentry menu[] = {
@@ -54,6 +57,8 @@ static menuentry menu[] = {
     &menu_read,
     &menu_nop,
     &menu_format,
+    &menu_nop,
+    &menu_usb,
     &menu_nop,
     &menu_ISP,
     &menu_incBL,

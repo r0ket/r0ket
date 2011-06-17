@@ -14,11 +14,11 @@ MSC_DEVICE_INFO MscDevInfo;
 ROM ** rom = (ROM **)0x1fff1ff8;
 
 void usbMSCWrite(uint32_t offset, uint8_t src[], uint32_t length) {
-    dataflash_random_write(src, offset+1, length);
+    dataflash_random_write(src, offset, length);
 }
 
 void usbMSCRead(uint32_t offset, uint8_t dst[], uint32_t length) {
-    dataflash_random_read(dst, offset+1, length);
+    dataflash_random_read(dst, offset, length);
 }
 
 void usbMSCInit(void) {
