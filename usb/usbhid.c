@@ -35,13 +35,13 @@
 /**************************************************************************/
 #include <string.h>
 
-#include "core/usbhid-rom/usb.h"
-#include "core/usbhid-rom/usbconfig.h"
 #include "core/rom_drivers.h"
 #include "core/gpio/gpio.h"
 #include "core/adc/adc.h"
 #include "core/systick/systick.h"
 
+#include "usb.h"
+#include "usbconfig.h"
 #include "usbhid.h"
 
 USB_DEV_INFO DeviceInfo;

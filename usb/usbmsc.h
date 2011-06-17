@@ -1,9 +1,7 @@
 /**************************************************************************/
 /*! 
-    @file     usbconfig.c
+    @file     usbhid.h
     @author   K. Townsend (microBuilder.eu)
-    @date     22 March 2010
-    @version  0.10
 
     @section LICENSE
 
@@ -36,80 +34,13 @@
 */
 /**************************************************************************/
 
-#include "usb.h"
-#include "usbconfig.h"
+#ifndef _USBMSC_H_
+#define _USBMSC_H_
 
-#ifndef WBVAL
-#define WBVAL(x) ((x) & 0xFF),(((x) >> 8) & 0xFF)
+#include "projectconfig.h"
+
+void usbMSCWrite(uint32_t offset, uint8_t src[], uint32_t length);
+void usbMSCRead(uint32_t offset, uint8_t dst[], uint32_t length);
+void usbMSCInit(void);
+
 #endif
-
-/* USB String Descriptor (optional) */
-const uint8_t USB_HIDStringDescriptor[] = 
-{
-  /* Index 0x00: LANGID Codes */
-  0x04,                              /* bLength */
-  USB_STRING_DESCRIPTOR_TYPE,        /* bDescriptorType */
-  WBVAL(0x0409), /* US English */    /* wLANGID */
-  /* Index 0x04: Manufacturer */
-  0x1C,                              /* bLength */
-  USB_STRING_DESCRIPTOR_TYPE,        /* bDescriptorType */
-  'm',0,
-  'i',0,
-  'c',0,
-  'r',0,
-  'o',0,
-  'B',0,
-  'u',0,
-  'i',0,
-  'l',0,
-  'd',0,
-  'e',0,
-  'r',0,
-  ' ',0,
-  /* Index 0x20: Product */
-  0x28,                              /* bLength */
-  USB_STRING_DESCRIPTOR_TYPE,        /* bDescriptorType */
-  'L',0,
-  'P',0,
-  'C',0,
-  '1',0,
-  '3',0,
-  '4',0,
-  '3',0,
-  ' ',0,
-  'R',0,
-  'e',0,
-  'f',0,
-  '.',0,
-  ' ',0,
-  'B',0,
-  'o',0,
-  'a',0,
-  'r',0,
-  'd',0,
-  ' ',0,
-  /* Index 0x48: Serial Number */
-  0x1A,                              /* bLength */
-  USB_STRING_DESCRIPTOR_TYPE,        /* bDescriptorType */
-  '0',0,
-  '0',0,
-  '0',0,
-  '0',0,
-  '0',0,
-  '0',0,
-  '0',0,
-  '0',0,
-  '0',0,
-  '0',0,
-  '0',0,
-  '0',0,
-  /* Index 0x62: Interface 0, Alternate Setting 0 */
-  0x0E,                              /* bLength */
-  USB_STRING_DESCRIPTOR_TYPE,        /* bDescriptorType */
-  'H',0,
-  'I',0,
-  'D',0,
-  ' ',0,
-  ' ',0,
-  ' ',0,
-};

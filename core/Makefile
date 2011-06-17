@@ -30,8 +30,6 @@ OBJS += timer32/timer32.o
 #OBJS += usbcdc/usbdesc.o
 #OBJS += usbcdc/usbhw.o
 #OBJS += usbcdc/usbuser.o
-#OBJS += usbhid-rom/usbconfig.o
-#OBJS += usbhid-rom/usbhid.o
 OBJS += wdt/wdt.o
 
 ##########################################################################

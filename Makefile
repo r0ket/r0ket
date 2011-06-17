@@ -9,7 +9,7 @@ VPATH +=
 OBJS +=
 OBJS += basic/basic.o basic/reinvoke_isp.o basic/delayms.o basic/voltage.o
 OBJS += basic/keyin.o
-LIBS += core/libcore.a lcd/liblcd.a modules/libmodules.a filesystem/libfat.a
+LIBS += core/libcore.a lcd/liblcd.a modules/libmodules.a filesystem/libfat.a usb/libusb.a
 
 ##########################################################################
 # GNU GCC compiler flags
@@ -28,8 +28,9 @@ OBJS += $(TARGET)_handlers.o LPC1xxx_startup.o
 ##########################################################################
 LDLIBS  = -lm
 LDLIBS += -Lmodules -lmodules
-LDLIBS += -Lfilesystem -lfat
 LDLIBS += -Llcd -llcd
+LDLIBS += -Lusb -lusb
+LDLIBS += -Lfilesystem -lfat
 LDLIBS += -Lcore -lcore
 OCFLAGS = --strip-unneeded
 
@@ -54,6 +55,7 @@ clean:
 	@cd lcd && $(MAKE) clean
 	@cd modules && $(MAKE) clean
 	@cd filesystem && $(MAKE) clean
+	@cd usb && $(MAKE) clean
 	@cd loadable && $(MAKE) clean
 
 ### Internal targets
@@ -72,6 +74,9 @@ modules/libmodules.a:
 
 filesystem/libfat.a:
 	cd filesystem && $(MAKE) ROOT_PATH=../$(ROOT_PATH)
+
+usb/libusb.a:
+	cd usb && $(MAKE) ROOT_PATH=../$(ROOT_PATH)
 
 tools/lpcfix:
 	cd tools && $(MAKE) 
@@ -95,5 +100,5 @@ $(OUTFILE).elf: $(OBJS) $(SYS_OBJS) $(LIBS) $(LPCFIX) $(LD_TEMP)
 	-@echo ""
 	$(LPCFIX) -c $@
 
-.PHONY: $(LD_TEMP) lcd/liblcd.a modules/libmodules.a filesystem/libfat.a
+.PHONY: $(LD_TEMP) lcd/liblcd.a modules/libmodules.a filesystem/libfat.a usb/libusb.a
 
