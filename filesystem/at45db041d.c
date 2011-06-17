@@ -77,18 +77,16 @@ DRESULT dataflash_random_read(BYTE *buff, DWORD offset, DWORD length) {
     if (status & STA_NOINIT) return RES_NOTRDY;
     if (offset+length > MAX_PAGE*256) return RES_PARERR;
 
-    DWORD pages = length/256 + 1;
-
     do {
         wait_for_ready();
         DWORD pageaddr = ((offset/256) << 9) | (offset%256);
         DWORD remaining = 256 - offset%256;
         if (remaining > length) {
             remaining = length;
-        } else if (remaining > length) {
-            length -= remaining;
-            offset += remaining;
         }
+        length -= remaining;
+        offset += remaining;
+
         CS_LOW();
         xmit_spi(OP_PAGEREAD);
         xmit_spi((BYTE)(pageaddr >> 16));
@@ -102,41 +100,13 @@ DRESULT dataflash_random_read(BYTE *buff, DWORD offset, DWORD length) {
             rcvr_spi_m(buff++);
         } while (--remaining);
         CS_HIGH();
-    } while (--pages);
+    } while (length);
 
     return length ? RES_ERROR : RES_OK;
 }
 
 DRESULT dataflash_read(BYTE *buff, DWORD sector, BYTE count) {
-    if (!count) return RES_PARERR;
-    if (status & STA_NOINIT) return RES_NOTRDY;
-
-    /* convert sector numbers to page numbers */
-    sector *= 2;
-    count  *= 2;
-    if (sector+count > MAX_PAGE) return RES_PARERR;
-
-    do {
-        wait_for_ready();
-        DWORD pageaddr = sector << 9; // lower 9 bits are byte address within the page
-        DWORD remaining = 256;
-        CS_LOW();
-        xmit_spi(OP_PAGEREAD);
-        xmit_spi((BYTE)(pageaddr >> 16));
-        xmit_spi((BYTE)(pageaddr >> 8));
-        xmit_spi((BYTE)pageaddr);
-        xmit_spi(0x00); // follow up with 4 don't care bytes
-        xmit_spi(0x00);
-        xmit_spi(0x00);
-        xmit_spi(0x00);
-        do {
-            rcvr_spi_m(buff++);
-        } while (--remaining);
-        sector++;
-        CS_HIGH();
-    } while (--count);
-
-    return count ? RES_ERROR : RES_OK;
+    return dataflash_random_read(buff, sector*512, count*512);
 }
 
 #if _READONLY == 0
@@ -145,18 +115,15 @@ DRESULT dataflash_random_write(const BYTE *buff, DWORD offset, DWORD length) {
     if (status & STA_NOINIT) return RES_NOTRDY;
     if (offset+length > MAX_PAGE*256) return RES_PARERR;
 
-    DWORD pages = length/256 + 1;
-
     do {
         wait_for_ready();
         DWORD pageaddr = ((offset/256) << 9) | (offset%256);
         DWORD remaining = 256 - offset%256;
         if (remaining > length) {
             remaining = length;
-        } else if (remaining > length) {
-            length -= remaining;
-            offset += remaining;
         }
+        length -= remaining;
+        offset += remaining;
 
         // read page into the internal buffer
         CS_LOW();
@@ -202,73 +169,13 @@ DRESULT dataflash_random_write(const BYTE *buff, DWORD offset, DWORD length) {
             xmit_spi((BYTE)pageaddr);
             CS_HIGH();
         }
-    } while (--pages);
+    } while (length);
 
     return length ? RES_ERROR : RES_OK;
 }
 
 DRESULT dataflash_write(const BYTE *buff, DWORD sector, BYTE count) {
-    if (!count) return RES_PARERR;
-    if (status & STA_NOINIT) return RES_NOTRDY;
-
-    /* convert sector numbers to page numbers */
-    sector *= 2;
-    count  *= 2;
-    if (sector+count > MAX_PAGE) return RES_PARERR;
-
-    do {
-        wait_for_ready();
-        DWORD pageaddr = sector << 9; // lower 9 bits are byte address within the page
-        DWORD remaining = 256;
-
-        // read page into the internal buffer
-        CS_LOW();
-        xmit_spi(OP_PAGE2BUFFER1);
-        xmit_spi((BYTE)(pageaddr >> 16));
-        xmit_spi((BYTE)(pageaddr >> 8));
-        xmit_spi((BYTE)pageaddr);
-        CS_HIGH();
-        wait_for_ready();
-
-        // write bytes into the dataflash buffer
-        CS_LOW();
-        xmit_spi(OP_BUFFER1WRITE);
-        xmit_spi(0x00);
-        xmit_spi(0x00);
-        xmit_spi(0x00);
-        do {
-            xmit_spi(*buff++);
-        } while (--remaining);
-        sector++;
-        CS_HIGH();
-        wait_for_ready();
-
-        // compare buffer with target memory page
-        CS_LOW();
-        xmit_spi(OP_BUFFER1PAGECMP);
-        xmit_spi((BYTE)(pageaddr >> 16));
-        xmit_spi((BYTE)(pageaddr >> 8));
-        xmit_spi((BYTE)pageaddr);
-        CS_HIGH();
-        wait_for_ready();
-        CS_LOW();
-        BYTE reg_status = 0xFF;
-        xmit_spi(OP_STATUSREAD);
-        rcvr_spi_m((uint8_t *) &reg_status);
-        CS_HIGH();
-
-        // trigger program only if data changed
-        if (reg_status & SB_COMP) {
-            CS_LOW();
-            xmit_spi(OP_BUFFER1PROG);
-            xmit_spi((BYTE)(pageaddr >> 16));
-            xmit_spi((BYTE)(pageaddr >> 8));
-            xmit_spi((BYTE)pageaddr);
-            CS_HIGH();
-        }
-    } while (--count);
-
-    return count ? RES_ERROR : RES_OK;
+    return dataflash_random_write(buff, sector*512, count*512);
 }
 #endif /* _READONLY */
 
