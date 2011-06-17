@@ -41,8 +41,8 @@
 
 #include "projectconfig.h"
 
-#define USB_VENDOR_ID CFG_USB_VID 	// Vendor ID
-#define USB_PROD_ID   CFG_USB_PID	// Product ID
+#define USB_VENDOR_ID 0x16c0	// Vendor ID
+#define USB_PROD_ID   0x08ac	// Product ID
 #define USB_DEVICE    0x0100	// Device ID
 
 #define WBVAL(x) ((x) & 0xFF),(((x) >> 8) & 0xFF)
@@ -59,6 +59,7 @@
 extern const uint8_t USB_DeviceDescriptor[];
 extern const uint8_t USB_ConfigDescriptor[];
 extern const uint8_t USB_HIDStringDescriptor[];
+extern const uint8_t USB_MSCStringDescriptor[];
 
 extern const uint8_t HID_ReportDescriptor[];
 extern const uint16_t HID_ReportDescSize;
