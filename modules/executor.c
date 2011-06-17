@@ -7,8 +7,6 @@
 
 void backlightInit(void);
 
-#include "loadable/blinktest.h"
-
 void execute (const void *function, uint16_t length){
     void (*dst)(void);
 
@@ -25,6 +23,56 @@ void execute (const void *function, uint16_t length){
 
     dst=(void (*)(void)) ((uint32_t)(dst) | 1); // Enable Thumb mode!
     dst();
+};
+
+#include "filesystem/ff.h"
+void put_rc_y (FRESULT rc, int y) {
+	const TCHAR *p =
+		_T("OK\0DISK_ERR\0INT_ERR\0NOT_READY\0NO_FILE\0NO_PATH\0INVALID_NAME\0")
+		_T("DENIED\0EXIST\0INVALID_OBJECT\0WRITE_PROTECTED\0INVALID_DRIVE\0")
+		_T("NOT_ENABLED\0NO_FILE_SYSTEM\0MKFS_ABORTED\0TIMEOUT\0LOCKED\0")
+		_T("NOT_ENOUGH_CORE\0TOO_MANY_OPEN_FILES\0");
+	FRESULT i;
+
+	for (i = 0; i != rc && *p; i++) {
+		while(*p++) ;
+	}
+    DoString(0,y,p);
+}
+
+void put_rc (FRESULT rc){
+    put_rc_y(rc,0);
+};
+
+void execute_file (const char * fname){
+    FRESULT res;
+    FIL file;
+    UINT readbytes;
+    void (*dst)(void);
+
+    dst=(void (*)(void)) 0x10001c00;
+
+    res=f_open(&file, fname, FA_OPEN_EXISTING|FA_READ);
+    put_rc(res);
+    if(res){
+        return;
+    };
+
+    res = f_read(&file, (char *)dst, 1024, &readbytes);
+    put_rc_y(res,8);
+    if(res){
+        return;
+    };
+
+    int dx;
+    dx=DoString(0,16,"read: ");
+    DoInt(dx,16,readbytes);
+    lcdDisplay(0);
+
+    dst=(void (*)(void)) ((uint32_t)(dst) | 1); // Enable Thumb mode!
+    dst();
+
+    getInput();
 };
 
 /**************************************************************************/
@@ -74,9 +122,22 @@ void module_executor(void) {
             ISPandReset(5);
         };
 
-        // RAM execute
+        // DF xecute
         if(key==BTN_RIGHT){
-            execute(loadable_blinktest,loadable_blinktest_size);
+            DoString(0,0,"Enter RAM!");
+            lcdDisplay(0);
+            while(getInput()!=BTN_NONE);
+
+            FATFS FatFs;          /* File system object for logical drive */
+            put_rc(f_mount(0, &FatFs));
+
+            execute_file("0:test.c0d");
+            lcdDisplay(0);
+            while(!getInput());
+        };
+
+        if(key==BTN_UP){
+            usbMSCInit();
         };
 
         // Display nickname

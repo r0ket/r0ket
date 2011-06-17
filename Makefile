@@ -45,7 +45,7 @@ all: $(OUTFILE).bin
 protect: $(OUTFILE).bin
 	$(LPCFIX) -p 2 $(OUTFILE).bin
 
-loadables: $(OUTFILE).elf
+loadables: $(OUTFILE).bin
 	@cd loadable && $(MAKE)
 
 clean:
