@@ -90,7 +90,7 @@ print "Writing $title to ${file}.c\n";
 $heightb=int(($heightpx-1)/8)+1; # Round up
 print "Chars are ",$heightpx,"px ($heightb bytes) high\n";
 
-open (C,">",$file.".c")||die;
+open (C,">",$file.".c")||die "Can't create $file.c: $!";
 
 if(defined $licence){
 	$licence=~s/\n/\n * /g;
@@ -261,7 +261,7 @@ printf C " */\n";
 
 close(C);
 
-open (H,">",$file.".h")||die;
+open (H,">",$file.".h")||die "Can't create $file.h: $!";
 print H <<EOF;
 #include "lcd/fonts.h"
 
@@ -507,7 +507,7 @@ sub init_bdf{
 	($title,$licence)=($font,"<licence>");
 	my($bb);
 
-	open($bdf,"<",$font) || die;
+	open($bdf,"<",$font) || die "Can't open $font: $!";
 
 	while(<$bdf>){
 		chomp;
@@ -619,6 +619,10 @@ sub init_ttf {
 
 	($mx,$my)=($bounds[2],$bounds[3]);
 	($top,$bottom)=($bounds[7],$my);
+
+	if(!defined $mx){
+		die "GD::Image failed: $@\n";
+	};
 
 	die "Increase width" if $mx>$width;
 	die "Increase height" if $my>$width;
