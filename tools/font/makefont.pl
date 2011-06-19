@@ -33,8 +33,7 @@ push @charlist,map {ord $_} qw(ä ö ü Ä Ö Ü ß);
 my ($verbose,$raw);
 my $size=18;
 
-my $font="../ttf/Ubuntu-Regular.ttf";
-$font="6x9.bdf";
+my $font="ttf/Ubuntu-Regular.ttf";
 
 GetOptions ("size=i"   => \$size,    # numeric
             "font=s"   => \$font,    # string

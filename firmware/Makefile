@@ -51,7 +51,7 @@ loadables: $(OUTFILE).bin
 clean:
 	rm -f $(OBJS) $(LD_TEMP) $(OUTFILE).elf $(OUTFILE).bin $(OUTFILE).hex
 	@cd core && $(MAKE) clean
-	@cd tools && $(MAKE) clean
+	@cd ../tools/bootloader && $(MAKE) clean
 	@cd lcd && $(MAKE) clean
 	@cd modules && $(MAKE) clean
 	@cd filesystem && $(MAKE) clean
@@ -78,8 +78,8 @@ filesystem/libfat.a:
 usb/libusb.a:
 	cd usb && $(MAKE) ROOT_PATH=../$(ROOT_PATH)
 
-tools/lpcfix:
-	cd tools && $(MAKE) 
+../tools/bootloader/lpcfix:
+	cd ../tools/bootloader && $(MAKE) 
 
 $(LD_TEMP):
 	-@echo "MEMORY" > $(LD_TEMP)
