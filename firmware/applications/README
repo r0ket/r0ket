@@ -1,6 +1,6 @@
 Call make as 
 
-make MODULE=menutest
+make APP=menutest
 
 to build a specific module.
 
