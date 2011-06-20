@@ -100,7 +100,7 @@ void mandelCalc() {
     mandel.dirty = false;
 }
 
-void module_mandelbrot2(void) {
+void main_mandelbrot2(void) {
     backlightInit();
     IOCON_PIO3_3 = 0x10;
     font=&Font_7x8;

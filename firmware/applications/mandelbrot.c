@@ -122,7 +122,7 @@ void blink(){
     gpioSetValue (RB_LED1, CFG_LED_OFF); 
 }
 
-void module_mandelbrot(void) {
+void main_mandelbrot(void) {
     gpioSetValue (RB_LED1, CFG_LED_OFF); 
     backlightInit();
     

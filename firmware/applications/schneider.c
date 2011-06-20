@@ -650,7 +650,7 @@ return jj;
 }
 
 
-void module_schneider(void)
+void main_schneider(void)
 {                                                /* the coefficients for B163 */
   bitstr_parse(poly, "800000000000000000000000000000000000000c9");
   bitstr_parse(coeff_b, "20a601907b8c953ca1481eb10512f78744a3205fd");

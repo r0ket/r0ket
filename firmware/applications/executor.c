@@ -77,7 +77,7 @@ void execute_file (const char * fname){
 
 /**************************************************************************/
 
-void module_executor(void) {
+void main_executor(void) {
 
     backlightInit();
 

@@ -3,11 +3,11 @@
 ##########################################################################
 
 OBJS = default.o
-OBJS += $(foreach mod,$(MODULE),$(mod).o)
+OBJS += $(foreach mod,$(APP),$(mod).o)
 
-SRCS = $(foreach mod,$(MODULE),$(mod).c)
+SRCS = $(foreach mod,$(APP),$(mod).c)
 
-ifndef MODULE
+ifndef APP
 ME_OBJ=$(USERNAME)
 
 ifeq "$(ME_OBJ)" ""
@@ -22,7 +22,7 @@ OBJS += $(ME_OBJ).o
 endif
 
 WRAP=wrapper
-LIBNAME=modules
+LIBNAME=app
 
 ##########################################################################
 # GNU GCC compiler flags
@@ -54,7 +54,7 @@ clean:
 %.c:
 	@echo 
 	@echo "You need to create $@ first"
-	@echo "It should contain a single function void module_filename(void)"
+	@echo "It should contain a single function void main_filename(void)"
 	@echo 
 	@exit 1
 
