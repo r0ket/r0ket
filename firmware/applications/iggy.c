@@ -3,6 +3,7 @@
 #include "basic/basic.h"
 
 #include "lcd/render.h"
+#include "lcd/display.h"
 #include "lcd/allfonts.h"
 
 void ReinvokeISP(void);
@@ -11,7 +12,7 @@ void delayms(uint32_t ms);
 
 /**************************************************************************/
 
-void module_s(void) {
+void main_iggy(void) {
     //Make PIO1_11 an analog input
     gpioSetDir(RB_LED3, gpioDirection_Input);
     IOCON_PIO1_11 = 0x41;
@@ -51,7 +52,7 @@ void module_s(void) {
   IOCON_JTAG_TDI_PIO0_11 = 0x42;
 #endif
 
-
+    bool on = true;
     uint32_t ctr=0;
     while (1) {
 	ctr++;
@@ -60,7 +61,7 @@ void module_s(void) {
 	delayms(10);
 
 	font=fonts[fontctr];
-
+	
 	if(gpioGetValue(RB_BTN3)==0){
 		while(gpioGetValue(RB_BTN3)==0);
 		trigger +=10;
@@ -69,9 +70,17 @@ void module_s(void) {
 		while(gpioGetValue(RB_BTN2)==0);
 		trigger -=10;
 	};
-	//dx=DoString(0,0,"Trig:");
-	//dx=DoInt(dx,0,trigger);
-	//DoString(dx,0," ");
+	
+	for(char x=0; x<RESX; x++){
+		for(char y=0;y<RESY;y++){
+			lcdSetPixel(x,y,on);
+			//on = ~on;
+		}
+	}
+	
+	dx=DoString(0,0,"Trig:");
+	dx=DoInt(dx,0,trigger);
+	DoString(dx,0," ");
 
 	if(gpioGetValue(RB_BTN0)==0){
 		while(gpioGetValue(RB_BTN0)==0);
@@ -81,30 +90,51 @@ void module_s(void) {
 		ReinvokeISP();
 	};
 
-    font = &Font_Ubuntu36pt;
-    static uint8_t ctrx=0, ctry=0, dirx=1, diry=1;
-	dx=DoString(ctrx,ctry,"S");
-    if( dirx ){
-        if(ctrx++ == 60)
-            dirx = 0;
-    }else{
-        if(ctrx-- == 0)
-            dirx=1;
-    }
-    if( diry ){
-        if(ctry++ == 12)
-            diry = 0;
-    }else{
-        if(ctry-- == 0)
-            diry=1;
-    }
+	font = &Font_Orbitron14pt;
+	
+	//for (char x=0;  x<RESX; x++) {
+	//	for (char y=0; y<RESY; y++) {
+	dx=DoString(20,20,"IGGY");
+	
+
+	//on = ~on;
+	//lcdSetPixel(20,20,true);
+	//lcdDisplay(0);
+	//lcdSetPixel(20,21,0);
+	//lcdSetPixel(21,20,1);
+	
+	
+#ifdef SEND
+	if(ctr++>trigger/10){
+		ctr=0;
+		if (gpioGetValue(RB_LED0) == CFG_LED_OFF){
+			gpioSetValue (RB_LED0, CFG_LED_ON); 
+//			DoString(dx,14,"ON!");
+			on = true;
+		} else {
+			gpioSetValue (RB_LED0, CFG_LED_OFF); 
+//			DoString(dx,14,"off");
+			on = false;
+		};
+	};
+#else
+	results = adcRead(0);
+	DoInt(dx,20,results);
+
+	if(results>trigger){
+		DoString(dx,30,"YES!");
+	}else{
+		DoString(dx,30," no ");
+	};
+
+#endif
 	font = &Font_7x8;
 
 	results = adcRead(1);
-	//dx=DoString(0,yctr+28,"Voltage:");
+	dx=DoString(0,yctr+28,"Voltage:");
 	results *= 10560;
 	results /= 1024;
-	//DoInt(dx,yctr+28,results);
+	DoInt(dx,yctr+28,results);
 
 	if( results < 3500 ){
 	    DoString(0,yctr+30,"Shutdown");

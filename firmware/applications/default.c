@@ -3,7 +3,7 @@
 
 /**************************************************************************/
 
-void module_default(void) {
+void main_default(void) {
     systickInit(10);
     return;
 };

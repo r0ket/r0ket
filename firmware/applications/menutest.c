@@ -65,7 +65,7 @@ static const struct MENU mainmenu = {"Mainmenu", menu};
 
 void handleMenu(const struct MENU *the_menu) ;
 
-void module_menutest(void) {
+void main_menutest(void) {
 
     backlightInit();
 

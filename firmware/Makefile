@@ -9,7 +9,7 @@ VPATH +=
 OBJS +=
 OBJS += basic/basic.o basic/reinvoke_isp.o basic/delayms.o basic/voltage.o
 OBJS += basic/keyin.o basic/uuid.o
-LIBS += core/libcore.a lcd/liblcd.a modules/libmodules.a filesystem/libfat.a usb/libusb.a
+LIBS += core/libcore.a lcd/liblcd.a applications/libapp.a filesystem/libfat.a usb/libusb.a
 
 ##########################################################################
 # GNU GCC compiler flags
@@ -27,7 +27,7 @@ OBJS += $(TARGET)_handlers.o LPC1xxx_startup.o
 # Startup files
 ##########################################################################
 LDLIBS  = -lm
-LDLIBS += -Lmodules -lmodules
+LDLIBS += -Lapplications -lapp
 LDLIBS += -Llcd -llcd
 LDLIBS += -Lusb -lusb
 LDLIBS += -Lfilesystem -lfat
@@ -53,7 +53,7 @@ clean:
 	@cd core && $(MAKE) clean
 	@cd ../tools/bootloader && $(MAKE) clean
 	@cd lcd && $(MAKE) clean
-	@cd modules && $(MAKE) clean
+	@cd applications && $(MAKE) clean
 	@cd filesystem && $(MAKE) clean
 	@cd usb && $(MAKE) clean
 	@cd loadable && $(MAKE) clean
@@ -69,8 +69,8 @@ core/libcore.a: core/projectconfig.h
 lcd/liblcd.a lcd/render.o lcd/display.o:
 	cd lcd && $(MAKE) ROOT_PATH=../$(ROOT_PATH)
 
-modules/libmodules.a:
-	cd modules && $(MAKE) ROOT_PATH=../$(ROOT_PATH)
+applications/libapp.a:
+	cd applications && $(MAKE) ROOT_PATH=../$(ROOT_PATH)
 
 filesystem/libfat.a:
 	cd filesystem && $(MAKE) ROOT_PATH=../$(ROOT_PATH)
@@ -100,5 +100,5 @@ $(OUTFILE).elf: $(OBJS) $(SYS_OBJS) $(LIBS) $(LPCFIX) $(LD_TEMP)
 	-@echo ""
 	$(LPCFIX) -c $@
 
-.PHONY: $(LD_TEMP) lcd/liblcd.a modules/libmodules.a filesystem/libfat.a usb/libusb.a
+.PHONY: $(LD_TEMP) lcd/liblcd.a applications/libapp.a filesystem/libfat.a usb/libusb.a
 

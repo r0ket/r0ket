@@ -203,7 +203,7 @@ void check_end() {
     }
 }
         
-void module_spaceinvaders(void) {
+void main_spaceinvaders(void) {
     gpioSetValue (RB_LED1, CFG_LED_OFF); 
     backlightInit();
     

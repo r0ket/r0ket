@@ -12,7 +12,7 @@ void ReinvokeISP(void);
 
 /**************************************************************************/
 
-void module_bsx(void) {
+void main_bsx(void) {
     int yctr = 18;
     int dx = 0;
     uint32_t brightness = 0;

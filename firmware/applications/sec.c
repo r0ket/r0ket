@@ -9,7 +9,7 @@ void backlightInit(void);
 
 /**************************************************************************/
 
-void module_sec(void) {
+void main_sec(void) {
 
     backlightInit();
 
