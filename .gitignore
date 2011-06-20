@@ -1,10 +1,4 @@
-firmware.bin
-firmware.elf
 *.org
 *.o
 *.a
 *.swp
-lpc1xxx/memory.ld
-modules/wrapper.c
-lcd/allfonts.h
-font_devel
