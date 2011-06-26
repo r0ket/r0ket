@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
 
   /* init section */
   prog=argv[0];
-  if(!prog)prog="blink";
+  if(!prog)prog="lpcfix";
   if(strrchr(prog,'/')){
 	  prog=strrchr(argv[0],'/');
 	  prog++;
