@@ -35,6 +35,7 @@ int main(int argc, char *argv[]) {
   k[0]=0; k[1]=0; k[2]=0; k[3]=0;
   char block=16;
   char *outfile=NULL; // outfile == infile
+  int decrypt=0;
 
   /* init section */
   prog=argv[0];
@@ -45,10 +46,14 @@ int main(int argc, char *argv[]) {
   }
 
   /* The big getopt loop */
-  while ((c = getopt(argc, argv, "vhk:b:o:")) != EOF)
+  while ((c = getopt(argc, argv, "vhdk:b:o:")) != EOF)
 	  switch (c) {
 		  case 'v':
 			  verbose++;
+			  break;
+
+		  case 'd':
+			  decrypt=1;
 			  break;
 
 		  case 'k':
@@ -69,8 +74,9 @@ int main(int argc, char *argv[]) {
 "This program en/decrypts a file with the XXTEA algorithm\n"
 "\n\n"
 "-v           Be verbose (-v -v = even more)\n"
+"-d           Decrypt (instead of encrypt)\n"
 "-o file      Output to <file>. (Default: overwrite input file)\n"
-"-k key       128bit hex key. [Not yet implemented]\n"
+"-k key       128bit hex key.\n"
 "-b block     Set blocksize. (Default: file size)\n"
 "-h           This help\n\n"
 "\n",prog);
@@ -134,7 +140,7 @@ int main(int argc, char *argv[]) {
           fprintf(stderr,"Whoops. needs padding: cnt=%d, mod=%d\n",cnt,cnt%sizeof(*buf));
       }; */
 
-      btea(buf, cnt, k);
+      btea(buf, decrypt?-cnt:cnt, k);
 
       if(!outfile) // in-place crypting...
           if (fseek(fp,-cnt*sizeof(*buf),SEEK_CUR) != 0){
