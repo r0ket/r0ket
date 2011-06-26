@@ -19,13 +19,10 @@ uint8_t getInput(void) {
         result += BTN_ENTER;
     }
 
-    if(IOCON_PIO0_1 & 1 == 1){
-        ; // disable left
-    }else
-        if (gpioGetValue(RB_BTN0)==0) {
-            while(gpioGetValue(RB_BTN0)==0);
-            result += BTN_LEFT;
-        }
+    if (gpioGetValue(RB_BTN0)==0) {
+        while(gpioGetValue(RB_BTN0)==0);
+        result += BTN_LEFT;
+    }
 
     if (gpioGetValue(RB_BTN1)==0) {
         while(gpioGetValue(RB_BTN1)==0);

@@ -42,8 +42,9 @@ void usbMSCInit(void) {
   SCB_USBCLKSEL = SCB_USBCLKSEL_SOURCE_USBPLLOUT;
 
   // Set USB pin functions
-  IOCON_PIO0_1 &= ~IOCON_PIO0_1_FUNC_MASK;
-  IOCON_PIO0_1 |= IOCON_PIO0_1_FUNC_CLKOUT;           // CLK OUT
+  // bsx says, its only needed for usb-hid. And it conflicts with btn_0
+//  IOCON_PIO0_1 &= ~IOCON_PIO0_1_FUNC_MASK;
+//  IOCON_PIO0_1 |= IOCON_PIO0_1_FUNC_CLKOUT;           // CLK OUT
   IOCON_PIO0_3 &= ~IOCON_PIO0_3_FUNC_MASK;
   IOCON_PIO0_3 |= IOCON_PIO0_3_FUNC_USB_VBUS;         // VBus
   IOCON_PIO0_6 &= ~IOCON_PIO0_6_FUNC_MASK;
@@ -90,4 +91,8 @@ void USB_IRQHandler() {
   (*rom)->pUSBD->isr();
 }
 #endif
+
+void usbMSCOff(void) {
+  (*rom)->pUSBD->connect(false);     /* USB Disconnect */
+}
 
