@@ -19,6 +19,7 @@
 // default block size
 
 void btea(uint32_t *v, int n, uint32_t const k[4]);
+void hexkey(char *string, uint32_t k[4]);
 
 int main(int argc, char *argv[]) {
   FILE *fp;
@@ -51,7 +52,7 @@ int main(int argc, char *argv[]) {
 			  break;
 
 		  case 'k':
-			  // XXX: get key
+              hexkey(optarg, k);
 			  break;
 
 		  case 'b':
@@ -111,6 +112,9 @@ int main(int argc, char *argv[]) {
   if(!buf){
       fprintf(stderr,"Error: malloc() failed.\n");
   };
+
+  if (verbose)
+      fprintf(stderr,"Key: %08x %08x %08x %08x\n",k[0],k[1],k[2],k[3]);
 
   int cnt;
   if (verbose)
@@ -191,4 +195,38 @@ void btea(uint32_t *v, int n, uint32_t const k[4]) {
             y = v[0] -= MX;
         } while ((sum -= DELTA) != 0);
     }
+}
+
+void hexkey(char *string, uint32_t k[4]){
+    int idx=0;
+    int kidx=0;
+    int kctr=0;
+    int value;
+    char ch;
+
+    while ((ch=string[idx++])!=0){
+        if(ch == ' ')
+            continue;
+        if(ch == '\t')
+            continue;
+
+        if (ch >= '0' && ch <= '9')
+            value = (ch - '0');
+        else if (ch >= 'A' && ch <= 'F')
+            value = (ch - 'A' + 10);
+        else if (ch >= 'a' && ch <= 'f')
+            value = (ch - 'a' + 10);
+        else
+            continue;
+
+
+        k[kidx]=(k[kidx]<<4)+value;
+        kctr++;
+        if(kctr>=8){
+            kctr=0;
+            kidx++;
+            if(kidx>4)
+                return;
+        };
+    };
 }
