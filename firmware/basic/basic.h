@@ -143,4 +143,7 @@ uint8_t getInput(void);
 uint32_t GetUUID32(void);
 uint16_t GetUUID16(void);
 
+// for core/iap/iap.c (no official definition)
+void iap_entry(uint32_t param_tab[], uint32_t result_tab[]);
+
 #endif

@@ -1,5 +1,7 @@
 #include "lpc134x.h"
 #include "sysdefs.h"
+#include "basic/basic.h"
+#include "usb/usbmsc.h"
 
 /* Missing from core */
 
@@ -73,7 +75,11 @@ void EnableWatchdog(uint32_t ms){
 };
 
 void ISPandReset(int delay){
-		EnableWatchdog(1000*delay);
-		ReinvokeISP();
+    if(usbMSCenabled){
+        usbMSCOff();
+        delayms(500);
+    };
+    EnableWatchdog(1000*delay);
+    ReinvokeISP();
 };
 

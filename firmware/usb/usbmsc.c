@@ -12,6 +12,7 @@
 USB_DEV_INFO DeviceInfo;
 MSC_DEVICE_INFO MscDevInfo;
 ROM ** rom = (ROM **)0x1fff1ff8;
+char usbMSCenabled=0;
 
 void usbMSCWrite(uint32_t offset, uint8_t src[], uint32_t length) {
     dataflash_random_write(src, offset, length);
@@ -84,6 +85,7 @@ void usbMSCInit(void) {
 
   (*rom)->pUSBD->init(&DeviceInfo); /* USB Initialization */
   (*rom)->pUSBD->connect(true);     /* USB Connect */
+  usbMSCenabled=1;
 }
 
 #ifdef CFG_USBMSC
@@ -94,5 +96,6 @@ void USB_IRQHandler() {
 
 void usbMSCOff(void) {
   (*rom)->pUSBD->connect(false);     /* USB Disconnect */
+  usbMSCenabled=0;
 }
 

@@ -39,6 +39,7 @@
 
 #include "projectconfig.h"
 
+extern char usbMSCenabled;
 void usbMSCWrite(uint32_t offset, uint8_t src[], uint32_t length);
 void usbMSCRead(uint32_t offset, uint8_t dst[], uint32_t length);
 void usbMSCInit(void);
