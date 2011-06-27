@@ -4,6 +4,7 @@
 #include "core/ssp/ssp.h"
 #include "gpio/gpio.h"
 #include "basic/basic.h"
+#include "usb/usbmsc.h"
 
 /**************************************************************************/
 /* Utility routines to manage nokia display */
@@ -11,11 +12,16 @@
 
 uint8_t lcdBuffer[RESX*RESY_B];
 int inverted = 0;
+uint32_t intstatus;
 
 #define TYPE_CMD    0
 #define TYPE_DATA   1
 
 static void select() {
+    if(usbMSCenabled){
+        intstatus=USB_DEVINTEN;
+        USB_DEVINTEN=0;
+    };
     /* the LCD requires 9-Bit frames */
     uint32_t configReg = ( SSP_SSP0CR0_DSS_9BIT     // Data size = 9-bit
                   | SSP_SSP0CR0_FRF_SPI             // Frame format = SPI
@@ -31,6 +37,9 @@ static void deselect() {
                   | SSP_SSP0CR0_FRF_SPI             // Frame format = SPI
                   | SSP_SSP0CR0_SCR_8);             // Serial clock rate = 8
     SSP_SSP0CR0 = configReg;
+    if(usbMSCenabled){
+        USB_DEVINTEN=intstatus;
+    };
 }
 
 static void lcdWrite(uint8_t cd, uint8_t data) {
