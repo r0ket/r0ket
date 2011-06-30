@@ -11,6 +11,10 @@
 # - <http://www.davidsalomon.name/DC4advertis/PKfonts.pdf> or
 # - <http://www.tug.org/TUGboat/tb06-3/tb13pk.pdf>
 
+# Font sources:
+# - Google Webfonts: <https://www.google.com/webfonts/v2>
+# - X11 system fonts (use pcf2pdf to convert to bdf)
+
 use strict;
 use warnings;
 use Getopt::Long;
