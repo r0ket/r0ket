@@ -5,6 +5,11 @@
 
 void main_default(void) {
     systickInit(10);
+
+    if(getInputRaw()==BTN_ENTER){
+        ISPandReset(7);
+    };
+
     return;
 };
 
