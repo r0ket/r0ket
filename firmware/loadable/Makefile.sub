@@ -22,11 +22,19 @@ include $(ROOT_PATH)/Makefile.inc
 # Compiler settings, parameters and flags
 ##########################################################################
 FIRMWARE=$(ROOT_PATH)/$(OUTFILE).elf
+LDSRCFILE=$(DIR)/ram.ld
 LDFILE=$(DIR)/loadable.ld
 CFLAGS+=-mlong-calls
 LDFLAGS+= -R $(FIRMWARE)
 
 all: $(OBJS) $(ELFS) $(BINS) $(HDRS)
+
+$(LDFILE):
+	-@echo "MEMORY" > $(LDFILE)
+	-@echo "{" >> $(LDFILE)
+	-@echo "    sram(rwx): ORIGIN = 0x10002000 - $(RAMCODE), LENGTH = $(RAMCODE)" >> $(LDFILE)
+	-@echo "}" >> $(LDFILE)
+	-@echo "INCLUDE $(LDSRCFILE)" >> $(LDFILE)
 
 %.o : %.c
 	$(CC) $(CFLAGS) -o $@ $<
@@ -45,3 +53,5 @@ clean:
 	cd $(DIR) && rm -f *.o *.elf *.bin
 
 .SUFFIXES:
+
+.PHONY: $(LDFILE)

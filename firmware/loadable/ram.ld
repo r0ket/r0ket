@@ -1,8 +1,3 @@
-MEMORY
-{
-  sram(rwx): ORIGIN = 0x10001800, LENGTH = 2K
-}
-
 
 sram_top = ORIGIN(sram) + LENGTH(sram);
 ENTRY(boot_entry)
