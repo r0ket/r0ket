@@ -92,5 +92,15 @@
 #define R_RF_SETUP_DR_2M         0x08
 #define R_RF_SETUP_DR_250K       0x20
 
+/* exported functions */
+int nrf_rcv_pkt_time(int maxtime, int maxsize, char * pkt);
+void nrf_init() ;
+void nrf_cmd_read_long(const uint8_t cmd, int *len, char* data);
+void nrf_write_reg_long(const uint8_t reg, int len, char* data);
+void nrf_write_reg(const uint8_t reg, const uint8_t val);
+uint8_t nrf_cmd_status(uint8_t cmd);
+void nrf_cmd(uint8_t cmd);
+
+/* END */
 
 #endif /* _NRF24L01P_H */

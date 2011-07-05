@@ -9,7 +9,7 @@ VPATH +=
 OBJS +=
 OBJS += basic/basic.o basic/reinvoke_isp.o basic/delayms.o basic/voltage.o
 OBJS += basic/keyin.o basic/uuid.o
-LIBS += core/libcore.a lcd/liblcd.a applications/libapp.a filesystem/libfat.a usb/libusb.a
+LIBS += core/libcore.a lcd/liblcd.a applications/libapp.a filesystem/libfat.a usb/libusb.a funk/libfunk.a
 
 ##########################################################################
 # GNU GCC compiler flags
@@ -28,6 +28,7 @@ OBJS += $(TARGET)_handlers.o LPC1xxx_startup.o
 ##########################################################################
 LDLIBS  = -lm
 LDLIBS += -Lapplications -lapp
+LDLIBS += -Lfunk -lfunk
 LDLIBS += -Llcd -llcd
 LDLIBS += -Lusb -lusb
 LDLIBS += -Lfilesystem -lfat
@@ -77,6 +78,9 @@ filesystem/libfat.a:
 
 usb/libusb.a:
 	cd usb && $(MAKE) ROOT_PATH=../$(ROOT_PATH)
+
+funk/libfunk.a:
+	cd funk && $(MAKE) ROOT_PATH=../$(ROOT_PATH)
 
 ../tools/bootloader/lpcfix:
 	cd ../tools/bootloader && $(MAKE) 

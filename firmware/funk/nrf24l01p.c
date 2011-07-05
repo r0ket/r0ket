@@ -31,6 +31,8 @@ uint8_t rcvr_spi (void) {
 
 #define CS_LOW()    gpioSetValue(RB_SPI_NRF_CS, 0)
 #define CS_HIGH()   gpioSetValue(RB_SPI_NRF_CS, 1)
+#define CE_LOW()    gpioSetValue(RB_NRF_CE, 0)
+#define CE_HIGH()   gpioSetValue(RB_NRF_CE, 1)
 
 void nrf_cmd(uint8_t cmd){
     xmit_spi(cmd);
@@ -41,22 +43,33 @@ uint8_t nrf_cmd_status(uint8_t cmd){
     return rcvr_spi();
 };
 
-void nrf_write_reg(uint8_t reg, uint8_t val){
+void nrf_write_reg(const uint8_t reg, const uint8_t val){
     xmit_spi(C_W_REGISTER | reg);
     xmit_spi(val);
 };
 
-uint8_t nrf_read_reg(uint8_t reg, uint8_t val){
+/*
+uint8_t nrf_read_reg(const uint8_t reg, uint8_t val){
     xmit_spi(C_R_REGISTER | reg);
     // do i need to read the status byte here?
     xmit_spi(val);
     return rcvr_spi();
 };
+*/
 
-void nrf_write_reg_long(uint8_t reg, int len, char* data){
+void nrf_write_reg_long(const uint8_t reg, int len, char* data){
     xmit_spi(C_W_REGISTER | reg);
     for(int i=0;i<len;i++){
         xmit_spi(data[i]);
+    };
+};
+
+void nrf_cmd_read_long(const uint8_t cmd, int *len, char* data){
+    xmit_spi(cmd);
+    // do i need to read the status byte here?
+    for(int i=0;i<*len;i++){
+        xmit_spi(0);
+        rcvr_spi_m(&data[i]);
     };
 };
 
@@ -72,6 +85,7 @@ void nrf_init() {
 
     // Setup for nrf24l01+
     // power up takes 1.5ms - 3.5ms (depending on crystal)
+    CS_LOW();
     nrf_write_reg(R_CONFIG,
             R_CONFIG_PRIM_RX| // Receive mode
             R_CONFIG_PWR_UP|  // Power on
@@ -100,4 +114,32 @@ void nrf_init() {
     nrf_write_reg(R_RF_SETUP,DEFAULT_SPEED|R_RF_SETUP_RF_PWR_3);
 
     // XXX: or write R_CONFIG last?
+    CS_HIGH();
+};
+
+int nrf_rcv_pkt_time(int maxtime, int maxsize, char * pkt){
+    char buf;
+    int len;
+
+    CS_LOW();
+    nrf_write_reg(R_CONFIG,
+            R_CONFIG_PRIM_RX| // Receive mode
+            R_CONFIG_PWR_UP|  // Power on
+            R_CONFIG_CRCO     // 2-byte CRC
+            );
+    CE_HIGH();
+    delayms(maxtime); // XXX: check interrupt?
+    CE_LOW();
+    len=1;
+    nrf_cmd_read_long(C_R_RX_PL_WID,&len,&buf);
+    len=buf;
+    if(len>32 || len==0){
+        return 0; // no packet
+    };
+    if(len>maxsize){
+        return -1; // packet too large
+    };
+    nrf_cmd_read_long(C_R_RX_PAYLOAD,&len,pkt);
+    CS_HIGH();
+    return len;
 };
