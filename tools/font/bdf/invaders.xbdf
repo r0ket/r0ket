@@ -1,0 +1,105 @@
+PIXEL_SIZE 8
+FACE_NAME "Space Invaders Pixel Art"
+COPYRIGHT "Space Invaders Pixel Art"
+FAMILY_NAME "Invaders"
+DEFAULT_CHAR 0
+ENDPROPERTIES
+
+STARTCHAR blank
+ENCODING 0
+BBX 1 8 0 0
+BITMAP
+00
+ENDCHAR
+
+STARTCHAR alien1-1
+ENCODING 65
+XBITMAP
+..x.....x..
+...x...x...
+..xxxxxxx..
+.xx.xxx.xx.
+xxxxxxxxxxx
+x.xxxxxxx.x
+x.x.....x.x
+...xx.xx...
+ENDCHAR
+
+STARTCHAR alien2-1
+ENCODING 66
+XBITMAP
+....xxxx....
+.xxxxxxxxxx.
+xxxxxxxxxxxx
+xxx..xx..xxx
+xxxxxxxxxxxx
+...xx..xx...
+..xx.xx.xx..
+xx........xx
+ENDCHAR
+
+STARTCHAR alien3-1
+ENCODING 67
+XBITMAP
+...xx...
+..xxxx..
+.xxxxxx.
+xx.xx.xx
+xxxxxxxx
+.x.xxx.x.
+x.......x
+.x.....x.
+ENDCHAR
+
+STARTCHAR alien1-2
+ENCODING 97
+XBITMAP
+..x.....x..
+x..x...x..x
+x.xxxxxxx.x
+xxx.xxx.xxx
+xxxxxxxxxxx
+.xxxxxxxxx.
+..x.....x..
+x.........x
+ENDCHAR
+
+STARTCHAR alien2-2
+ENCODING 98
+XBITMAP
+....xxxx....
+.xxxxxxxxxx.
+xxxxxxxxxxxx
+xxx..xx..xxx
+xxxxxxxxxxxx
+..xxx..xxx..
+.xx..xx..xx.
+..xx....xx..
+ENDCHAR
+
+STARTCHAR alien3-2
+ENCODING 99
+XBITMAP
+...xx...
+..xxxx..
+.xxxxxx.
+xx.xx.xx
+xxxxxxxx
+..x..x..
+.x.xx.x.
+x.x..x.x
+ENDCHAR
+
+STARTCHAR ufo
+ENCODING 85
+XBITMAP
+......xxxx......
+...xxxxxxxxxx...
+..xxxxxxxxxxxx..
+.xx.xx.xx.xx.xx.
+xxxxxxxxxxxxxxxx
+..xxx..xx..xxx..
+...x........x...
+ENDCHAR
+
+ENDFONT
