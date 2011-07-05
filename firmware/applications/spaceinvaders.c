@@ -184,11 +184,13 @@ void draw_status() {
     
 
 void draw_sprite(char x, char y) {
-    for (int dx=0; dx<8; dx++){
+    font = &Font_Invaders;
+    DoString(x,y-1,"C");
+/*    for (int dx=0; dx<8; dx++){
         for(int dy=0; dy<8; dy++){
             lcdSetPixel(x+dx,y+dy, true);
         }
-    }
+    } */
 }
 
 void check_end() {
