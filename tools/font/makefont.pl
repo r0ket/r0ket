@@ -29,12 +29,11 @@ $|=1;
 my @charlist=(32..126,0x20ac); #,0x3044 # hiragana I
 push @charlist,map {ord $_} qw(ä ö ü Ä Ö Ü ß);
 
-
 ###
 ### Runtime Options
 ###
 
-my ($verbose,$raw);
+my ($verbose,$raw,$chars);
 my $size=18;
 
 my $font="ttf/Ubuntu-Regular.ttf";
@@ -43,6 +42,7 @@ GetOptions ("size=i"   => \$size,    # numeric
             "font=s"   => \$font,    # string
             "verbose"  => \$verbose, # flag
 			"raw"      => \$raw,     # flag
+			"chars=s"  => \$chars,   # list of chars
 			"help"     => sub {
 			print <<HELP;
 Uasge: makefont.pl [-r] [-v] [-f fontfile] [-s size]
@@ -56,10 +56,14 @@ HELP
 			exit(-1);}
 			);
 
+if($chars){
+    @charlist=map {ord $_} split(//,$chars);
+};
+
 my ($type);
 if($font=~/\.ttf/){
 	$type="ttf";
-}elsif($font=~/\.bdf/){
+}elsif($font=~/\.x?bdf/){
 	$type="bdf";
 }else{
 	die "Can only do .ttf or .bdf fonts\n";
@@ -526,7 +530,7 @@ sub init_bdf{
 		
 		last if /^ENDPROPERTIES/;
 	};
-	$title.="-".$bb;
+	$title.="-".$bb if($bb);
 
 	$fonts=$title;
 	$fonts=~s/[ -]//g;
@@ -536,6 +540,7 @@ sub init_bdf{
 	while(<$bdf>){
 		chomp;
 		/^ENDCHAR/ && do {
+            $bbh=$#bchar+1 if !$bbh;
 			warn "Char $ccode has strange height?\n" if ($#bchar+1 != $bbh);
 			for (1..$bby){
 				push @bchar,("0"x$bbw);
@@ -564,8 +569,18 @@ sub init_bdf{
 			@bchar=();
 		};
 		if($inchar){
-			my $x=unpack("B*",pack("H*",$_));
-			$x=substr($x,0,$bbw);
+            my $x;
+            if($inchar==2){
+                $x=$_;
+                $x=~y/ ./0/;
+                $x=~y/xX\*/1/;
+                $x=~y/01//cd;
+                next if($x eq "");
+                $bbw=length($x) if !$bbw;
+            }else{
+                $x=unpack("B*",pack("H*",$_));
+                $x=substr($x,0,$bbw);
+            };
 			push @bchar,$x;
 #			$x=~y/01/ */;
 #			print $x,"\n";
@@ -573,6 +588,7 @@ sub init_bdf{
 		};
 
 		/^BITMAP/ && do {$inchar=1;};
+		/^XBITMAP/ && do {$inchar=2;($bbw,$bbh,$bbx,$bby)=(0)x4;};
 		/^ENCODING (.*)/ && do {$ccode=$1; };
 		/^BBX (\d+) (\d+) (\d+) ([-\d]+)/ && do {$bbw=$1;$bbh=$2;$bbx=$3;$bby=$4;};
 	};
