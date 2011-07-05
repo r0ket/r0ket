@@ -105,6 +105,11 @@
 #define RB_HB5			1,2
 #define RB_HB5_IO		IOCON_PIO1_2
 
+// Funk
+#define RB_NRF_CE		1,5
+#define RB_NRF_CE_IO		IOCON_PIO1_5
+#define RB_SPI_NRF_CS		1,10
+#define RB_SPI_NRF_CS_IO	IOCON_PIO1_10
 
 // Misc
 #define RB_BUSINT		3,0
