@@ -14,12 +14,39 @@ void f_init(void){
     nrf_init();
 };
 
+#define CS_LOW()    gpioSetValue(RB_SPI_NRF_CS, 0)
+#define CS_HIGH()   gpioSetValue(RB_SPI_NRF_CS, 1)
+#include "core/ssp/ssp.h"
+
 void f_status(void){
     int status;
     int dx=0;
+    int dy=8;
+    uint8_t buf[4];
+
+    // Enable SPI correctly
+    sspInit(0, sspClockPolarity_Low, sspClockPhase_RisingEdge);
+
+    // Enable CS & CE pins
+    gpioSetDir(RB_SPI_NRF_CS, gpioDirection_Output);
+    gpioSetPullup(&RB_SPI_NRF_CS_IO, gpioPullupMode_Inactive);
+
+    CS_LOW();
+    buf[0]=C_W_REGISTER | R_CONFIG;
+    buf[1]=R_CONFIG_PRIM_RX| R_CONFIG_PWR_UP| R_CONFIG_CRCO;
+    buf[2]=0;
+    buf[3]=0;
+
+    dx=DoString(0,dy,"Snd:"); DoIntX(dx,dy,*(int*)buf);dy+=8;
+
+    sspSend(0, (uint8_t*) &buf, 2);
+    sspReceive(0, &buf, 2);
+
+    dx=DoString(0,dy,"Rcv:"); DoIntX(dx,dy,*(int*)buf);dy+=8;
+
     status=nrf_cmd_status(C_NOP);
-    dx=DoString(0,8,"Status:");
-    DoIntX(dx,8,status);
+    CS_HIGH();
+    dx=DoString(0,dy,"St:"); DoIntX(dx,dy,status); dy+=8;
 };
 
 void f_recv(void){
