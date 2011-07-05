@@ -1,5 +1,5 @@
 firmware.bin
 firmware.elf
 lpc1xxx/memory.ld
-modules/wrapper.c
+applications/wrapper.c
 lcd/allfonts.h
