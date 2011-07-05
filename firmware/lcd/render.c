@@ -58,7 +58,7 @@ int DoChar(int sx, int sy, int c){
 			preblank = font->au8FontTable[toff+1];
 			blank= font->au8FontTable[toff+2];
 			data=&font->au8FontTable[toff+3];
-			width=(width/height)-1;
+			width=(width-3/height);
 		}else{
 			data=pk_decode(&font->au8FontTable[toff],&width);
 		}
