@@ -39,8 +39,8 @@ void nrf_cmd(uint8_t cmd){
 };
 
 uint8_t nrf_cmd_status(uint8_t cmd){
-    xmit_spi(cmd);
-    return rcvr_spi();
+    sspSendReceive(0, &cmd, 1);
+    return cmd;
 };
 
 void nrf_write_reg(const uint8_t reg, const uint8_t val){
@@ -64,13 +64,12 @@ void nrf_write_reg_long(const uint8_t reg, int len, char* data){
     };
 };
 
+//XXX: Why is len a pointer?
 void nrf_cmd_read_long(const uint8_t cmd, int *len, char* data){
-    xmit_spi(cmd);
-    // do i need to read the status byte here?
-    for(int i=0;i<*len;i++){
-        xmit_spi(0);
-        rcvr_spi_m(&data[i]);
-    };
+    data[0] = 0xFF;
+    for(int i=1;i<*len;i++)
+        data[i] = 0x00;
+    sspSendReceive(0,data,*len);
 };
 
 void nrf_init() {

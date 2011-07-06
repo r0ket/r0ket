@@ -157,8 +157,6 @@ void handleMenu(const struct MENU *the_menu) {
     visible_lines--; // subtract title line
 
     while (!back) {
-
-        delayms(100);
         uint8_t line = 0;
 
         lcdFill(0); // clear display buffer
