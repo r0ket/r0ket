@@ -14,8 +14,8 @@ void f_init(void){
     nrf_init();
 };
 
-#define CS_LOW()    gpioSetValue(RB_SPI_NRF_CS, 0)
-#define CS_HIGH()   gpioSetValue(RB_SPI_NRF_CS, 1)
+#define CS_LOW()    {gpioSetValue(RB_SPI_NRF_CS, 0); gpioSetValue(3,2,0);}
+#define CS_HIGH()   {gpioSetValue(RB_SPI_NRF_CS, 1); gpioSetValue(3,2,1);}
 #include "core/ssp/ssp.h"
 
 void f_status(void){
@@ -29,6 +29,9 @@ void f_status(void){
     // Enable CS & CE pins
     gpioSetDir(RB_SPI_NRF_CS, gpioDirection_Output);
     gpioSetPullup(&RB_SPI_NRF_CS_IO, gpioPullupMode_Inactive);
+    gpioSetDir(3,2, gpioDirection_Output);
+    gpioSetPullup(&IOCON_PIO3_2, gpioPullupMode_Inactive);
+    CS_HIGH();
 
     gpioSetDir(RB_NRF_CE, gpioDirection_Output);
     gpioSetPullup(&RB_NRF_CE_IO, gpioPullupMode_Inactive);
@@ -47,8 +50,8 @@ delayms(10);
 
     CS_LOW();
 delayms(10);
-    sspSend(0, buf, 2);
-    sspReceive(0, buf, 2);
+    sspSendReceive(0, buf, 2);
+    //sspReceive(0, buf, 2);
     CS_HIGH();
 delayms(10);
 
@@ -70,8 +73,8 @@ delayms(10);
 
     CS_LOW();
 delayms(10);
-    sspSend(0, buf, 2);
-    sspReceive(0, buf, 2);
+    sspSendReceive(0, buf, 2);
+    //sspReceive(0, buf, 2);
     CS_HIGH();
 delayms(10);
 
@@ -154,6 +157,8 @@ void handleMenu(const struct MENU *the_menu) {
     visible_lines--; // subtract title line
 
     while (!back) {
+
+        delayms(100);
         uint8_t line = 0;
 
         lcdFill(0); // clear display buffer
