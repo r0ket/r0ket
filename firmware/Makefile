@@ -8,7 +8,7 @@ OBJS = main.o
 VPATH +=
 OBJS +=
 OBJS += basic/basic.o basic/reinvoke_isp.o basic/delayms.o basic/voltage.o
-OBJS += basic/keyin.o basic/uuid.o
+OBJS += basic/keyin.o basic/uuid.o basic/crc.o
 LIBS += core/libcore.a lcd/liblcd.a applications/libapp.a filesystem/libfat.a usb/libusb.a funk/libfunk.a
 
 ##########################################################################
@@ -105,4 +105,5 @@ $(OUTFILE).elf: $(OBJS) $(SYS_OBJS) $(LIBS) $(LPCFIX) $(LD_TEMP)
 	$(LPCFIX) -c $@
 
 .PHONY: $(LD_TEMP) lcd/liblcd.a applications/libapp.a filesystem/libfat.a usb/libusb.a
+
 
