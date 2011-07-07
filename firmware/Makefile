@@ -104,6 +104,5 @@ $(OUTFILE).elf: $(OBJS) $(SYS_OBJS) $(LIBS) $(LPCFIX) $(LD_TEMP)
 	-@echo ""
 	$(LPCFIX) -c $@
 
-.PHONY: $(LD_TEMP) lcd/liblcd.a applications/libapp.a filesystem/libfat.a usb/libusb.a
-
+.PHONY: $(LD_TEMP) lcd/liblcd.a applications/libapp.a filesystem/libfat.a usb/libusb.a funk/libfunk.a
 

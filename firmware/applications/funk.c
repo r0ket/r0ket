@@ -23,65 +23,43 @@ void f_status(void){
     int dy=8;
     uint8_t buf[4];
 
-    // Enable SPI correctly
-    sspInit(0, sspClockPolarity_Low, sspClockPhase_RisingEdge);
-
-    // Enable CS & CE pins
-    gpioSetDir(RB_SPI_NRF_CS, gpioDirection_Output);
-    gpioSetPullup(&RB_SPI_NRF_CS_IO, gpioPullupMode_Inactive);
-    gpioSetDir(3,2, gpioDirection_Output);
-    gpioSetPullup(&IOCON_PIO3_2, gpioPullupMode_Inactive);
-    CS_HIGH();
-
-    gpioSetDir(RB_NRF_CE, gpioDirection_Output);
-    gpioSetPullup(&RB_NRF_CE_IO, gpioPullupMode_Inactive);
-    gpioSetValue(RB_NRF_CE, 0);
-
-delayms(10);
-
-    buf[0]=C_W_REGISTER | R_CONFIG;
-    buf[1]=R_CONFIG_PRIM_RX| R_CONFIG_PWR_UP| R_CONFIG_CRCO;
-//    buf[0]=C_R_REGISTER | 5; buf[1]=10;
-//    buf[0]=C_W_REGISTER | R_EN_AA; buf[1]=0x21;
-    buf[2]=0;
-    buf[3]=0;
-
-    dx=DoString(0,dy,"Snd:"); DoIntX(dx,dy,*(int*)buf);dy+=8;
-
-    CS_LOW();
-delayms(10);
-    sspSendReceive(0, buf, 2);
-    //sspReceive(0, buf, 2);
-    CS_HIGH();
-delayms(10);
-
-    dx=DoString(0,dy,"Rcv:"); DoIntX(dx,dy,*(int*)buf);dy+=8;
-
-    /*
-    CS_LOW();
-    status=nrf_cmd_status(C_NOP);
-    CS_HIGH();
-    dx=DoString(0,dy,"St:"); DoIntX(dx,dy,status); dy+=8;
-    */
-
     buf[0]=C_R_REGISTER | R_CONFIG;
-//    buf[0]=C_R_REGISTER | R_EN_AA;
     buf[1]=0;
     buf[2]=0;
     buf[3]=0;
-    dx=DoString(0,dy,"S2:"); DoIntX(dx,dy,*(int*)buf);dy+=8;
+    dx=DoString(0,dy,"S:"); DoIntX(dx,dy,*(int*)buf);dy+=8;
+    nrf_cmd_rw_long(buf,2);
+    dx=DoString(0,dy,"R:"); DoIntX(dx,dy,*(int*)buf);dy+=8;
 
-    CS_LOW();
-delayms(10);
-    sspSendReceive(0, buf, 2);
-    //sspReceive(0, buf, 2);
-    CS_HIGH();
-delayms(10);
-
-    dx=DoString(0,dy,"R2:"); DoIntX(dx,dy,*(int*)buf);dy+=8;
+    int status=nrf_cmd_status(C_NOP);
+    dx=DoString(0,dy,"St:"); DoIntX(dx,dy,status);dy+=8;
 };
 
 void f_recv(void){
+    int dx=0;
+    int dy=8;
+    uint8_t buf[32];
+    int len;
+
+    len=nrf_rcv_pkt_time(500,sizeof(buf),buf);
+
+    if(len==0){
+        dx=DoString(0,dy,"No pkt"); dy+=8;
+        return;
+    };
+    if(len<0){
+        dx=DoString(0,dy,"Pkt too lg"); dy+=8;
+        return;
+    };
+    dx=DoString(0,dy,"Size:"); DoInt(dx,dy,len); dy+=8;
+    dx=DoString(0,dy,"1:"); DoIntX(dx,dy,*(int*)(buf));dy+=8;
+    dx=DoString(0,dy,"2:"); DoIntX(dx,dy,*(int*)(buf+4));dy+=8;
+    dx=DoString(0,dy,"3:"); DoIntX(dx,dy,*(int*)(buf+8));dy+=8;
+    dx=DoString(0,dy,"4:"); DoIntX(dx,dy,*(int*)(buf+12));dy+=8;
+
+    len=crc16(buf,14);
+    dx=DoString(0,dy,"c:"); DoIntX(dx,dy,len);dy+=8;
+
 };
 
 void gotoISP(void) {
@@ -111,8 +89,8 @@ const struct MENU_DEF menu_rcv =    {"F Recv",   &f_recv};
 const struct MENU_DEF menu_nop =    {"---",   NULL};
 
 static menuentry menu[] = {
-    &menu_status,
     &menu_init,
+    &menu_status,
     &menu_rcv,
     &menu_nop,
     &menu_ISP,
