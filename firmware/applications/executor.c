@@ -50,7 +50,7 @@ void execute_file (const char * fname){
     UINT readbytes;
     void (*dst)(void);
 
-    dst=(void (*)(void)) 0x10001c00;
+    dst=(void (*)(void)) 0x10001800;
 
     res=f_open(&file, fname, FA_OPEN_EXISTING|FA_READ);
     put_rc(res);
@@ -58,7 +58,7 @@ void execute_file (const char * fname){
         return;
     };
 
-    res = f_read(&file, (char *)dst, 1024, &readbytes);
+    res = f_read(&file, (char *)dst, 2048, &readbytes);
     put_rc_y(res,8);
     if(res){
         return;
@@ -79,6 +79,7 @@ void execute_file (const char * fname){
 
 void main_executor(void) {
 
+    lcdSetPixel(0,0,0); //the spaceinvader module needs this
     backlightInit();
 
     //disable the JTAG on PIO3_3

@@ -7,7 +7,7 @@
 TARGET = LPC13xx
 FLASH = 32K
 SRAM = 8K
-RAMCODE=1K
+RAMCODE=2K
 
 # For USB HID support the LPC134x reserves 384 bytes from the sram,
 # if you don't want to use the USB features, just use 0 here.
