@@ -24,7 +24,7 @@ include $(ROOT_PATH)/Makefile.inc
 FIRMWARE=$(ROOT_PATH)/$(OUTFILE).elf
 LDSRCFILE=$(DIR)/ram.ld
 LDFILE=$(DIR)/loadable.ld
-CFLAGS+=-mlong-calls
+CFLAGS+=-mlong-calls -fno-toplevel-reorder
 LDFLAGS+= -R $(FIRMWARE)
 
 all: $(OBJS) $(ELFS) $(BINS) $(HDRS)
