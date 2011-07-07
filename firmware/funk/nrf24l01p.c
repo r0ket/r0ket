@@ -45,21 +45,24 @@ void nrf_write_reg(const uint8_t reg, const uint8_t val){
     CS_HIGH();
 };
 
-void nrf_read_long(const uint8_t reg, int len, uint8_t* data){
+void nrf_read_long(const uint8_t cmd, int len, uint8_t* data){
     CS_LOW();
-    xmit_spi(reg);
+    xmit_spi(cmd);
     for(int i=0;i<len;i++)
         data[i] = 0x00;
     sspSendReceive(0,data,len);
     CS_HIGH();
 };
 
-void nrf_write_reg_long(const uint8_t reg, int len, uint8_t* data){
+void nrf_write_long(const uint8_t cmd, int len, uint8_t* data){
     CS_LOW();
-    xmit_spi(C_W_REGISTER | reg);
+    xmit_spi(cmd);
     sspSend(0,data,len);
     CS_HIGH();
 };
+
+#define nrf_write_reg_long(reg, len, data) \
+    nrf_write_long(C_W_REGISTER|reg, len, data)
 
 void nrf_init() {
     // Enable SPI correctly
@@ -128,4 +131,20 @@ int nrf_rcv_pkt_time(int maxtime, int maxsize, uint8_t * pkt){
     nrf_read_long(C_R_RX_PAYLOAD,len,pkt);
     CS_HIGH();
     return len;
+};
+
+char nrf_snd_pkt_crc(int size, uint8_t * pkt){
+
+    nrf_write_reg(R_CONFIG,
+            R_CONFIG_PWR_UP|  // Power on
+            R_CONFIG_CRCO     // 2-byte CRC
+            );
+    
+    nrf_write_long(C_W_TX_PAYLOAD,size,pkt);
+
+    CE_HIGH();
+    delayms(10); // Send it.  (only needs >10ys, i think)
+    CE_LOW();
+
+    return nrf_cmd_status(C_NOP);
 };

@@ -62,6 +62,41 @@ void f_recv(void){
 
 };
 
+void f_send(void){
+    static char ctr=1;
+    int dx=0;
+    int dy=8;
+    uint8_t buf[32];
+    int status;
+    int crc;
+
+    buf[0]=0x05; // ID
+    buf[1]=0xEC; // ID
+    buf[2]=0xff;
+    buf[3]=0xff; // Send intensity
+
+    buf[4]=0x00; // ctr
+    buf[5]=0x00; // ctr
+    buf[6]=0x00; // ctr
+    buf[7]=ctr++; // ctr
+
+    buf[8]=0xff;
+    buf[9]=0xff;
+    buf[10]=0xff;
+    buf[11]=0xff;
+    buf[12]=0xff;
+    buf[13]=0xff;
+
+    crc=crc16(buf,14);
+    buf[14]=crc & 0xff; // CRC
+    buf[15]=(crc >>8) & 0xff; // CRC
+
+    status=nrf_snd_pkt_crc(16,buf);
+
+    dx=DoString(0,dy,"St:"); DoInt(dx,dy,status); dy+=8;
+
+};
+
 void gotoISP(void) {
     DoString(0,0,"Enter ISP!");
     lcdDisplay(0);
@@ -86,12 +121,14 @@ const struct MENU_DEF menu_ISP =    {"Invoke ISP",  &gotoISP};
 const struct MENU_DEF menu_init =   {"F Init",   &f_init};
 const struct MENU_DEF menu_status = {"F Status", &f_status};
 const struct MENU_DEF menu_rcv =    {"F Recv",   &f_recv};
+const struct MENU_DEF menu_snd =    {"F Send",   &f_send};
 const struct MENU_DEF menu_nop =    {"---",   NULL};
 
 static menuentry menu[] = {
     &menu_init,
     &menu_status,
     &menu_rcv,
+    &menu_snd,
     &menu_nop,
     &menu_ISP,
     NULL,
@@ -213,4 +250,5 @@ void tick_funk(void){
 	};
     return;
 };
+
 
