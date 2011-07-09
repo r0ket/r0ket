@@ -4,7 +4,7 @@
 
 #define CHANNEL_BEACON 81
 #define DEFAULT_SPEED R_RF_SETUP_DR_2M
-#define MAC_BEACON "BEACO"
+#define MAC_BEACON "\x1\x2\x3\x2\1"
 
 /*-----------------------------------------------------------------------*/
 /* Transmit a byte via SPI                                               */
@@ -27,8 +27,8 @@ void nrf_cmd(uint8_t cmd){
 uint8_t nrf_cmd_status(uint8_t cmd){
     CS_LOW();
     sspSendReceive(0, &cmd, 1);
-    return cmd;
     CS_HIGH();
+    return cmd;
 };
 
 void nrf_cmd_rw_long(uint8_t* data, int len){
@@ -93,7 +93,7 @@ void nrf_init() {
             );
 
     nrf_write_reg(R_RX_PW_P0,16);
-    nrf_write_reg_long(R_RX_ADDR_P0,5,(uint8_t*)"\x1\x2\x3\x2\1");
+    nrf_write_reg_long(R_RX_ADDR_P0,5,(uint8_t*)MAC_BEACON);
 
 //    nrf_write_reg(R_RX_PW_P1,16);
 //    nrf_write_reg_long(R_RX_ADDR_P1,5,"R0KET");
@@ -158,6 +158,7 @@ int nrf_rcv_pkt_time(int maxtime, int maxsize, uint8_t * pkt){
 };
 
 char nrf_snd_pkt_crc(int size, uint8_t * pkt){
+    char status;
 
     nrf_write_reg(R_CONFIG,
             R_CONFIG_PWR_UP|  // Power on
@@ -170,6 +171,7 @@ char nrf_snd_pkt_crc(int size, uint8_t * pkt){
     delayms(10); // Send it.  (only needs >10ys, i think)
     CE_LOW();
 
-    return nrf_cmd_status(C_NOP);
-};
+    CS_LOW(); status=C_NOP; sspSendReceive(0, &status, 1); CS_HIGH();
 
+    return status;
+};

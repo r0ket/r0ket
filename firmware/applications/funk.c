@@ -12,6 +12,9 @@
 
 void f_init(void){
     nrf_init();
+    int dx=0;
+    int dy=8;
+    dx=DoString(0,dy,"Done."); ;dy+=8;
 };
 
 #define CS_LOW()    {gpioSetValue(RB_SPI_NRF_CS, 0); gpioSetValue(3,2,0);}
@@ -72,9 +75,9 @@ void f_send(void){
     int status;
     uint16_t crc;
 
-    buf[0]=0x05; // ID
-    buf[1]=0xEC; // ID
-    buf[2]=0xff;
+    buf[0]=0x10; // Length: 16 bytes
+    buf[1]=0x17; // Proto - fixed at 0x17?
+    buf[2]=0xff; // Flags (0xff)
     buf[3]=0xff; // Send intensity
 
     buf[4]=0x00; // ctr
@@ -82,20 +85,20 @@ void f_send(void){
     buf[6]=0x00; // ctr
     buf[7]=ctr++; // ctr
 
-    buf[8]=0xff;
-    buf[9]=0xff;
-    buf[10]=0xff;
-    buf[11]=0xff;
-    buf[12]=0xff;
-    buf[13]=0xff;
+    buf[8]=0x0; // Object id
+    buf[9]=0x0;
+    buf[10]=0x05;
+    buf[11]=0xec;
 
+    buf[12]=0xff; // salt (0xffff always?)
+    buf[13]=0xff;
     crc=crc16(buf,14);
     buf[14]=crc & 0xff; // CRC
     buf[15]=(crc >>8) & 0xff; // CRC
 
     status=nrf_snd_pkt_crc(16,buf);
 
-    dx=DoString(0,dy,"St:"); DoInt(dx,dy,status); dy+=8;
+    dx=DoString(0,dy,"St:"); DoIntX(dx,dy,status); dy+=8;
 
 };
 
@@ -129,6 +132,7 @@ static const struct MENU mainmenu = {"Mainmenu", menu};
 void main_funk(void) {
 
     backlightInit();
+    font=&Font_7x8;
 
     while (1) {
         lcdFill(0); // clear display buffer
