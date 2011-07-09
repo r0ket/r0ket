@@ -2,9 +2,7 @@
 
 #include "basic/basic.h"
 
-#include "lcd/render.h"
-#include "lcd/backlight.h"
-#include "lcd/allfonts.h"
+#include "lcd/lcd.h"
 
 #include "funk/nrf24l01p.h"
 
@@ -93,8 +91,8 @@ void f_send(void){
     buf[12]=0xff; // salt (0xffff always?)
     buf[13]=0xff;
     crc=crc16(buf,14);
-    buf[14]=crc & 0xff; // CRC
-    buf[15]=(crc >>8) & 0xff; // CRC
+    buf[14]=(crc >>8) & 0xff; // CRC
+    buf[15]=crc & 0xff; // CRC
 
     status=nrf_snd_pkt_crc(16,buf);
 
@@ -108,6 +106,23 @@ void gotoISP(void) {
     ISPandReset(5);
 }
 
+void lcd_mirror(void) {
+    lcdToggleFlag(LCD_MIRRORX);
+};
+
+void adc_check(void) {
+    int dx=0;
+    int dy=8;
+    // Print Voltage
+    dx=DoString(0,dy,"Voltage:");
+    while ((getInputRaw())==BTN_NONE){
+        DoInt(dx,dy,GetVoltage());
+        lcdDisplay(0);
+    };
+    dy+=8;
+    dx=DoString(0,dy,"Done.");
+};
+
 /**************************************************************************/
 
 const struct MENU_DEF menu_ISP =    {"Invoke ISP",  &gotoISP};
@@ -115,6 +130,8 @@ const struct MENU_DEF menu_init =   {"F Init",   &f_init};
 const struct MENU_DEF menu_status = {"F Status", &f_status};
 const struct MENU_DEF menu_rcv =    {"F Recv",   &f_recv};
 const struct MENU_DEF menu_snd =    {"F Send",   &f_send};
+const struct MENU_DEF menu_mirror = {"Mirror",   &lcd_mirror};
+const struct MENU_DEF menu_volt =   {"Akku",   &adc_check};
 const struct MENU_DEF menu_nop =    {"---",   NULL};
 
 static menuentry menu[] = {
@@ -123,6 +140,8 @@ static menuentry menu[] = {
     &menu_rcv,
     &menu_snd,
     &menu_nop,
+    &menu_mirror,
+    &menu_volt,
     &menu_ISP,
     NULL,
 };
