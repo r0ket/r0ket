@@ -72,9 +72,9 @@ void handleMenu(const struct MENU *the_menu) {
                     the_menu->entries[menuselection]->callback();
                 break;
             case BTN_ENTER:
+                lcdFill(0);
                 DoString(0,0,"Called....");
                 lcdDisplay(0);
-                lcdFill(0);
                 if (the_menu->entries[menuselection]->callback!=NULL)
                     the_menu->entries[menuselection]->callback();
                 lcdDisplay(0);
