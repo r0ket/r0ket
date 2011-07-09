@@ -108,22 +108,46 @@ void nrf_init() {
 };
 
 int nrf_rcv_pkt_time(int maxtime, int maxsize, uint8_t * pkt){
-    char buf;
+    uint8_t buf;
     int len;
+    uint8_t status=0;
 
     nrf_write_reg(R_CONFIG,
             R_CONFIG_PRIM_RX| // Receive mode
             R_CONFIG_PWR_UP|  // Power on
             R_CONFIG_CRCO     // 2-byte CRC
             );
+
+    nrf_cmd(C_FLUSH_RX);
+    nrf_write_reg(R_STATUS,0);
+
     CE_HIGH();
-    delayms(maxtime); // XXX: check interrupt?
+
+#define LOOPY 10
+    for (;maxtime >= LOOPY;maxtime-=LOOPY){
+        delayms(LOOPY);
+        //        status =nrf_cmd_status(C_NOP);
+        CS_LOW(); status=C_NOP; sspSendReceive(0, &status, 1); CS_HIGH();
+        if( (status & R_STATUS_RX_DR) == R_STATUS_RX_DR){
+            if( (status & R_STATUS_RX_P_NO) == R_STATUS_RX_FIFO_EMPTY){
+                nrf_cmd(C_FLUSH_RX);
+                delayms(1);
+                nrf_write_reg(R_STATUS,0);
+                continue;
+            }else{
+                break;
+            };
+        };
+    };
     CE_LOW();
+    if(maxtime<LOOPY)
+        return 0; // timeout
+
     len=1;
     nrf_read_long(C_R_RX_PL_WID,len,&buf);
     len=buf;
     if(len>32 || len==0){
-        return 0; // no packet
+        return -2; // no packet error
     };
     if(len>maxsize){
         return -1; // packet too large
@@ -148,3 +172,4 @@ char nrf_snd_pkt_crc(int size, uint8_t * pkt){
 
     return nrf_cmd_status(C_NOP);
 };
+

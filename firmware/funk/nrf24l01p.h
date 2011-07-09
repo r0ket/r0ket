@@ -92,6 +92,16 @@
 #define R_RF_SETUP_DR_2M         0x08
 #define R_RF_SETUP_DR_250K       0x20
 
+//STATUS register definitions
+#define R_STATUS_RX_DR           0x40
+#define R_STATUS_TX_DS           0x20
+#define R_STATUS_MAX_RT          0x10
+#define R_STATUS_RX_P_NO         0x0E
+#define R_STATUS_GET_RX_P_NO(x)  ((x&R_STATUS_RX_P_NO)>>1)
+#define R_STATUS_RX_FIFO_EMPTY   0x0E
+#define R_STATUS_TX_FULL         0x01
+
+
 /* exported functions */
 int nrf_rcv_pkt_time(int maxtime, int maxsize, uint8_t * pkt);
 void nrf_init() ;
@@ -106,3 +116,4 @@ void nrf_write_reg_long(const uint8_t reg, int len, uint8_t* data);
 /* END */
 
 #endif /* _NRF24L01P_H */
+
