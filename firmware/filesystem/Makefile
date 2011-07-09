@@ -20,21 +20,8 @@ INCLUDE_PATHS = -I$(ROOT_PATH) -I../core -I.
 
 include $(ROOT_PATH)/Makefile.inc
 
-LIBFILE=lib$(LIBNAME).a
 ##########################################################################
-# Compiler settings, parameters and flags
+# Actual work
 ##########################################################################
 
-all: $(LIBFILE)
-
-$(LIBFILE): $(OBJS)
-	$(AR) rcs $@ $(OBJS)
-	
-%.o : %.c
-	$(CC) $(CFLAGS) -o $@ $<
-
-clean:
-	rm -f $(OBJS) $(LIBFILE)
-
-ff.o: ff.c ffconf.h diskio.h ff.h integer.h
-
+include $(ROOT_PATH)/Makefile.util

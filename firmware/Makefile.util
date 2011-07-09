@@ -1,0 +1,21 @@
+LIBFILE?=lib$(LIBNAME).a
+SRCS?= $(foreach mod,$(OBJS),$(subst .o,.c,$(mod)))
+DEPFILE?=Makefile.dep
+
+all: $(LIBFILE)
+
+$(LIBFILE): $(OBJS)
+	$(AR) rcs $@ $(OBJS)
+	
+%.o : %.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+clean:
+	rm -f $(OBJS) $(LIBFILE) $(CLEANFILES)
+
+depend:
+	@$(CC) $(CFLAGS) -MM -MF Makefile.dep $(SRCS)
+
+include $(DEPFILE)
+
+$(DEPFILE): depend

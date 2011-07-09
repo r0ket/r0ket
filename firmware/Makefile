@@ -1,15 +1,21 @@
 VPATH = 
-OBJS = main.o
+OBJS =
+LIBS = 
 
 ##########################################################################
 # Project-specific files 
 ##########################################################################
 
 VPATH +=
-OBJS +=
-OBJS += basic/basic.o basic/reinvoke_isp.o basic/delayms.o basic/voltage.o
-OBJS += basic/keyin.o basic/uuid.o basic/crc.o
-LIBS += core/libcore.a lcd/liblcd.a applications/libapp.a filesystem/libfat.a usb/libusb.a funk/libfunk.a
+OBJS += main.o
+
+LIBS += lcd/liblcd.a
+LIBS += basic/libbasic.a
+LIBS += core/libcore.a
+LIBS += applications/libapp.a
+LIBS += filesystem/libfat.a
+LIBS += usb/libusb.a
+LIBS += funk/libfunk.a
 
 ##########################################################################
 # GNU GCC compiler flags
@@ -32,8 +38,11 @@ LDLIBS += -Lfunk -lfunk
 LDLIBS += -Llcd -llcd
 LDLIBS += -Lusb -lusb
 LDLIBS += -Lfilesystem -lfat
+LDLIBS += -Lbasic -lbasic
 LDLIBS += -Lcore -lcore
 OCFLAGS = --strip-unneeded
+
+SUBDIRS?= $(foreach lib,$(LIBS),$(dir $(lib)))
 
 LD_PATH = lpc1xxx
 LD_SCRIPT = $(LD_PATH)/linkscript.ld
@@ -51,36 +60,22 @@ loadables: $(OUTFILE).bin
 
 clean:
 	rm -f $(OBJS) $(LD_TEMP) $(OUTFILE).elf $(OUTFILE).bin $(OUTFILE).hex
-	@cd core && $(MAKE) clean
-	@cd ../tools/bootloader && $(MAKE) clean
-	@cd lcd && $(MAKE) clean
-	@cd applications && $(MAKE) clean
-	@cd filesystem && $(MAKE) clean
-	@cd usb && $(MAKE) clean
-	@cd loadable && $(MAKE) clean
+	for dir in $(SUBDIRS); do \
+	    $(MAKE) --no-print-directory -C $$dir clean; \
+	done
 
 ### Internal targets
 
 %.o : %.c
 	$(CC) $(CFLAGS) -o $@ $<
 
-core/libcore.a: core/projectconfig.h
-	cd core && $(MAKE) ROOT_PATH=../$(ROOT_PATH)
+### Make all libraries...
+.PHONY: subdirs $(SUBDIRS)
 
-lcd/liblcd.a lcd/render.o lcd/display.o:
-	cd lcd && $(MAKE) ROOT_PATH=../$(ROOT_PATH)
+subdirs: $(SUBDIRS)
 
-applications/libapp.a:
-	cd applications && $(MAKE) ROOT_PATH=../$(ROOT_PATH)
-
-filesystem/libfat.a:
-	cd filesystem && $(MAKE) ROOT_PATH=../$(ROOT_PATH)
-
-usb/libusb.a:
-	cd usb && $(MAKE) ROOT_PATH=../$(ROOT_PATH)
-
-funk/libfunk.a:
-	cd funk && $(MAKE) ROOT_PATH=../$(ROOT_PATH)
+$(SUBDIRS):
+	$(MAKE) ROOT_PATH=../$(ROOT_PATH) --no-print-directory -C $@
 
 ../tools/bootloader/lpcfix:
 	cd ../tools/bootloader && $(MAKE) 
@@ -93,7 +88,7 @@ $(LD_TEMP):
 	-@echo "}" >> $(LD_TEMP)
 	-@echo "INCLUDE $(LD_SCRIPT)" >> $(LD_TEMP)
 
-$(OUTFILE).elf: $(OBJS) $(SYS_OBJS) $(LIBS) $(LPCFIX) $(LD_TEMP)
+$(OUTFILE).elf: $(OBJS) $(SYS_OBJS) $(SUBDIRS) $(LPCFIX) $(LD_TEMP)
 	$(CC) $(LDFLAGS) -T $(LD_TEMP) -o $(OUTFILE).elf $(OBJS) $(LDLIBS)
 	-@echo ""
 	$(SIZE) $(OUTFILE).elf
@@ -104,5 +99,5 @@ $(OUTFILE).elf: $(OBJS) $(SYS_OBJS) $(LIBS) $(LPCFIX) $(LD_TEMP)
 	-@echo ""
 	$(LPCFIX) -c $@
 
-.PHONY: $(LD_TEMP) lcd/liblcd.a applications/libapp.a filesystem/libfat.a usb/libusb.a funk/libfunk.a
+.PHONY: $(LD_TEMP)
 

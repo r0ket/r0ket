@@ -4,11 +4,15 @@
 
 OBJS =
 
-OBJS += usbconfig.o
-OBJS += usbhid.o
-OBJS += usbmsc.o
+OBJS += basic.o
+OBJS += reinvoke_isp.o
+OBJS += delayms.o
+OBJS += voltage.o
+OBJS += keyin.o
+OBJS += uuid.o
+OBJS += crc.o
 
-LIBNAME=usb
+LIBNAME=basic
 
 ##########################################################################
 # GNU GCC compiler flags
@@ -17,6 +21,8 @@ ROOT_PATH?= ..
 INCLUDE_PATHS = -I$(ROOT_PATH) -I../core -I.
 
 include $(ROOT_PATH)/Makefile.inc
+
+CFLAGS+=
 
 ##########################################################################
 # Actual work
