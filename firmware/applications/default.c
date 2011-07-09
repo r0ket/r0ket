@@ -22,7 +22,12 @@ void tick_default(void) {
         ctr=0;
     };
     if(ctr%5==0){
-        if(GetVoltage()<3600){
+
+        if(GetVoltage()<3600
+#ifdef SAFE
+                || GetVoltage() > 10000 // pin not connected
+#endif
+                ){
             IOCON_PIO1_11 = 0x0;
             gpioSetDir(RB_LED3, gpioDirection_Output);
             if( (ctr/5)%10 == 1 )
