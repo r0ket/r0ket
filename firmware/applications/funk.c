@@ -46,9 +46,11 @@ void f_recv(void){
     if(len==0){
         dx=DoString(0,dy,"No pkt"); dy+=8;
         return;
-    };
-    if(len<0){
+    }else if (len ==-1){
         dx=DoString(0,dy,"Pkt too lg"); dy+=8;
+        return;
+    }else if (len ==-2){
+        dx=DoString(0,dy,"No pkt error?"); dy+=8;
         return;
     };
     dx=DoString(0,dy,"Size:"); DoInt(dx,dy,len); dy+=8;
@@ -217,7 +219,6 @@ void handleMenu(const struct MENU *the_menu) {
             case BTN_RIGHT:
                 if (the_menu->entries[menuselection]->callback!=NULL)
                     the_menu->entries[menuselection]->callback();
-                while (getInput()==BTN_NONE) delayms(10);
                 break;
             case BTN_ENTER:
                 lcdFill(0);
