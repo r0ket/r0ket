@@ -11,6 +11,7 @@ OBJS += voltage.o
 OBJS += keyin.o
 OBJS += uuid.o
 OBJS += crc.o
+OBJS += menu.o
 
 LIBNAME=basic
 

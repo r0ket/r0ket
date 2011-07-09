@@ -3,7 +3,7 @@
 // Calculate the CRC for transmitted and received data using
 // the CCITT 16bit algorithm (X^16 + X^12 + X^5 + 1).
 
-uint16_t crc16(char * buf, int len){
+uint16_t crc16(uint8_t * buf, int len){
     unsigned int crc=0xffff;
 
 	for(int i=0;i<len;i++){

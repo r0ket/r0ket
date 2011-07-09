@@ -144,6 +144,7 @@ uint32_t GetVoltage(void);
 #define BTN_ENTER (1<<4)
 uint8_t getInput(void);
 uint8_t getInputRaw(void);
+uint8_t getInputWait(void);
 
 //uuid.c
 uint32_t GetUUID32(void);
@@ -153,7 +154,23 @@ uint16_t GetUUID16(void);
 void iap_entry(uint32_t param_tab[], uint32_t result_tab[]);
 
 // crc.c
-uint16_t crc16(char * buf, int len);
+uint16_t crc16(uint8_t * buf, int len);
 
+// menu.c
+
+struct MENU_DEF {
+    char *text;
+    void (*callback)(void);
+};
+
+typedef const struct MENU_DEF * menuentry;
+
+struct MENU {
+    char *title;
+    menuentry *entries;
+};
+
+
+void handleMenu(const struct MENU *the_menu);
 
 #endif
