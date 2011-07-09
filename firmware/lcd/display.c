@@ -11,7 +11,7 @@
 /**************************************************************************/
 
 uint8_t lcdBuffer[RESX*RESY_B];
-int inverted = 0;
+int lcd_layout = 0;
 uint32_t intstatus;
 
 #define TYPE_CMD    0
@@ -115,6 +115,7 @@ bool lcdGetPixel(char x, char y){
 }
 
 void lcdDisplay(uint32_t shift) {
+    char byte;
     select();
 
     lcdWrite(TYPE_CMD,0xB0);
@@ -123,18 +124,25 @@ void lcdDisplay(uint32_t shift) {
     uint16_t i,page;
     for(page=0; page<RESY_B;page++) {
         for(i=0; i<RESX; i++) {
-            if (inverted) {
-                lcdWrite(TYPE_DATA,~lcdBuffer[page*RESX+((i+shift)%RESX)]);
-            } else {
-                lcdWrite(TYPE_DATA,lcdBuffer[page*RESX+((i+shift)%RESX)]);
-            }
+            if (lcd_layout & LCD_MIRRORX)
+                byte=lcdBuffer[page*RESX+RESX-((i+shift)%RESX)];
+            else
+                byte=lcdBuffer[page*RESX+((i+shift)%RESX)];
+
+            if (lcd_layout & LCD_INVERTED)
+                byte=~byte;
+
+            lcdWrite(TYPE_DATA,byte);
         }
     }
 
     deselect();
 }
 
-void lcdInvert(void) {
-    inverted = ~inverted;
+inline void lcdInvert(void) {
+    lcdToggleFlag(LCD_INVERTED);
 }
 
+void lcdToggleFlag(int flag) {
+    lcd_layout=lcd_layout ^ flag;
+}
