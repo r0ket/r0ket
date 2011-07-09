@@ -7,10 +7,12 @@
 
 void backlightInit(void);
 
+extern void * __sram_top;
+
 void execute (const void *function, uint16_t length){
     void (*dst)(void);
 
-    dst=(void (*)(void)) 0x10001c00;
+    dst=(void (*)(void)) (__sram_top);
 
     DoString(0,8,"Enter RAM!");
     DoIntX(0,16,(uint32_t)function);
@@ -58,7 +60,7 @@ void execute_file (const char * fname){
         return;
     };
 
-    res = f_read(&file, (char *)dst, 2048, &readbytes);
+    res = f_read(&file, (char *)dst, RAMCODE, &readbytes);
     put_rc_y(res,8);
     if(res){
         return;

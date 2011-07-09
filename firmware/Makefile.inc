@@ -7,7 +7,7 @@
 TARGET = LPC13xx
 FLASH = 32K
 SRAM = 8K
-RAMCODE=2K
+RAMCODE=2048
 
 # For USB HID support the LPC134x reserves 384 bytes from the sram,
 # if you don't want to use the USB features, just use 0 here.
@@ -40,6 +40,6 @@ CPU_TYPE = cortex-$(CORTEX_TYPE)
 # Compiler settings, parameters and flags
 ##########################################################################
 
-CFLAGS  = -std=c99 -c -g -Os $(INCLUDE_PATHS) -Wall -mthumb -ffunction-sections -fdata-sections -fmessage-length=0 -mcpu=$(CPU_TYPE) -DTARGET=$(TARGET) -fno-builtin
+CFLAGS  = -std=c99 -c -g -Os $(INCLUDE_PATHS) -Wall -mthumb -ffunction-sections -fdata-sections -fmessage-length=0 -mcpu=$(CPU_TYPE) -DTARGET=$(TARGET) -DRAMCODE=$(RAMCODE) -fno-builtin
 LDFLAGS = -nostartfiles
 
