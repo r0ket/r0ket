@@ -176,6 +176,9 @@ int DoInt(int sx, int sy, int num){
 		num=-num;
 		neg=1;
 	};
+    if(num==0){
+        neg=2;
+    };
 		
 	for (len=(mxlen-1);len>=0;len--){
 		s[len]=(num%10)+'0';
@@ -186,8 +189,10 @@ int DoInt(int sx, int sy, int num){
 		};
 		num/=10;
 	};
-	if(neg)
+	if(neg==1)
 		*o='-';
+    if(neg==2)
+        *o='0';
 	return DoString(sx,sy,o);
 #undef mxlen
 };
