@@ -162,7 +162,7 @@ char nrf_snd_pkt_crc(int size, uint8_t * pkt){
 
     nrf_write_reg(R_CONFIG,
             R_CONFIG_PWR_UP|  // Power on
-            R_CONFIG_CRCO     // 2-byte CRC
+            R_CONFIG_EN_CRC   // CRC on, single byte
             );
     
     nrf_write_long(C_W_TX_PAYLOAD,size,pkt);
