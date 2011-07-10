@@ -16,6 +16,7 @@ LIBS += applications/libapp.a
 LIBS += filesystem/libfat.a
 LIBS += usb/libusb.a
 LIBS += funk/libfunk.a
+LIBS += usbcdc/libusbcdc.a
 
 ##########################################################################
 # GNU GCC compiler flags
@@ -35,6 +36,7 @@ OBJS += $(TARGET)_handlers.o LPC1xxx_startup.o
 LDLIBS  = -lm
 LDLIBS += -Lapplications -lapp
 LDLIBS += -Lfunk -lfunk
+LDLIBS += -Lusbcdc -lusbcdc
 LDLIBS += -Llcd -llcd
 LDLIBS += -Lusb -lusb
 LDLIBS += -Lfilesystem -lfat

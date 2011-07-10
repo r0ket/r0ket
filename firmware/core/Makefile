@@ -24,12 +24,6 @@ OBJS += timer16/timer16.o
 OBJS += timer32/timer32.o
 #OBJS += uart/uart.o
 #OBJS += uart/uart_buf.o
-#OBJS += usbcdc/cdcuser.o
-#OBJS += usbcdc/cdc_buf.o
-#OBJS += usbcdc/usbcore.o
-#OBJS += usbcdc/usbdesc.o
-#OBJS += usbcdc/usbhw.o
-#OBJS += usbcdc/usbuser.o
 OBJS += wdt/wdt.o
 
 ##########################################################################
