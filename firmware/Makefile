@@ -63,6 +63,8 @@ clean:
 	for dir in $(SUBDIRS); do \
 	    $(MAKE) --no-print-directory -C $$dir clean; \
 	done
+flash: all
+	../tools/bootloader/autoflash
 
 ### Internal targets
 
