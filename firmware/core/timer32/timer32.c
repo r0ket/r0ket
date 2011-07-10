@@ -123,6 +123,9 @@ void timer32Delay(uint8_t timerNum, uint32_t delay)
   return;
 }
 
+
+//we do this in applications
+#if 0
 /**************************************************************************/
 /*! 
     @brief Interrupt handler for 32-bit timer 0
@@ -156,6 +159,7 @@ void TIMER32_1_IRQHandler(void)
 
   return;
 }
+#endif
 
 /**************************************************************************/
 /*! 
