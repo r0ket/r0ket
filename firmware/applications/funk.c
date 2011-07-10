@@ -90,11 +90,8 @@ void f_send(void){
 
     buf[12]=0xff; // salt (0xffff always?)
     buf[13]=0xff;
-    crc=crc16(buf,14);
-    buf[14]=(crc >>8) & 0xff; // CRC
-    buf[15]=crc & 0xff; // CRC
 
-    status=nrf_snd_pkt_crc(16,buf);
+    status=nrf_snd_pkt_crc(14,buf);
 
     dx=DoString(0,dy,"St:"); DoIntX(dx,dy,status); dy+=8;
 

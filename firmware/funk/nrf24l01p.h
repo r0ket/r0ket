@@ -1,6 +1,8 @@
 #ifndef _NRF24L01P_H
 #define _NRF24L01P_H 1
 
+#define MAX_PKT (32-2) // 2 bytes are our CRC
+
 // SPI commands
 #define C_R_REGISTER		0x00
 #define C_W_REGISTER		0x20

@@ -80,7 +80,7 @@ void nrf_init() {
     nrf_write_reg(R_CONFIG,
             R_CONFIG_PRIM_RX| // Receive mode
             R_CONFIG_PWR_UP|  // Power on
-            R_CONFIG_CRCO     // 2-byte CRC
+            R_CONFIG_EN_CRC   // CRC on, single byte
             );
     
     nrf_write_reg(R_EN_AA, 0); // Disable Enhanced ShockBurst;
@@ -115,7 +115,7 @@ int nrf_rcv_pkt_time(int maxtime, int maxsize, uint8_t * pkt){
     nrf_write_reg(R_CONFIG,
             R_CONFIG_PRIM_RX| // Receive mode
             R_CONFIG_PWR_UP|  // Power on
-            R_CONFIG_CRCO     // 2-byte CRC
+            R_CONFIG_EN_CRC   // CRC on, single byte
             );
 
     nrf_cmd(C_FLUSH_RX);
@@ -160,18 +160,27 @@ int nrf_rcv_pkt_time(int maxtime, int maxsize, uint8_t * pkt){
 char nrf_snd_pkt_crc(int size, uint8_t * pkt){
     char status;
 
+    if(size > MAX_PKT)
+        size=MAX_PKT;
+
     nrf_write_reg(R_CONFIG,
             R_CONFIG_PWR_UP|  // Power on
             R_CONFIG_EN_CRC   // CRC on, single byte
             );
     
-    nrf_write_long(C_W_TX_PAYLOAD,size,pkt);
+//    nrf_write_long(C_W_TX_PAYLOAD,size,pkt);
+    uint16_t crc=crc16(pkt,size);
+    CS_LOW();
+    xmit_spi(C_W_TX_PAYLOAD);
+    sspSend(0,pkt,size);
+    xmit_spi((crc >>8) & 0xff);
+    xmit_spi(crc & 0xff);
+    CS_HIGH();
+
 
     CE_HIGH();
-    delayms(10); // Send it.  (only needs >10ys, i think)
+    delayms(1); // Send it.  (only needs >10ys, i think)
     CE_LOW();
 
-    CS_LOW(); status=C_NOP; sspSendReceive(0, &status, 1); CS_HIGH();
-
-    return status;
+    return nrf_cmd_status(C_NOP);
 };
