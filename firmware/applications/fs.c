@@ -34,8 +34,10 @@ const struct MENU_DEF menu_list =   {"FS List",     &fs_list};
 const struct MENU_DEF menu_create = {"FS Create",   &fs_create};
 const struct MENU_DEF menu_format = {"FS format",   &fs_format};
 const struct MENU_DEF menu_read   = {"FS read",     &fs_read};
+#if CFG_USBMSC
 const struct MENU_DEF menu_usb   =  {"USB mount",   &usbMSCInit};
 const struct MENU_DEF menu_usboff   =  {"USB unmount", &usbMSCOff};
+#endif
 const struct MENU_DEF menu_nop =    {"---",   NULL};
 
 static menuentry menu[] = {
@@ -47,8 +49,10 @@ static menuentry menu[] = {
     &menu_nop,
     &menu_format,
     &menu_nop,
+#if CFG_USBMSC
     &menu_usb,
     &menu_usboff,
+#endif
     &menu_nop,
     &menu_ISP,
     &menu_incBL,

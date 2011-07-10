@@ -140,7 +140,9 @@ void main_executor(void) {
         };
 
         if(key==BTN_UP){
+#if CFG_USBMSC
             usbMSCInit();
+#endif
         };
 
         // Display nickname

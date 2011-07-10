@@ -88,7 +88,7 @@ void usbMSCInit(void) {
   usbMSCenabled=1;
 }
 
-#ifdef CFG_USBMSC
+#if CFG_USBMSC
 void USB_IRQHandler() {
   (*rom)->pUSBD->isr();
 }

@@ -75,10 +75,12 @@ void EnableWatchdog(uint32_t ms){
 };
 
 void ISPandReset(int delay){
+#if CFG_USBMSC
     if(usbMSCenabled){
         usbMSCOff();
         delayms(500);
     };
+#endif
     EnableWatchdog(1000*delay);
     ReinvokeISP();
 };

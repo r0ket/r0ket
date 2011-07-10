@@ -70,4 +70,15 @@
       #define CFG_HAVE_SDCARD             (0)
 /*=========================================================================*/
 
-      #define CFG_USBMSC                  (1)
+      #define CFG_USBMSC                 (1)
+
+    #define CFG_USB_VID                   (0x239A)
+    #define CFG_USB_PID                   (0x1002)
+
+
+    #define CFG_USBCDC                  (0)
+    #define CFG_USBCDC_BAUDRATE         (115200)
+    #define CFG_USBCDC_INITTIMEOUT      (5000)
+    #define CFG_USBCDC_BUFFERSIZE       (256)
+
+
