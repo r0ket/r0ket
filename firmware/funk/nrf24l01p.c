@@ -105,6 +105,7 @@ void nrf_init() {
     nrf_write_reg(R_RF_SETUP,DEFAULT_SPEED|R_RF_SETUP_RF_PWR_3);
 
     // XXX: or write R_CONFIG last?
+    CE_LOW();
 };
 
 int nrf_rcv_pkt_time(int maxtime, int maxsize, uint8_t * pkt){
