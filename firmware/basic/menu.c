@@ -4,6 +4,7 @@
 
 #include "lcd/fonts.h"
 #include "lcd/render.h"
+#include "lcd/print.h"
 
 /**************************************************************************/
 
@@ -72,9 +73,9 @@ void handleMenu(const struct MENU *the_menu) {
                     the_menu->entries[menuselection]->callback();
                 break;
             case BTN_ENTER:
-                lcdFill(0);
-                DoString(0,0,"Called....");
-                lcdDisplay(0);
+                lcdClear();
+                lcdPrintln("Called...");
+                lcdRefresh();
                 if (the_menu->entries[menuselection]->callback!=NULL)
                     the_menu->entries[menuselection]->callback();
                 lcdDisplay(0);

@@ -12,7 +12,8 @@
 
 uint8_t lcdBuffer[RESX*RESY_B];
 int lcd_layout = 0;
-uint32_t intstatus;
+uint32_t intstatus; // Caches USB interrupt state
+                    // (need to disable MSC while displaying)
 
 #define TYPE_CMD    0
 #define TYPE_DATA   1
