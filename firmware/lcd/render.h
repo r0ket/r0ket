@@ -27,7 +27,7 @@
 */
 
 int DoChar(int sx, int sy, int c);
-int DoString(int sx, int sy, char *s);
+int DoString(int sx, int sy, const char *s);
 int DoInt(int sx, int sy, int num);
 int DoIntX(int sx, int sy, unsigned int num);
 

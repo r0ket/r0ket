@@ -141,24 +141,23 @@ int DoChar(int sx, int sy, int c){
 
 #define UTF8
 // decode 2 and 4-byte utf-8 strings.
-#define UT2(a,b)   ( ((a&31)<<6)  + (b&63) )
-#define UT3(a,b,c) ( ((a&15)<<12) + ((b&63)<<6) + (c&63) )
+#define UT2(a)   ( ((a[0]&31)<<6)  + (a[1]&63) )
+#define UT3(a)   ( ((a[0]&15)<<12) + ((a[1]&63)<<6) + (a[2]&63) )
 
-int DoString(int sx, int sy, char *s){
-	char *c;
+int DoString(int sx, int sy, const char *s){
+	const char *c;
 	int uc;
 	for(c=s;*c!=0;c++){
 #ifdef UTF8
 		/* will b0rk on non-utf8 */
-		if((*c&(128+64+32))==(128+64)){
-			uc=UT2(*c,*(++c));
+		if((*c&(128+64+32))==(128+64) && c[1]!=0){
+			uc=UT2(c); c+=1;
 			sx=DoChar(sx,sy,uc);
-		}else if( (*c&(128+64+32+16))==(128+64+32)){
-			uc=UT3(*c,*(++c),*(++c));
+		}else if( (*c&(128+64+32+16))==(128+64+32) && c[1]!=0 && c[2] !=0){
+			uc=UT3(c); c+=2;
 			sx=DoChar(sx,sy,uc);
 		}else
 #endif
-
 		sx=DoChar(sx,sy,*c);
 	};
 	return sx;
