@@ -4,77 +4,76 @@
 
 #include "lcd/lcd.h"
 #include "lcd/allfonts.h"
+#include "lcd/print.h"
 
 #include "usb/usbmsc.h"
 
 #include "filesystem/ff.h"
 
+extern void * sram_top;
+
 /**************************************************************************/
 
-void put_rc_y (FRESULT rc, int y) {
-    DoString(0,y,f_get_rc_string(rc));
-}
-
-void put_rc (FRESULT rc){
-    put_rc_y(rc,0);
-};
-
-
-extern void * sram_top;
 void execute_file (const char * fname){
     FRESULT res;
     FIL file;
     UINT readbytes;
     void (*dst)(void);
 
-    dst=(void (*)(void)) (sram_top);
+    /* XXX: why doesn't this work? sram_top contains garbage?
+    dst=(void (*)(void)) (sram_top); 
+    lcdPrint("T:"); lcdPrintIntHex(dst); lcdNl();
+    */
+    dst=(void (*)(void)) 0x10001800;
 
     res=f_open(&file, fname, FA_OPEN_EXISTING|FA_READ);
-    put_rc(res);
+    lcdPrint("open: ");
+    lcdPrintln(f_get_rc_string(res));
+    lcdRefresh();
     if(res){
         return;
     };
 
     res = f_read(&file, (char *)dst, RAMCODE, &readbytes);
-    put_rc_y(res,8);
+    lcdPrint("read: ");
+    lcdPrintln(f_get_rc_string(res));
+    lcdRefresh();
     if(res){
         return;
     };
 
-    int dx;
-    dx=DoString(0,16,"read: ");
-    DoInt(dx,16,readbytes);
-    lcdDisplay(0);
+    lcdPrintInt(readbytes);
+    lcdPrintln(" bytes");
+    lcdRefresh();
 
     dst=(void (*)(void)) ((uint32_t)(dst) | 1); // Enable Thumb mode!
     dst();
 
-    getInput();
 };
 
 /**************************************************************************/
 
 void execute_menu(void){
-//    int dx=0;
-    int dy=0;
+    FATFS FatFs;          /* File system object for logical drive */
+    FRESULT res;
 
-    DoString(0,dy,"Enter RAM!");dy+=8;
-    lcdDisplay(0);
+    lcdPrintln("Enter RAM!");
+    lcdRefresh();
     while(getInput()!=BTN_NONE);
 
-    FATFS FatFs;          /* File system object for logical drive */
-    put_rc(f_mount(0, &FatFs));
+    res=f_mount(0, &FatFs);
+    lcdPrint("Mount:");
+    lcdPrintln(f_get_rc_string(res));
 
     execute_file("0:test.c0d");
-    lcdDisplay(0);
-    while(!getInput());
+    lcdRefresh();
 };
 
 void msc_menu(void){
     DoString(0,8,"MSC Enabled.");
     lcdDisplay(0);
     usbMSCInit();
-    getInputWait();
+    while(!getInputRaw())delayms(10);
     DoString(0,16,"MSC Disabled.");
     usbMSCOff();
 };
