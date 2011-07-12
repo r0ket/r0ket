@@ -9,6 +9,7 @@ OBJS += diskio.o
 OBJS += iobase.o
 OBJS += mmc.o
 OBJS += at45db041d.o
+OBJS += util.o
 
 LIBNAME=fat
 

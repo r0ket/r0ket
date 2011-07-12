@@ -328,6 +328,9 @@ int ff_del_syncobj (_SYNC_t);		/* Delete a sync object */
 #define	ST_DWORD(ptr,val)	*(BYTE*)(ptr)=(BYTE)(val); *((BYTE*)(ptr)+1)=(BYTE)((WORD)(val)>>8); *((BYTE*)(ptr)+2)=(BYTE)((DWORD)(val)>>16); *((BYTE*)(ptr)+3)=(BYTE)((DWORD)(val)>>24)
 #endif
 
+/* Utility functions */
+const char* f_get_rc_string (FRESULT rc);
+
 #ifdef __cplusplus
 }
 #endif
