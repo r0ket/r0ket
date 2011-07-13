@@ -37,11 +37,11 @@ LDLIBS  = -lm
 LDLIBS += -Lapplications -lapp
 LDLIBS += -Lfunk -lfunk
 LDLIBS += -Lusbcdc -lusbcdc
-LDLIBS += -Llcd -llcd
-LDLIBS += -Lusb -lusb
 LDLIBS += -Lfilesystem -lfat
 LDLIBS += -Lbasic -lbasic
 LDLIBS += -Lcore -lcore
+LDLIBS += -Llcd -llcd
+LDLIBS += -Lusb -lusb
 OCFLAGS = --strip-unneeded
 
 SUBDIRS?= $(foreach lib,$(LIBS),$(dir $(lib)))
