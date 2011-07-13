@@ -34,3 +34,13 @@ void lcdClear(){
 void lcdRefresh(){
     lcdDisplay(0);
 };
+
+void lcdMoveCrsr(signed int dx,signed int dy){
+    x+=dx;
+    y+=dy;
+};
+
+void lcdSetCrsr(int dx,int dy){
+    x=dx;
+    y=dy;
+};
