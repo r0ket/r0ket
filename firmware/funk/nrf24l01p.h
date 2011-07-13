@@ -106,6 +106,7 @@
 
 /* exported functions */
 int nrf_rcv_pkt_time(int maxtime, int maxsize, uint8_t * pkt);
+char nrf_snd_pkt_crc(int size, uint8_t * pkt);
 void nrf_init() ;
 
 void nrf_cmd(uint8_t cmd);
