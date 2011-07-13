@@ -6,6 +6,7 @@ uint32_t results=5000;
 
 void VoltageCheck(void){
 
+    return;
 	results = adcRead(1);
 	results *= 10560;
 	results /= 1024;
