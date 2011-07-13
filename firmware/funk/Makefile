@@ -5,6 +5,7 @@
 OBJS =
 
 OBJS += nrf24l01p.o
+OBJS += rftransfer.o
 
 LIBNAME=funk
 

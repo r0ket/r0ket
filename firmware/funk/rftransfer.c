@@ -3,9 +3,10 @@
 #include <basic/basic.h>
 #include <core/systick/systick.h>
 
+#define MAXPACKET   30
 void rftransfer_send(uint16_t size, uint8_t *data)
 {
-    uint8_t buf[30];
+    uint8_t buf[MAXPACKET];
     buf[0] = 'L';
     buf[1] = size >> 8;
     buf[2] = size & 0xFF;
@@ -15,34 +16,37 @@ void rftransfer_send(uint16_t size, uint8_t *data)
     buf[4] = rand & 0xFF;
 
     nrf_snd_pkt_crc(5,buf);     //setup packet
-
+    delayms(10);
     uint16_t index = 0;
     uint8_t i;
+    uint16_t crc = crc16(data,size);
+
     while(size){
         buf[0] = 'D';
         buf[1] = index >> 8;
         buf[2] = index & 0xFF;
         buf[3] = rand >> 8;
         buf[4] = rand & 0xFF;
-        for(i=5; i<30 && size>0; i++,size--){
+        for(i=5; i<MAXPACKET && size>0; i++,size--){
             buf[i] = *data++;
         }
         index++;
         nrf_snd_pkt_crc(i,buf);     //data packet
+        delayms(10);
     }
 
-    uint16_t crc = crc16(data,size);
     buf[0] = 'C';
     buf[1] = crc >> 8;
     buf[2] = crc & 0xFF;
     buf[3] = rand >> 8;
     buf[4] = rand & 0xFF;
     nrf_snd_pkt_crc(5,buf);     //crc packet
+    delayms(10);
 }
 
 uint16_t rftransfer_receive(uint8_t *buffer, uint16_t maxlen, uint16_t timeout)
 {
-    uint8_t buf[30];
+    uint8_t buf[MAXPACKET];
     uint8_t state = 0;
     uint16_t pos = 0, seq = 0, size = 0, rand = 0, crc = 0;
     int n,i;
@@ -50,7 +54,7 @@ uint16_t rftransfer_receive(uint8_t *buffer, uint16_t maxlen, uint16_t timeout)
     unsigned int startTick = currentTick;
     
     while(currentTick < (startTick+timeout) ){//this fails if either overflows
-        n = nrf_rcv_pkt_time(10, 30, buf);
+        n = nrf_rcv_pkt_time(10, MAXPACKET, buf);
         switch(state){
             case 0:
                 if( n == 5 && buf[0] == 'L' ){
