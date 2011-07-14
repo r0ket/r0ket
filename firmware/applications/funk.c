@@ -6,6 +6,9 @@
 
 #include "funk/nrf24l01p.h"
 
+#include <string.h>
+
+#include "funk/rftransfer.h"
 /**************************************************************************/
 
 void f_init(void){
@@ -126,6 +129,14 @@ void adc_check(void) {
     dx=DoString(0,dy,"Done.");
 };
 
+void f_sendBlock(void)
+{
+    uint8_t data[] = "hallo welt, das hier ist ein langer string, der"
+                   "per funk verschickt werden soll.";
+    rftransfer_send(strlen(data), data);
+}
+
+
 /**************************************************************************/
 
 const struct MENU_DEF menu_ISP =    {"Invoke ISP",  &gotoISP};
@@ -133,6 +144,7 @@ const struct MENU_DEF menu_init =   {"F Init",   &f_init};
 const struct MENU_DEF menu_status = {"F Status", &f_status};
 const struct MENU_DEF menu_rcv =    {"F Recv",   &f_recv};
 const struct MENU_DEF menu_snd =    {"F Send",   &f_send};
+const struct MENU_DEF menu_sndblock={"F Send block", &f_sendBlock};
 const struct MENU_DEF menu_mirror = {"Mirror",   &lcd_mirror};
 const struct MENU_DEF menu_volt =   {"Akku",   &adc_check};
 const struct MENU_DEF menu_nop =    {"---",   NULL};
@@ -142,6 +154,7 @@ static menuentry menu[] = {
     &menu_status,
     &menu_rcv,
     &menu_snd,
+    &menu_sndblock,
     &menu_nop,
     &menu_mirror,
     &menu_volt,
