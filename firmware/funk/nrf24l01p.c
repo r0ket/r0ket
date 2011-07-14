@@ -1,6 +1,7 @@
 #include <basic/basic.h>
 #include <nrf24l01p.h>
 #include "core/ssp/ssp.h"
+#include "basic/xxtea.h"
 
 #define CHANNEL_BEACON 81
 #define DEFAULT_SPEED R_RF_SETUP_DR_2M
@@ -78,6 +79,24 @@ void nrf_write_long(const uint8_t cmd, int len, uint8_t* data){
     nrf_write_long(C_W_REGISTER|(reg), len, data)
 
 // High-Level:
+int nrf_rcv_pkt_time_xxtea(int maxtime, int maxsize,
+                                uint8_t * pkt, uint32_t const k[4])
+{
+    int n = nrf_rcv_pkt_time(maxtime, maxsize, pkt);
+    if( n ){
+        if( n < 2 )
+            return -4;
+        xxtea_decode(pkt, n, k);
+        uint16_t crc=crc16(pkt,n-2);
+        if( pkt[n-2] == ((crc>>8)&0xFF) && pkt[n-1] == (crc&0xFF) ){
+            return n;
+        }else{
+            return -5;
+        }
+    }
+    return n;
+}
+
 
 int nrf_rcv_pkt_time(int maxtime, int maxsize, uint8_t * pkt){
     uint8_t buf;
@@ -155,6 +174,12 @@ char nrf_snd_pkt_crc(int size, uint8_t * pkt){
 
     return nrf_cmd_status(C_NOP);
 };
+
+char nrf_snd_pkt_xxtea(int size, uint8_t * pkt, uint32_t const k[4])
+{
+    xxtea_encode(pkt, size, k);
+    return nrf_snd_pkt_crc(size, pkt);
+}
 
 void nrf_set_rx_mac(int pipe, int rxlen, int maclen, uint8_t * mac){
 #ifdef SAFE
