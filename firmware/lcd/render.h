@@ -29,6 +29,8 @@
 int DoChar(int sx, int sy, int c);
 int DoString(int sx, int sy, const char *s);
 int DoInt(int sx, int sy, int num);
+int DoIntXn(int sx, int sy, unsigned int num, unsigned int maxlen);
 int DoIntX(int sx, int sy, unsigned int num);
+int DoCharX(int sx, int sy, unsigned char num);
 
 #endif
