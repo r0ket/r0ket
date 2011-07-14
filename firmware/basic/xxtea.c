@@ -49,7 +49,7 @@ void charp2uint32p(uint8_t* data, uint8_t  n, uint32_t *v)
 
 void uint322charp(uint32_t data, uint8_t *buf, uint8_t bytes)
 {
-    if( bytes ){
+    if( bytes )
         buf[0] = data>>24;
     if( bytes > 1)
         buf[1] = (data>>16)&0xFF;
@@ -113,7 +113,8 @@ void xxtea_encode_words(uint32_t *v, int n, uint32_t const k[4])
     } while (--rounds);
 }
 
-void xxtea_decode_words(uint32_t *v, int n, uint32_t const k[4]) {
+void xxtea_decode_words(uint32_t *v, int n, uint32_t const k[4])
+{
     uint32_t y, z, sum;
     unsigned p, rounds, e;
 
