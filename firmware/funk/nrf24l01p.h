@@ -1,5 +1,6 @@
 #ifndef _NRF24L01P_H
 #define _NRF24L01P_H 1
+#include <stdint.h>
 
 #define MAX_PKT (32-2) // 2 bytes are our CRC
 
@@ -109,7 +110,10 @@
 
 /* exported functions */
 int nrf_rcv_pkt_time(int maxtime, int maxsize, uint8_t * pkt);
+int nrf_rcv_pkt_time_xxtea(int maxtime, int maxsize,
+                                uint8_t * pkt, uint32_t const k[4]);
 char nrf_snd_pkt_crc(int size, uint8_t * pkt);
+char nrf_snd_pkt_xxtea(int size, uint8_t * pkt, uint32_t const k[4]);
 void nrf_init() ;
 
 void nrf_cmd(uint8_t cmd);

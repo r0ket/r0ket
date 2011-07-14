@@ -1,0 +1,89 @@
+#include <string.h>
+#include "nrf24l01p.h"
+#include "filetransfer.h"
+#include "rftransfer.h"
+#include "basic/xxtea.h"
+#include "filesystem/ff.h"
+
+int filetransfer_send(uint8_t *filename, uint16_t size,
+                uint8_t *mac, uint32_t const k[4])
+{
+    uint8_t buf[MAXSIZE];
+    FIL file;
+    FRESULT res;
+    UINT readbytes;
+
+    if( size > MAXSIZE )
+        return 1;           //File to big
+ 
+    res=f_open(&file, (const char*)filename, FA_OPEN_EXISTING|FA_READ);
+    if( res )
+        return res;
+
+    res = f_read(&file, (char *)buf, size, &readbytes);
+    if( res )
+        return res;
+    if( size != readbytes)
+        return 1;           //Error while reading
+    
+    uint16_t wordcount = (size+3)/4;
+    uint8_t macbuf[5];
+
+    uint8_t metadata[30];
+    if( strlen((char*)filename) < 20 )
+        strcpy((char*)metadata, (char*)filename);
+    else
+        return 1;           //File name too long
+    metadata[20] = size >> 8;
+    metadata[21] = size & 0xFF;
+
+    //nrf_get_tx_max(5,macbuf);
+    nrf_set_tx_mac(5, mac);
+    
+    nrf_snd_pkt_xxtea(30, metadata, k); 
+    xxtea_encode_words((uint32_t *)buf, wordcount, k);
+    rftransfer_send(wordcount*4, buf);
+    nrf_set_tx_mac(5, macbuf);
+    return 0;
+}
+
+int filetransfer_receive(uint8_t *mac, uint32_t const k[4])
+{
+    uint8_t buf[MAXSIZE+1];
+    uint16_t size;
+
+    UINT written = 0;
+    FIL file;
+    FRESULT res;
+    uint8_t macbuf[5];
+    //nrf_get_tx_max(5,macbuf);
+    nrf_set_tx_mac(5, mac);
+
+    uint8_t metadata[30];
+    nrf_rcv_pkt_time_xxtea(1000, 30, metadata, k);
+    metadata[19] = 0; //enforce termination
+    size = (metadata[20] << 8) | metadata[21];
+
+    if( size > MAXSIZE ) return 1; //file to big
+    //if(fileexists(metadata)) return 1;   //file already exists
+    
+    res = f_open(&file, (const char*)metadata, FA_OPEN_ALWAYS|FA_WRITE);
+    if( res )
+        return res;
+    
+    uint16_t wordcount = (size+3)/4;
+    rftransfer_receive(buf, wordcount*4, 1000);
+
+    nrf_set_tx_mac(5, macbuf);
+
+    xxtea_decode_words((uint32_t *)buf, wordcount, k);
+    
+    res = f_write(&file, buf, size, &written);
+    if( res )
+        return res;
+    if( written != size )
+        return 1;           //error while writing
+
+    return 0;
+}
+
