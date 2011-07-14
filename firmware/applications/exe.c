@@ -1,4 +1,5 @@
 #include <sysinit.h>
+#include <string.h>
 
 #include "basic/basic.h"
 
@@ -54,19 +55,54 @@ void execute_file (const char * fname){
 /**************************************************************************/
 
 void execute_menu(void){
-    FATFS FatFs;          /* File system object for logical drive */
-    FRESULT res;
 
     lcdPrintln("Enter RAM!");
     lcdRefresh();
     while(getInput()!=BTN_NONE);
 
-    res=f_mount(0, &FatFs);
-    lcdPrint("Mount:");
-    lcdPrintln(f_get_rc_string(res));
-
     execute_file("0:test.c0d");
     lcdRefresh();
+};
+
+#define MAXENTRIES 10
+#define FLEN 13
+void select_menu(void){
+    DIR dir;                /* Directory object */
+    FILINFO Finfo;
+    FRESULT res;
+    char fname[FLEN*MAXENTRIES];
+    int ctr;
+
+    res = f_opendir(&dir, "0:");
+    lcdPrint("OpenDir:");
+    lcdPrintln(f_get_rc_string(res));
+    if(res){
+        return;
+    };
+
+    for(ctr=0;;ctr++) {
+        res = f_readdir(&dir, &Finfo);
+        if ((res != FR_OK) || !Finfo.fname[0]) break;
+        int len=strlen(Finfo.fname);
+        if( Finfo.fname[len-4]!='.' ||
+            Finfo.fname[len-3]!='C' ||
+            Finfo.fname[len-2]!='0' ||
+            Finfo.fname[len-1]!='D')
+            continue;
+
+        if (Finfo.fattrib & AM_DIR)
+            continue;
+
+        lcdPrint(" ");
+        lcdPrint(Finfo.fname);
+        lcdPrint(" <");
+        lcdPrintInt(Finfo.fsize);
+        lcdPrint(">");
+        lcdNl();
+        
+        strcpy(fname+ctr*FLEN,Finfo.fname);
+    }
+    lcdPrintln("<done>");
 };
 
 void msc_menu(void){
@@ -109,10 +145,12 @@ const struct MENU_DEF menu_volt =   {"Akku",   &adc_check};
 const struct MENU_DEF menu_nop =    {"---",   NULL};
 const struct MENU_DEF menu_msc =   {"MSC",   &msc_menu};
 const struct MENU_DEF menu_exe =   {"Exec",   &execute_menu};
+const struct MENU_DEF menu_exesel =   {"Exec2",   &select_menu};
 
 static menuentry menu[] = {
     &menu_msc,
     &menu_exe,
+    &menu_exesel,
     &menu_nop,
     &menu_mirror,
     &menu_volt,
@@ -128,6 +166,15 @@ void main_exe(void) {
 
     backlightInit();
     font=&Font_7x8;
+
+    FATFS FatFs;          /* File system object for logical drive */
+    FRESULT res;
+    res=f_mount(0, &FatFs);
+    if(res!=FR_OK){
+        lcdPrint("Mount:");
+        lcdPrintln(f_get_rc_string(res));
+        getInput();
+    };
 
     while (1) {
         lcdFill(0); // clear display buffer

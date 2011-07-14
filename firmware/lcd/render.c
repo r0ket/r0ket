@@ -196,8 +196,7 @@ int DoInt(int sx, int sy, int num){
 #undef mxlen
 };
 
-int DoIntX(int sx, int sy, unsigned int num){
-#define mxlen 8
+int DoIntXn(int sx, int sy, unsigned int num, unsigned int mxlen){
 	char s[(mxlen+1)];
 	char * o=s;
 	int len;
@@ -206,14 +205,15 @@ int DoIntX(int sx, int sy, unsigned int num){
 		s[len]=(num%16)+'0';
 		if(s[len]>'9')
 			s[len]+='A'-'9'-1;
-		if(num==0){
-//			s[len]=' '; // configurable?
-//			o=s+len; break;
-		};
 		num/=16;
 	};
 	return DoString(sx,sy,o);
-#undef mxlen
 };
-		
 
+int DoIntX(int sx, int sy, unsigned int num){
+    return DoIntXn(sx, sy, num, 8);
+};
+
+int DoCharX(int sx, int sy, unsigned char num){
+    return DoIntXn(sx, sy, num, 2);
+};

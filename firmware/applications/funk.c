@@ -15,10 +15,6 @@ void f_init(void){
     dx=DoString(0,dy,"Done."); ;dy+=8;
 };
 
-#define CS_LOW()    {gpioSetValue(RB_SPI_NRF_CS, 0); gpioSetValue(3,2,0);}
-#define CS_HIGH()   {gpioSetValue(RB_SPI_NRF_CS, 1); gpioSetValue(3,2,1);}
-#include "core/ssp/ssp.h"
-
 void f_status(void){
     int dx=0;
     int dy=8;
@@ -28,12 +24,22 @@ void f_status(void){
     buf[1]=0;
     buf[2]=0;
     buf[3]=0;
-    dx=DoString(0,dy,"S:"); DoIntX(dx,dy,*(int*)buf);dy+=8;
+    dx=DoString(0,dy,"S:"); 
+    dx=DoCharX(dx,dy,buf[0]);
+    dx=DoCharX(dx,dy,buf[1]);
+    dx=DoCharX(dx,dy,buf[2]);
+    dx=DoCharX(dx,dy,buf[3]);
+    dy+=8;
     nrf_cmd_rw_long(buf,2);
-    dx=DoString(0,dy,"R:"); DoIntX(dx,dy,*(int*)buf);dy+=8;
+    dx=DoString(0,dy,"R:");
+    dx=DoCharX(dx,dy,buf[0]);
+    dx=DoCharX(dx,dy,buf[1]);
+    dx=DoCharX(dx,dy,buf[2]);
+    dx=DoCharX(dx,dy,buf[3]);
+    dy+=8;
 
     int status=nrf_cmd_status(C_NOP);
-    dx=DoString(0,dy,"St:"); DoIntX(dx,dy,status);dy+=8;
+    dx=DoString(0,dy,"St:"); DoCharX(dx,dy,status);dy+=8;
 };
 
 void f_recv(void){
@@ -55,7 +61,7 @@ void f_recv(void){
         return;
     };
     dx=DoString(0,dy,"Size:"); DoInt(dx,dy,len); dy+=8;
-    dx=DoString(0,dy,"1:"); DoIntX(dx,dy,*(int*)(buf));dy+=8;
+    dx=DoString(0,dy,"1:"); DoIntX(dx,dy,*(int*)(buf+0));dy+=8;
     dx=DoString(0,dy,"2:"); DoIntX(dx,dy,*(int*)(buf+4));dy+=8;
     dx=DoString(0,dy,"3:"); DoIntX(dx,dy,*(int*)(buf+8));dy+=8;
     dx=DoString(0,dy,"4:"); DoIntX(dx,dy,*(int*)(buf+12));dy+=8;

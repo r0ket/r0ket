@@ -13,6 +13,10 @@ inline void xmit_spi(uint8_t dat) {
     sspSend(0, (uint8_t*) &dat, 1);
 }
 
+inline void rcv_spi(uint8_t *dat) {
+    sspReceive(0, dat, 1);
+}
+
 #define CS_LOW()    gpioSetValue(RB_SPI_NRF_CS, 0)
 #define CS_HIGH()   gpioSetValue(RB_SPI_NRF_CS, 1)
 #define CE_LOW()    gpioSetValue(RB_NRF_CE, 0)
@@ -45,6 +49,15 @@ void nrf_write_reg(const uint8_t reg, const uint8_t val){
     CS_HIGH();
 };
 
+uint8_t nrf_read_reg(const uint8_t reg){
+    uint8_t val;
+    CS_LOW();
+    xmit_spi(C_R_REGISTER | reg);
+    rcv_spi(&val);
+    CS_HIGH();
+    return val;
+};
+
 void nrf_read_long(const uint8_t cmd, int len, uint8_t* data){
     CS_LOW();
     xmit_spi(cmd);
@@ -62,51 +75,9 @@ void nrf_write_long(const uint8_t cmd, int len, uint8_t* data){
 };
 
 #define nrf_write_reg_long(reg, len, data) \
-    nrf_write_long(C_W_REGISTER|reg, len, data)
+    nrf_write_long(C_W_REGISTER|(reg), len, data)
 
-void nrf_init() {
-    // Enable SPI correctly
-    sspInit(0, sspClockPolarity_Low, sspClockPhase_RisingEdge);
-
-    // Enable CS & CE pins
-    gpioSetDir(RB_SPI_NRF_CS, gpioDirection_Output);
-    gpioSetPullup(&RB_SPI_NRF_CS_IO, gpioPullupMode_Inactive);
-    gpioSetDir(RB_NRF_CE, gpioDirection_Output);
-    gpioSetPullup(&RB_NRF_CE_IO, gpioPullupMode_PullUp);
-
-    // Setup for nrf24l01+
-    // power up takes 1.5ms - 3.5ms (depending on crystal)
-    CS_LOW();
-    nrf_write_reg(R_CONFIG,
-            R_CONFIG_PRIM_RX| // Receive mode
-            R_CONFIG_PWR_UP|  // Power on
-            R_CONFIG_EN_CRC   // CRC on, single byte
-            );
-    
-    nrf_write_reg(R_EN_AA, 0); // Disable Enhanced ShockBurst;
-
-    nrf_write_reg(R_RF_CH, CHANNEL_BEACON &127); // Select channel
-
-    // enable receive pipes
-    nrf_write_reg(R_EN_RXADDR,R_EN_RXADDR_ERX_P0 
-//            |R_EN_RXADDR_ERX_P1
-            );
-
-    nrf_write_reg(R_RX_PW_P0,16);
-    nrf_write_reg_long(R_RX_ADDR_P0,5,(uint8_t*)MAC_BEACON);
-
-//    nrf_write_reg(R_RX_PW_P1,16);
-//    nrf_write_reg_long(R_RX_ADDR_P1,5,"R0KET");
-
-    // OpenBeacon transmit address
-    nrf_write_reg_long(R_TX_ADDR,5,(uint8_t*)MAC_BEACON);
-
-    // Set speed / strength
-    nrf_write_reg(R_RF_SETUP,DEFAULT_SPEED|R_RF_SETUP_RF_PWR_3);
-
-    // XXX: or write R_CONFIG last?
-    CE_LOW();
-};
+// High-Level:
 
 int nrf_rcv_pkt_time(int maxtime, int maxsize, uint8_t * pkt){
     uint8_t buf;
@@ -159,7 +130,6 @@ int nrf_rcv_pkt_time(int maxtime, int maxsize, uint8_t * pkt){
 };
 
 char nrf_snd_pkt_crc(int size, uint8_t * pkt){
-    char status;
 
     if(size > MAX_PKT)
         size=MAX_PKT;
@@ -185,3 +155,89 @@ char nrf_snd_pkt_crc(int size, uint8_t * pkt){
 
     return nrf_cmd_status(C_NOP);
 };
+
+void nrf_set_rx_mac(int pipe, int rxlen, int maclen, uint8_t * mac){
+#ifdef SAFE
+    assert(maclen>=1 || maclen<=5);
+    assert(rxlen>=1 || rxlen<=32);
+    assert(pipe>=0 || pipe<=5);
+    assert(mac!=NULL);
+    if(pipe>1)
+        assert(maclen==1);
+#endif
+    nrf_write_reg(R_RX_PW_P0+pipe,rxlen);
+
+    nrf_write_reg_long(R_RX_ADDR_P0+pipe,maclen,mac);
+    nrf_write_reg(R_EN_RXADDR, 
+            nrf_read_reg(R_EN_RXADDR) | (1<<pipe)
+            );
+};
+
+void nrf_set_tx_mac(int maclen, uint8_t * mac){
+#ifdef SAFE
+    assert(maclen>=1 || maclen<=5);
+    assert(mac!=NULL);
+#endif
+    nrf_write_reg_long(R_TX_ADDR,maclen,mac);
+};
+
+void nrf_disable_pipe(int pipe){
+#ifdef SAFE
+    assert(pipe>=0 || pipe<=5);
+#endif
+    nrf_write_reg(R_EN_RXADDR, 
+            nrf_read_reg(R_EN_RXADDR) & ~(1<<pipe)
+            );
+};
+
+void nrf_set_channel(int channel){
+#ifdef SAFE
+    assert(channel &~R_RF_CH_BITS ==0);
+#endif
+    nrf_write_reg(R_RF_CH, channel);
+};
+
+void nrf_init() {
+    // Enable SPI correctly
+    sspInit(0, sspClockPolarity_Low, sspClockPhase_RisingEdge);
+
+    // Enable CS & CE pins
+    gpioSetDir(RB_SPI_NRF_CS, gpioDirection_Output);
+    gpioSetPullup(&RB_SPI_NRF_CS_IO, gpioPullupMode_Inactive);
+    gpioSetDir(RB_NRF_CE, gpioDirection_Output);
+    gpioSetPullup(&RB_NRF_CE_IO, gpioPullupMode_PullUp);
+    CE_LOW();
+
+    // Setup for nrf24l01+
+    // power up takes 1.5ms - 3.5ms (depending on crystal)
+    CS_LOW();
+    nrf_write_reg(R_CONFIG,
+            R_CONFIG_PRIM_RX| // Receive mode
+            R_CONFIG_PWR_UP|  // Power on
+            R_CONFIG_EN_CRC   // CRC on, single byte
+            );
+    
+    nrf_write_reg(R_EN_AA, 0); // Disable Enhanced ShockBurst;
+
+    nrf_set_channel(CHANNEL_BEACON);
+
+    // enable receive pipes
+    nrf_write_reg(R_EN_RXADDR,R_EN_RXADDR_ERX_P0 
+//            |R_EN_RXADDR_ERX_P1
+            );
+
+    nrf_write_reg(R_RX_PW_P0,16);
+    nrf_write_reg_long(R_RX_ADDR_P0,5,(uint8_t*)MAC_BEACON);
+
+//    nrf_write_reg(R_RX_PW_P1,16);
+//    nrf_write_reg_long(R_RX_ADDR_P1,5,"R0KET");
+
+    // OpenBeacon transmit address
+    nrf_write_reg_long(R_TX_ADDR,5,(uint8_t*)MAC_BEACON);
+
+    // Set speed / strength
+    nrf_write_reg(R_RF_SETUP,DEFAULT_SPEED|R_RF_SETUP_RF_PWR_3);
+
+    // XXX: or write R_CONFIG last?
+};
+
