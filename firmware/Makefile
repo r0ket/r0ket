@@ -39,8 +39,8 @@ LDLIBS += -Lfunk -lfunk
 LDLIBS += -Lusbcdc -lusbcdc
 LDLIBS += -Lfilesystem -lfat
 LDLIBS += -Lbasic -lbasic
-LDLIBS += -Lcore -lcore
 LDLIBS += -Llcd -llcd
+LDLIBS += -Lcore -lcore
 LDLIBS += -Lusb -lusb
 OCFLAGS = --strip-unneeded
 
