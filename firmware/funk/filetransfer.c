@@ -67,7 +67,7 @@ int filetransfer_receive(uint8_t *mac, uint32_t const k[4])
 
     nrf_set_rx_mac(0, 32, 5, mac);
     nrf_rcv_pkt_time_xxtea(1000, 30, metadata, k);
-    nrf_set_rx_mac(0, 32, 5, macbuf);
+    //nrf_set_rx_mac(0, 32, 5, macbuf);
 
     metadata[19] = 0; //enforce termination
     size = (metadata[20] << 8) | metadata[21];
@@ -83,7 +83,7 @@ int filetransfer_receive(uint8_t *mac, uint32_t const k[4])
     
     nrf_set_rx_mac(0, 32, 5, mac);
     rftransfer_receive(buf, wordcount*4, 1000);
-    nrf_set_rx_mac(0, 32, 5, macbuf);
+    //nrf_set_rx_mac(0, 32, 5, macbuf);
 
     xxtea_decode_words((uint32_t *)buf, wordcount, k);
     

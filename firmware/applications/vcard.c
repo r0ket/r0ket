@@ -58,6 +58,7 @@ int receiveKey(uint8_t type, uint8_t *x, uint8_t *y)
     uint8_t n;
     
     n = nrf_rcv_pkt_time(1000, 30, buf);
+    lcdPrint("pkt:"); lcdPrintInt(n);lcdPrintln(""); lcdRefresh();
     if( n == 30 && buf[0] == type && buf[1] == 'X' ){
         for(int i=0; i<NUMWORDS*4; i++)
             x[i] = buf[i+2];
@@ -155,6 +156,8 @@ int receiveKeys(uint8_t *px, uint8_t *py, uint8_t *mac)
         }
         if( receivePublicKey(px,py) )
             continue;
+        lcdPrintln("Got PUBKEY");
+        lcdRefresh(); 
         if( receiveMac(mac) )
             continue;
         lcdPrintln("Done");
@@ -189,6 +192,7 @@ void receiveFile(void)
  
     while( !done ){
         lcdClear();
+        lcdSetCrsr(0,0);
         lcdPrintln("Receiving file");
         lcdPrintln("Down=Abort");
         lcdRefresh();
@@ -199,10 +203,11 @@ void receiveFile(void)
         }
         if( receiveR(rx,ry) )
             continue;
+        lcdPrintln("Got R");
+        lcdRefresh();
         ECIES_decryptkeygen(rx, ry, k1, k2, Priv);
-        delayms(2000);
-        if( filetransfer_receive(mac,k1) )
-            continue;
+        //if( filetransfer_receive(mac,k1) )
+        //    continue;
         lcdPrintln("Done");
         lcdPrintln("Right=OK");
         lcdPrintln("Left=Retry");
@@ -242,7 +247,10 @@ void sendFile(char *filename)
         lcdClear();
         lcdPrintln("Sending file");lcdRefresh();
         sendR(rx,ry);
-        filetransfer_send((uint8_t*)filename, 0, mac, (uint32_t*)k1);
+        lcdPrintln("Sent R");
+        lcdRefresh();
+        delayms(3000);
+        //filetransfer_send((uint8_t*)filename, 0, mac, (uint32_t*)k1);
         lcdPrintln("Done");
         lcdPrintln("Right=OK");
         lcdPrintln("Left=Retry");
@@ -265,9 +273,11 @@ void main_vcard(void) {
     char key;
     nrf_init();
     f_mount(0, &FatFs[0]);
+    nrf_set_rx_mac(0, 32, 5, mac);
 
     while (1) {
         key= getInput();
+        delayms(20);
 
         // Easy flashing
         if(key==BTN_LEFT){
