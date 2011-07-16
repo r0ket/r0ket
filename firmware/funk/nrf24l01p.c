@@ -111,7 +111,7 @@ int nrf_rcv_pkt_time(int maxtime, int maxsize, uint8_t * pkt){
     int len;
     uint8_t status=0;
     uint8_t crc[2];
-    uint16_t cmp_crc;
+    uint16_t cmpcrc;
 
     nrf_write_reg(R_CONFIG,
             R_CONFIG_PRIM_RX| // Receive mode
@@ -152,16 +152,20 @@ int nrf_rcv_pkt_time(int maxtime, int maxsize, uint8_t * pkt){
     if(len>32 || len==0){
         return -2; // no packet error
     };
-    if(len>maxsize+2){
+    len-=2; // skip crc
+    if(len>maxsize){
         return -1; // packet too large
     };
 
-    nrf_read_pkt_crc(len-2,pkt,crc);
+    nrf_read_pkt_crc(len,pkt,crc);
+    cmpcrc=crc16(pkt,len);
 
-    cmpcrc=crc16(buf,14);
+    if(cmpcrc != (crc[0] <<8 | crc[1])) {
+        return -3; // CRC failed
+    };
 
     CS_HIGH();
-    return len-2;
+    return len;
 };
 
 char nrf_snd_pkt_crc(int size, uint8_t * pkt){
