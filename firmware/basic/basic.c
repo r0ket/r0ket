@@ -1,5 +1,9 @@
 #include "basic.h"
 #include "core/gpio/gpio.h"
+#include "lcd/backlight.c"
+#include "lcd/render.h"
+#include "lcd/allfonts.h"
+#include "ecc.h"
 
 void rbInit() {
     // TODO FIXME special port disable ? LEDs BTNs ?
@@ -129,4 +133,10 @@ void rbInit() {
 	    }
 	}
     */
+
+    //nrf_init();
+    backlightInit();
+    font_direction = FONT_DIR_LTR; // LeftToRight is the default
+    font=&Font_7x8;
+    ECIES_setup();
 }

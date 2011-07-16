@@ -15,7 +15,8 @@ void rftransfer_send(uint16_t size, uint8_t *data)
     buf[3] = rand >> 8;
     buf[4] = rand & 0xFF;
 
-    nrf_snd_pkt_crc(5,buf);     //setup packet
+    //nrf_snd_pkt_crc(5,buf);     //setup packet
+    nrf_snd_pkt_crc(30,buf);     //setup packet
     delayms(10);
     uint16_t index = 0;
     uint8_t i;
@@ -31,7 +32,8 @@ void rftransfer_send(uint16_t size, uint8_t *data)
             buf[i] = *data++;
         }
         index++;
-        nrf_snd_pkt_crc(i,buf);     //data packet
+        //nrf_snd_pkt_crc(i,buf);     //data packet
+        nrf_snd_pkt_crc(30,buf);     //setup packet
         delayms(10);
     }
 
@@ -40,7 +42,8 @@ void rftransfer_send(uint16_t size, uint8_t *data)
     buf[2] = crc & 0xFF;
     buf[3] = rand >> 8;
     buf[4] = rand & 0xFF;
-    nrf_snd_pkt_crc(5,buf);     //crc packet
+    //nrf_snd_pkt_crc(5,buf);     //crc packet
+    nrf_snd_pkt_crc(30,buf);     //setup packet
     delayms(10);
 }
 

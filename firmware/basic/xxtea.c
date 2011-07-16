@@ -96,6 +96,7 @@ void xxtea_decode(uint8_t *data, int n, uint32_t const k[4])
  
 void xxtea_encode_words(uint32_t *v, int n, uint32_t const k[4])
 {
+    if(k[0] == 0 && k[1] == 0 && k[2] == 0 && k[3] == 0) return;
     uint32_t y, z, sum;
     unsigned p, rounds, e;
     rounds = 6 + 52/n;
@@ -115,6 +116,7 @@ void xxtea_encode_words(uint32_t *v, int n, uint32_t const k[4])
 
 void xxtea_decode_words(uint32_t *v, int n, uint32_t const k[4])
 {
+    if(k[0] == 0 && k[1] == 0 && k[2] == 0 && k[3] == 0) return;
     uint32_t y, z, sum;
     unsigned p, rounds, e;
 

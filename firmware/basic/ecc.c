@@ -12,6 +12,11 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdint.h>
+#include "ecc.h"
+
+exp_t base_order;
+elem_t poly;                                      /* the reduction polynomial */
+elem_t coeff_b, base_x, base_y;
 
 static int xrandm=100000000;
 static int xrandm1=10000;
@@ -34,22 +39,10 @@ return a & 0xff;
 }
 
 
-
 #define MACRO(A) do { A; } while(0)
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
-#define NO_HTONL
-
-#ifndef NO_HTONL
-#define INT2CHARS(ptr, val) MACRO( *(uint32_t*)(ptr) = htonl(val) )
-#define CHARS2INT(ptr) ntohl(*(uint32_t*)(ptr))
-#else
-
-
-#if 1
-
 //compiles to a quite reasonable assembly code
-
 //void INT2CHARS (unsigned char *ptr, uint32_t val) 
 void INT2CHARS (char *ptr, uint32_t val) 
 {
@@ -70,44 +63,6 @@ r|=*ptr--; r<<=8;
 r|=*ptr--; 
 return r;
 }
-
-#else
-
-/* ARM architecture has a problem with non-word-aligned addresses
-   the load/store of a 32-bit register behaves very counterintuitively in such a case
-
-void INT2CHARS (char *ptr, const uint32_t val)
-{
-uint32_t *p = (uint32_t *)ptr;
-*p=val;
-}
-
-uint32_t CHARS2INT(const char *ptr)
-{
-uint32_t *p = (uint32_t *)ptr;
-return *p;
-}
-*/
-
-/* this has the same problem */
-#define INT2CHARS(ptr, val) MACRO( *(uint32_t*)(ptr) = (uint32_t)val )
-#define CHARS2INT(ptr) (*(uint32_t*)(ptr))
-
-#endif
-
-
-#endif
-
-
-
-/******************************************************************************/
-
-#define DEGREE 163                      /* the degree of the field polynomial */
-#define MARGIN 3                                          /* don't touch this */
-#define NUMWORDS ((DEGREE + MARGIN + 31) / 32)
-
-   /* the following type will represent bit vectors of length (DEGREE+MARGIN) */
-typedef uint32_t bitstr_t[NUMWORDS];
 
      /* some basic bit-manipulation routines that act on these vectors follow */
 #define bitstr_getbit(A, idx) ((A[(idx) / 32] >> ((idx) % 32)) & 1)
@@ -229,11 +184,19 @@ int bitstr_parse(bitstr_t x, const char *s)
   return len;
 }
 
+int bitstr_parse_export(char *exp, const char *s)
+{
+    bitstr_t x;
+    if( bitstr_parse(x, s) != -1 ){
+        bitstr_export(exp, x);
+        return 0;
+    }
+    return -1;
+}
+
 /******************************************************************************/
 
-typedef bitstr_t elem_t;           /* this type will represent field elements */
 
-elem_t poly;                                      /* the reduction polynomial */
 
 #define field_set1(A) MACRO( A[0] = 1; memset(A + 1, 0, sizeof(elem_t) - 4) )
 
@@ -304,7 +267,6 @@ void field_invert(elem_t z, const elem_t x)                /* field inversion */
    curves). Coefficient 'b' is given in 'coeff_b'.  '(base_x, base_y)'
    is a point that generates a large prime order group.             */
 
-elem_t coeff_b, base_x, base_y;
 
 #define point_is_zero(x, y) (bitstr_is_clear(x) && bitstr_is_clear(y))
 #define point_set_zero(x, y) MACRO( bitstr_clear(x); bitstr_clear(y) )
@@ -380,9 +342,7 @@ void point_add(elem_t x1, elem_t y1, const elem_t x2, const elem_t y2)
 
 /******************************************************************************/
 
-typedef bitstr_t exp_t;
 
-exp_t base_order;
 
                          /* point multiplication via double-and-add algorithm */
 void point_mult(elem_t x, elem_t y, const exp_t exp)
@@ -543,15 +503,15 @@ void ECIES_kdf(char *k1, char *k2, const elem_t Zx,     /* a non-standard KDF */
   buf[12 * NUMWORDS] = 3; XTEA_davies_meyer(k2 + 8, buf, bufsize / 16);
 }
 
-void ECIES_encyptkeygen(const char *Px, const char *Py,
+void ECIES_encyptkeygen(uint8_t *px, uint8_t *py,
                 uint8_t k1[16], uint8_t k2[16], uint8_t *Rx_exp, uint8_t *Ry_exp)
 {
   elem_t Rx, Ry, Zx, Zy;
   exp_t k;
   do {
     get_random_exponent(k);
-    bitstr_parse(Zx, Px);
-    bitstr_parse(Zy, Py);
+    bitstr_import(Zx, (char*)px);
+    bitstr_import(Zy, (char*)py);
     point_mult(Zx, Zy, k);
     point_double(Zx, Zy);                           /* cofactor h = 2 on B163 */
   } while(point_is_zero(Zx, Zy));
@@ -562,13 +522,13 @@ void ECIES_encyptkeygen(const char *Px, const char *Py,
   bitstr_export((char*)Ry_exp, Ry);
 }
 
-int ECIES_decryptkeygen(const char *Rx_imp, const char *Ry_imp,
+int ECIES_decryptkeygen(uint8_t *rx, uint8_t *ry,
              uint8_t k1[16], uint8_t k2[16], const char *privkey)
 {
   elem_t Rx, Ry, Zx, Zy;
   exp_t d;
-  bitstr_import(Rx, Rx_imp);
-  bitstr_import(Ry, Ry_imp);
+  bitstr_import(Rx, (char*)rx);
+  bitstr_import(Ry, (char*)ry);
   if (ECIES_embedded_public_key_validation(Rx, Ry) < 0)
     return -1;
   bitstr_parse(d, privkey);
@@ -580,6 +540,15 @@ int ECIES_decryptkeygen(const char *Rx_imp, const char *Ry_imp,
   ECIES_kdf((char*)k1,(char*) k2, Zx, Rx, Ry);
   return 0;
 } 
+
+void ECIES_setup(void)
+{
+    bitstr_parse(poly, "800000000000000000000000000000000000000c9");
+    bitstr_parse(coeff_b, "20a601907b8c953ca1481eb10512f78744a3205fd");
+    bitstr_parse(base_x, "3f0eba16286a2d57ea0991168d4994637e8343e36");
+    bitstr_parse(base_y, "0d51fbc6c71a0094fa2cdd545b11c5c0c797324f1");
+    bitstr_parse(base_order, "40000000000000000000292fe77e70c12a4234c33");
+}
 
 #define ECIES_OVERHEAD (8 * NUMWORDS + 8)
 
