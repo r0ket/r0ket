@@ -5,6 +5,8 @@
 #include "basic/xxtea.h"
 #include "filesystem/ff.h"
 
+
+//TODO: use a proper MAC to sign the message
 int filetransfer_send(uint8_t *filename, uint16_t size,
                 uint8_t *mac, uint32_t const k[4])
 {
@@ -20,7 +22,10 @@ int filetransfer_send(uint8_t *filename, uint16_t size,
     if( res )
         return res;
 
-    res = f_read(&file, (char *)buf, size, &readbytes);
+    //res = f_read(&file, (char *)buf, size, &readbytes);
+    res = f_read(&file, (char *)buf, MAXSIZE, &readbytes);
+    size = readbytes;
+
     if( res )
         return res;
     if( size != readbytes)
@@ -38,8 +43,8 @@ int filetransfer_send(uint8_t *filename, uint16_t size,
     metadata[21] = size & 0xFF;
 
     //nrf_get_tx_max(5,macbuf);
-    nrf_set_tx_mac(5, mac);
-    
+
+    nrf_set_tx_mac(5, mac); 
     nrf_snd_pkt_xxtea(30, metadata, k); 
     xxtea_encode_words((uint32_t *)buf, wordcount, k);
     rftransfer_send(wordcount*4, buf);
@@ -56,11 +61,14 @@ int filetransfer_receive(uint8_t *mac, uint32_t const k[4])
     FIL file;
     FRESULT res;
     uint8_t macbuf[5];
-    //nrf_get_tx_max(5,macbuf);
-    nrf_set_tx_mac(5, mac);
+    //nrf_get_rx_max(0,5,macbuf);
 
     uint8_t metadata[30];
+
+    nrf_set_rx_mac(0, 32, 5, mac);
     nrf_rcv_pkt_time_xxtea(1000, 30, metadata, k);
+    nrf_set_rx_mac(0, 32, 5, macbuf);
+
     metadata[19] = 0; //enforce termination
     size = (metadata[20] << 8) | metadata[21];
 
@@ -72,9 +80,10 @@ int filetransfer_receive(uint8_t *mac, uint32_t const k[4])
         return res;
     
     uint16_t wordcount = (size+3)/4;
+    
+    nrf_set_rx_mac(0, 32, 5, mac);
     rftransfer_receive(buf, wordcount*4, 1000);
-
-    nrf_set_tx_mac(5, macbuf);
+    nrf_set_rx_mac(0, 32, 5, macbuf);
 
     xxtea_decode_words((uint32_t *)buf, wordcount, k);
     
