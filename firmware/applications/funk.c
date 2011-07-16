@@ -3,6 +3,7 @@
 #include "basic/basic.h"
 
 #include "lcd/lcd.h"
+#include "lcd/print.h"
 
 #include "funk/nrf24l01p.h"
 
@@ -46,31 +47,23 @@ void f_status(void){
 };
 
 void f_recv(void){
-    int dx=0;
-    int dy=8;
-    uint8_t buf[32];
+    __attribute__ ((aligned (4))) uint8_t buf[32];
     int len;
 
-    len=nrf_rcv_pkt_time(500,sizeof(buf),buf);
+    len=nrf_rcv_pkt_time(1000,sizeof(buf),buf);
+
 
     if(len==0){
-        dx=DoString(0,dy,"No pkt"); dy+=8;
-        return;
-    }else if (len ==-1){
-        dx=DoString(0,dy,"Pkt too lg"); dy+=8;
-        return;
-    }else if (len ==-2){
-        dx=DoString(0,dy,"No pkt error?"); dy+=8;
-        return;
+        lcdPrintln("No pkt (Timeout)");
     };
-    dx=DoString(0,dy,"Size:"); DoInt(dx,dy,len); dy+=8;
-    dx=DoString(0,dy,"1:"); DoIntX(dx,dy,*(int*)(buf+0));dy+=8;
-    dx=DoString(0,dy,"2:"); DoIntX(dx,dy,*(int*)(buf+4));dy+=8;
-    dx=DoString(0,dy,"3:"); DoIntX(dx,dy,*(int*)(buf+8));dy+=8;
-    dx=DoString(0,dy,"4:"); DoIntX(dx,dy,*(int*)(buf+12));dy+=8;
+    lcdPrint("Size:");lcdPrintInt(len);lcdNl();
+    lcdPrint("1:");lcdPrintIntHex( *(int*)(buf+ 0) ); lcdNl();
+    lcdPrint("2:");lcdPrintIntHex( *(int*)(buf+ 4) ); lcdNl();
+    lcdPrint("3:");lcdPrintIntHex( *(int*)(buf+ 8) ); lcdNl();
+    lcdPrint("4:");lcdPrintShortHex( *(int*)(buf+12) ); lcdNl();
 
     len=crc16(buf,14);
-    dx=DoString(0,dy,"c:"); DoIntX(dx,dy,len);dy+=8;
+    lcdPrint("crc:");lcdPrintShortHex(len); lcdNl();
 
 };
 
@@ -80,7 +73,6 @@ void f_send(void){
     int dy=8;
     uint8_t buf[32];
     int status;
-    uint16_t crc;
 
     buf[0]=0x10; // Length: 16 bytes
     buf[1]=0x17; // Proto - fixed at 0x17?
@@ -133,9 +125,8 @@ void f_sendBlock(void)
 {
     uint8_t data[] = "hallo welt, das hier ist ein langer string, der"
                    "per funk verschickt werden soll.";
-    rftransfer_send(strlen(data), data);
+    rftransfer_send(strlen((char *)data), data);
 }
-
 
 /**************************************************************************/
 
