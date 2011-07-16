@@ -217,3 +217,7 @@ int DoIntX(int sx, int sy, unsigned int num){
 int DoCharX(int sx, int sy, unsigned char num){
     return DoIntXn(sx, sy, num, 2);
 };
+
+int DoShortX(int sx, int sy, uint16_t num){
+    return DoIntXn(sx, sy, num, 4);
+};
