@@ -3,9 +3,7 @@
 #include "core/ssp/ssp.h"
 #include "basic/xxtea.h"
 
-#define CHANNEL_BEACON 81
 #define DEFAULT_SPEED R_RF_SETUP_DR_2M
-#define MAC_BEACON "\x1\x2\x3\x2\1"
 
 /*-----------------------------------------------------------------------*/
 /* Transmit a byte via SPI                                               */
@@ -242,6 +240,63 @@ void nrf_set_channel(int channel){
     nrf_write_reg(R_RF_CH, channel);
 };
 
+void nrf_config_set(nrfconfig config){
+    nrf_write_reg(R_SETUP_AW,R_SETUP_AW_5);
+
+    nrf_set_channel(config->channel);
+
+    for(int i=0;i<config->nrmacs;i++){
+        nrf_write_reg(R_RX_PW_P0+i,config->maclen[i]);
+        if(i==0){
+            nrf_write_reg_long(R_RX_ADDR_P0,5,config->mac0);
+        }else if(i==1){
+            nrf_write_reg_long(R_RX_ADDR_P1,5,config->mac1);
+        }else if(i>1){
+            nrf_write_reg_long(R_RX_ADDR_P0+i,1,config->mac2345+i-2);
+        };
+    };
+
+    nrf_write_reg_long(R_TX_ADDR,5,config->txmac);
+
+    nrf_write_reg(R_EN_RXADDR,(1<<config->nrmacs)-1);
+};
+
+void nrf_config_get(nrfconfig config){
+//    nrf_write_reg(R_SETUP_AW,R_SETUP_AW_5);
+
+    config->channel=nrf_read_reg(R_RF_CH);
+
+    config->nrmacs=nrf_read_reg(R_EN_RXADDR);
+    if(config->nrmacs & R_EN_RXADDR_ERX_P5 )
+        config->nrmacs=6;
+    else if(config->nrmacs & R_EN_RXADDR_ERX_P4 )
+        config->nrmacs=5;
+    else if(config->nrmacs & R_EN_RXADDR_ERX_P3 )
+        config->nrmacs=4;
+    else if(config->nrmacs & R_EN_RXADDR_ERX_P2 )
+        config->nrmacs=3;
+    else if(config->nrmacs & R_EN_RXADDR_ERX_P1 )
+        config->nrmacs=2;
+    else
+        config->nrmacs=1;
+
+//    config->nrmacs=6;
+
+    for(int i=0;i<config->nrmacs;i++){
+        config->maclen[i]=nrf_read_reg(R_RX_PW_P0+i);
+        if(i==0){
+            nrf_read_long(R_RX_ADDR_P0,5,config->mac0);
+        }else if(i==1){
+            nrf_read_long(R_RX_ADDR_P1,5,config->mac1);
+        }else if(i>1){
+            nrf_read_long(R_RX_ADDR_P0+i,1,config->mac2345+i-2);
+        };
+    };
+
+    nrf_read_long(R_TX_ADDR,5,config->txmac);
+
+};
+
 void nrf_init() {
     // Enable SPI correctly
     sspInit(0, sspClockPolarity_Low, sspClockPhase_RisingEdge);
@@ -264,25 +319,8 @@ void nrf_init() {
     
     nrf_write_reg(R_EN_AA, 0); // Disable Enhanced ShockBurst;
 
-    nrf_set_channel(CHANNEL_BEACON);
-
-    // enable receive pipes
-    nrf_write_reg(R_EN_RXADDR,R_EN_RXADDR_ERX_P0 
-//            |R_EN_RXADDR_ERX_P1
-            );
-
-    nrf_write_reg(R_RX_PW_P0,16);
-    nrf_write_reg_long(R_RX_ADDR_P0,5,(uint8_t*)MAC_BEACON);
-
-//    nrf_write_reg(R_RX_PW_P1,16);
-//    nrf_write_reg_long(R_RX_ADDR_P1,5,"R0KET");
-
-    // OpenBeacon transmit address
-    nrf_write_reg_long(R_TX_ADDR,5,(uint8_t*)MAC_BEACON);
-
     // Set speed / strength
     nrf_write_reg(R_RF_SETUP,DEFAULT_SPEED|R_RF_SETUP_RF_PWR_3);
 
-    // XXX: or write R_CONFIG last?
 };
 

@@ -98,6 +98,11 @@
 #define R_RF_SETUP_DR_2M         0x08
 #define R_RF_SETUP_DR_250K       0x20
 
+//SETUP_AW register definitions
+#define R_SETUP_AW_3             0x01
+#define R_SETUP_AW_4             0x02
+#define R_SETUP_AW_5             0x03
+
 //STATUS register definitions
 #define R_STATUS_RX_DR           0x40
 #define R_STATUS_TX_DS           0x20
@@ -106,6 +111,20 @@
 #define R_STATUS_GET_RX_P_NO(x)  ((x&R_STATUS_RX_P_NO)>>1)
 #define R_STATUS_RX_FIFO_EMPTY   0x0E
 #define R_STATUS_TX_FULL         0x01
+
+/* config structure */
+
+struct NRF_CFG {
+    uint8_t channel;
+    uint8_t txmac[5];
+    uint8_t mac0[5];
+    uint8_t mac1[5];
+    uint8_t mac2345[4];
+    uint8_t nrmacs;
+    uint8_t maclen[5];
+};
+
+typedef struct NRF_CFG * nrfconfig;
 
 
 /* exported functions */
@@ -128,6 +147,9 @@ void nrf_set_rx_mac(int pipe, int rxlen, int maclen, uint8_t * mac);
 void nrf_set_tx_mac(int maclen, uint8_t * mac);
 void nrf_disable_pipe(int pipe);
 void nrf_set_channel(int channel);
+
+void nrf_config_set(nrfconfig config);
+void nrf_config_get(nrfconfig config);
 
 /* END */
 
