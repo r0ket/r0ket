@@ -152,10 +152,10 @@ int nrf_rcv_pkt_time_encr(int maxtime, int maxsize, uint8_t * pkt, uint32_t cons
                 };
 
                 nrf_read_pkt(len,pkt);
-                cmpcrc=crc16(pkt,len-2);
                 if(key != NULL)
                     xxtea_decode_words((uint32_t*)pkt,len/4,key);
 
+                cmpcrc=crc16(pkt,len-2);
                 if(cmpcrc != (pkt[len-2] <<8 | pkt[len-1])) {
                     continue;
                     return -3; // CRC failed
