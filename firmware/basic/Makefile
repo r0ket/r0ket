@@ -13,6 +13,7 @@ OBJS += uuid.o
 OBJS += crc.o
 OBJS += menu.o
 OBJS += xxtea.o
+OBJS += ecc.o
 
 LIBNAME=basic
 
