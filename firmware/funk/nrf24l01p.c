@@ -107,8 +107,7 @@ int nrf_rcv_pkt_time_xxtea(int maxtime, int maxsize,
 
 
 int nrf_rcv_pkt_time(int maxtime, int maxsize, uint8_t * pkt){
-    uint8_t buf;
-    int len;
+    uint8_t len;
     uint8_t status=0;
     uint8_t crc[2];
     uint16_t cmpcrc;
@@ -137,34 +136,36 @@ int nrf_rcv_pkt_time(int maxtime, int maxsize, uint8_t * pkt){
                 delayms(1);
                 nrf_write_reg(R_STATUS,0);
                 continue;
-            }else{
+            }else{ // Get/Check packet...
+                nrf_read_long(C_R_RX_PL_WID,1,&len);
+                if(len>32 || len==0){
+                    continue;
+                    return -2; // no packet error
+                };
+                len-=2; // crc is not part of the length
+                if(len>maxsize){
+                    continue;
+                    return -1; // packet too large
+                };
+
+                nrf_read_pkt_crc(len,pkt,crc);
+                cmpcrc=crc16(pkt,len);
+
+                if(cmpcrc != (crc[0] <<8 | crc[1])) {
+                    continue;
+                    return -3; // CRC failed
+                };
                 break;
             };
         };
     };
+
     CE_LOW();
+    CS_HIGH();
+
     if(maxtime<LOOPY)
         return 0; // timeout
 
-    len=1;
-    nrf_read_long(C_R_RX_PL_WID,len,&buf);
-    len=buf;
-    if(len>32 || len==0){
-        return -2; // no packet error
-    };
-    len-=2; // skip crc
-    if(len>maxsize){
-        return -1; // packet too large
-    };
-
-    nrf_read_pkt_crc(len,pkt,crc);
-    cmpcrc=crc16(pkt,len);
-
-    if(cmpcrc != (crc[0] <<8 | crc[1])) {
-        return -3; // CRC failed
-    };
-
-    CS_HIGH();
     return len;
 };
 
