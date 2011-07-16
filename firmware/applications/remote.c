@@ -14,6 +14,10 @@
 #define CHANNEL_BEACON 81
 #define MAC_BEACON "\x1\x2\x3\x2\1"
 
+uint32_t const testkey[4] = {
+    0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff
+};
+
 void f_init(void){
     nrf_init();
 
@@ -35,7 +39,7 @@ void f_recv(void){
     int len;
 
     while(1){
-        len=nrf_rcv_pkt_time(1000,sizeof(buf),buf);
+        len=nrf_rcv_pkt_time_encr(1000,sizeof(buf),buf,testkey);
 
         if(len==0){
             lcdPrintln("No pkt (Timeout)");
@@ -56,7 +60,7 @@ void f_recv(void){
 
         lcdPrint("ct:");lcdPrintIntHex( *(int*)(buf+ 4) ); lcdNl();
         lcdPrint("id:");lcdPrintIntHex( *(int*)(buf+ 8) ); lcdNl();
-        lcdPrint("xx:");lcdPrintShortHex( *(int*)(buf+12) ); lcdNl();
+        lcdPrint("xx:");lcdPrintIntHex( *(int*)(buf+12) ); lcdNl();
         lcdDisplay(0);
     };
 };
@@ -64,7 +68,7 @@ void f_recv(void){
 
 void f_send(void){
     int ctr=1;
-    uint8_t buf[32];
+    __attribute__ ((aligned (4))) uint8_t buf[32];
     int status;
 
     while(1){
@@ -92,7 +96,7 @@ void f_send(void){
         buf[12]=0xff; // salt (0xffff always?)
         buf[13]=0xff;
 
-        status=nrf_snd_pkt_crc(14,buf);
+        status=nrf_snd_pkt_crc_encr(16,buf,testkey);
         lcdClear();
         lcdPrint("Key:"); lcdPrintInt(buf[2]); lcdNl();
         lcdPrint("F-St:"); lcdPrintInt(status); 
