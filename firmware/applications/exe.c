@@ -66,44 +66,85 @@ void execute_menu(void){
 
 #define MAXENTRIES 10
 #define FLEN 13
-void select_menu(void){
+
+//typedef char[13] FILENAME;
+
+int getFiles(char files[][13], uint8_t count, uint16_t skip, char *ext)
+{
     DIR dir;                /* Directory object */
     FILINFO Finfo;
     FRESULT res;
-    char fname[FLEN*MAXENTRIES];
     int ctr;
-
+    int pos = 0;
     res = f_opendir(&dir, "0:");
-    lcdPrint("OpenDir:");
-    lcdPrintln(f_get_rc_string(res));
     if(res){
-        return;
+        lcdPrint("OpenDir:"); lcdPrintln(f_get_rc_string(res)); lcdRefresh(); 
+        return 0;
     };
-
-    for(ctr=0;;ctr++) {
+    for(ctr=0;pos<count;ctr++) {
         res = f_readdir(&dir, &Finfo);
+        //lcdPrint("ReadDir:"); lcdPrintln(f_get_rc_string(res)); lcdRefresh(); 
         if ((res != FR_OK) || !Finfo.fname[0]) break;
-        int len=strlen(Finfo.fname);
-        if( Finfo.fname[len-4]!='.' ||
-            Finfo.fname[len-3]!='C' ||
-            Finfo.fname[len-2]!='0' ||
-            Finfo.fname[len-1]!='D')
+        if( ctr < skip )
             continue;
+        int len=strlen(Finfo.fname);
+        int extlen = strlen(ext);
 
+        if( strcmp(Finfo.fname+len-extlen, ext) != 0)
+            continue;
         if (Finfo.fattrib & AM_DIR)
             continue;
 
-        lcdPrint(" ");
-        lcdPrint(Finfo.fname);
-        lcdPrint(" <");
-        lcdPrintInt(Finfo.fsize);
-        lcdPrint(">");
-        lcdNl();
-        
-        strcpy(fname+ctr*FLEN,Finfo.fname);
+        strcpy(files[pos++],Finfo.fname);
     }
-    lcdPrintln("<done>");
-};
+    //lcdPrint("getFiles:"); lcdPrintInt(pos); lcdRefresh(); 
+    return pos;
+}
+
+void select_menu(void)
+{
+    int skip = 0;
+    char key;
+    int selected = 0; 
+    while(1){
+        char files[7][13];
+        int count = getFiles(files, 7, skip, "TXT");
+        
+        redraw:
+        if( count )
+            lcdClear();
+        lcdPrintln("Select:");
+        for(int i=0; i<count; i++){
+            if( selected == i )
+                lcdPrint(">");
+            lcdPrintln(files[i]);
+        }
+        lcdRefresh();
+        key=getInputWait();
+        delayms(20);
+        if( key==BTN_DOWN ){
+            if( selected < 6 ){
+                selected++;
+                goto redraw;
+            }else{
+                skip++;
+            }
+        }else if( key==BTN_UP ){
+            if( selected > 0 ){
+                selected--;
+                goto redraw;
+            }else{
+                if( skip > 0 ){
+                    skip--;
+                }
+            }
+        }else if( key==BTN_LEFT ){
+            return;
+        }else if( key==BTN_RIGHT ){
+            return; //return file here
+        }
+    }
+}
 
 void msc_menu(void){
     DoString(0,8,"MSC Enabled.");
