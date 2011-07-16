@@ -66,6 +66,13 @@ void nrf_read_long(const uint8_t cmd, int len, uint8_t* data){
     CS_HIGH();
 };
 
+void nrf_read_pkt(int len, uint8_t* data){
+    CS_LOW();
+    xmit_spi(C_R_RX_PAYLOAD);
+    sspReceive(0,data,len);
+    CS_HIGH();
+};
+
 void nrf_read_pkt_crc(int len, uint8_t* data, uint8_t* crc){
     CS_LOW();
     xmit_spi(C_R_RX_PAYLOAD);
@@ -103,11 +110,9 @@ int nrf_rcv_pkt_time_xxtea(int maxtime, int maxsize,
     return n;
 }
 
-
-int nrf_rcv_pkt_time(int maxtime, int maxsize, uint8_t * pkt){
+int nrf_rcv_pkt_time_encr(int maxtime, int maxsize, uint8_t * pkt, uint32_t const key[4]){
     uint8_t len;
     uint8_t status=0;
-    uint8_t crc[2];
     uint16_t cmpcrc;
 
     nrf_write_reg(R_CONFIG,
@@ -140,16 +145,18 @@ int nrf_rcv_pkt_time(int maxtime, int maxsize, uint8_t * pkt){
                     continue;
                     return -2; // no packet error
                 };
-                len-=2; // crc is not part of the length
+
                 if(len>maxsize){
                     continue;
                     return -1; // packet too large
                 };
 
-                nrf_read_pkt_crc(len,pkt,crc);
-                cmpcrc=crc16(pkt,len);
+                nrf_read_pkt(len,pkt);
+                cmpcrc=crc16(pkt,len-2);
+                if(key != NULL)
+                    xxtea_decode_words((uint32_t*)pkt,len/4,key);
 
-                if(cmpcrc != (crc[0] <<8 | crc[1])) {
+                if(cmpcrc != (pkt[len-2] <<8 | pkt[len-1])) {
                     continue;
                     return -3; // CRC failed
                 };
@@ -167,7 +174,7 @@ int nrf_rcv_pkt_time(int maxtime, int maxsize, uint8_t * pkt){
     return len;
 };
 
-char nrf_snd_pkt_crc(int size, uint8_t * pkt){
+char nrf_snd_pkt_crc_encr(int size, uint8_t * pkt, uint32_t const key[4]){
 
     if(size > MAX_PKT)
         size=MAX_PKT;
@@ -178,12 +185,15 @@ char nrf_snd_pkt_crc(int size, uint8_t * pkt){
             );
     
 //    nrf_write_long(C_W_TX_PAYLOAD,size,pkt);
-    uint16_t crc=crc16(pkt,size);
+    uint16_t crc=crc16(pkt,size-2);
+    pkt[size-2]=(crc >>8) & 0xff;
+    pkt[size-1]=crc & 0xff;
+    if(key !=NULL)
+        xxtea_encode_words((uint32_t*)pkt,size/4,key);
+
     CS_LOW();
     xmit_spi(C_W_TX_PAYLOAD);
     sspSend(0,pkt,size);
-    xmit_spi((crc >>8) & 0xff);
-    xmit_spi(crc & 0xff);
     CS_HIGH();
 
     CE_HIGH();
@@ -321,6 +331,5 @@ void nrf_init() {
 
     // Set speed / strength
     nrf_write_reg(R_RF_SETUP,DEFAULT_SPEED|R_RF_SETUP_RF_PWR_3);
-
 };
 
