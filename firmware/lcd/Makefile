@@ -41,6 +41,7 @@ $(FOBJS): $(foreach ft,$(FONTS),$(ft).h) fonts.h
 
 clean:
 	rm -f $(OBJS) $(LIBFILE) fonts/*.o allfonts.h
+	touch allfonts.h
 
 render.o: render.c render.h display.h fonts.h
 
