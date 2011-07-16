@@ -15,6 +15,12 @@
 #define BEACON_CHANNEL 81
 #define BEACON_MAC     "\x1\x2\x3\x2\1"
 
+uint32_t const testkey[4] = {
+        0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff
+};
+
+int enctoggle=0;
+
 void f_init(void){
     nrf_init();
 
@@ -61,8 +67,7 @@ void f_recv(void){
     __attribute__ ((aligned (4))) uint8_t buf[32];
     int len;
 
-    len=nrf_rcv_pkt_time(1000,sizeof(buf),buf);
-
+    len=nrf_rcv_pkt_time_encr(1000,sizeof(buf),buf,enctoggle?testkey:NULL);
 
     if(len==0){
         lcdPrintln("No pkt (Timeout)");
@@ -71,7 +76,7 @@ void f_recv(void){
     lcdPrint("1:");lcdPrintIntHex( *(int*)(buf+ 0) ); lcdNl();
     lcdPrint("2:");lcdPrintIntHex( *(int*)(buf+ 4) ); lcdNl();
     lcdPrint("3:");lcdPrintIntHex( *(int*)(buf+ 8) ); lcdNl();
-    lcdPrint("4:");lcdPrintShortHex( *(int*)(buf+12) ); lcdNl();
+    lcdPrint("4:");lcdPrintIntHex( *(int*)(buf+12) ); lcdNl();
 
     len=crc16(buf,14);
     lcdPrint("crc:");lcdPrintShortHex(len); lcdNl();
@@ -136,6 +141,15 @@ void f_cfg_set(void){
     nrf_config_set(&config);
 };
 
+void f_enctog(void){
+    enctoggle=1-enctoggle;
+    if(enctoggle)
+        lcdPrintln("Encrypt ON!");
+    else
+        lcdPrintln("encrypt off!");
+
+};
+
 void f_send(void){
     static char ctr=1;
     uint8_t buf[32];
@@ -163,7 +177,7 @@ void f_send(void){
     buf[12]=0xff; // salt (0xffff always?)
     buf[13]=0xff;
 
-    status=nrf_snd_pkt_crc(16,buf);
+    status=nrf_snd_pkt_crc_encr(16,buf,enctoggle?testkey:NULL);
 
     lcdPrint("Status:");
     lcdPrintCharHex(status);
@@ -207,8 +221,9 @@ const struct MENU_DEF menu_init =   {"F Init",   &f_init};
 const struct MENU_DEF menu_status = {"F Status", &f_status};
 const struct MENU_DEF menu_rcv =    {"F Recv",   &f_recv};
 const struct MENU_DEF menu_snd =    {"F Send",   &f_send};
-const struct MENU_DEF menu_cfg =    {"F Cfg",   &f_cfg};
+const struct MENU_DEF menu_cfg =    {"F CfgGet",   &f_cfg};
 const struct MENU_DEF menu_cfg2 =    {"F CfgSet",   &f_cfg_set};
+const struct MENU_DEF menu_enc =    {"Toggle Encr",   &f_enctog};
 const struct MENU_DEF menu_sndblock={"F Send block", &f_sendBlock};
 const struct MENU_DEF menu_mirror = {"Mirror",   &lcd_mirror};
 const struct MENU_DEF menu_volt =   {"Akku",   &adc_check};
@@ -219,8 +234,9 @@ static menuentry menu[] = {
     &menu_status,
     &menu_rcv,
     &menu_snd,
-    &menu_cfg,
+    &menu_enc,
     &menu_cfg2,
+    &menu_cfg,
     &menu_nop,
     &menu_mirror,
     &menu_volt,
