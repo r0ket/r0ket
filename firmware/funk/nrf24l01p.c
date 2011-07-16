@@ -68,6 +68,14 @@ void nrf_read_long(const uint8_t cmd, int len, uint8_t* data){
     CS_HIGH();
 };
 
+void nrf_read_pkt_crc(int len, uint8_t* data, uint8_t* crc){
+    CS_LOW();
+    xmit_spi(C_R_RX_PAYLOAD);
+    sspReceive(0,data,len);
+    sspReceive(0,crc,2);
+    CS_HIGH();
+};
+
 void nrf_write_long(const uint8_t cmd, int len, uint8_t* data){
     CS_LOW();
     xmit_spi(cmd);
@@ -102,6 +110,8 @@ int nrf_rcv_pkt_time(int maxtime, int maxsize, uint8_t * pkt){
     uint8_t buf;
     int len;
     uint8_t status=0;
+    uint8_t crc[2];
+    uint16_t cmp_crc;
 
     nrf_write_reg(R_CONFIG,
             R_CONFIG_PRIM_RX| // Receive mode
@@ -113,6 +123,8 @@ int nrf_rcv_pkt_time(int maxtime, int maxsize, uint8_t * pkt){
     nrf_write_reg(R_STATUS,0);
 
     CE_HIGH();
+
+    for(int i=0;i<maxsize;i++) pkt[i] = 0x00; // Sanity: clear packet buffer
 
 #define LOOPY 10
     for (;maxtime >= LOOPY;maxtime-=LOOPY){
@@ -140,12 +152,16 @@ int nrf_rcv_pkt_time(int maxtime, int maxsize, uint8_t * pkt){
     if(len>32 || len==0){
         return -2; // no packet error
     };
-    if(len>maxsize){
+    if(len>maxsize+2){
         return -1; // packet too large
     };
-    nrf_read_long(C_R_RX_PAYLOAD,len,pkt);
+
+    nrf_read_pkt_crc(len-2,pkt,crc);
+
+    cmpcrc=crc16(buf,14);
+
     CS_HIGH();
-    return len;
+    return len-2;
 };
 
 char nrf_snd_pkt_crc(int size, uint8_t * pkt){
@@ -166,7 +182,6 @@ char nrf_snd_pkt_crc(int size, uint8_t * pkt){
     xmit_spi((crc >>8) & 0xff);
     xmit_spi(crc & 0xff);
     CS_HIGH();
-
 
     CE_HIGH();
     delayms(1); // Send it.  (only needs >10ys, i think)
