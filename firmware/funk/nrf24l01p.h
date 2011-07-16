@@ -128,10 +128,18 @@ typedef struct NRF_CFG * nrfconfig;
 
 
 /* exported functions */
-int nrf_rcv_pkt_time(int maxtime, int maxsize, uint8_t * pkt);
+#define nrf_rcv_pkt_time(maxtime, maxsize, pkt) \
+    nrf_rcv_pkt_time_encr(maxtime, maxsize, pkt, NULL)
+
+int nrf_rcv_pkt_time_encr(int maxtime, int maxsize, uint8_t * pkt, uint32_t const k[4]);
+
+#define nrf_snd_pkt_crc(size, pkt) \
+    nrf_snd_pkt_crc_encr(size, pkt, NULL)
+char nrf_snd_pkt_crc_encr(int size, uint8_t * pkt, uint32_t const k[4]);
+
+// Schneider-stuff?
 int nrf_rcv_pkt_time_xxtea(int maxtime, int maxsize,
                                 uint8_t * pkt, uint32_t const k[4]);
-char nrf_snd_pkt_crc(int size, uint8_t * pkt);
 char nrf_snd_pkt_xxtea(int size, uint8_t * pkt, uint32_t const k[4]);
 void nrf_init() ;
 
