@@ -17,6 +17,9 @@ void delayms(uint32_t ms);
 #define ENEMY_COLUMNS 6
 #define DISABLED 255
 
+#define TYPE_PLAYER 1
+#define TYPE_ALIEN 2
+
 struct gamestate {
     char player;
     char shot_x, shot_y;
@@ -169,14 +172,14 @@ void move_enemy2() {
 }
 void draw_player() {
     //draw_sprite(50, 20);
-    draw_sprite(game.player, POS_PLAYER_Y);
+    draw_sprite(TYPE_PLAYER,game.player, POS_PLAYER_Y);
 }
 
 void draw_enemy() {
     for (int row = 0; row<ENEMY_ROWS; row++) {
         for (int col = 0; col<ENEMY_COLUMNS; col++) {
             if (game.enemy_x[row][col] != DISABLED) {
-                draw_sprite(game.enemy_x[row][col],game.enemy_row_y[row]);
+                draw_sprite(TYPE_ALIEN,game.enemy_x[row][col],game.enemy_row_y[row]);
             }
         }
     }
@@ -198,14 +201,13 @@ void draw_status() {
     
     
 
-void draw_sprite(char x, char y) {
+void draw_sprite(char type, char x, char y) {
     font = &Font_Invaders;
-    DoString(x,y-1,"C");
-/*    for (int dx=0; dx<8; dx++){
-        for(int dy=0; dy<8; dy++){
-            lcdSetPixel(x+dx,y+dy, true);
-        }
-    } */
+    if(type==TYPE_PLAYER){
+        DoChar(x,y-1,"P");
+    }else{
+        DoChar(x,y-1,"C");
+    };
 }
 
 void check_end() {
