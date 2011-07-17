@@ -90,8 +90,6 @@ void main_executor(void) {
     int yctr=8;
     int dx=0;
 
-    font_direction = FONT_DIR_LTR; // LeftToRight is the default
-
     yctr=18;
 
     uint8_t trigger;
