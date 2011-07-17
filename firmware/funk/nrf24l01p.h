@@ -145,10 +145,10 @@ void nrf_cmd_rw_long(uint8_t* data, int len);
 void nrf_read_long(const uint8_t reg, int len, uint8_t* data);
 void nrf_write_reg(const uint8_t reg, const uint8_t val);
 uint8_t nrf_read_reg(const uint8_t reg);
-void nrf_write_reg_long(const uint8_t reg, int len, uint8_t* data);
+void nrf_write_long(const uint8_t cmd, int len, const uint8_t* data);
 
-void nrf_set_rx_mac(int pipe, int rxlen, int maclen, uint8_t * mac);
-void nrf_set_tx_mac(int maclen, uint8_t * mac);
+void nrf_set_rx_mac(int pipe, int rxlen, int maclen, const uint8_t * mac);
+void nrf_set_tx_mac(int maclen, const uint8_t * mac);
 void nrf_disable_pipe(int pipe);
 void nrf_set_channel(int channel);
 

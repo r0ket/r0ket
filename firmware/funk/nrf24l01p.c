@@ -81,7 +81,7 @@ void nrf_read_pkt_crc(int len, uint8_t* data, uint8_t* crc){
     CS_HIGH();
 };
 
-void nrf_write_long(const uint8_t cmd, int len, uint8_t* data){
+void nrf_write_long(const uint8_t cmd, int len, const uint8_t* data){
     CS_LOW();
     xmit_spi(cmd);
     sspSend(0,data,len);
@@ -185,7 +185,7 @@ char nrf_snd_pkt_crc_encr(int size, uint8_t * pkt, uint32_t const key[4]){
     return nrf_cmd_status(C_NOP);
 };
 
-void nrf_set_rx_mac(int pipe, int rxlen, int maclen, uint8_t * mac){
+void nrf_set_rx_mac(int pipe, int rxlen, int maclen, const uint8_t * mac){
 #ifdef SAFE
     assert(maclen>=1 || maclen<=5);
     assert(rxlen>=1 || rxlen<=32);
@@ -202,7 +202,7 @@ void nrf_set_rx_mac(int pipe, int rxlen, int maclen, uint8_t * mac){
             );
 };
 
-void nrf_set_tx_mac(int maclen, uint8_t * mac){
+void nrf_set_tx_mac(int maclen, const uint8_t * mac){
 #ifdef SAFE
     assert(maclen>=1 || maclen<=5);
     assert(mac!=NULL);
