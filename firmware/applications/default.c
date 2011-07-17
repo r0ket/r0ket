@@ -28,8 +28,35 @@ int lcdInitConfig(){
     lcdPrint("open:");
     lcdPrintln(f_get_rc_string(res));
     if(res){
-        lcdPrintln("r0ket.cfg missing!");
-        return 1;
+        lcdPrintln("new r0ket.cfg...");
+
+        res=f_open(&file[0], "r0ket.cfg", FA_OPEN_ALWAYS|FA_WRITE);
+        lcdPrint("create:");
+        lcdPrintln(f_get_rc_string(res));
+        if(res){
+            return 1;
+        };
+
+        buf[0]='0';
+        buf[1]='0';
+        res = f_write(&file[0], buf, 2, &readbytes);
+        lcdPrint("write:");
+        lcdPrintln(f_get_rc_string(res));
+        if(res){
+            return 1;
+        };
+
+        lcdPrint("wrote:");
+        lcdPrintInt(readbytes);
+        lcdPrintln("b");
+
+        res=f_close(&file[0]);
+        lcdPrint("close:");
+        lcdPrintln(f_get_rc_string(res));
+        if(res){
+            return 1;
+        };
+        return 2; // created. Still show screen
     };
 
     for(int i=0;i<CONFIGLEN;i++)
