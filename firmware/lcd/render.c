@@ -192,6 +192,8 @@ int DoInt(int sx, int sy, int num){
 		*o='-';
     if(neg==2)
         *o='0';
+    if(neg==0)
+        o++;
 	return DoString(sx,sy,o);
 #undef mxlen
 };
