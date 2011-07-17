@@ -283,6 +283,12 @@ void nrf_config_get(nrfconfig config){
 
 };
 
+void nrf_set_strength(unsigned char strength){
+    if(strength>3)
+        strength=3;
+    nrf_write_reg(R_RF_SETUP,DEFAULT_SPEED|(strength<<1));
+};
+
 void nrf_init() {
     // Enable SPI correctly
     sspInit(0, sspClockPolarity_Low, sspClockPhase_RisingEdge);

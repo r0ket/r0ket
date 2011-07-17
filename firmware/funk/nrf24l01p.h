@@ -155,6 +155,8 @@ void nrf_set_channel(int channel);
 void nrf_config_set(nrfconfig config);
 void nrf_config_get(nrfconfig config);
 
+void nrf_set_strength(unsigned char strength);
+
 /* END */
 
 #endif /* _NRF24L01P_H */
