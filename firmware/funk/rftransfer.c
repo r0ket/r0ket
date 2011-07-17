@@ -2,6 +2,7 @@
 #include "nrf24l01p.h"
 #include <basic/basic.h>
 #include <core/systick/systick.h>
+#include <lcd/print.h>
 
 #define MAXPACKET   32
 void rftransfer_send(uint16_t size, uint8_t *data)
