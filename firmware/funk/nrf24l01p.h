@@ -2,7 +2,7 @@
 #define _NRF24L01P_H 1
 #include <stdint.h>
 
-#define MAX_PKT (32-2) // 2 bytes are our CRC
+#define MAX_PKT (32) // space for crc is supplied by the caller
 
 // SPI commands
 #define C_R_REGISTER		0x00

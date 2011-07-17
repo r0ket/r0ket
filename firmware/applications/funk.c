@@ -10,6 +10,8 @@
 #include <string.h>
 
 #include "funk/rftransfer.h"
+#include "funk/openbeacon.h"
+
 /**************************************************************************/
 
 #define BEACON_CHANNEL 81
@@ -151,34 +153,9 @@ void f_enctog(void){
 };
 
 void f_send(void){
-    static char ctr=1;
-    uint8_t buf[32];
-    int status;
+    uint8_t status;
 
-    buf[0]=0x10; // Length: 16 bytes
-    buf[1]=0x17; // Proto - fixed at 0x17?
-    buf[2]=0xff; // Flags (0xff)
-    buf[3]=0xff; // Send intensity
-
-    /*
-    buf[4]=0x00; // ctr
-    buf[5]=0x00; // ctr
-    buf[6]=0x00; // ctr
-    buf[7]=ctr++; // ctr
-    */
-
-    *(int*)(buf+4)=ctr++;
-
-    buf[8]=0x0; // Object id
-    buf[9]=0x0;
-    buf[10]=0x05;
-    buf[11]=0xec;
-
-    buf[12]=0xff; // salt (0xffff always?)
-    buf[13]=0xff;
-
-    status=nrf_snd_pkt_crc_encr(16,buf,enctoggle?testkey:NULL);
-
+    status = openbeaconSend();
     lcdPrint("Status:");
     lcdPrintCharHex(status);
     lcdNl();
@@ -247,10 +224,10 @@ static menuentry menu[] = {
 static const struct MENU mainmenu = {"Mainmenu", menu};
 
 void main_funk(void) {
-
     backlightInit();
     font=&Font_7x8;
 
+    openbeaconSetup(0x5ec);
     while (1) {
         lcdFill(0); // clear display buffer
         lcdDisplay(0);
@@ -262,6 +239,7 @@ void main_funk(void) {
 void tick_funk(void){
     static int foo=0;
     static int toggle=0;
+
 	if(foo++>50){
         toggle=1-toggle;
 		foo=0;
