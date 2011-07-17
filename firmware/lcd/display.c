@@ -101,7 +101,7 @@ void lcdFill(char f){
 };
 
 void lcdSafeSetPixel(char x, char y, bool f){
-    if (x>=0 && x<=RESX && y>=0 && y <= RESY)
+    if (x>=0 && x<RESX && y>=0 && y < RESY)
         lcdSetPixel(x, y, f);
 }
 
@@ -137,7 +137,7 @@ void lcdDisplay(uint32_t shift) {
     for(page=0; page<RESY_B;page++) {
         for(i=0; i<RESX; i++) {
             if (lcd_layout & LCD_MIRRORX)
-                byte=lcdBuffer[page*RESX+RESX-((i+shift)%RESX)];
+                byte=lcdBuffer[page*RESX+RESX-1-((i+shift)%RESX)];
             else
                 byte=lcdBuffer[page*RESX+((i+shift)%RESX)];
 
