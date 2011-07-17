@@ -206,13 +206,24 @@ void receiveFile(void)
         lcdPrintln("Got R");
         lcdRefresh();
         ECIES_decryptkeygen(rx, ry, k1, k2, Priv);
-        //if( filetransfer_receive(mac,k1) )
-        //    continue;
+        #if 0
+        lcdClear();
+        for(int i=0; i<16; i++){
+            lcdPrintCharHex(k1[i]);
+            if((i+1)%4==0)
+                lcdPrintln("");
+        }
+        lcdRefresh();
+        #else
+        uint32_t k[4] = {0xffff,0xffff,0xffff,0xffff};
+        if( filetransfer_receive(mac,(uint32_t*)k) )
+            continue;
         lcdPrintln("Done");
         lcdPrintln("Right=OK");
         lcdPrintln("Left=Retry");
         lcdPrintln("Down=Abort");
         lcdRefresh();
+        #endif
         while(1){
             key = getInput();
             delayms(20);
@@ -249,11 +260,21 @@ void sendFile(char *filename)
         sendR(rx,ry);
         lcdPrintln("Sent R");
         lcdRefresh();
+        #if 0
+        lcdClear();
+        for(int i=0; i<16; i++){
+            lcdPrintCharHex(k1[i]);
+            if((i+1)%4==0)
+                lcdPrintln("");
+        }
+        #else
         delayms(3000);
-        //filetransfer_send((uint8_t*)filename, 0, mac, (uint32_t*)k1);
+        uint32_t k[4] = {0xffff,0xffff,0xffff,0xffff};
+        filetransfer_send((uint8_t*)filename, 0, mac, (uint32_t*)k);
         lcdPrintln("Done");
         lcdPrintln("Right=OK");
         lcdPrintln("Left=Retry");
+        #endif
         lcdRefresh();
 
         while(1){
@@ -273,7 +294,15 @@ void main_vcard(void) {
     char key;
     nrf_init();
     f_mount(0, &FatFs[0]);
-    nrf_set_rx_mac(0, 32, 5, mac);
+
+    struct NRF_CFG config = {
+        .channel= 81,
+        .txmac= "\x1\x2\x3\x2\x1",
+        .nrmacs=1,
+        .mac0=  "\x1\x2\x3\x2\x1",
+        .maclen ="\x20",
+    };
+    nrf_config_set(&config);
 
     while (1) {
         key= getInput();
@@ -285,10 +314,12 @@ void main_vcard(void) {
             lcdDisplay(0);
             ISPandReset(5);
         }else if(key==BTN_UP){
-            lcdClear();
-            lcdPrintln("Generating...");
-            lcdRefresh();
-            sendFile("foobar.txt");
+            //lcdClear();
+            //lcdPrintln("Generating...");
+            //lcdRefresh();
+            char file[13];
+            selectFile(file,"TXT");
+            sendFile(file);
             //uint8_t k1[16], k2[16], Rx[4*NUMWORDS], Ry[4*NUMWORDS];
             //ECIES_encyptkeygen("1c56d302cf642a8e1ba4b48cc4fbe2845ee32dce7",
             //                "45f46eb303edf2e62f74bd68368d979e265ee3c03",
@@ -307,6 +338,25 @@ void main_vcard(void) {
             //                k1, k2, Rx, Ry);
             //nrf_snd_pkt_crc(30, k1); 
             lcdPrintln("Done");
+            lcdRefresh();
+        }else if(key==BTN_RIGHT){
+            //uint8_t *data1 = "123456789012345678901234567890";
+            uint8_t data2[30] = "123456789012345678901234567890";
+            uint32_t key[4] = {0xFFFF,0xFFFF,0xFFFF,0xFFFF};
+
+            lcdClear();
+            lcdPrintln("encode"); lcdRefresh();
+            xxtea_encode(data2, 30, key);
+            //xxtea_encode_words(data2, 7 , key);
+            lcdPrintln("decode"); lcdRefresh();
+            xxtea_decode(data2, 30, key);
+            //xxtea_decode_words(data2, 7 , key);
+            lcdClear();
+            for(int i=0; i<30; i++){
+                lcdPrintCharHex(data2[i]);
+                if((i+1)%5==0)
+                    lcdPrintln("");
+            }
             lcdRefresh();
         }
 
