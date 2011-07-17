@@ -11,7 +11,7 @@ FATFS FatFs[_VOLUMES];          /* File system object for logical drive */
 
 #define CONFIGLEN 2
 int lcdInitConfig(){
-    FIL file[2];            /* File objects */
+    FIL file;            /* File objects */
     BYTE buf[CONFIGLEN];
     UINT readbytes;
     int res;
@@ -24,13 +24,13 @@ int lcdInitConfig(){
         return 1;
     };
 
-    res=f_open(&file[0], "r0ket.cfg", FA_OPEN_EXISTING|FA_READ);
+    res=f_open(&file, "r0ket.cfg", FA_OPEN_EXISTING|FA_READ);
     lcdPrint("open:");
     lcdPrintln(f_get_rc_string(res));
     if(res){
         lcdPrintln("new r0ket.cfg...");
 
-        res=f_open(&file[0], "r0ket.cfg", FA_OPEN_ALWAYS|FA_WRITE);
+        res=f_open(&file, "r0ket.cfg", FA_OPEN_ALWAYS|FA_WRITE);
         lcdPrint("create:");
         lcdPrintln(f_get_rc_string(res));
         if(res){
@@ -39,7 +39,7 @@ int lcdInitConfig(){
 
         buf[0]='0';
         buf[1]='0';
-        res = f_write(&file[0], buf, 2, &readbytes);
+        res = f_write(&file, buf, 2, &readbytes);
         lcdPrint("write:");
         lcdPrintln(f_get_rc_string(res));
         if(res){
@@ -50,7 +50,7 @@ int lcdInitConfig(){
         lcdPrintInt(readbytes);
         lcdPrintln("b");
 
-        res=f_close(&file[0]);
+        res=f_close(&file);
         lcdPrint("close:");
         lcdPrintln(f_get_rc_string(res));
         if(res){
@@ -62,7 +62,7 @@ int lcdInitConfig(){
     for(int i=0;i<CONFIGLEN;i++)
         buf[i]=0;
 
-    res = f_read(&file[0], buf, 2, &readbytes);
+    res = f_read(&file, buf, 2, &readbytes);
     lcdPrint("read:");
     lcdPrintln(f_get_rc_string(res));
     if(res){
@@ -79,7 +79,7 @@ int lcdInitConfig(){
     if(buf[1] == '1')
         lcdToggleFlag(LCD_MIRRORX);
 
-    res=f_close(&file[0]);
+    res=f_close(&file);
     lcdPrint("close:");
     lcdPrintln(f_get_rc_string(res));
     if(res){

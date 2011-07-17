@@ -14,6 +14,7 @@ OBJS += crc.o
 OBJS += menu.o
 OBJS += xxtea.o
 OBJS += ecc.o
+OBJS += byteorder.o
 
 LIBNAME=basic
 
