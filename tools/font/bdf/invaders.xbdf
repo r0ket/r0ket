@@ -102,4 +102,17 @@ xxxxxxxxxxxxxxxx
 ...x........x...
 ENDCHAR
 
+STARTCHAR roket
+ENCODING 80
+XBITMAP
+...x...
+..xxx..
+.xxxxx.
+.xxxxx.
+..xxx..
+.xxxxx.
+xxx.xxx
+xx...xx
+ENDCHAR
+
 ENDFONT

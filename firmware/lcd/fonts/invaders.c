@@ -50,7 +50,17 @@ const uint8_t InvadersBitmaps[] = {
   0x40,  /*  *       */ 
 
 
- /* Char 85 is 16px wide @ 32 */
+ /* Char 80 is 7px wide @ 32 */
+  0xc0,  /* **       */ 
+  0xec,  /* *** **   */ 
+  0x7e,  /*  ******  */ 
+  0x3f,  /*   ****** */ 
+  0x7e,  /*  ******  */ 
+  0xec,  /* *** **   */ 
+  0xc0,  /* **       */ 
+
+
+ /* Char 85 is 16px wide @ 39 */
   0x20,  /*   *     */ 
   0x30,  /*   **    */ 
   0x78,  /*  ****   */ 
@@ -69,7 +79,7 @@ const uint8_t InvadersBitmaps[] = {
   0x20,  /*   *     */ 
 
 
- /* Char 97 is 11px wide @ 48 */
+ /* Char 97 is 11px wide @ 55 */
   0x9e,  /* *  ****  */ 
   0x38,  /*   ***    */ 
   0x7d,  /*  ***** * */ 
@@ -83,7 +93,7 @@ const uint8_t InvadersBitmaps[] = {
   0x9e,  /* *  ****  */ 
 
 
- /* Char 98 is 12px wide @ 59 */
+ /* Char 98 is 12px wide @ 66 */
   0x1c,  /*    ***   */ 
   0x5e,  /*  * ****  */ 
   0xfe,  /* *******  */ 
@@ -98,7 +108,7 @@ const uint8_t InvadersBitmaps[] = {
   0x1c,  /*    ***   */ 
 
 
- /* Char 99 is 8px wide @ 71 */
+ /* Char 99 is 8px wide @ 78 */
   0x98,  /* *  **    */ 
   0x5c,  /*  * ***   */ 
   0xb6,  /* * ** **  */ 
@@ -116,6 +126,7 @@ const FONT_CHAR_INFO InvadersLengths[] = {
  {11}, /* A */
  {12}, /* B */
  { 9}, /* C */
+ { 7}, /* P */
  {16}, /* U */
  {11}, /* a */
  {12}, /* b */
@@ -123,7 +134,7 @@ const FONT_CHAR_INFO InvadersLengths[] = {
 };
 
 const uint16_t InvadersExtra[] = {
-85,97,98,99,65535
+80,85,97,98,99,65535
 };
 
 /* Font info */
@@ -139,5 +150,5 @@ const struct FONT_DEF Font_Invaders = {
  * Name:          Invaders
  * Height:        8 px (1 bytes)
  * Maximum width: 16 px
- * Storage size:  86 bytes (uncompressed)
+ * Storage size:  94 bytes (uncompressed)
  */
