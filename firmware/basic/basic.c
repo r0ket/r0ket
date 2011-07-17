@@ -136,7 +136,6 @@ void rbInit() {
 
     //nrf_init();
     backlightInit();
-    font_direction = FONT_DIR_LTR; // LeftToRight is the default
     font=&Font_7x8;
     ECIES_setup();
 }
