@@ -67,12 +67,13 @@ void f_recv(void){
 void f_send(void){
     int ctr=1;
     __attribute__ ((aligned (4))) uint8_t buf[32];
+    int len;
     int status;
 
     while(1){
 
         buf[0]=0x10; // Length: 16 bytes
-        buf[1]='C'; // Proto - fixed at 0x17?
+        buf[1]='C'; // Proto
         buf[2]=getInputRaw();
         buf[3]=0x00; // Unused
 
@@ -101,7 +102,10 @@ void f_send(void){
         if(buf[2]==BTN_ENTER)
             break;
         lcdDisplay(0);
-        delayms(10);
+        len=nrf_rcv_pkt_time_encr(10,sizeof(buf),buf,testkey);
+        if(len>0){
+            lcdPrint("Got!");
+        };
     };
 
 
