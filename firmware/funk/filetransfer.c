@@ -34,7 +34,7 @@ int filetransfer_send(uint8_t *filename, uint16_t size,
     uint16_t wordcount = (size+3)/4;
     uint8_t macbuf[5];
 
-    uint8_t metadata[30];
+    uint8_t metadata[32];
     if( strlen((char*)filename) < 20 )
         strcpy((char*)metadata, (char*)filename);
     else
@@ -44,13 +44,33 @@ int filetransfer_send(uint8_t *filename, uint16_t size,
 
     //nrf_get_tx_max(5,macbuf);
 
-    nrf_set_tx_mac(5, mac); 
-    nrf_snd_pkt_xxtea(30, metadata, k); 
+    //nrf_set_tx_mac(5, mac); 
+    nrf_snd_pkt_crc_encr(32, metadata, k); 
+    delayms(20);
     xxtea_encode_words((uint32_t *)buf, wordcount, k);
     rftransfer_send(wordcount*4, buf);
-    nrf_set_tx_mac(5, macbuf);
+    //nrf_set_tx_mac(5, macbuf);
     return 0;
 }
+
+void put_rc_y (FRESULT rc, int y) {
+	const TCHAR *p =
+		_T("OK\0DISK_ERR\0INT_ERR\0NOT_READY\0NO_FILE\0NO_PATH\0INVALID_NAME\0")
+		_T("DENIED\0EXIST\0INVALID_OBJECT\0WRITE_PROTECTED\0INVALID_DRIVE\0")
+		_T("NOT_ENABLED\0NO_FILE_SYSTEM\0MKFS_ABORTED\0TIMEOUT\0LOCKED\0")
+		_T("NOT_ENOUGH_CORE\0TOO_MANY_OPEN_FILES\0");
+	FRESULT i;
+
+	for (i = 0; i != rc && *p; i++) {
+		while(*p++) ;
+	}
+    DoString(0,y,p);
+}
+
+void put_rc (FRESULT rc){
+    put_rc_y(rc,0);
+};
+
 
 int filetransfer_receive(uint8_t *mac, uint32_t const k[4])
 {
@@ -63,31 +83,39 @@ int filetransfer_receive(uint8_t *mac, uint32_t const k[4])
     uint8_t macbuf[5];
     //nrf_get_rx_max(0,5,macbuf);
 
-    uint8_t metadata[30];
+    uint8_t metadata[32];
 
-    nrf_set_rx_mac(0, 32, 5, mac);
-    nrf_rcv_pkt_time_xxtea(1000, 30, metadata, k);
+    //nrf_set_rx_mac(0, 32, 5, mac);
+    nrf_rcv_pkt_time_encr(3000, 32, metadata, k);
     //nrf_set_rx_mac(0, 32, 5, macbuf);
-
+    //lcdPrintln("got meta"); lcdRefresh();
     metadata[19] = 0; //enforce termination
     size = (metadata[20] << 8) | metadata[21];
 
+    if( size > MAXSIZE ) {lcdPrintln("too big"); lcdRefresh(); while(1);}
     if( size > MAXSIZE ) return 1; //file to big
     //if(fileexists(metadata)) return 1;   //file already exists
     
+    lcdPrint("open"); lcdPrintln(metadata); lcdRefresh();
     res = f_open(&file, (const char*)metadata, FA_OPEN_ALWAYS|FA_WRITE);
+
+    //lcdPrintln("file opened"); lcdRefresh();
+    if( res ) {lcdPrintln("res"); put_rc(res); lcdRefresh(); while(1);}
     if( res )
         return res;
     
     uint16_t wordcount = (size+3)/4;
     
-    nrf_set_rx_mac(0, 32, 5, mac);
+    //nrf_set_rx_mac(0, 32, 5, mac);
+    lcdPrintln("get file"); lcdRefresh();
     rftransfer_receive(buf, wordcount*4, 1000);
+    lcdPrintln("got file"); lcdRefresh();
     //nrf_set_rx_mac(0, 32, 5, macbuf);
 
     xxtea_decode_words((uint32_t *)buf, wordcount, k);
     
     res = f_write(&file, buf, size, &written);
+    f_close(&file);
     if( res )
         return res;
     if( written != size )

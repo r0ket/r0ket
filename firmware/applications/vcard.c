@@ -24,46 +24,46 @@ char *Priv ="0e10e787036941e6c78daf8a0e8e1dbfac68e26d2";
 
 void sendPublicKey(char *px, char *py)
 {
-    uint8_t exp[2 + 4*NUMWORDS];
+    uint8_t exp[2 + 4*NUMWORDS + 2];
     exp[0] = 'P';
     bitstr_parse_export((char*)exp+2, px);
     exp[1] = 'X';
-    nrf_snd_pkt_crc(30, exp);
+    nrf_snd_pkt_crc(32, exp);
     delayms(10);
     exp[1] = 'Y';
     bitstr_parse_export((char*)exp+2, py);
-    nrf_snd_pkt_crc(30, exp);
+    nrf_snd_pkt_crc(32, exp);
     delayms(10);
 }
 
 void sendR(uint8_t *rx, uint8_t *ry)
 {
-    uint8_t exp[2 + 4*NUMWORDS];
+    uint8_t exp[2 + 4*NUMWORDS + 2];
     exp[0] = 'R';
     for(int i=0; i<4*NUMWORDS; i++)
         exp[2+i] = rx[i];
     exp[1] = 'X';
-    nrf_snd_pkt_crc(30, exp);
+    nrf_snd_pkt_crc(32, exp);
     delayms(10);
     exp[1] = 'Y';
     for(int i=0; i<4*NUMWORDS; i++)
         exp[2+i] = ry[i]; 
-    nrf_snd_pkt_crc(30, exp);
+    nrf_snd_pkt_crc(32, exp);
     delayms(10);
 }
 
 int receiveKey(uint8_t type, uint8_t *x, uint8_t *y)
 {
-    uint8_t buf[30];
+    uint8_t buf[32];
     uint8_t n;
     
-    n = nrf_rcv_pkt_time(1000, 30, buf);
+    n = nrf_rcv_pkt_time(1000, 32, buf);
     lcdPrint("pkt:"); lcdPrintInt(n);lcdPrintln(""); lcdRefresh();
-    if( n == 30 && buf[0] == type && buf[1] == 'X' ){
+    if( n == 32 && buf[0] == type && buf[1] == 'X' ){
         for(int i=0; i<NUMWORDS*4; i++)
             x[i] = buf[i+2];
-        n = nrf_rcv_pkt_time(100, 30, buf);
-        if( n == 30 && buf[0] ==type && buf[1] == 'Y' ){
+        n = nrf_rcv_pkt_time(100, 32, buf);
+        if( n == 32 && buf[0] ==type && buf[1] == 'Y' ){
             for(int i=0; i<NUMWORDS*4; i++)
                 y[i] = buf[i+2];
             return 0;
@@ -84,7 +84,7 @@ int receiveR(uint8_t *rx, uint8_t *ry)
 
 void sendMac(void)
 {
-    uint8_t buf[7];
+    uint8_t buf[32];
     buf[0] = 'M';
     buf[1] = 'C';
     buf[2] = mac[0];
@@ -92,17 +92,17 @@ void sendMac(void)
     buf[4] = mac[2];
     buf[5] = mac[3];
     buf[6] = mac[4];
-    nrf_snd_pkt_crc(30, buf);
+    nrf_snd_pkt_crc(32, buf);
     delayms(10);
 }
 
 int receiveMac(uint8_t *mac)
 {
-    uint8_t buf[30]; 
+    uint8_t buf[32]; 
     uint8_t n;
 
-    n = nrf_rcv_pkt_time(100, 30, buf);
-    if( n == 30 && buf[0] == 'M' && buf[1] == 'C' ){
+    n = nrf_rcv_pkt_time(100, 32, buf);
+    if( n == 32 && buf[0] == 'M' && buf[1] == 'C' ){
         for(int i=0; i<5; i++)
             mac[i] = buf[i+2];
         return 0;
@@ -340,24 +340,6 @@ void main_vcard(void) {
             lcdPrintln("Done");
             lcdRefresh();
         }else if(key==BTN_RIGHT){
-            //uint8_t *data1 = "123456789012345678901234567890";
-            uint8_t data2[30] = "123456789012345678901234567890";
-            uint32_t key[4] = {0xFFFF,0xFFFF,0xFFFF,0xFFFF};
-
-            lcdClear();
-            lcdPrintln("encode"); lcdRefresh();
-            xxtea_encode(data2, 30, key);
-            //xxtea_encode_words(data2, 7 , key);
-            lcdPrintln("decode"); lcdRefresh();
-            xxtea_decode(data2, 30, key);
-            //xxtea_decode_words(data2, 7 , key);
-            lcdClear();
-            for(int i=0; i<30; i++){
-                lcdPrintCharHex(data2[i]);
-                if((i+1)%5==0)
-                    lcdPrintln("");
-            }
-            lcdRefresh();
         }
 
                 //encryption_decryption_demo("This is encrypted",
