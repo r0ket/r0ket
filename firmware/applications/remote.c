@@ -6,13 +6,11 @@
 #include "lcd/print.h"
 
 #include "funk/nrf24l01p.h"
+#include "usb/usbmsc.h"
 
 #include <string.h>
 
 /**************************************************************************/
-
-#define CHANNEL_BEACON 81
-#define MAC_BEACON "\x1\x2\x3\x2\1"
 
 uint32_t const testkey[4] = {
     0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff
@@ -23,9 +21,9 @@ void f_init(void){
 
     struct NRF_CFG config = {
         .channel= 81,
-        .txmac= "\x1\x2\x3\x2\x1",
+        .txmac= "REMOT",
         .nrmacs=1,
-        .mac0=  "\x1\x2\x3\x2\x1",
+        .mac0=  "REMOT",
         .maclen ="\x10",
     };
 
@@ -132,6 +130,15 @@ void adc_check(void) {
     dx=DoString(0,dy,"Done.");
 };
 
+void msc_menu(void){
+    DoString(0,8,"MSC Enabled.");
+    lcdDisplay(0);
+    usbMSCInit();
+    while(!getInputRaw())delayms(10);
+    DoString(0,16,"MSC Disabled.");
+    usbMSCOff();
+};
+
 /**************************************************************************/
 
 const struct MENU_DEF menu_ISP =    {"Invoke ISP",  &gotoISP};
@@ -141,6 +148,7 @@ const struct MENU_DEF menu_snd =    {"F Send",   &f_send};
 //const struct MENU_DEF menu_cfg =    {"F Cfg",   &f_cfg};
 const struct MENU_DEF menu_mirror = {"Mirror",   &lcd_mirror};
 const struct MENU_DEF menu_volt =   {"Akku",   &adc_check};
+const struct MENU_DEF menu_msc =   {"MSC",   &msc_menu};
 const struct MENU_DEF menu_nop =    {"---",   NULL};
 
 static menuentry menu[] = {
@@ -151,6 +159,8 @@ static menuentry menu[] = {
     &menu_nop,
     &menu_mirror,
     &menu_volt,
+    &menu_msc,
+    &menu_nop,
     &menu_ISP,
     NULL,
 };
@@ -159,7 +169,6 @@ static const struct MENU mainmenu = {"Mainmenu", menu};
 
 void main_remote(void) {
 
-    backlightInit();
     font=&Font_7x8;
 
     while (1) {
