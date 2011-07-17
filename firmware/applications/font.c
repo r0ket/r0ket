@@ -106,11 +106,11 @@ void f_nick(void){
         if(key==BTN_UP){
             if(--y<0) y=0;
         }else if (key ==BTN_DOWN){
-            if(++y>RESY) y=RESY;
+            if(++y>=RESY) y=RESY-1;
         }else if (key ==BTN_LEFT){
             if(--x<0) x=0;
         }else if (key ==BTN_RIGHT){
-            if(++x>RESX) x=RESX;
+            if(++x>=RESX) x=RESX-1;
         }else if (key ==BTN_ENTER){
             lcdClear();
             lcdPrintln("Done.");
