@@ -10,6 +10,7 @@ OBJS += iobase.o
 OBJS += mmc.o
 OBJS += at45db041d.o
 OBJS += util.o
+OBJS += select.o
 
 LIBNAME=fat
 

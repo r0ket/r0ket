@@ -4,7 +4,6 @@
 #include "lcd/lcd.h"
 #include "lcd/print.h"
 #include "filesystem/ff.h"
-#include "usb/usbmsc.h"
 
 /**************************************************************************/
 
