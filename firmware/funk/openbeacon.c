@@ -7,6 +7,7 @@
 
 const uint32_t key[4] = {0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF};
 const uint8_t enctoggle = 0;
+const uint8_t mac[5] = {1,2,3,2,1};
 
 uint32_t oid = 0;
 uint32_t ctr = 0;
@@ -14,7 +15,7 @@ uint8_t strength = 0;
 
 void openbeaconSave()
 {
-    FIL file;            /* File object */
+    FIL file;
     BYTE buf[4];
     UINT readbytes;
 
@@ -31,7 +32,7 @@ void openbeaconSave()
 
 void openbeaconRead()
 {
-    FIL file;            /* File object */
+    FIL file;
     BYTE buf[4];
     UINT readbytes;
 
@@ -72,14 +73,13 @@ void openbeaconSendPacket(uint32_t id, uint32_t ctr, uint8_t flags, uint8_t stre
 
 void openbeaconSend(void)
 {
-    //uint8_t tmp = nrfgetstrength();
-    uint8_t tmp = 3;
     nrf_set_strength(strength);
+    nrf_set_tx_mac(sizeof(mac), mac);
+
     openbeaconSendPacket(oid, ctr++, 0xFF, strength++);
     if( strength == 4 )
         strength = 0;
     if( ctr % OPENBEACON_SAVECOUNTER  == 0 )
         openbeaconSave();
-    //maybe this produces timing problems?
-    nrf_set_strength(tmp);
 }
+
