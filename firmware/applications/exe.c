@@ -2,13 +2,10 @@
 #include <string.h>
 
 #include "basic/basic.h"
-
 #include "lcd/lcd.h"
 #include "lcd/allfonts.h"
 #include "lcd/print.h"
-
 #include "usb/usbmsc.h"
-
 #include "filesystem/ff.h"
 #include "filesystem/select.h"
 #include "filesystem/execute.h"
@@ -20,7 +17,6 @@ void execute_menu(void){
     executeSelect("C0D");
     lcdRefresh();
 };
-
 
 void msc_menu(void){
     DoString(0,8,"MSC Enabled.");
@@ -62,12 +58,10 @@ const struct MENU_DEF menu_volt =   {"Akku",   &adc_check};
 const struct MENU_DEF menu_nop =    {"---",   NULL};
 const struct MENU_DEF menu_msc =   {"MSC",   &msc_menu};
 const struct MENU_DEF menu_exe =   {"Exec",   &execute_menu};
-//const struct MENU_DEF menu_exesel =   {"Exec2",   &select_menu};
 
 static menuentry menu[] = {
     &menu_msc,
     &menu_exe,
-//    &menu_exesel,
     &menu_nop,
     &menu_mirror,
     &menu_volt,
@@ -80,18 +74,6 @@ static const struct MENU mainmenu = {"Mainmenu", menu};
 void main_exe(void) {
 
     lcdSetPixel(0,0,0);
-
-    backlightInit();
-    font=&Font_7x8;
-
-    FATFS FatFs;          /* File system object for logical drive */
-    FRESULT res;
-    res=f_mount(0, &FatFs);
-    if(res!=FR_OK){
-        lcdPrint("Mount:");
-        lcdPrintln(f_get_rc_string(res));
-        getInput();
-    };
 
     while (1) {
         lcdFill(0); // clear display buffer
