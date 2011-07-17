@@ -76,9 +76,16 @@ void f_init(void){
 
 
 static FONT fonts[] = {
-    &Font_7x8, 
-    &Font_Ubuntu18pt, // 3 byte-font
-    &Font_8x8,
+ &Font_7x8,
+ &Font_Ubuntu18pt,
+ &Font_Ubuntu29pt,
+ &Font_Ubuntu36pt,
+ &Font_Orbitron14pt,
+ &Font_3x6,
+ &Font_5x8,
+ &Font_8x8,
+ &Font_8x8Thin,
+ &Font_Invaders
 };
 
 
@@ -89,9 +96,11 @@ void f_nick(void){
     signed char y=10;
     while (1) {
         lcdClear();
+        lcdFill(255);
 
-        font=fonts[ctr%3];
+        font=fonts[ctr%10];
         DoString(x,y,nickname);
+//        lcdSafeSetPixel(x,y,1);
 
         font=&Font_7x8;
         lcdSetCrsr(50,50);
@@ -100,17 +109,17 @@ void f_nick(void){
         lcdPrintInt(y);
 
         lcdDisplay(0);
-        delayms(50);
+        delayms(40);
 
         key= getInputRaw();
         if(key==BTN_UP){
-            if(--y<0) y=0;
+            --y;//if(--y<0) y=0;
         }else if (key ==BTN_DOWN){
-            if(++y>=RESY) y=RESY-1;
+            ++y;//if(++y>=RESY) y=RESY-1;
         }else if (key ==BTN_LEFT){
-            if(--x<0) x=0;
+            --x;//if(--x<0) x=0;
         }else if (key ==BTN_RIGHT){
-            if(++x>=RESX) x=RESX-1;
+            ++x;//if(++x>=RESX) x=RESX-1;
         }else if (key ==BTN_ENTER){
             lcdClear();
             lcdPrintln("Done.");
@@ -189,7 +198,7 @@ static const struct MENU mainmenu = {"Mainmenu", menu};
 
 void main_font(void) {
 
-    strcpy(nickname,"unown"); 
+    strcpy(nickname,"Äg€"); 
 
     font=&Font_7x8;
 
