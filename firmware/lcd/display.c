@@ -100,7 +100,14 @@ void lcdFill(char f){
     }
 };
 
+void lcdSafeSetPixel(char x, char y, bool f){
+    if (x>=0 && x<=RESX && y>=0 && y <= RESY)
+        lcdSetPixel(x, y, f);
+}
+
 void lcdSetPixel(char x, char y, bool f){
+    if (x<0 || x> RESX || y<0 || y > RESY)
+        return;
     char y_byte = (RESY-(y+1)) / 8;
     char y_off = (RESY-(y+1)) % 8;
     char byte = lcdBuffer[y_byte*RESX+(RESX-(x+1))];

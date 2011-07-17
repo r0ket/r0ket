@@ -26,6 +26,7 @@ void lcdDisplay(uint32_t shift);
 void lcdInvert(void);
 void lcdToggleFlag(int flag);
 void lcdSetPixel(char x, char y, bool f);
+void lcdSafeSetPixel(char x, char y, bool f);
 bool lcdGetPixel(char x, char y);
 
 #endif
