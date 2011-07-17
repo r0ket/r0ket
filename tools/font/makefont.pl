@@ -51,6 +51,7 @@ Options:
 --verbose         Be verbose.
 --raw             Create raw/uncompressed font.
 --font <filename> Source .ttf file to use. [Default: $font]
+--chars <chars>   Characters to encode. [Deflault: see source :-)]
 --size <size>     Pointsize the font should be rendered at. [Default: $size]
 HELP
 			exit(-1);}
@@ -90,7 +91,7 @@ die "No font name?" if !defined $title;
 my $file=$fonts;
 $file=~s/pt$//;
 $file=~y/A-Z/a-z/;
-$file.="-raw" if($raw);
+#$file.="-raw" if($raw);
 
 print "Writing $title to ${file}.c\n";
 
@@ -174,18 +175,25 @@ for (0..$#charlist){
 	my $oneraw;
 	# If encoding is bigger, fall back to original char
 	if($#enc>$#raw+3){
-		warn "Compression failure: Encoding char $char raw.\n";
+		warn "Compression failure: Encoding char $char raw.\n" unless $raw;
 		$oneraw=1;
 	};
 
 	# Generate C source
 	if($raw||$oneraw){
+        my @out;
 		$c2size-=scalar(@enc);
-		@enc=(255,$preblank,$postblank,@raw);
+        if(!$raw){
+            @enc=(255,$preblank,$postblank);
+            @out=@enc;
+            printf C "  0x%02x, %2d, %2d, /* rawmode, preblank, postblank */\n",
+                   (shift@out), (shift@out), (shift@out);
+        }else{
+            @enc=();
+        };
+        push @enc,@raw;
 		$c2size+=scalar(@enc);
-		my @out=@enc;
-		printf C "  0x%02x, %2d, %2d, /* rawmode, preblank, postblank */\n",
-			   (shift@out), (shift@out), (shift@out);
+		@out=@enc;
 		for (@char){
 			print C "  ";
 			printf C "0x%02x, ",shift@out for(1..$heightb);
@@ -249,21 +257,26 @@ printf C "
 
 /* Font info */
 const struct FONT_DEF Font_$fonts = {
-	%3d,   /* width (1 == comressed) */
+	%3d,   /* width (1 == compressed) */
 	%3d,   /* character height */
 	%3d,   /* first char */
 	%3d,   /* last char */
     %s, %s, %s
 };
-",1,$heightpx,$first,$last,"${fonts}Bitmaps","${fonts}Lengths","${fonts}Extra";
+",($raw?0:1),$heightpx,$first,$last,"${fonts}Bitmaps","${fonts}Lengths","${fonts}Extra";
 
 printf C "\n";
 printf C "/* Font metadata: \n";
 printf C " * Name:          %s\n", $title;
 printf C " * Height:        %d px (%d bytes)\n", $heightpx,$heightb;
 printf C " * Maximum width: %d px\n",$maxsz;
-printf C " * Storage size:  %d bytes (compressed by %2d%%)\n",
-	$c2size,(1-$c2size/$origsize)*100;
+printf C " * Storage size:  %d bytes ",$c2size;
+if($raw){
+    printf C "(uncompressed)";
+}else{
+    printf C "(compressed by %2d%%)", (1-$c2size/$origsize)*100;
+};
+printf C "\n";
 printf C " */\n";
 
 close(C);
