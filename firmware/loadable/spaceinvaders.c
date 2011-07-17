@@ -204,9 +204,9 @@ void draw_status() {
 void draw_sprite(char type, char x, char y) {
     font = &Font_Invaders;
     if(type==TYPE_PLAYER){
-        DoChar(x,y-1,"P");
+        DoChar(x,y-1,'P');
     }else{
-        DoChar(x,y-1,"C");
+        DoChar(x,y-1,'C');
     };
 }
 
