@@ -10,133 +10,157 @@ char font_direction = FONT_DIR_LTR;
 /* Exported Functions */
 
 int DoChar(int sx, int sy, int c){
-	int x=0;
 
 	/* how many bytes is it high? */
 	char height=(font->u8Height-1)/8+1;
+    char hoff=(8-(font->u8Height%8))%8;
 
 	const uint8_t * data;
+    int width,preblank=0,postblank=0; 
+    do { /* Get Character data */
+        /* Does this font provide this character? */
+        if(c<font->u8FirstChar)
+            c=font->u8FirstChar+1; // error
+        if(c>font->u8LastChar && font->charExtra == NULL)
+            c=font->u8FirstChar+1; // error
+
+        if(c>font->u8LastChar && font->charExtra != NULL){
+            int cc=0;
+            while( font->charExtra[cc] < c)
+                cc++;
+            if(font->charExtra[cc] > c)
+                c=font->u8FirstChar+1; // error
+            else
+                c=font->u8LastChar+cc+1;
+        };
+
+        /* starting offset into character source data */
+        int toff=0;
+
+        if(font->u8Width==0){
+            for(int y=0;y<c-font->u8FirstChar;y++)
+                toff+=font->charInfo[y].widthBits;
+            width=font->charInfo[c-font->u8FirstChar].widthBits;
+
+            toff*=height;
+            data=&font->au8FontTable[toff];
+            postblank=1;
+        }else if(font->u8Width==1){ // NEW CODE
+            // Find offset and length for our character
+            for(int y=0;y<c-font->u8FirstChar;y++)
+                toff+=font->charInfo[y].widthBits;
+            width=font->charInfo[c-font->u8FirstChar].widthBits;
+
+            if(font->au8FontTable[toff]>>4 == 15){ // It's a raw character!
+                preblank = font->au8FontTable[toff+1];
+                postblank= font->au8FontTable[toff+2];
+                data=&font->au8FontTable[toff+3];
+                width=(width-3/height);
+            }else{
+                data=pk_decode(&font->au8FontTable[toff],&width);
+            }
+        }else{
+            toff=(c-font->u8FirstChar)*font->u8Width*height;
+            width=font->u8Width;
+            data=&font->au8FontTable[toff];
+        };
+
+    }while(0);
 
 	/* "real" coordinates. Our physical display is upside down */
-	int rx=RESX-sx-1;
-	int ry=RESY-sy-font->u8Height;
+#define xy_(x,yb) ( ( (RESY_B-1) -(yb)) * RESX + \
+                    ( (RESX-1)   -( x)) )
 
-	/* Does this font provide this character? */
-	if(c<font->u8FirstChar)
-		c=font->u8FirstChar+1; // error
-	if(c>font->u8LastChar && font->charExtra == NULL)
-		c=font->u8FirstChar+1; // error
-
-	if(c>font->u8LastChar && font->charExtra != NULL){
-		int cc=0;
-		while( font->charExtra[cc] < c)
-			cc++;
-		if(font->charExtra[cc] > c)
-			c=font->u8FirstChar+1; // error
-		else
-			c=font->u8LastChar+cc+1;
-	};
-
-	/* starting offset into character source data */
-	int toff=0,width,preblank=0,blank=0; 
-
-	if(font->u8Width==0){
-		for(int y=0;y<c-font->u8FirstChar;y++)
-			toff+=font->charInfo[y].widthBits;
-		width=font->charInfo[c-font->u8FirstChar].widthBits;
-
-		toff*=height;
-		data=&font->au8FontTable[toff];
-		blank=1;
-	}else if(font->u8Width==1){ // NEW CODE
-		// Find offset and length for our character
-		for(int y=0;y<c-font->u8FirstChar;y++)
-			toff+=font->charInfo[y].widthBits;
-		width=font->charInfo[c-font->u8FirstChar].widthBits;
-
-		if(font->au8FontTable[toff]>>4 == 15){ // It's a raw character!
-			preblank = font->au8FontTable[toff+1];
-			blank= font->au8FontTable[toff+2];
-			data=&font->au8FontTable[toff+3];
-			width=(width-3/height);
-		}else{
-			data=pk_decode(&font->au8FontTable[toff],&width);
-		}
-	}else{
-		toff=(c-font->u8FirstChar)*font->u8Width*height;
-		width=font->u8Width;
-		data=&font->au8FontTable[toff];
-	};
-
-	// boundary sanity checks
-	if(sx<0 || sy<0 || sx >= RESX || (sy+font->u8Height) >= RESY)
-		return sx; // nothing printed.
+	int x=0;
 
 	/* raw character data */
 	int byte;
 	unsigned char mask;
 
-	/* print forward or backward? */
-	int dmul=0;
-	if(font_direction==FONT_DIR_RTL){
-		dmul=1;
-		if(sx-(width+preblank+blank)<=0) // sanity check for left side
-			return sx;
-	} else if (font_direction==FONT_DIR_LTR){
-		dmul=-1;
-		if(sx+(width+preblank+blank)>=RESX) // sanity check for right side
-			return sx;
-	};
+    /* Our display height is non-integer. Adjust for that. */
+    sy+=RESY%8;
+
+    /* Fonts may not be byte-aligned, shift up so the top matches */
+    sy-=hoff;
 
 	/* break down the position on byte boundaries */
-	char yidx=ry/8;
-	char yoff=ry%8;
+	signed int yidx=sy/8;
+	signed int yoff=sy%8;
 
-	rx+=dmul*preblank;
+    if(yoff<0) { /* % operator is stupid on negative values */
+        yoff+=8;
+        yidx-=1;
+    };
+
+    sx+=preblank;
 
 	/* multiple 8-bit-lines */
 	for(int y=0;y<=height;y++){
+        if(yidx+y<0)
+            continue;
+        if(yidx+y>=RESY_B)
+            continue;
+
+        // Number of bits we need to do in this line:
 		int m=yoff+font->u8Height-8*y;
+		m=yoff+height*8-y*8;
 		if(m>8)m=8;
 		if(m<0)m=0;
-		mask=255<<(8-m);
+		mask=255>>(8-m); // Generate bitmask
 
+        /* Empty space at top is not to be masked, we consider it
+           not to be part of the font */
 		if(y==0){
-			mask=mask>>yoff;
-		};
+			mask=mask<<(yoff+hoff);
+		}else if(y==1 && yoff+hoff>8){
+			mask=mask<<(yoff+hoff-8);
+        };
 
 		if(mask==0) // Optimize :-)
-			break;
+			continue;
 
-		if(font_direction==FONT_DIR_LTR)
-			flip(mask);
+        flip(mask);
 
-		for(int m=1;m<=preblank;m++){
-			lcdBuffer[(rx-dmul*(m))+(yidx+y)*RESX]&=~mask;
+        /* Optional: empty space to the left */
+		for(int b=1;b<=preblank;b++){
+            if(sx-b<0)
+                continue;
+            if(sx-b>=RESX)
+                continue;
+			lcdBuffer[xy_(sx-b,yidx+y)]&=~mask;
 		};
+        /* Render character */
 		for(x=0;x<width;x++){
 			unsigned char b1,b2;
 			if(y==0)
 				b1=0;
 			else
-				b1=data[x*height+y-1];
+				b1=data[x*height+(height-1)-(y-1)];
 			if(y==height)
 				b2=0;
 			else
-				b2=data[x*height+y];
+				b2=data[x*height+(height-1)-(y)];
 
-			byte= (b1<<(8-yoff)) | (b2>>yoff);
-			if(font_direction==FONT_DIR_LTR)
-				flip(byte);
+			byte= (b1>>(8-yoff)) | (b2<<yoff);
+            flip(byte);
 
-			lcdBuffer[(rx+dmul*x)+(yidx+y)*RESX]&=~mask;
-			lcdBuffer[(rx+dmul*x)+(yidx+y)*RESX]|=byte;
+            if(sx+x<0)
+                continue;
+            if(sx+x>=RESX)
+                continue;
+			lcdBuffer[xy_(sx+x,yidx+y)]&=~mask;
+			lcdBuffer[xy_(sx+x,yidx+y)]|=byte;
 		};
-		for(int m=0;m<blank;m++){
-			lcdBuffer[(rx+dmul*(x+m))+(yidx+y)*RESX]&=~mask;
+        /* Optional: empty space to the right */
+		for(int m=0;m<postblank;m++){
+            if(sx+x+m<0)
+                continue;
+            if(sx+x+m>=RESX)
+                continue;
+			lcdBuffer[xy_(sx+x+m,yidx+y)]&=~mask;
 		};
 	};
-	return sx-dmul*(x+preblank+blank);
+	return sx+(width+postblank);
 };
 
 #define UTF8
