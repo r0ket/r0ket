@@ -4,6 +4,11 @@
 #include "core/usbcdc/usbhw.h"
 #include "core/usbcdc/cdcuser.h"
 #include "core/usbcdc/cdc_buf.h"
+#include <sysinit.h>
+#include "basic/basic.h"
+#include "lcd/render.h"
+#include "lcd/allfonts.h"
+
 
 volatile unsigned int lastTick;
 int puts(const char * str)
@@ -36,18 +41,24 @@ int puts(const char * str)
 
 void main_cdc(void)
 {
+    int dx = 0;
     //lastTick = systickGetTicks();   // Used to control output/printf timing
+    
+    lcdPrintln("Init USB"); lcdRefresh(); 
+    
     CDC_Init();                     // Initialise VCOM
     USB_Init();                     // USB Initialization
     USB_Connect(TRUE);              // USB Connect
     // Wait until USB is configured or timeout occurs
     uint32_t usbTimeout = 0; 
-    while ( usbTimeout < CFG_USBCDC_INITTIMEOUT / 10 )
+        while ( usbTimeout < CFG_USBCDC_INITTIMEOUT / 10 )
     {
       if (USB_Configuration) break;
       delayms(10);             // Wait 10ms
       usbTimeout++;
     }
+    lcdPrintln("Done"); lcdRefresh(); 
+    
     uint8_t buf[2] = {0,0};
     int l;
     while(1){
@@ -56,6 +67,8 @@ void main_cdc(void)
             l = 1;
             CDC_RdOutBuf (buf, &l);
             puts(buf);
+            dx=DoString(dx,0,buf);
+            lcdDisplay(0);
         }
         //puts("hello world\r\n");
         //delayms(1);
