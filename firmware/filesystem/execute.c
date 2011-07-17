@@ -3,7 +3,6 @@
 
 #include "basic/basic.h"
 
-#include "lcd/lcd.h"
 #include "lcd/print.h"
 
 #include "usb/usbmsc.h"
