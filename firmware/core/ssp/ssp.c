@@ -238,7 +238,7 @@ void sspInit (uint8_t portNum, sspClockPolarity_t polarity, sspClockPhase_t phas
                 Block length of the data buffer
 */
 /**************************************************************************/
-void sspSend (uint8_t portNum, uint8_t *buf, uint32_t length)
+void sspSend (uint8_t portNum, const uint8_t *buf, uint32_t length)
 {
   uint32_t i;
   uint8_t Dummy = Dummy;

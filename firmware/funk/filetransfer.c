@@ -2,8 +2,10 @@
 #include "nrf24l01p.h"
 #include "filetransfer.h"
 #include "rftransfer.h"
+#include "basic/basic.h"
 #include "basic/xxtea.h"
 #include "filesystem/ff.h"
+#include "lcd/print.h"
 
 
 //TODO: use a proper MAC to sign the message
@@ -53,25 +55,6 @@ int filetransfer_send(uint8_t *filename, uint16_t size,
     return 0;
 }
 
-void put_rc_y (FRESULT rc, int y) {
-	const TCHAR *p =
-		_T("OK\0DISK_ERR\0INT_ERR\0NOT_READY\0NO_FILE\0NO_PATH\0INVALID_NAME\0")
-		_T("DENIED\0EXIST\0INVALID_OBJECT\0WRITE_PROTECTED\0INVALID_DRIVE\0")
-		_T("NOT_ENABLED\0NO_FILE_SYSTEM\0MKFS_ABORTED\0TIMEOUT\0LOCKED\0")
-		_T("NOT_ENOUGH_CORE\0TOO_MANY_OPEN_FILES\0");
-	FRESULT i;
-
-	for (i = 0; i != rc && *p; i++) {
-		while(*p++) ;
-	}
-    DoString(0,y,p);
-}
-
-void put_rc (FRESULT rc){
-    put_rc_y(rc,0);
-};
-
-
 int filetransfer_receive(uint8_t *mac, uint32_t const k[4])
 {
     uint8_t buf[MAXSIZE+1];
@@ -100,7 +83,7 @@ int filetransfer_receive(uint8_t *mac, uint32_t const k[4])
     res = f_open(&file, (const char*)metadata, FA_OPEN_ALWAYS|FA_WRITE);
 
     //lcdPrintln("file opened"); lcdRefresh();
-    if( res ) {lcdPrintln("res"); put_rc(res); lcdRefresh(); while(1);}
+    if( res ) {lcdPrintln("res"); lcdPrint(f_get_rc_string(res)); lcdRefresh(); while(1);}
     if( res )
         return res;
     
