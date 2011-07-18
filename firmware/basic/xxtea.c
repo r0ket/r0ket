@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include "xxtea.h"
 
+#ifdef SAFE
 uint32_t htonl(uint32_t v)
 {
     uint32_t r=0;
@@ -20,6 +21,14 @@ uint32_t htonl(uint32_t v)
     r |= (v>>24)&0xFF;
     return r;
 }
+#else
+uint32_t htonl(uint32_t v){
+    __asm("rev %[value], %[value];" \
+            : [value] "+r" (v) : );
+    return v;
+};
+#endif
+
 
 void htonlp(uint32_t *v, uint8_t n)
 {
