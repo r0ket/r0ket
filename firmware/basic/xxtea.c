@@ -9,16 +9,35 @@
  */
 
 #include <stdint.h>
+#include "xxtea.h"
+
+uint32_t htonl(uint32_t v)
+{
+    uint32_t r;
+    r |= (v>> 0)&0xFF; r<<=8;
+    r |= (v>> 8)&0xFF; r<<=8;
+    r |= (v>>16)&0xFF; r<<=8;
+    r |= (v>>24)&0xFF;
+    return r;
+}
+
+void htonlp(uint32_t *v, uint8_t n)
+{
+    while(n--){
+        v[n] = htonl(v[n]);
+    }
+}
 
 #define DELTA 0x9e3779b9
 #define MX (((z>>5^y<<2) + (y>>3^z<<4)) ^ ((sum^y) + (k[(p&3)^e] ^ z)))
-#include "xxtea.h"
 
 void xxtea_encode_words(uint32_t *v, int n, uint32_t const k[4])
 {
     if(k[0] == 0 && k[1] == 0 && k[2] == 0 && k[3] == 0) return;
     uint32_t y, z, sum;
     unsigned p, rounds, e;
+
+    htonlp(v ,n);
     rounds = 6 + 52/n;
     sum = 0;
     z = v[n-1];
@@ -32,6 +51,7 @@ void xxtea_encode_words(uint32_t *v, int n, uint32_t const k[4])
         y = v[0];
         z = v[n-1] += MX;
     } while (--rounds);
+    htonlp(v ,n);
 }
 
 void xxtea_decode_words(uint32_t *v, int n, uint32_t const k[4])
@@ -39,6 +59,7 @@ void xxtea_decode_words(uint32_t *v, int n, uint32_t const k[4])
     if(k[0] == 0 && k[1] == 0 && k[2] == 0 && k[3] == 0) return;
     uint32_t y, z, sum;
     unsigned p, rounds, e;
+    htonlp(v ,n);
 
     rounds = 6 + 52/n;
     sum = rounds*DELTA;
@@ -52,5 +73,6 @@ void xxtea_decode_words(uint32_t *v, int n, uint32_t const k[4])
         z = v[n-1];
         y = v[0] -= MX;
     } while ((sum -= DELTA) != 0);
+    htonlp(v ,n);
 }
 
