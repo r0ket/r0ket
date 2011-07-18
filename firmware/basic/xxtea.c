@@ -37,7 +37,8 @@ void htonlp(uint32_t *v, uint8_t n)
     }
 }
 
-void xxtea_cbcmac(uint32_t mac[4], uint32_t *data, uint32_t len, uint32_t key[4])
+void xxtea_cbcmac(uint32_t mac[4], uint32_t *data,
+                    uint32_t len, uint32_t const key[4])
 {
     if( len & 0x03 )
         return;
