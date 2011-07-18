@@ -10,11 +10,22 @@ const uint32_t key[4] = { 0xB4595344,0xD3E119B6,0xA814D0EC,0xEFF5A24E };
 const uint8_t useencryption = 1;
 const uint8_t mac[5] = {1,2,3,2,1};
 
-uint32_t oid = 0;
-uint32_t seq = 0;
-uint8_t strength = 0;
+volatile uint32_t oid = 0;
+volatile uint32_t seq = 0;
+volatile uint8_t strength = 0;
 
-void openbeaconSave()
+void openbeaconShutdown(void)
+{    
+    openbeaconSave(seq);
+}
+
+void openbeaconSaveBlock(void)
+{
+
+    openbeaconSave(seq + OPENBEACON_SAVE + 1);
+}
+
+void openbeaconSave(uint32_t s)
 {
     FIL file;
     BYTE buf[4];
@@ -23,7 +34,7 @@ void openbeaconSave()
     if( f_open(&file, "beacon", FA_OPEN_ALWAYS|FA_WRITE) )
         return;
 
-    uint32touint8p(seq, buf);
+    uint32touint8p(s, buf);
 
     if( f_write(&file, buf, 4, &readbytes) )
         return; 
@@ -37,7 +48,7 @@ void openbeaconRead()
     BYTE buf[4];
     UINT readbytes;
 
-    if( f_open(&file, "beacon", FA_OPEN_EXISTING|FA_READ) )
+    if( f_open(&file, "beacon.cfg", FA_OPEN_EXISTING|FA_READ) )
         return;
 
     if( f_read(&file, buf, 4, &readbytes) )
@@ -53,6 +64,7 @@ void openbeaconSetup(uint32_t id)
     oid = id;
     strength = 0;
     openbeaconRead();
+    openbeaconSaveBlock();
 }
 
 uint8_t openbeaconSendPacket(uint32_t id, uint32_t seq,
@@ -80,11 +92,11 @@ uint8_t openbeaconSend(void)
     nrf_set_strength(strength);
     nrf_set_tx_mac(sizeof(mac), mac);
 
-    status = openbeaconSendPacket(oid, seq++, 0xFF, strength++);
+    status = openbeaconSendPacket(oid, seq, 0xFF, strength++);
     if( strength == 4 )
         strength = 0;
-    if( seq % OPENBEACON_SAVECOUNTER  == 0 )
-        openbeaconSave();
+    if( seq++ & OPENBEACON_SAVE == OPENBEACON_SAVE )
+        openbeaconSaveBlock();
     return status;
 }
 

@@ -5,8 +5,11 @@
 #include "funk/nrf24l01p.h"
 #include "basic/byteorder.h"
 
-#define OPENBEACON_SAVECOUNTER  (1024*8)
-void openbeaconSave();
+#define OPENBEACON_SAVE 0xFFFF
+
+void openbeaconShutdown(void);
+void openbeaconSaveBlock(void);
+void openbeaconSave(uint32_t s);
 void openbeaconRead();
 void openbeaconSetup(uint32_t id);
 uint8_t openbeaconSendPacket(uint32_t id, uint32_t ctr,
