@@ -2,7 +2,7 @@
 #include "core/gpio/gpio.h"
 #include "lcd/backlight.c"
 #include "lcd/render.h"
-#include "lcd/allfonts.h"
+#include "lcd/fonts/smallfonts.h"
 #include "ecc.h"
 
 void rbInit() {

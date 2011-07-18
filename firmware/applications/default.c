@@ -2,6 +2,7 @@
 #include "basic/basic.h"
 
 #include "lcd/lcd.h"
+#include "lcd/fonts/smallfonts.h"
 #include "lcd/print.h"
 #include "filesystem/ff.h"
 

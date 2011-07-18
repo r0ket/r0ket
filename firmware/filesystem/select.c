@@ -1,6 +1,7 @@
 #include <string.h>
+#include "sysdefs.h"
 #include "lcd/lcd.h"
-#include "lcd/allfonts.h"
+#include "lcd/fonts/smallfonts.h"
 #include "lcd/print.h"
 #include "filesystem/ff.h"
 #include "basic/basic.h"
