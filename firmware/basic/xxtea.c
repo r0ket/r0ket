@@ -13,7 +13,7 @@
 
 uint32_t htonl(uint32_t v)
 {
-    uint32_t r;
+    uint32_t r=0;
     r |= (v>> 0)&0xFF; r<<=8;
     r |= (v>> 8)&0xFF; r<<=8;
     r |= (v>>16)&0xFF; r<<=8;

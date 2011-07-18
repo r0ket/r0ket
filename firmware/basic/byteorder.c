@@ -10,7 +10,7 @@ void uint32touint8p(uint32_t v, uint8_t *p)
 
 uint32_t uint8ptouint32(uint8_t *p)
 {
-    uint32_t v;
+    uint32_t v=0;
     v |= *p++; v<<=8;
     v |= *p++; v<<=8;
     v |= *p++; v<<=8;
