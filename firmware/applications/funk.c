@@ -18,7 +18,7 @@
 #define BEACON_MAC     "\x1\x2\x3\x2\1"
 
 uint32_t const testkey[4] = {
-        0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff
+    0xB4595344,0xD3E119B6,0xA814D0EC,0xEFF5A24E
 };
 
 int enctoggle=0;
