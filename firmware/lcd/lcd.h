@@ -2,3 +2,4 @@
 #include "lcd/decoder.h"
 #include "lcd/display.h"
 #include "lcd/render.h"
+#include "lcd/fonts/smallfonts.h"
