@@ -29,10 +29,6 @@ uint8_t getInput(void) {
         result += BTN_RIGHT;
     }
 
-    if (result == (BTN_LEFT+BTN_UP+BTN_ENTER)){ /* Development hack */
-        ISPandReset(5);
-    }
-
     return result;
 }
 

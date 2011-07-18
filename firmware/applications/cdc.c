@@ -68,7 +68,7 @@ void main_cdc(void)
             CDC_RdOutBuf (buf, &l);
             puts(buf);
             dx=DoString(dx,0,buf);
-            lcdDisplay(0);
+            lcdDisplay();
         }
         //puts("hello world\r\n");
         //delayms(1);

@@ -311,8 +311,8 @@ void main_vcard(void) {
         // Easy flashing
         if(key==BTN_LEFT){
             DoString(0,8,"Enter ISP!");
-            lcdDisplay(0);
-            ISPandReset(5);
+            lcdDisplay();
+            ISPandReset();
         }else if(key==BTN_UP){
             //lcdClear();
             //lcdPrintln("Generating...");

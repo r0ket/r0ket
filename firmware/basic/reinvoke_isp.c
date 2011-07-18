@@ -74,14 +74,14 @@ void EnableWatchdog(uint32_t ms){
 	WDT_WDFEED = WDT_WDFEED_FEED2;
 };
 
-void ISPandReset(int delay){
+void ISPandReset(void){
 #if CFG_USBMSC
     if(usbMSCenabled){
         usbMSCOff();
         delayms(500);
     };
 #endif
-    EnableWatchdog(1000*delay);
+    EnableWatchdog(1000*5);
     ReinvokeISP();
 };
 

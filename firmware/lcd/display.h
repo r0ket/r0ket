@@ -22,7 +22,7 @@ extern uint8_t lcdBuffer[RESX*RESY_B];
 
 void lcdInit(void);
 void lcdFill(char f);
-void lcdDisplay(uint32_t shift);
+void lcdDisplay(void);
 void lcdInvert(void);
 void lcdToggleFlag(int flag);
 void lcdSetPixel(char x, char y, bool f);

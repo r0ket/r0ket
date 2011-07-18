@@ -16,7 +16,7 @@ void main_minimal(void) {
     font_direction = FONT_DIR_LTR; // LeftToRight is the default
     while (1) {
 
-        lcdDisplay(0);
+        lcdDisplay();
         delayms(10);
 
         key= getInput();
@@ -25,8 +25,8 @@ void main_minimal(void) {
         // Easy flashing
         if(key==BTN_LEFT){
             DoString(0,8,"Enter ISP!");
-            lcdDisplay(0);
-            ISPandReset(5);
+            lcdDisplay();
+            ISPandReset();
         }
 
         //font = &Font_Ubuntu36pt;

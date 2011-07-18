@@ -58,7 +58,7 @@ void main_menutest(void) {
     font_direction = FONT_DIR_LTR; // LeftToRight is the default
 
     while (1) {
-        lcdDisplay(0);
+        lcdDisplay();
         delayms(10);
 
         lcdFill(0); // clear display buffer
@@ -91,7 +91,7 @@ void decBacklight(void) {
 
 void gotoISP(void) {
     DoString(0,58,"Enter ISP!");
-    lcdDisplay(0);
+    lcdDisplay();
     EnableWatchdog(5000);
     ReinvokeISP();
 }

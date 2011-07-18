@@ -126,7 +126,7 @@ void rbInit(void);
 // reinvoke_isp.c
 void ReinvokeISP(void);
 void EnableWatchdog(uint32_t ms);
-void ISPandReset(int delay);
+void ISPandReset(void);
 
 // delayms.c
 void delayms(uint32_t ms);

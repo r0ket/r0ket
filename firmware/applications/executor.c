@@ -17,7 +17,7 @@ void execute (const void *function, uint16_t length){
     DoString(0,8,"Enter RAM!");
     DoIntX(0,16,(uint32_t)function);
     DoIntX(0,24,(uint32_t)dst);
-    lcdDisplay(0);
+    lcdDisplay();
 
     for(int i=0;i<length;i++){
         ((char*)dst)[i]=((char*)function)[i];
@@ -69,7 +69,7 @@ void execute_file (const char * fname){
     int dx;
     dx=DoString(0,16,"read: ");
     DoInt(dx,16,readbytes);
-    lcdDisplay(0);
+    lcdDisplay();
 
     dst=(void (*)(void)) ((uint32_t)(dst) | 1); // Enable Thumb mode!
     dst();
@@ -101,7 +101,7 @@ void main_executor(void) {
     while (1) {
         ctr++;
 
-        lcdDisplay(0);
+        lcdDisplay();
         delayms(10);
 
         key= getInput();
@@ -119,21 +119,21 @@ void main_executor(void) {
         // Easy flashing
         if(key==BTN_LEFT){
             DoString(0,8,"Enter ISP!");
-            lcdDisplay(0);
-            ISPandReset(5);
+            lcdDisplay();
+            ISPandReset();
         };
 
         // DF xecute
         if(key==BTN_RIGHT){
             DoString(0,0,"Enter RAM!");
-            lcdDisplay(0);
+            lcdDisplay();
             while(getInput()!=BTN_NONE);
 
             FATFS FatFs;          /* File system object for logical drive */
             put_rc(f_mount(0, &FatFs));
 
             execute_file("0:test.c0d");
-            lcdDisplay(0);
+            lcdDisplay();
             while(!getInput());
         };
 

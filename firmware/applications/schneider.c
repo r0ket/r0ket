@@ -34,15 +34,15 @@ void main_schneider(void) {
         // Easy flashing
         if(key==BTN_LEFT){
             DoString(0,8,"Enter ISP!");
-            lcdDisplay(0);
-            ISPandReset(5);
+            lcdDisplay();
+            ISPandReset();
         };
 
         // Display nickname
         //font = &Font_Ubuntu36pt;
         dx=DoString(0,0,"Test");
         dx=DoInt(dx,0,ctr++);
-        lcdDisplay(0);
+        lcdDisplay();
         encryption_decryption_demo("This is encrypted",
                         "1c56d302cf642a8e1ba4b48cc4fbe2845ee32dce7", 
                         "45f46eb303edf2e62f74bd68368d979e265ee3c03",

@@ -41,7 +41,7 @@ void lcdClear(){
 };
 
 void lcdRefresh(){
-    lcdDisplay(0);
+    lcdDisplay();
 };
 
 void lcdMoveCrsr(signed int dx,signed int dy){

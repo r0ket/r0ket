@@ -126,7 +126,7 @@ bool lcdGetPixel(char x, char y){
     return byte & (1 << y_off);
 }
 
-void lcdDisplay(uint32_t shift) {
+void lcdDisplay(void) {
     char byte;
     select();
 
@@ -137,9 +137,9 @@ void lcdDisplay(uint32_t shift) {
     for(page=0; page<RESY_B;page++) {
         for(i=0; i<RESX; i++) {
             if (lcd_layout & LCD_MIRRORX)
-                byte=lcdBuffer[page*RESX+RESX-1-((i+shift)%RESX)];
+                byte=lcdBuffer[page*RESX+RESX-1-(i)];
             else
-                byte=lcdBuffer[page*RESX+((i+shift)%RESX)];
+                byte=lcdBuffer[page*RESX+(i)];
 
             if (lcd_layout & LCD_INVERTED)
                 byte=~byte;

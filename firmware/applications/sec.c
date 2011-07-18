@@ -30,7 +30,7 @@ void main_sec(void) {
     while (1) {
         ctr++;
 
-        lcdDisplay(0);
+        lcdDisplay();
         delayms(10);
 
         key= getInput();
@@ -48,8 +48,8 @@ void main_sec(void) {
         // Easy flashing
         if(key==BTN_LEFT){
             DoString(0,8,"Enter ISP!");
-            lcdDisplay(0);
-            ISPandReset(5);
+            lcdDisplay();
+            ISPandReset();
         };
 
         // Display nickname

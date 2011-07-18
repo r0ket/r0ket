@@ -69,7 +69,7 @@ void main_fs(void) {
     font_direction = FONT_DIR_LTR; // LeftToRight is the default
 
     while (1) {
-        lcdDisplay(0);
+        lcdDisplay();
         delayms(10);
 
         lcdFill(0); // clear display buffer
@@ -109,8 +109,8 @@ void tick_fs(void){
 
 void gotoISP(void) {
     DoString(0,0,"Enter ISP!");
-    lcdDisplay(0);
-    ISPandReset(5);
+    lcdDisplay();
+    ISPandReset();
 }
 
 void put_rc_y (FRESULT rc, int y) {

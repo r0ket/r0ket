@@ -163,8 +163,8 @@ void f_send(void){
 
 void gotoISP(void) {
     DoString(0,0,"Enter ISP!");
-    lcdDisplay(0);
-    ISPandReset(5);
+    lcdDisplay();
+    ISPandReset();
 }
 
 void lcd_mirror(void) {
@@ -178,7 +178,7 @@ void adc_check(void) {
     dx=DoString(0,dy,"Voltage:");
     while ((getInputRaw())==BTN_NONE){
         DoInt(dx,dy,GetVoltage());
-        lcdDisplay(0);
+        lcdDisplay();
     };
     dy+=8;
     dx=DoString(0,dy,"Done.");
@@ -230,7 +230,7 @@ void main_funk(void) {
     openbeaconSetup(0x5ec);
     while (1) {
         lcdFill(0); // clear display buffer
-        lcdDisplay(0);
+        lcdDisplay();
         handleMenu(&mainmenu);
         gotoISP();
     }

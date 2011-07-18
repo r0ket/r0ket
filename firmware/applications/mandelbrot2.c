@@ -106,7 +106,7 @@ void main_mandelbrot2(void) {
     font=&Font_7x8;
     mandelInit();
     while (1) {
-        lcdDisplay(0);
+        lcdDisplay();
         mandelMove();
         if (mandel.dirty) {
             mandelCalc();
@@ -114,8 +114,8 @@ void main_mandelbrot2(void) {
         
         if(gpioGetValue(RB_BTN0)==0 && gpioGetValue(RB_BTN4)==0){
         DoString(0,0,"Enter ISP!");
-        lcdDisplay(0);
-        ISPandReset(5);
+        lcdDisplay();
+        ISPandReset();
     }
     
     }

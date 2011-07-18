@@ -41,7 +41,7 @@ void handleMenu(const struct MENU *the_menu) {
             }
             line += font->u8Height;
         }
-        lcdDisplay(0);
+        lcdDisplay();
 
         switch (getInput()) {
             case BTN_UP:
@@ -78,7 +78,7 @@ void handleMenu(const struct MENU *the_menu) {
                 lcdRefresh();
                 if (the_menu->entries[menuselection]->callback!=NULL)
                     the_menu->entries[menuselection]->callback();
-                lcdDisplay(0);
+                lcdDisplay();
                 getInputWait();
 
                 break;

@@ -94,15 +94,15 @@ void main_default(void) {
     systickInit(10);
 
     if(getInputRaw()==BTN_ENTER){
-        ISPandReset(7);
+        ISPandReset();
     };
 
     font=&Font_7x8;
     if(lcdInitConfig()){
-        lcdDisplay(0);
+        lcdDisplay();
         getInputWait();
     }else{
-        lcdDisplay(0);
+        lcdDisplay();
         delayms(300);
     };
 

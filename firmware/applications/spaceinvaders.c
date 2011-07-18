@@ -222,7 +222,7 @@ void main_spaceinvaders(void) {
         draw_enemy();
         draw_shot();
         draw_status();
-        lcdDisplay(0);
+        lcdDisplay();
         delayms(10);
     }
     return;

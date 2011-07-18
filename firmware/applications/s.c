@@ -56,7 +56,7 @@ void main_s(void) {
     while (1) {
 	ctr++;
 	uint32_t results;
-	lcdDisplay(j);
+	lcdDisplay();
 	delayms(10);
 
 	font=fonts[fontctr];
@@ -76,7 +76,7 @@ void main_s(void) {
 	if(gpioGetValue(RB_BTN0)==0){
 		while(gpioGetValue(RB_BTN0)==0);
 		DoString(0,8,"Enter ISP!");
-		lcdDisplay(0);
+		lcdDisplay();
 		EnableWatchdog(1000*5);
 		ReinvokeISP();
 	};

@@ -57,7 +57,7 @@ void main_iggy(void) {
     while (1) {
 	ctr++;
 	uint32_t results;
-	lcdDisplay(j);
+	lcdDisplay();
 	delayms(10);
 
 	font=fonts[fontctr];
@@ -85,7 +85,7 @@ void main_iggy(void) {
 	if(gpioGetValue(RB_BTN0)==0){
 		while(gpioGetValue(RB_BTN0)==0);
 		DoString(0,8,"Enter ISP!");
-		lcdDisplay(0);
+		lcdDisplay();
 		EnableWatchdog(1000*5);
 		ReinvokeISP();
 	};
@@ -99,7 +99,7 @@ void main_iggy(void) {
 
 	//on = ~on;
 	//lcdSetPixel(20,20,true);
-	//lcdDisplay(0);
+	//lcdDisplay();
 	//lcdSetPixel(20,21,0);
 	//lcdSetPixel(21,20,1);
 	

@@ -113,7 +113,7 @@ void cross(char x, char y) {
     lcdSetPixel(x-2,y,false);
     lcdSetPixel(x,y+2,false);
     lcdSetPixel(x,y-2,false);
-    lcdDisplay(0);
+    lcdDisplay();
 }
 
 void blink(){
@@ -139,7 +139,7 @@ void main_mandelbrot(void) {
         mandelMove();
         
         if (mandel.dirty) mandelCalc();
-        lcdDisplay(0);
+        lcdDisplay();
         
         //TODO fix this
         if (!autozoom) {

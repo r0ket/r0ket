@@ -20,7 +20,7 @@ void execute_menu(void){
 
 void msc_menu(void){
     DoString(0,8,"MSC Enabled.");
-    lcdDisplay(0);
+    lcdDisplay();
     usbMSCInit();
     while(!getInputRaw())delayms(10);
     DoString(0,16,"MSC Disabled.");
@@ -29,8 +29,8 @@ void msc_menu(void){
 
 void gotoISP(void) {
     DoString(0,0,"Enter ISP!");
-    lcdDisplay(0);
-    ISPandReset(5);
+    lcdDisplay();
+    ISPandReset();
 }
 
 void lcd_mirror(void) {
@@ -44,7 +44,7 @@ void adc_check(void) {
     dx=DoString(0,dy,"Voltage:");
     while ((getInputRaw())==BTN_NONE){
         DoInt(dx,dy,GetVoltage());
-        lcdDisplay(0);
+        lcdDisplay();
     };
     dy+=8;
     dx=DoString(0,dy,"Done.");
@@ -77,7 +77,7 @@ void main_exe(void) {
 
     while (1) {
         lcdFill(0); // clear display buffer
-        lcdDisplay(0);
+        lcdDisplay();
         handleMenu(&mainmenu);
         gotoISP();
     }

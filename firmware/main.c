@@ -26,7 +26,7 @@ int main(void) {
     lcdInit(); // display
 
     lcdFill(0);
-    lcdDisplay(0);
+    lcdDisplay();
 
 	wrapper(); // see module/ subdirectory
 }

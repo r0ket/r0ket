@@ -59,7 +59,7 @@ void f_recv(void){
         lcdPrint("ct:");lcdPrintIntHex( *(int*)(buf+ 4) ); lcdNl();
         lcdPrint("id:");lcdPrintIntHex( *(int*)(buf+ 8) ); lcdNl();
         lcdPrint("xx:");lcdPrintIntHex( *(int*)(buf+12) ); lcdNl();
-        lcdDisplay(0);
+        lcdDisplay();
     };
 };
 
@@ -101,7 +101,7 @@ void f_send(void){
         lcdPrint("F-St:"); lcdPrintInt(status); 
         if(buf[2]==BTN_ENTER)
             break;
-        lcdDisplay(0);
+        lcdDisplay();
         len=nrf_rcv_pkt_time_encr(10,sizeof(buf),buf,testkey);
         if(len>0){
             lcdPrint("Got!");
@@ -113,8 +113,8 @@ void f_send(void){
 
 void gotoISP(void) {
     DoString(0,0,"Enter ISP!");
-    lcdDisplay(0);
-    ISPandReset(5);
+    lcdDisplay();
+    ISPandReset();
 }
 
 void lcd_mirror(void) {
@@ -128,7 +128,7 @@ void adc_check(void) {
     dx=DoString(0,dy,"Voltage:");
     while ((getInputRaw())==BTN_NONE){
         DoInt(dx,dy,GetVoltage());
-       lcdDisplay(0);
+       lcdDisplay();
     };
     dy+=8;
     dx=DoString(0,dy,"Done.");
@@ -136,7 +136,7 @@ void adc_check(void) {
 
 void msc_menu(void){
     DoString(0,8,"MSC Enabled.");
-    lcdDisplay(0);
+    lcdDisplay();
     usbMSCInit();
     while(!getInputRaw())delayms(10);
     DoString(0,16,"MSC Disabled.");
@@ -177,7 +177,7 @@ void main_remote(void) {
 
     while (1) {
         lcdFill(0); // clear display buffer
-        lcdDisplay(0);
+        lcdDisplay();
         handleMenu(&mainmenu);
         gotoISP();
     }

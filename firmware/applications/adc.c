@@ -25,7 +25,7 @@ void main_adc(void) {
 
     while (1) {
         uint32_t results;
-        lcdDisplay(0);
+        lcdDisplay();
         delayms(10);
 
         if(gpioGetValue(RB_BTN1)==0){
@@ -48,7 +48,7 @@ void main_adc(void) {
         if (gpioGetValue(RB_BTN4)==0) {
             while(gpioGetValue(RB_BTN4)==0);
             DoString(0,8,"Enter ISP!");
-            lcdDisplay(0);
+            lcdDisplay();
             EnableWatchdog(1000*5);
             ReinvokeISP();
 

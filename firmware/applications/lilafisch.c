@@ -29,11 +29,11 @@ void main_lilafisch(void) {
     lcdToggleFlag(LCD_MIRRORX);
     backlightInit();
     font_direction = FONT_DIR_LTR; // LeftToRight is the default
-    dx=DoString(0,0,"init timer"); lcdDisplay(0);
+    dx=DoString(0,0,"init timer"); lcdDisplay();
     timer32Init(0, (72E6/5E3)/2); //timer einschalten, auf 5kHz(?) setzen
-    dx=DoString(0,0,"enable timer"); lcdDisplay(0);
+    dx=DoString(0,0,"enable timer"); lcdDisplay();
     timer32Enable(0);
-    dx=DoString(0,0,"timer done"); lcdDisplay(0);
+    dx=DoString(0,0,"timer done"); lcdDisplay();
 
     while (1) {
         ton ++;
@@ -46,7 +46,7 @@ void main_lilafisch(void) {
         if (TMR_TMR32B0TC > timer){    //schneller fix wenn ton zurueckgesetzt wird, aber timer weiterlaeuft
            TMR_TMR32B0TC=0;
         }
-        lcdDisplay(0);
+        lcdDisplay();
         delayms(10);
 
         key= getInput();
@@ -56,8 +56,8 @@ void main_lilafisch(void) {
         if(key==BTN_LEFT){
             timer32Disable(0);
             DoString(0,8,"Enter ISP!");
-            lcdDisplay(0);
-            ISPandReset(5);
+            lcdDisplay();
+            ISPandReset();
         }
 
         //font = &Font_Ubuntu36pt;
