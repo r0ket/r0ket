@@ -34,7 +34,7 @@ int filetransfer_send(uint8_t *filename, uint16_t size,
         return 1;           //Error while reading
     
     uint16_t wordcount = (size+3)/4;
-    uint8_t macbuf[5];
+    //uint8_t macbuf[5];
 
     uint8_t metadata[32];
     if( strlen((char*)filename) < 20 )
@@ -63,7 +63,7 @@ int filetransfer_receive(uint8_t *mac, uint32_t const k[4])
     UINT written = 0;
     FIL file;
     FRESULT res;
-    uint8_t macbuf[5];
+    //uint8_t macbuf[5];
     //nrf_get_rx_max(0,5,macbuf);
 
     uint8_t metadata[32];
@@ -79,7 +79,7 @@ int filetransfer_receive(uint8_t *mac, uint32_t const k[4])
     if( size > MAXSIZE ) return 1; //file to big
     //if(fileexists(metadata)) return 1;   //file already exists
     
-    lcdPrint("open"); lcdPrintln(metadata); lcdRefresh();
+    lcdPrint("open"); lcdPrintln((const char*)metadata); lcdRefresh();
     res = f_open(&file, (const char*)metadata, FA_OPEN_ALWAYS|FA_WRITE);
 
     //lcdPrintln("file opened"); lcdRefresh();
