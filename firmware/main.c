@@ -1,12 +1,10 @@
 #include <sysinit.h>
 
+#include "core/cpu/cpu.h"
+#include "core/pmu/pmu.h"
+
 #include "basic/basic.h"
-
 #include "lcd/render.h"
-
-#include "pmu/pmu.h"
-
-void ReinvokeISP(void);
 
 /**************************************************************************/
 
