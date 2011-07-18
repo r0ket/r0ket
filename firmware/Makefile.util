@@ -14,7 +14,7 @@ clean:
 	rm -f $(OBJS) $(LIBFILE) $(CLEANFILES)
 
 depend:
-	@$(CC) $(CFLAGS) -MM -MF Makefile.dep $(SRCS)
+	@$(CC) $(CFLAGS) -MM $(SRCS) > Makefile.dep
 
 include $(DEPFILE)
 
