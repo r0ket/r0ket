@@ -37,6 +37,20 @@ void htonlp(uint32_t *v, uint8_t n)
     }
 }
 
+void xxtea_cbcmac(uint32_t mac[4], uint32_t *data, uint32_t len, uint32_t key[4])
+{
+    if( len & 0x03 )
+        return;
+    mac[0]=0;mac[1]=0;mac[2]=0;mac[3]=0;
+    for(int i=0; i<len;){
+        mac[0] ^= data[i++];
+        mac[1] ^= data[i++];
+        mac[2] ^= data[i++];
+        mac[3] ^= data[i++];
+        xxtea_encode_words(mac, 4, key);
+    }
+}
+
 #define DELTA 0x9e3779b9
 #define MX (((z>>5^y<<2) + (y>>3^z<<4)) ^ ((sum^y) + (k[(p&3)^e] ^ z)))
 
