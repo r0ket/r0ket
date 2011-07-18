@@ -4,6 +4,7 @@
 
 #include "lcd/lcd.h"
 #include "lcd/print.h"
+#include "lcd/allfonts.h"
 
 #include "filesystem/ff.h"
 #include "funk/nrf24l01p.h"
