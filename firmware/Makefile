@@ -27,8 +27,7 @@ INCLUDE_PATHS = -I$(ROOT_PATH) -I$(ROOT_PATH)/core
 include $(ROOT_PATH)/Makefile.inc
 
 LDFLAGS+= -Wl,--gc-sections
-VPATH += lpc1xxx
-OBJS += $(TARGET)_handlers.o LPC1xxx_startup.o
+OBJS += lpc1xxx/$(TARGET)_handlers.o lpc1xxx/LPC1xxx_startup.o
 
 ##########################################################################
 # Startup files

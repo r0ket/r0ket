@@ -24,27 +24,22 @@ include $(ROOT_PATH)/Makefile.inc
 
 FOBJS= $(foreach ft,$(FONTS),$(ft).o)
 OBJS+= $(FOBJS)
-LIBFILE=lib$(LIBNAME).a
+
 ##########################################################################
-# Compiler settings, parameters and flags
+# Actual work
 ##########################################################################
 
-all: $(LIBFILE) allfonts.h
+include $(ROOT_PATH)/Makefile.util
 
-$(LIBFILE): $(OBJS)
-	$(AR) rcs $@ $(OBJS)
-	
-%.o : %.c
-	$(CC) $(CFLAGS) -o $@ $<
+all: allfonts.h
 
 $(FOBJS): $(foreach ft,$(FONTS),$(ft).h) fonts.h
 
-clean:
-	rm -f $(OBJS) $(LIBFILE) fonts/*.o allfonts.h
+clean::
+	rm -f fonts/*.o allfonts.h
 	touch allfonts.h
 
-render.o: render.c render.h display.h fonts.h
-
 .PHONY: allfonts.h
+
 allfonts.h:
 	(echo "#include <lcd/fonts.h>";for a in $(FONTS) ; do echo "#include <lcd/$$a.h>"; done) > $@

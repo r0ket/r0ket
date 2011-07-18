@@ -10,7 +10,7 @@ $(LIBFILE): $(OBJS)
 %.o : %.c
 	$(CC) $(CFLAGS) -o $@ $<
 
-clean:
+clean::
 	rm -f $(OBJS) $(LIBFILE) $(CLEANFILES)
 
 depend:
