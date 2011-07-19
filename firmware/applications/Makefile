@@ -21,13 +21,6 @@ endif
 OBJS += $(ME_OBJ).o
 endif
 
-ifeq "$(APP)" "loadable"
-ifndef LAPP
-LAPP=blinktest
-endif
-OBJS += ../loadable/$(LAPP).o
-endif
-
 WRAP=wrapper
 LIBNAME=app
 
@@ -48,6 +41,22 @@ LIBFILE=lib$(LIBNAME).a
 ##########################################################################
 
 all: $(LIBFILE)
+
+ifeq "$(APP)" "loadable"
+ifndef LAPP
+LAPP=blinktest
+endif
+LSRC=../loadable/$(LAPP).c
+LOBJ=loadable_$(LAPP).o
+
+.PHONY: $(LOBJ)
+
+$(LOBJ):
+	$(CC) $(CFLAGS) -o $@ $(LSRC)
+	$(RM) $(LIBFILE)
+
+OBJS += $(LOBJ)
+endif
 
 $(LIBFILE): $(OBJS) $(WRAPOBJ)
 	$(AR) rcs $@ $(OBJS) $(WRAPOBJ)
