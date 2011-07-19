@@ -158,3 +158,97 @@ inline void lcdInvert(void) {
 void lcdToggleFlag(int flag) {
     lcd_layout=lcd_layout ^ flag;
 }
+
+
+
+void lcdShiftH(bool right, bool wrap) {
+	uint8_t tmp;
+	for (int yb = 0; yb<RESY_B; yb++) {
+		if (right) {
+			tmp = lcdBuffer[yb*RESX];
+			memmove(lcdBuffer + yb*RESX,lcdBuffer + yb*RESX+1 ,RESX-1);
+			if (wrap) lcdBuffer[yb*RESX+(RESX-1)] = tmp;
+		} else {
+			tmp = lcdBuffer[yb*RESX+(RESX-1)];
+			memmove(lcdBuffer + yb*RESX+1,lcdBuffer + yb*RESX ,RESX-1);
+			if (wrap) lcdBuffer[yb*RESX] = tmp;
+		}
+	}
+}
+
+void lcdShiftV8(bool up, bool wrap) {
+	uint8_t tmp[RESX];
+	if (up) {
+		if (wrap) memmove(tmp, lcdBuffer, RESX);
+		memmove(lcdBuffer,lcdBuffer+RESX ,RESX*(RESY_B-1));
+		if (wrap) memmove(lcdBuffer+RESX*(RESY_B-1),tmp,RESX);
+	} else {
+		if (wrap) memmove(tmp, lcdBuffer+RESX*(RESY_B-1), RESX);
+		memmove(lcdBuffer+RESX,lcdBuffer ,RESX*(RESY_B-1));
+		if (wrap) memmove(lcdBuffer,tmp,RESX);
+	}
+}
+
+void lcdShiftV(bool up, bool wrap) {
+	uint8_t tmp[RESX];
+	if (up) {
+		if (wrap) memmove(tmp,lcdBuffer+((RESY_B-1)*RESX),RESX);
+		for (int x = 0; x<RESX; x++){
+			for (int y = RESY_B-1; y > 0; y--){
+				lcdBuffer[x+(y*RESX)] = (lcdBuffer[x+(y*RESX)] << 1) |( lcdBuffer[x+((y-1)*RESX)] >> 7);
+			}
+			if (wrap) lcdBuffer[x] = ( lcdBuffer[x] << 1) | ((tmp[x]>>3)&1);
+		}
+				
+	} else {
+		if (wrap) memmove(tmp,lcdBuffer,RESX);
+		for (int x = 0; x<RESX; x++){
+			for (int y = 0; y < (RESY_B-1); y++){
+				lcdBuffer[x+(y*RESX)] = (lcdBuffer[x+(y*RESX)] >> 1) |( lcdBuffer[x+((y+1)*RESX)] << 7);
+			}
+			if (wrap) lcdBuffer[x+((RESY_B-1)*RESX)] = ( lcdBuffer[x+((RESY_B-1)*RESX)] >> 1) | ((tmp[x]<<3)&8);
+		}	
+
+	}
+}	
+
+void lcdShift(int x, int y, bool wrap) {
+	int yb, yr, ya;
+	bool dir;
+
+	if (x>0) {
+		for (int cx = 0; cx < x; cx++) {
+			lcdShiftH(true, wrap);
+		}
+	} else if (x<0) {
+		for (int cx = x; cx < 0; cx++) {
+			lcdShiftH(false, wrap);
+		}
+	}	
+
+
+	if (y != 0) {
+		if (y>0) {
+			ya = y;
+			yb = y/8;
+			yr = y%8;
+			dir = true;
+			
+		} else if (y<0) {
+			ya = -y;
+			yb = (-y)/8;
+			yr = (-y)%8;
+			dir = false; 
+		}
+		
+		//for (int cyb = 0; cyb < yb; cyb++) {
+		//	lcdShiftV8(dir, wrap);
+		//}
+		//for (int cyr = 0; cyr < yr; cyr++) {
+		//	lcdShiftV(dir, wrap);
+		//}
+		for (int cya = 0; cya < ya; cya++) {
+			lcdShiftV(dir, wrap);
+		}
+	}
+}
