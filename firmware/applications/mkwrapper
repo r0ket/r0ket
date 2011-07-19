@@ -1,6 +1,9 @@
 #!/bin/sh
 
 for a in $* ; do
+    case $a in 
+    */*) continue;;
+    esac
 	base=${a%.o}
 	echo "void main_$base(void);" 
 	echo "void tick_$base(void);" 
@@ -10,6 +13,9 @@ echo
 echo "void wrapper(void){" 
 
 for a in $* ; do
+    case $a in 
+    */*) continue;;
+    esac
 	base=${a%.o}
 	echo "main_$base();"
 done

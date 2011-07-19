@@ -21,6 +21,13 @@ endif
 OBJS += $(ME_OBJ).o
 endif
 
+ifeq "$(APP)" "loadable"
+ifndef LAPP
+LAPP=blinktest
+endif
+OBJS += ../loadable/$(LAPP).o
+endif
+
 WRAP=wrapper
 LIBNAME=app
 
