@@ -6,44 +6,8 @@
 #include "lcd/display.h"
 #include "lcd/allfonts.h"
 
-void ReinvokeISP(void);
-void EnableWatchdog(uint32_t ms);
-void delayms(uint32_t ms);
-
-/**************************************************************************/
-#define POS_PLAYER_Y 60
-#define ENEMY_ROWS 3
-#define ENEMY_COLUMNS 6
-#define DISABLED 255
-
-
 unsigned char rnd1();
 
-struct gamestate {
-    char player;
-    char shot_x, shot_y;
-    char alive;
-    char move, direction, lastcol;
-    bool killed;
-    char enemy_x[ENEMY_ROWS][ENEMY_COLUMNS];
-    char enemy_row_y[ENEMY_ROWS];
-    
-} game = {RESX/2-4, DISABLED, 0,ENEMY_ROWS*ENEMY_COLUMNS, 0, -1, ENEMY_COLUMNS-1, false};
-char key;
-
-
-void checkISP(void) {
-    if(gpioGetValue(RB_BTN2)==0){
-        gpioSetValue (RB_LED1, CFG_LED_ON); 
-        delayms(200);
-        gpioSetValue (RB_LED1, CFG_LED_OFF); 
-        while(gpioGetValue(RB_BTN0)==0);
-        EnableWatchdog(1000*5);
-        ReinvokeISP();
-    }
-}
-
-        
 void draw_rect(char x0, char y0, char x1, char y1) {
   for(char x=x0; x<=x1; ++x) {
     lcdSetPixel(x,y0,true);
@@ -135,7 +99,7 @@ void calc_area() {
   for(uchar x=1; x<=RESX; ++x) {
     for(uchar y=1; y<=RESY; ++y) {
       uchar sum=sum_area(life,x-1,y-1,x+1,y+1)-life[x][y];
-      new[x][y]=sum==3||sum==2&&life[x][y];
+      new[x][y]=sum==3||(sum==2&&life[x][y]);
     }
   }
   swap_areas();
