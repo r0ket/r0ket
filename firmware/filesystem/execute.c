@@ -10,11 +10,16 @@
 #include "filesystem/ff.h"
 #include "filesystem/select.h"
 
+#include "basic/xxtea.h"
+
+const uint32_t signature_key[4] = {0,0,0,0};
+const uint32_t decode_key[4] = {0,0,0,0};
+
 extern void * sram_top;
 
 /**************************************************************************/
 
-void execute_file (const char * fname){
+void execute_file (const char * fname, uint8_t checksignature, uint8_t decode){
     FRESULT res;
     FIL file;
     UINT readbytes;
@@ -27,6 +32,7 @@ void execute_file (const char * fname){
     dst=(void (*)(void)) 0x10001800;
 
     res=f_open(&file, fname, FA_OPEN_EXISTING|FA_READ);
+
     //lcdPrint("open: ");
     //lcdPrintln(f_get_rc_string(res));
     //lcdRefresh();
@@ -42,6 +48,26 @@ void execute_file (const char * fname){
         return;
     };
 
+    if( decode || checksignature )
+        if( readbytes & 0x03 )
+            return;
+    
+    if( checksignature ){
+        uint32_t mac[4];
+        uint32_t *data = (uint32_t*)dst;
+        uint32_t len = readbytes/4;
+        xxtea_cbcmac(mac, (uint32_t*)dst, len-4, signature_key);
+        if( data[len-4] != mac[0] || data[len-3] != mac[1]
+            || data[len-2] != mac[2] || data[len-1] != mac[3] ){
+            return;
+        }
+    }
+
+    if( decode ){
+        uint32_t *data = (uint32_t*)dst;
+        uint32_t len = readbytes/4;
+        xxtea_decode_words(data, len, decode_key);
+    }
     //lcdPrintInt(readbytes);
     //lcdPrintln(" bytes");
     //lcdRefresh();
@@ -60,6 +86,6 @@ void executeSelect(char *ext){
     filename[2]=0;
 
     if( selectFile(filename+2,ext) == 0)
-        execute_file(filename);
+        execute_file(filename,0,0);
 };
 
