@@ -6,7 +6,7 @@
 #include "filesystem/ff.h"
 
 //const uint32_t key[4] = {0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF};
-const uint32_t key[4] = { 0xB4595344,0xD3E119B6,0xA814D0EC,0xEFF5A24E };
+const uint32_t openbeaconkey[4] = { 0xB4595344,0xD3E119B6,0xA814D0EC,0xEFF5A24E };
 const uint8_t useencryption = 1;
 const uint8_t mac[5] = {1,2,3,2,1};
 
@@ -83,7 +83,7 @@ uint8_t openbeaconSendPacket(uint32_t id, uint32_t seq,
     buf[12]=0xff; // salt (0xffff always?)
     buf[13]=0xff;
 
-    return nrf_snd_pkt_crc_encr(16,buf,useencryption?key:NULL);
+    return nrf_snd_pkt_crc_encr(16,buf,useencryption?openbeaconkey:NULL);
 }
 
 uint8_t openbeaconSend(void)
