@@ -97,6 +97,7 @@ public:
   static const int keyUp=16777235;
   static const int keyDown=16777237;
   static const int keyEnter=16777227;
+  static const int keyAltEnter=32;     // Space
   static const int keyLeft=16777234;
   static const int keyRight=16777236;
   LCD* te;
@@ -152,6 +153,7 @@ public:
     if(event->key()==keyUp) clearBit(buttonState,BTN_UP);
     if(event->key()==keyDown) clearBit(buttonState,BTN_DOWN);
     if(event->key()==keyEnter) clearBit(buttonState,BTN_ENTER);
+    if(event->key()==keyAltEnter) clearBit(buttonState,BTN_ENTER);
     if(event->key()==keyLeft) clearBit(buttonState,BTN_LEFT);
     if(event->key()==keyRight) clearBit(buttonState,BTN_RIGHT);
   }
@@ -161,6 +163,7 @@ public:
     if(event->key()==keyUp) setBit(buttonState,BTN_UP);
     if(event->key()==keyDown) setBit(buttonState,BTN_DOWN);
     if(event->key()==keyEnter) setBit(buttonState,BTN_ENTER);
+    if(event->key()==keyAltEnter) setBit(buttonState,BTN_ENTER);
     if(event->key()==keyLeft) setBit(buttonState,BTN_LEFT);
     if(event->key()==keyRight) setBit(buttonState,BTN_RIGHT);
   }
