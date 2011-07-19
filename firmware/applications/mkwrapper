@@ -1,6 +1,9 @@
 #!/bin/sh
 
 for a in $* ; do
+    case $a in 
+    loadable_*) continue;;
+    esac
 	base=${a%.o}
 	echo "void main_$base(void);" 
 	echo "void tick_$base(void);" 
@@ -10,6 +13,9 @@ echo
 echo "void wrapper(void){" 
 
 for a in $* ; do
+    case $a in 
+    loadable_*) continue;;
+    esac
 	base=${a%.o}
 	echo "main_$base();"
 done
@@ -19,6 +25,9 @@ echo "}"
 echo "void tick_wrapper(void){" 
 
 for a in $* ; do
+    case $a in 
+    loadable_*) continue;;
+    esac
 	base=${a%.o}
 	grep -q \ tick_$base ${base}.c && echo "tick_$base();"
 done
