@@ -47,7 +47,6 @@ void tick_flame(void) { // every 10ms
 
 void main_flame(void) {
 
-    usbMSCInit();
     i2cInit(I2CMASTER); // Init I2C
 
 //    flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_ON << FLAME_I2C_LS0_LED0); // set led to on
