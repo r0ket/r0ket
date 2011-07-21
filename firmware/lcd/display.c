@@ -169,11 +169,11 @@ void lcdShiftH(bool right, bool wrap) {
 		if (right) {
 			tmp = lcdBuffer[yb*RESX];
 			memmove(lcdBuffer + yb*RESX,lcdBuffer + yb*RESX+1 ,RESX-1);
-			if (wrap) lcdBuffer[yb*RESX+(RESX-1)] = tmp;
+            lcdBuffer[yb*RESX+(RESX-1)] = wrap?tmp:0;
 		} else {
 			tmp = lcdBuffer[yb*RESX+(RESX-1)];
 			memmove(lcdBuffer + yb*RESX+1,lcdBuffer + yb*RESX ,RESX-1);
-			if (wrap) lcdBuffer[yb*RESX] = tmp;
+			lcdBuffer[yb*RESX] = wrap?tmp:0;
 		}
 	}
 }
@@ -181,34 +181,46 @@ void lcdShiftH(bool right, bool wrap) {
 void lcdShiftV8(bool up, bool wrap) {
 	uint8_t tmp[RESX];
 	if (up) {
-		if (wrap) memmove(tmp, lcdBuffer, RESX);
+		if (wrap)
+            memmove(tmp, lcdBuffer, RESX);
+        else
+            memset(tmp,0,RESX);
 		memmove(lcdBuffer,lcdBuffer+RESX ,RESX*(RESY_B-1));
-		if (wrap) memmove(lcdBuffer+RESX*(RESY_B-1),tmp,RESX);
+		memmove(lcdBuffer+RESX*(RESY_B-1),tmp,RESX);
 	} else {
-		if (wrap) memmove(tmp, lcdBuffer+RESX*(RESY_B-1), RESX);
+		if (wrap)
+            memmove(tmp, lcdBuffer+RESX*(RESY_B-1), RESX);
+        else
+            memset(tmp,0,RESX);
 		memmove(lcdBuffer+RESX,lcdBuffer ,RESX*(RESY_B-1));
-		if (wrap) memmove(lcdBuffer,tmp,RESX);
+		memmove(lcdBuffer,tmp,RESX);
 	}
 }
 
 void lcdShiftV(bool up, bool wrap) {
 	uint8_t tmp[RESX];
 	if (up) {
-		if (wrap) memmove(tmp,lcdBuffer+((RESY_B-1)*RESX),RESX);
+		if (wrap) 
+            memmove(tmp,lcdBuffer+((RESY_B-1)*RESX),RESX);
+        else
+            memset(tmp,0,RESX);
 		for (int x = 0; x<RESX; x++){
 			for (int y = RESY_B-1; y > 0; y--){
 				lcdBuffer[x+(y*RESX)] = (lcdBuffer[x+(y*RESX)] << 1) |( lcdBuffer[x+((y-1)*RESX)] >> 7);
 			}
-			if (wrap) lcdBuffer[x] = ( lcdBuffer[x] << 1) | ((tmp[x]>>3)&1);
+			lcdBuffer[x] = ( lcdBuffer[x] << 1) | ((tmp[x]>>3)&1);
 		}
 				
 	} else {
-		if (wrap) memmove(tmp,lcdBuffer,RESX);
+		if (wrap)
+            memmove(tmp,lcdBuffer,RESX);
+        else
+            memset(tmp,0,RESX);
 		for (int x = 0; x<RESX; x++){
 			for (int y = 0; y < (RESY_B-1); y++){
 				lcdBuffer[x+(y*RESX)] = (lcdBuffer[x+(y*RESX)] >> 1) |( lcdBuffer[x+((y+1)*RESX)] << 7);
 			}
-			if (wrap) lcdBuffer[x+((RESY_B-1)*RESX)] = ( lcdBuffer[x+((RESY_B-1)*RESX)] >> 1) | ((tmp[x]<<3)&8);
+			lcdBuffer[x+((RESY_B-1)*RESX)] = ( lcdBuffer[x+((RESY_B-1)*RESX)] >> 1) | ((tmp[x]<<3)&8);
 		}	
 
 	}
