@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include <display.h>
 #include <sysdefs.h>
 #include "lpc134x.h"
@@ -213,42 +215,28 @@ void lcdShiftV(bool up, bool wrap) {
 }	
 
 void lcdShift(int x, int y, bool wrap) {
-	int yb, yr, ya;
-	bool dir;
+	bool dir=true;
 
-	if (x>0) {
-		for (int cx = 0; cx < x; cx++) {
-			lcdShiftH(true, wrap);
-		}
-	} else if (x<0) {
-		for (int cx = x; cx < 0; cx++) {
-			lcdShiftH(false, wrap);
-		}
-	}	
+    if(x<0){
+        dir=false;
+        x=-x;
+    };
 
+    while(x-->0)
+			lcdShiftH(dir, wrap);
 
-	if (y != 0) {
-		if (y>0) {
-			ya = y;
-			yb = y/8;
-			yr = y%8;
-			dir = true;
-			
-		} else if (y<0) {
-			ya = -y;
-			yb = (-y)/8;
-			yr = (-y)%8;
-			dir = false; 
-		}
-		
-		//for (int cyb = 0; cyb < yb; cyb++) {
-		//	lcdShiftV8(dir, wrap);
-		//}
-		//for (int cyr = 0; cyr < yr; cyr++) {
-		//	lcdShiftV(dir, wrap);
-		//}
-		for (int cya = 0; cya < ya; cya++) {
+    if(y<0){
+        dir=false;
+        y=-y;
+    }else{
+        dir=true;
+    };
+
+    while(y>=8){
+        y-=8;
+        lcdShiftV8(dir, wrap);
+    };
+
+    while(y-->0)
 			lcdShiftV(dir, wrap);
-		}
-	}
 }
