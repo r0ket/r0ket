@@ -1,5 +1,13 @@
 /*
 This header is "gcc -include"d for all compilations of firmware files when building as simulat0r.
+*/
+
+/*
+The following symbols are expected from r0ket firmware to come from libc
+*/
+#define siprintf sprintf
+
+/*
 The following symbols were found to be defined within glibc.
 Use different names within simulat0r to keep the firmware and simulat0r-host universes collision-free.
  */

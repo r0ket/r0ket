@@ -5,6 +5,7 @@
 #include "lcd/render.h"
 #include "lcd/display.h"
 #include "lcd/allfonts.h"
+#include "lcd/print.h"
 
 void backlightInit(void);
 
@@ -14,7 +15,8 @@ void main_scroll(void) {
     int dx=0;
     char key;
     backlightInit();
-    font_direction = FONT_DIR_LTR; // LeftToRight is the default
+    bool wrap=true;
+    int ctr=0;
 
     font=&Font_7x8;
     dx=DoString(0,0,"Hello World");
@@ -23,25 +25,30 @@ void main_scroll(void) {
         lcdDisplay();
 ////        delayms(10);
 
-        key= getInput();
+        key= getInputRaw();
 
         // Easy flashing
-        if(key==BTN_ENTER){
+        if((key&(BTN_ENTER|BTN_LEFT))==(BTN_ENTER|BTN_LEFT)){
             DoString(0,8,"Enter ISP!");
             lcdDisplay();
             ISPandReset();
         }
-		if(key==BTN_RIGHT){
-			lcdShift(1,0,true);
+        if(key&BTN_ENTER){
+            lcdPrintInt(ctr++);
+            lcdPrintln(".");
+            while(getInputRaw())delayms(10);
+        };
+		if(key&BTN_RIGHT){
+			lcdShift(1,0,wrap);
 		}
-		if(key==BTN_LEFT){
-			lcdShift(-1,0,true);
+		if(key&BTN_LEFT){
+			lcdShift(-1,0,wrap);
 		}
-		if(key==BTN_UP){
-			lcdShift(0,1,true);
+		if(key&BTN_UP){
+			lcdShift(0,1,wrap);
 		}
-		if(key==BTN_DOWN){
-			lcdShift(0,-1,true);
+		if(key&BTN_DOWN){
+			lcdShift(0,-1,wrap);
 		}
 
         //font = &Font_Ubuntu36pt;

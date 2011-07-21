@@ -113,15 +113,19 @@ void f_nick(void){
         delayms(40);
 
         key= getInputRaw();
-        if(key==BTN_UP){
+        if(key & BTN_UP){
             --y;//if(--y<0) y=0;
-        }else if (key ==BTN_DOWN){
+        };
+        if (key & BTN_DOWN){
             ++y;//if(++y>=RESY) y=RESY-1;
-        }else if (key ==BTN_LEFT){
+        };
+        if (key & BTN_LEFT){
             --x;//if(--x<0) x=0;
-        }else if (key ==BTN_RIGHT){
+        };
+        if (key & BTN_RIGHT){
             ++x;//if(++x>=RESX) x=RESX-1;
-        }else if (key ==BTN_ENTER){
+        };
+        if (key == BTN_ENTER){
             lcdClear();
             lcdPrintln("Done.");
             lcdDisplay();

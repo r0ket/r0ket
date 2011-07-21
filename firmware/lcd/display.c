@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include <display.h>
 #include <sysdefs.h>
 #include "lpc134x.h"
@@ -167,88 +169,86 @@ void lcdShiftH(bool right, bool wrap) {
 		if (right) {
 			tmp = lcdBuffer[yb*RESX];
 			memmove(lcdBuffer + yb*RESX,lcdBuffer + yb*RESX+1 ,RESX-1);
-			if (wrap) lcdBuffer[yb*RESX+(RESX-1)] = tmp;
+            lcdBuffer[yb*RESX+(RESX-1)] = wrap?tmp:0;
 		} else {
 			tmp = lcdBuffer[yb*RESX+(RESX-1)];
 			memmove(lcdBuffer + yb*RESX+1,lcdBuffer + yb*RESX ,RESX-1);
-			if (wrap) lcdBuffer[yb*RESX] = tmp;
+			lcdBuffer[yb*RESX] = wrap?tmp:0;
 		}
 	}
 }
 
 void lcdShiftV8(bool up, bool wrap) {
 	uint8_t tmp[RESX];
-	if (up) {
-		if (wrap) memmove(tmp, lcdBuffer, RESX);
+	if (!up) {
+		if (wrap)
+            memmove(tmp, lcdBuffer, RESX);
+        else
+            memset(tmp,0,RESX);
 		memmove(lcdBuffer,lcdBuffer+RESX ,RESX*(RESY_B-1));
-		if (wrap) memmove(lcdBuffer+RESX*(RESY_B-1),tmp,RESX);
+		memmove(lcdBuffer+RESX*(RESY_B-1),tmp,RESX);
 	} else {
-		if (wrap) memmove(tmp, lcdBuffer+RESX*(RESY_B-1), RESX);
+		if (wrap)
+            memmove(tmp, lcdBuffer+RESX*(RESY_B-1), RESX);
+        else
+            memset(tmp,0,RESX);
 		memmove(lcdBuffer+RESX,lcdBuffer ,RESX*(RESY_B-1));
-		if (wrap) memmove(lcdBuffer,tmp,RESX);
+		memmove(lcdBuffer,tmp,RESX);
 	}
 }
 
 void lcdShiftV(bool up, bool wrap) {
 	uint8_t tmp[RESX];
 	if (up) {
-		if (wrap) memmove(tmp,lcdBuffer+((RESY_B-1)*RESX),RESX);
+		if (wrap) 
+            memmove(tmp,lcdBuffer+((RESY_B-1)*RESX),RESX);
+        else
+            memset(tmp,0,RESX);
 		for (int x = 0; x<RESX; x++){
 			for (int y = RESY_B-1; y > 0; y--){
 				lcdBuffer[x+(y*RESX)] = (lcdBuffer[x+(y*RESX)] << 1) |( lcdBuffer[x+((y-1)*RESX)] >> 7);
 			}
-			if (wrap) lcdBuffer[x] = ( lcdBuffer[x] << 1) | ((tmp[x]>>3)&1);
+			lcdBuffer[x] = ( lcdBuffer[x] << 1) | ((tmp[x]>>3)&1);
 		}
 				
 	} else {
-		if (wrap) memmove(tmp,lcdBuffer,RESX);
+		if (wrap)
+            memmove(tmp,lcdBuffer,RESX);
+        else
+            memset(tmp,0,RESX);
 		for (int x = 0; x<RESX; x++){
 			for (int y = 0; y < (RESY_B-1); y++){
 				lcdBuffer[x+(y*RESX)] = (lcdBuffer[x+(y*RESX)] >> 1) |( lcdBuffer[x+((y+1)*RESX)] << 7);
 			}
-			if (wrap) lcdBuffer[x+((RESY_B-1)*RESX)] = ( lcdBuffer[x+((RESY_B-1)*RESX)] >> 1) | ((tmp[x]<<3)&8);
+			lcdBuffer[x+((RESY_B-1)*RESX)] = ( lcdBuffer[x+((RESY_B-1)*RESX)] >> 1) | ((tmp[x]<<3)&8);
 		}	
 
 	}
 }	
 
 void lcdShift(int x, int y, bool wrap) {
-	int yb, yr, ya;
-	bool dir;
+	bool dir=true;
 
-	if (x>0) {
-		for (int cx = 0; cx < x; cx++) {
-			lcdShiftH(true, wrap);
-		}
-	} else if (x<0) {
-		for (int cx = x; cx < 0; cx++) {
-			lcdShiftH(false, wrap);
-		}
-	}	
+    if(x<0){
+        dir=false;
+        x=-x;
+    };
 
+    while(x-->0)
+			lcdShiftH(dir, wrap);
 
-	if (y != 0) {
-		if (y>0) {
-			ya = y;
-			yb = y/8;
-			yr = y%8;
-			dir = true;
-			
-		} else if (y<0) {
-			ya = -y;
-			yb = (-y)/8;
-			yr = (-y)%8;
-			dir = false; 
-		}
-		
-		//for (int cyb = 0; cyb < yb; cyb++) {
-		//	lcdShiftV8(dir, wrap);
-		//}
-		//for (int cyr = 0; cyr < yr; cyr++) {
-		//	lcdShiftV(dir, wrap);
-		//}
-		for (int cya = 0; cya < ya; cya++) {
+    if(y<0){
+        dir=false;
+        y=-y;
+    }else{
+        dir=true;
+    };
+
+    while(y>=8){
+        y-=8;
+        lcdShiftV8(dir, wrap);
+    };
+
+    while(y-->0)
 			lcdShiftV(dir, wrap);
-		}
-	}
 }

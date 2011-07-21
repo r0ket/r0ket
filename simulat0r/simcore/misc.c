@@ -1,6 +1,3 @@
-int crc16(int x) {
-}
-
 void __disable_irq() {
 }
 

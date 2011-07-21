@@ -24,7 +24,7 @@ void blink(){
 
 struct mb {
     long rmin, rmax, imin, imax;
-    bool dirty;
+    bool dirty, dup, ddown, dleft, dright;
 } mandel;
 
 void mandelInit() {
@@ -38,67 +38,125 @@ void mandelInit() {
     mandel.imax = fixpt(2);
     
     mandel.dirty = true;
+    mandel.dup = false;
+    mandel.ddown = false;
+    mandel.dleft = false;
+    mandel.dright = false;
 }
 
 void mandelMove() {
-    long delta_r = (mandel.rmax - mandel.rmin)/10;
-    long delta_i = (mandel.imax - mandel.imin)/10;
-    char key = getInputRaw();
+    //long delta_r = (mandel.rmax - mandel.rmin)/10;
+    //long delta_i = (mandel.imax - mandel.imin)/10;
+ 
+    long rs =(mandel.rmax-mandel.rmin)/RESY;
+    long is =(mandel.imax-mandel.imin)/RESX;
     
-    if(key == BTN_LEFT) {
-        mandel.imax -= delta_i;
-        mandel.imin -= delta_i;
-        mandel.dirty = true;
+	char key = getInputRaw();
+    
+	 if (key == BTN_LEFT) {
+        mandel.imax -=is;
+        mandel.imin -=is;
+        mandel.dleft = true;
     } else if (key == BTN_RIGHT) {
-        mandel.imax += delta_i;
-        mandel.imin += delta_i;
-        mandel.dirty = true;
+        mandel.imax += is;
+        mandel.imin += is;
+        mandel.dright = true;
      } else if (key == BTN_DOWN) {
-        mandel.rmax += delta_r;
-        mandel.rmin += delta_r;
-         mandel.dirty = true;
+        mandel.rmax += rs;
+        mandel.rmin += rs;
+        mandel.ddown = true;
      } else if (key == BTN_UP) {
-        mandel.rmax -= delta_r;
-        mandel.rmin -= delta_r;
-         mandel.dirty = true;
-     } else if (key == BTN_ENTER) {
+        mandel.rmax -= rs;
+        mandel.rmin -= rs;
+        mandel.dup = true;
+     } else if (key == (BTN_ENTER +  BTN_UP)) {
         mandel.imin = mandel.imin + (mandel.imax-mandel.imin)/10;
         mandel.imax = mandel.imax - (mandel.imax-mandel.imin)/10;
         mandel.rmin = mandel.rmin +(mandel.rmax-mandel.rmin)/10;
         mandel.rmax = mandel.rmax -(mandel.rmax-mandel.rmin)/10;
-         mandel.dirty = true;
-     }
-     
+        mandel.dirty = true;
+     } else if (key == (BTN_ENTER + BTN_DOWN)) {
+		mandel.imin = mandel.imin - (mandel.imax-mandel.imin)/10;
+        mandel.imax = mandel.imax + (mandel.imax-mandel.imin)/10;
+        mandel.rmin = mandel.rmin -(mandel.rmax-mandel.rmin)/10;
+        mandel.rmax = mandel.rmax +(mandel.rmax-mandel.rmin)/10;
+        mandel.dirty = true;
+	 }
 }
-    
-void mandelCalc() {
+
+void mandelPixel(int x, int y) {
     long r0,i0,rn, p,q;
     long rs,is;
     int iteration;
-    char x, y;
-    rs=(mandel.rmax-mandel.rmin)/RESY; 
+
+    rs=(mandel.rmax-mandel.rmin)/RESY;
     is=(mandel.imax-mandel.imin)/RESX;
-    
-    for (x=0; x<RESX; x++){
-        for (y=0; y<RESY; y++) { 
-            p=mandel.rmin+y*rs;
-            q=mandel.imin+x*is;
-            rn=0;
-            r0=0;
-            i0=0;
-            iteration=0;
-            while ((mul(rn,rn)+mul(i0,i0))<fixpt(4) && ++iteration<ITERATION_MAX)  {
-                rn=mul((r0+i0),(r0-i0)) +p;           
-                i0=mul(fixpt(2),mul(r0,i0)) +q;
-                r0=rn;
-            }
-            if (iteration==ITERATION_MAX) iteration=1;
-            bool pixel = ( iteration>1);
-            lcdSetPixel(x, y, pixel);
+    //p=fixpt(mandel.rmin+y*rs);
+    //q=fixpt(mandel.imin+x*is);
+    p=mandel.rmin+y*rs;
+	q=mandel.imin+x*is;
+            
+	rn=0;
+    r0=0;
+    i0=0;
+    iteration=0;
+    while ((mul(rn,rn)+mul(i0,i0))<fixpt(4) && ++iteration<ITERATION_MAX)  {
+        rn=mul((r0+i0),(r0-i0)) +p;
+        i0=mul(fixpt(2),mul(r0,i0)) +q;
+        r0=rn;
+    }
+    if (iteration==ITERATION_MAX) iteration=1;
+    bool pixel = ( iteration>1);
+    lcdSetPixel(x, y, pixel);
+}
+
+void mandelUpdate() {
+    int xmin,xmax,ymin,ymax;
+    if (mandel.dirty) {
+        xmin = 0;
+        xmax = RESX;
+        ymin = 0;
+        ymax = RESY;
+        mandel.dirty = false;
+    } else if (mandel.dleft) {
+        lcdShift(1,0,false);
+        xmin = 0;
+        xmax = 1;
+        ymin = 0;
+        ymax = RESY;
+        mandel.dleft = false;
+    } else if (mandel.dright) {
+        lcdShift(-1,0,false);
+        xmin = RESX-1;
+        xmax = RESX;
+        ymin = 0;
+        ymax = RESY;
+        mandel.dright = false;
+    } else if (mandel.dup) {
+        lcdShift(0,-1,true);
+        xmin=0;
+        xmax=RESX;
+        ymin=0;
+        ymax=1;
+        mandel.dup = false;
+    } else if (mandel.ddown) {
+        lcdShift(0,1,true);
+        xmin=0;
+        xmax=RESX;
+        ymin=RESY-1;
+        ymax=RESY;
+        mandel.ddown = false;
+    } else {
+        return;
+    }
+
+    for (int x = xmin; x<xmax; x++) {
+        for (int y = ymin; y<ymax; y++) {
+            mandelPixel(x,y);
         }
     }
-    mandel.dirty = false;
 }
+
 
 void main_mandelbrot2(void) {
     backlightInit();
@@ -108,9 +166,8 @@ void main_mandelbrot2(void) {
     while (1) {
         lcdDisplay();
         mandelMove();
-        if (mandel.dirty) {
-            mandelCalc();
-        }
+        mandelUpdate();
+        
         
         if(gpioGetValue(RB_BTN0)==0 && gpioGetValue(RB_BTN4)==0){
         DoString(0,0,"Enter ISP!");

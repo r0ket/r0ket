@@ -3,10 +3,7 @@
 
 #include <stdint.h>
 
-void simlcdPrepareUpdate();
-void simlcdWrite(int ignored, int bit);
-void simlcdLineFeed();
-void simlcdCompleteUpdate();
+void simlcdDisplayUpdate();
 
 int simButtonPressed(int button);
 

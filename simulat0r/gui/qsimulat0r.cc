@@ -27,6 +27,15 @@ extern int lcd_layout;
 time_t starttime;
 long framecount=0;
 
+const int colorGreenLED=QColor(0,255,0).rgb();
+const int colorRedLED=QColor(255,0,0).rgb();
+const int colorOffLED=QColor(64,64,64).rgb();
+
+const int colorPixelOn=QColor(255,192,0).rgb();
+const int colorPixelOff=QColor(64,64,64).rgb();
+const int colorInvertedPixelOn=QColor(128,128,128).rgb(); // inverted and on => dark
+const int colorInvertedPixelOff=QColor(128,255,128).rgb(); // inverted and off => bright
+
 class LCD : public QWidget {
 public:
   static const int ledsize=10;
@@ -41,8 +50,8 @@ public:
   static const int dimx=RESX; //96;
   static const int dimy=RESY;
 
-  void drawLED(QImage& pixmap,int led, int x, int y) {
-    int color=simGetLED(led)?QColor(255,0,0).rgb():QColor(64,64,64).rgb();
+  void drawLED(QImage& pixmap,int led, int x, int y,int colorOn) {
+    int color=simGetLED(led)?colorOn:colorOffLED;
     for(int minix=0; minix<ledsize; ++minix) {
       for(int miniy=0; miniy<ledsize; ++miniy) {
 	pixmap.setPixel(x+minix,y+miniy,color);
@@ -63,9 +72,9 @@ public:
       for(int y=0; y<dimy; ++y) {
 	int color;
 	if(lcd_layout & LCD_INVERTED) {
-	  color=lcdGetPixel((lcd_layout & LCD_MIRRORX)?(RESX-x-1):x,(lcd_layout & LCD_MIRRORY)?(RESY-y-1):y)?QColor(128,128,128).rgb():QColor(128,255,128).rgb();
+	  color=lcdGetPixel((lcd_layout & LCD_MIRRORX)?(RESX-x-1):x,(lcd_layout & LCD_MIRRORY)?(RESY-y-1):y)?colorInvertedPixelOn:colorInvertedPixelOff;
 	} else {
-	  color=lcdGetPixel((lcd_layout & LCD_MIRRORX)?(RESX-x-1):x,(lcd_layout & LCD_MIRRORY)?(RESY-y-1):y)?QColor(255,192,0).rgb():QColor(64,64,64).rgb();
+	  color=lcdGetPixel((lcd_layout & LCD_MIRRORX)?(RESX-x-1):x,(lcd_layout & LCD_MIRRORY)?(RESY-y-1):y)?colorPixelOn:colorPixelOff;
 	}
 	for(int minix=0; minix<pixw; ++minix) {
 	  for(int miniy=0; miniy<pixh; ++miniy) {
@@ -77,10 +86,10 @@ public:
 
     const int x1=dimx*rasterx-1-ledsize;
     const int y1=dimy*rastery-1+2*ledsep+ledsize;
-    drawLED(pixmap,0,0,0);
-    drawLED(pixmap,1,x1,0);
-    drawLED(pixmap,2,0,y1);
-    drawLED(pixmap,3,x1,y1);
+    drawLED(pixmap,0,x1,y1,colorGreenLED);
+    drawLED(pixmap,1,0,0,colorGreenLED);
+    drawLED(pixmap,2,0,y1,colorGreenLED);
+    drawLED(pixmap,3,x1,0,colorRedLED);
 
     painter.drawImage(0,0,pixmap);
   }
