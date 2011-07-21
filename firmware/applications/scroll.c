@@ -14,7 +14,6 @@ void main_scroll(void) {
     int dx=0;
     char key;
     backlightInit();
-    font_direction = FONT_DIR_LTR; // LeftToRight is the default
 
     font=&Font_7x8;
     dx=DoString(0,0,"Hello World");
@@ -23,24 +22,24 @@ void main_scroll(void) {
         lcdDisplay();
 ////        delayms(10);
 
-        key= getInput();
+        key= getInputRaw();
 
         // Easy flashing
-        if(key==BTN_ENTER){
+        if(key&BTN_ENTER){
             DoString(0,8,"Enter ISP!");
             lcdDisplay();
             ISPandReset();
         }
-		if(key==BTN_RIGHT){
+		if(key&BTN_RIGHT){
 			lcdShift(1,0,true);
 		}
-		if(key==BTN_LEFT){
+		if(key&BTN_LEFT){
 			lcdShift(-1,0,true);
 		}
-		if(key==BTN_UP){
+		if(key&BTN_UP){
 			lcdShift(0,1,true);
 		}
-		if(key==BTN_DOWN){
+		if(key&BTN_DOWN){
 			lcdShift(0,-1,true);
 		}
 
