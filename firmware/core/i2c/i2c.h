@@ -37,7 +37,7 @@
 #define I2CSTATE_SLA_NACK 0x103
 #define I2CSTATE_ARB_LOSS 0x104
 
-#define FAST_MODE_PLUS    0
+#define FAST_MODE_PLUS    1
 
 #define I2C_BUFSIZE       6
 #define MAX_TIMEOUT       0x00FFFFFF
