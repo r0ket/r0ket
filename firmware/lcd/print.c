@@ -6,7 +6,15 @@
 int x=0;
 int y=0;
 
+void checkScroll(void){
+  if(y+font->u8Height>RESY){
+      lcdShift(0,y+font->u8Height-RESY,false);
+      y=RESY-font->u8Height;
+  };
+};
+
 void lcdPrint(const char *string){
+  checkScroll();
   x=DoString(x,y,string);
 };
 
@@ -20,18 +28,22 @@ void lcdPrintln(const char *string){
 };
   
 void lcdPrintInt(const int num){
+  checkScroll();
   x=DoInt(x,y,num);
 };
 
 void lcdPrintIntHex(const int num){
+  checkScroll();
   x=DoIntX(x,y,num);
 };
 
 void lcdPrintCharHex(const uint8_t num){
+  checkScroll();
   x=DoCharX(x,y,num);
 };
 
 void lcdPrintShortHex(const uint16_t num){
+  checkScroll();
   x=DoShortX(x,y,num);
 };
 
