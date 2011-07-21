@@ -1,3 +1,9 @@
+/*
+
+    flame m0dul - https://github.com/kiu/flame
+
+*/
+
 #include "basic/basic.h"
 #include "core/i2c/i2c.h"
 
@@ -21,14 +27,6 @@
 #define FLAME_I2C_LS0_LED2	0x04
 #define FLAME_I2C_LS0_LED3	0x06
 
-#define FLAME_MODE_ON		0x00
-#define FLAME_MODE_A		0x01
-#define FLAME_MODE_B		0x02
-#define FLAME_MODE_C		0x03
-
-#define FLAME_MODE_MIN		0x00
-#define FLAME_MODE_MAX		0x03
-
 void ReinvokeISP(void);
 
 /**************************************************************************/
@@ -42,28 +40,51 @@ void flameSetI2C(uint8_t cr, uint8_t value) {
     i2cEngine();
 }
 
+uint8_t flameI2Csend = 0;
+uint8_t flameI2Cpsc = 0;
+uint8_t flameI2Cpwm = 0;
+
+
+uint16_t ax = 0;
+
 void tick_flame(void) { // every 10ms
+    ax++;
+    if (ax < 0x3FF) {
+	return;
+    }
+    ax = 0;
+    flameI2Cpsc+=13;
+    flameI2Cpwm-=17;
+    flameI2Csend = 1;
 }
 
 void main_flame(void) {
 
     i2cInit(I2CMASTER); // Init I2C
 
-//    flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_ON << FLAME_I2C_LS0_LED0); // set led to on
-//    flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_OFF << FLAME_I2C_LS0_LED0); // set led to off
-
-    flameSetI2C(FLAME_I2C_CR_PSC0, 0x66); // set prescaler
-    flameSetI2C(FLAME_I2C_CR_PWM0, 0x33); // set pwm
-    flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_PWM0 << FLAME_I2C_LS0_LED0); // set led to pwm
-
+    flameSetI2C(FLAME_I2C_CR_PSC0, 0x00); // set prescaler
+    flameSetI2C(FLAME_I2C_CR_PWM0, 0x00); // set pwm
+    flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_PWM0 << FLAME_I2C_LS0_LED0); // set led0 to pwm
+    
     char key;
     while (1) {
 	key = getInput();
-	if (key == BTN_LEFT) {
+	if (key == BTN_ENTER) {
 	    DoString(0,50,"ISP!");
 	    lcdDisplay();
             ISPandReset();
         }
+	if (flameI2Csend == 1) {
+	    flameI2Csend = 0;
+	    DoString(0,40,"psc            ");
+	    DoInt(25,40,flameI2Cpsc);    
+	    DoString(0,50,"pwm            ");
+	    DoInt(25,50,flameI2Cpwm);
+	    lcdDisplay();
+
+	    flameSetI2C(FLAME_I2C_CR_PSC0, flameI2Cpsc); // set prescaler
+	    flameSetI2C(FLAME_I2C_CR_PWM0, flameI2Cpwm); // set pwm	    
+	}
     }
     
     return;
