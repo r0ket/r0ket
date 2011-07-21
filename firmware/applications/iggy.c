@@ -142,7 +142,9 @@ void main_iggy(void) {
 	    gpioSetValue (RB_LCD_BL, 0); 
 	    SCB_SCR |= SCB_SCR_SLEEPDEEP;
 	    PMU_PMUCTRL = PMU_PMUCTRL_DPDEN_DEEPPOWERDOWN;
+#ifdef ARM
 	    __asm volatile ("WFI");
+#endif
 	}else{
 	    //DoString(0,yctr+30,"OK           ");
 		;
