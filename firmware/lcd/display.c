@@ -180,7 +180,7 @@ void lcdShiftH(bool right, bool wrap) {
 
 void lcdShiftV8(bool up, bool wrap) {
 	uint8_t tmp[RESX];
-	if (up) {
+	if (!up) {
 		if (wrap)
             memmove(tmp, lcdBuffer, RESX);
         else
