@@ -33,7 +33,7 @@ push @charlist,map {ord $_} qw(ä ö ü Ä Ö Ü ß);
 ### Runtime Options
 ###
 
-my ($verbose,$raw,$chars);
+my ($verbose,$raw,$chars,$bin);
 my $size=18;
 
 my $font="ttf/Ubuntu-Regular.ttf";
@@ -42,6 +42,7 @@ GetOptions ("size=i"   => \$size,    # numeric
             "font=s"   => \$font,    # string
             "verbose"  => \$verbose, # flag
 			"raw"      => \$raw,     # flag
+			"bin"      => \$bin,     # flag
 			"chars=s"  => \$chars,   # list of chars
 			"help"     => sub {
 			print <<HELP;
@@ -50,6 +51,7 @@ Uasge: makefont.pl [-r] [-v] [-f fontfile] [-s size]
 Options:
 --verbose         Be verbose.
 --raw             Create raw/uncompressed font.
+--bin             Also create binary font file.
 --font <filename> Source .ttf file to use. [Default: $font]
 --chars <chars>   Characters to encode. [Deflault: see source :-)]
 --size <size>     Pointsize the font should be rendered at. [Default: $size]
@@ -123,6 +125,7 @@ EOF
 my $offset=0;
 my $maxsz=0;
 my @offsets;
+my (@bindata,@binoffsets);
 for (0..$#charlist){
 	my $char=chr $charlist[$_];
 	print "### Start $char\n" if($verbose);
@@ -186,6 +189,7 @@ for (0..$#charlist){
         if(!$raw){
             @enc=(255,$preblank,$postblank);
             @out=@enc;
+            push @bindata,@out;
             printf C "  0x%02x, %2d, %2d, /* rawmode, preblank, postblank */\n",
                    (shift@out), (shift@out), (shift@out);
         }else{
@@ -194,6 +198,7 @@ for (0..$#charlist){
         push @enc,@raw;
 		$c2size+=scalar(@enc);
 		@out=@enc;
+        push @bindata,@out;
 		for (@char){
 			print C "  ";
 			printf C "0x%02x, ",shift@out for(1..$heightb);
@@ -206,6 +211,7 @@ for (0..$#charlist){
 			print C " /* $_ */ \n";
 		};
 		my $pretty=0;
+        push @bindata,@enc;
 		for(@enc){
 			print C "  " if($pretty==0);
 			printf C "0x%02x, ",$_;
@@ -218,6 +224,7 @@ for (0..$#charlist){
 
 	print C "\n";
 
+    push @binoffsets,scalar(@enc);
 	push @offsets,sprintf " {%2d}, /* %s */\n",scalar(@enc),$char;
 	print C "\n";
 
@@ -250,7 +257,8 @@ print C <<EOF;
 const uint16_t ${fonts}Extra[] = {
 EOF
 
-print C join(",",@charlist[($last-$first+1)..$#charlist],0xffff);
+my @extras=(@charlist[($last-$first+1)..$#charlist],0xffff);
+print C join(",",@extras);
 
 printf C "
 };
@@ -281,6 +289,27 @@ printf C " */\n";
 
 close(C);
 
+if($bin){
+    open (B,">",$file.".f0n")||die "Can't create $file.f0n: $!";
+    binmode(B); # Just to be safe.
+
+    print B 
+#    uint8_t u8Width;                /* Character width for storage          */
+        chr($raw?0:1),
+#    uint8_t u8Height;               /* Character height for storage         */
+        chr($heightpx),
+#    uint8_t u8FirstChar;            /* The first character available        */
+        chr($first),
+#    uint8_t u8LastChar;             /* The last character available         */
+        chr($last);
+
+    print B pack("S",scalar(@extras));
+    print B map {pack "S",$_} @extras;
+    print B map {pack "C",$_} @binoffsets;
+    print B map {pack "C",$_} @bindata;
+    close(B);
+};
+
 open (H,">",$file.".h")||die "Can't create $file.h: $!";
 print H <<EOF;
 #include "lcd/fonts.h"
@@ -293,7 +322,7 @@ print "\ndone.\n" if($verbose);
 print "\n";
 print "Original size: $origsize\n";
 print "Simple compression: $c1size\n";
-print "PK compression: $c2size\n";
+print( ($raw?"No":"PK")." compression: $c2size\n");
 print "Maximum character size is: $heightb*$maxsz bytes\n";
 
 
