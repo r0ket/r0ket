@@ -29,7 +29,7 @@ void rftransfer_send(uint16_t size, uint8_t *data)
         buf[2] = index & 0xFF;
         buf[3] = rand >> 8;
         buf[4] = rand & 0xFF;
-        for(i=5; i<MAXPACKET && size>0; i++,size--){
+        for(i=5; i<MAXPACKET-2 && size>0; i++,size--){
             buf[i] = *data++;
         }
         index++;
@@ -45,6 +45,7 @@ void rftransfer_send(uint16_t size, uint8_t *data)
     //nrf_snd_pkt_crc(5,buf);     //crc packet
     nrf_snd_pkt_crc(32,buf);     //setup packet
     delayms(20);
+    lcdPrint("crc="); lcdPrintIntHex(crc);lcdPrintln("");lcdRefresh();
 }
 
 uint16_t rftransfer_receive(uint8_t *buffer, uint16_t maxlen, uint16_t timeout)
@@ -67,7 +68,8 @@ uint16_t rftransfer_receive(uint8_t *buffer, uint16_t maxlen, uint16_t timeout)
                     pos = 0;
                     if( size <= maxlen ){
                         lcdClear();
-                        lcdPrintln("got l"); lcdRefresh();
+                        lcdPrint("got l="); lcdPrintInt(size);
+                        lcdPrintln(""); lcdRefresh();
                         state = 1;
                     }
                 }
@@ -79,7 +81,7 @@ uint16_t rftransfer_receive(uint8_t *buffer, uint16_t maxlen, uint16_t timeout)
                         lcdPrintln(" in seq"); lcdRefresh();
                         //if( (pos + n - 5)<maxlen ){
                             //for(i=5; i<n; i++,pos++){
-                            for(i=5; i<n && pos<size; i++,pos++){
+                            for(i=5; i<n-2 && pos<size; i++,pos++){
                                 buffer[pos] = buf[i];
                             }
                             seq++;
@@ -89,6 +91,8 @@ uint16_t rftransfer_receive(uint8_t *buffer, uint16_t maxlen, uint16_t timeout)
                 if( pos == size ){
                     lcdPrintln("got all"); lcdRefresh();
                     crc = crc16(buffer, size);
+                    lcdPrint("crc="); lcdPrintIntHex(crc);
+                    lcdPrintln("");lcdRefresh();
                     state = 2;
                 }
             break;
@@ -99,6 +103,7 @@ uint16_t rftransfer_receive(uint8_t *buffer, uint16_t maxlen, uint16_t timeout)
                         lcdPrintln(" ok"); lcdRefresh();
                         return size;
                     }else{
+                        lcdPrintln(" nok"); lcdRefresh();
                         state = 0;
                     }
                 }

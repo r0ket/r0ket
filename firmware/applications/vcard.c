@@ -215,8 +215,10 @@ void receiveFile(void)
         }
         lcdRefresh();
         #else
-        uint32_t k[4] = {0xffff,0xffff,0xffff,0xffff};
-        if( filetransfer_receive(mac,(uint32_t*)k) )
+        //uint32_t k[4] = {0xffff,0xffff,0xffff,0xffff};
+
+        //k[0] = 0; k[1] = 0; k[2] = 0; k[3] = 0;
+        if( filetransfer_receive(mac,(uint32_t*)k1) )
             continue;
         lcdPrintln("Done");
         lcdPrintln("Right=OK");
@@ -270,7 +272,8 @@ void sendFile(char *filename)
         #else
         delayms(3000);
         uint32_t k[4] = {0xffff,0xffff,0xffff,0xffff};
-        filetransfer_send((uint8_t*)filename, 0, mac, (uint32_t*)k);
+        k[0] = 0; k[1] = 0; k[2] = 0; k[3] = 0;
+        filetransfer_send((uint8_t*)filename, 0, mac, (uint32_t*)k1);
         lcdPrintln("Done");
         lcdPrintln("Right=OK");
         lcdPrintln("Left=Retry");
@@ -340,6 +343,13 @@ void main_vcard(void) {
             lcdPrintln("Done");
             lcdRefresh();
         }else if(key==BTN_RIGHT){
+            DoString(0,8,"MSC Enabled.");
+            lcdDisplay();
+            usbMSCInit();
+            while(!getInputRaw())delayms(10);
+            DoString(0,16,"MSC Disabled.");
+            usbMSCOff();
+
         }
 
                 //encryption_decryption_demo("This is encrypted",

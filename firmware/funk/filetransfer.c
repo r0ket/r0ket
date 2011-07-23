@@ -17,6 +17,7 @@ int filetransfer_send(uint8_t *filename, uint16_t size,
     FRESULT res;
     UINT readbytes;
 
+
     if( size > MAXSIZE )
         return 1;           //File to big
  
@@ -25,6 +26,9 @@ int filetransfer_send(uint8_t *filename, uint16_t size,
         return res;
 
     //res = f_read(&file, (char *)buf, size, &readbytes);
+    for(uint16_t i=0; i<MAXSIZE; i++)
+        buf[i] = 0;
+
     res = f_read(&file, (char *)buf, MAXSIZE, &readbytes);
     size = readbytes;
 
