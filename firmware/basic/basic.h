@@ -172,5 +172,4 @@ struct MENU {
 
 
 void handleMenu(const struct MENU *the_menu);
-
 #endif

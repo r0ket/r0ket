@@ -126,12 +126,7 @@ void rbInit() {
     gpioIntEnable(RB_BUSINT);
     // add this to catch interrupt:
     /*
-	void PIOINT3_IRQHandler(void) {    
-	    if (gpioIntStatus(RB_BUSINT)) {
-		// do something
-		gpioIntClear(RB_BUSINT);
-	    }
-	}
+
     */
 
     //nrf_init();
@@ -139,3 +134,17 @@ void rbInit() {
     font=&Font_7x8;
     ECIES_setup();
 }
+#define WEAK_ALIAS(f) __attribute__ ((weak, alias (#f)));
+void interrupt_undefined(void) {
+}
+
+void businterrupt(void)       WEAK_ALIAS(interrupt_undefined);
+
+
+void PIOINT3_IRQHandler(void) {    
+    if (gpioIntStatus(RB_BUSINT)) {
+        gpioIntClear(RB_BUSINT);
+        businterrupt();
+    }
+}
+
