@@ -8,6 +8,7 @@ OBJS += basic.o
 OBJS += reinvoke_isp.o
 OBJS += delayms.o
 OBJS += voltage.o
+OBJS += night.o
 OBJS += keyin.o
 OBJS += uuid.o
 OBJS += crc.o

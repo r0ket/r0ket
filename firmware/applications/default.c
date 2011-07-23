@@ -115,8 +115,15 @@ void tick_default(void) {
     ctr++;
     if(ctr>100){
         VoltageCheck();
+        LightCheck();
         ctr=0;
     };
+
+    if(isNight())
+        backlightSetBrightness(100);
+    else
+        backlightSetBrightness(0);
+
     if(ctr%5==0){
 
         if(GetVoltage()<3600

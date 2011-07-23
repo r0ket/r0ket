@@ -135,6 +135,11 @@ void delayms(uint32_t ms);
 void VoltageCheck(void);
 uint32_t GetVoltage(void);
 
+// night.c
+void LightCheck(void);
+uint32_t GetLight(void);
+char isNight(void);
+
 // keyin.c
 #define BTN_NONE 0
 #define BTN_UP   (1<<0)
