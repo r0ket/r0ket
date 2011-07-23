@@ -10,8 +10,8 @@
 void openbeaconShutdown(void);
 void openbeaconSaveBlock(void);
 void openbeaconSave(uint32_t s);
-void openbeaconRead();
-void openbeaconSetup(uint32_t id);
+void openbeaconRead(void);
+void openbeaconSetup(void);
 uint8_t openbeaconSendPacket(uint32_t id, uint32_t ctr,
                 uint8_t flags, uint8_t strength);
 uint8_t openbeaconSend(void);
