@@ -27,6 +27,11 @@
 #define FLAME_I2C_LS0_LED2	0x04
 #define FLAME_I2C_LS0_LED3	0x06
 
+#define FLAME_UP		0x01
+#define FLAME_UP_WAIT		0x02
+#define FLAME_DOWN		0x03
+#define FLAME_DOWN_WAIT		0x04
+
 void ReinvokeISP(void);
 
 /**************************************************************************/
@@ -40,22 +45,44 @@ void flameSetI2C(uint8_t cr, uint8_t value) {
     i2cEngine();
 }
 
+
+uint8_t flameMode = FLAME_UP;
 uint8_t flameI2Csend = 0;
-uint8_t flameI2Cpsc = 0;
 uint8_t flameI2Cpwm = 0;
-
-
-uint16_t ax = 0;
+uint16_t flameTicks = 0;
 
 void tick_flame(void) { // every 10ms
-    ax++;
-    if (ax < 0x3FF) {
-	return;
+    flameTicks++;
+
+    if (flameMode == FLAME_UP) {
+	flameI2Cpwm++;
+	flameI2Csend = 1;
+	if (flameI2Cpwm == 0xFF) {
+	    flameMode = FLAME_UP_WAIT;
+	    flameTicks = 0;
+	}
     }
-    ax = 0;
-    flameI2Cpsc+=13;
-    flameI2Cpwm-=17;
-    flameI2Csend = 1;
+
+    if (flameMode == FLAME_UP_WAIT) {
+	if (flameTicks > 0x1FF) {
+	    flameMode = FLAME_DOWN;
+	}
+    }
+
+    if (flameMode == FLAME_DOWN) {
+	flameI2Cpwm--;
+	flameI2Csend = 1;
+	if (flameI2Cpwm == 0x00) {
+	    flameMode = FLAME_DOWN_WAIT;
+	    flameTicks = 0;
+	}
+    }
+
+    if (flameMode == FLAME_DOWN_WAIT) {
+	if (flameTicks > 0xFF) {
+	    flameMode = FLAME_UP;
+	}
+    }
 }
 
 void main_flame(void) {
@@ -66,25 +93,21 @@ void main_flame(void) {
     flameSetI2C(FLAME_I2C_CR_PWM0, 0x00); // set pwm
     flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_PWM0 << FLAME_I2C_LS0_LED0); // set led0 to pwm
     
-    char key;
     while (1) {
-	key = getInput();
+        delayms(20);
+        
+	if (flameI2Csend == 1) {
+	    flameI2Csend = 0;
+	    flameSetI2C(FLAME_I2C_CR_PWM0, flameI2Cpwm); // set pwm	    
+	}
+
+	char key = getInput();
 	if (key == BTN_ENTER) {
 	    DoString(0,50,"ISP!");
 	    lcdDisplay();
             ISPandReset();
         }
-	if (flameI2Csend == 1) {
-	    flameI2Csend = 0;
-	    DoString(0,40,"psc            ");
-	    DoInt(25,40,flameI2Cpsc);    
-	    DoString(0,50,"pwm            ");
-	    DoInt(25,50,flameI2Cpwm);
-	    lcdDisplay();
 
-	    flameSetI2C(FLAME_I2C_CR_PSC0, flameI2Cpsc); // set prescaler
-	    flameSetI2C(FLAME_I2C_CR_PWM0, flameI2Cpwm); // set pwm	    
-	}
     }
     
     return;
