@@ -4,6 +4,7 @@
 #include "basic/byteorder.h"
 #include "sysdefs.h"
 #include "filesystem/ff.h"
+#include "basic/uuid.h"
 
 //const uint32_t key[4] = {0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF};
 const uint32_t openbeaconkey[4] = { 0xB4595344,0xD3E119B6,0xA814D0EC,0xEFF5A24E };
@@ -59,9 +60,9 @@ void openbeaconRead()
 }
 
 
-void openbeaconSetup(uint32_t id)
+void openbeaconSetup(void)
 {
-    oid = id;
+    oid = GetUUID32();
     strength = 0;
     openbeaconRead();
     openbeaconSaveBlock();
