@@ -7,6 +7,7 @@
 #include "lcd/allfonts.h"
 
 #include "filesystem/ff.h"
+#include "filesystem/select.h"
 #include "funk/nrf24l01p.h"
 #include "usb/usbmsc.h"
 
@@ -75,35 +76,22 @@ void f_init(void){
     lcdPrintln("Done.");
 };
 
-
-static FONT fonts[] = {
- &Font_7x8,
- &Font_Ubuntu18pt,
- &Font_Ubuntu29pt,
- &Font_Ubuntu36pt,
- &Font_Orbitron14pt,
- &Font_3x6,
- &Font_5x8,
- &Font_8x8,
- &Font_8x8Thin,
- &Font_Invaders
-};
-
+char fontname[15];
 
 void f_nick(void){
     static char ctr=0;
     char key;
-    signed char x=10;
-    signed char y=10;
+    static signed char x=10;
+    static signed char y=10;
     while (1) {
         lcdClear();
         lcdFill(255);
 
-        font=fonts[ctr%10];
-        DoString(x,y,nickname);
-//        lcdSafeSetPixel(x,y,1);
+        setExtFont(fontname);
 
-        font=&Font_7x8;
+        DoString(x,y,nickname);
+
+        setIntFont(&Font_7x8);
         lcdSetCrsr(50,50);
         lcdPrintInt(x);
         lcdPrint("x");
@@ -133,6 +121,23 @@ void f_nick(void){
             break;
         };
     };
+};
+
+void f_font(void){
+
+    if( selectFile(fontname,"F0N") != 0){
+        lcdPrintln("No file selected.");
+        return;
+    };
+
+    lcdClear();
+    lcdPrintln(fontname);
+    setExtFont(fontname);
+    lcdPrintln("PUabc€");
+    setIntFont(&Font_7x8);
+    lcdPrintln("done.");
+    lcdDisplay();
+    while(!getInputRaw())delayms(10);
 };
 
 /***********************************************************************/
@@ -178,7 +183,7 @@ void msc_menu(void){
 const struct MENU_DEF menu_ISP =    {"Invoke ISP",  &gotoISP};
 const struct MENU_DEF menu_init =   {"F Init",   &f_init};
 const struct MENU_DEF menu_nick =    {"F Nick",   &f_nick};
-//const struct MENU_DEF menu_snd =    {"F Send",   &f_send};
+const struct MENU_DEF menu_font =    {"F sel",   &f_font};
 const struct MENU_DEF menu_mirror = {"Mirror",   &lcd_mirror};
 const struct MENU_DEF menu_invert = {"Invert",   &lcd_invert};
 const struct MENU_DEF menu_volt =   {"Akku",   &adc_check};
@@ -188,7 +193,7 @@ const struct MENU_DEF menu_nop =    {"---",   NULL};
 static menuentry menu[] = {
     &menu_init,
     &menu_nick,
-//    &menu_snd,
+    &menu_font,
     &menu_nop,
     &menu_mirror,
     &menu_invert,

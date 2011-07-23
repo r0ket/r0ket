@@ -1,15 +1,192 @@
+#include <string.h>
+
 #include <sysdefs.h>
 #include <render.h>
 #include <decoder.h>
 #include <fonts.h>
+#include "basic/basic.h"
+#include "fonts/smallfonts.h"
+
+#include "filesystem/ff.h"
 
 /* Global Variables */
 const struct FONT_DEF * font = NULL;
-char font_direction = FONT_DIR_LTR;
+
+struct EXTFONT efont;
+
+FIL file; /* current font file */
 
 /* Exported Functions */
 
+void setIntFont(const struct FONT_DEF * font){
+    memcpy(&efont.def,font,sizeof(struct FONT_DEF));
+    efont.type=FONT_INTERNAL;
+    font=NULL;
+};
+
+void setExtFont(const char *fname){
+    if(strlen(fname)>8+4)
+        return;
+    strcpy(efont.name,fname);
+//    memcpy(efont.name+strlen(fname),".f0n",5);
+
+    efont.type=FONT_EXTERNAL;
+    font=NULL;
+};
+
+
+int _getFontData(int type, int offset){
+    UINT readbytes;
+    UINT res;
+    static uint16_t extras;
+    static uint16_t character;
+    static const void * ptr;
+
+    if(efont.type == FONT_EXTERNAL){
+
+    if (type == START_FONT){
+        res = f_read(&file, &efont.def.u8Width, sizeof(uint8_t), &readbytes);
+        res = f_read(&file, &efont.def.u8Height, sizeof(uint8_t), &readbytes);
+        res = f_read(&file, &efont.def.u8FirstChar, sizeof(uint8_t), &readbytes);
+        res = f_read(&file, &efont.def.u8LastChar, sizeof(uint8_t), &readbytes);
+        res = f_read(&file, &extras, sizeof(uint16_t), &readbytes);
+        return 0;
+    };
+    if (type == SEEK_EXTRAS){
+        f_lseek(&file,6);
+        return 0;
+    };
+    if(type == GET_EXTRAS){
+        uint16_t word;
+        res = f_read(&file, &word, sizeof(uint16_t), &readbytes);
+        return word;
+    };
+    if (type == SEEK_WIDTH){
+        f_lseek(&file,6+(extras*sizeof(uint16_t)));
+        return 0;
+    };
+    if(type == GET_WIDTH || type == GET_DATA){
+        uint8_t width;
+        res = f_read(&file, &width, sizeof(uint8_t), &readbytes);
+        return width;
+    };
+    if(type == SEEK_DATA){
+        character=offset;
+        f_lseek(&file,6+
+                (extras*sizeof(uint16_t))+
+                ((extras+font->u8LastChar-font->u8FirstChar)*sizeof(uint8_t))+
+                (offset*sizeof(uint8_t))
+                );
+        return 0;
+    };
+    if(type == PEEK_DATA){
+        uint8_t width;
+        res = f_read(&file, &width, sizeof(uint8_t), &readbytes);
+        f_lseek(&file,6+
+                (extras*sizeof(uint16_t))+
+                ((extras+font->u8LastChar-font->u8FirstChar)*sizeof(uint8_t))+
+                (character*sizeof(uint8_t))
+                );
+        return width;
+    };
+#ifdef NOTYET
+    }else{ // efont.type==FONT_INTERNAL
+
+        if (type == START_FONT){
+            memcpy(&efont.def,font,sizeof(struct FONT_DEF));
+            return 0;
+        };
+        if (type == SEEK_EXTRAS){
+            ptr=efont.def.charExtra;
+            return 0;
+        };
+        if(type == GET_EXTRAS){
+            uint16_t word;
+            word=*(uint16_t*)ptr;
+            ptr=((uint16_t*)ptr)+1;
+            return word;
+        };
+        if (type == SEEK_WIDTH){
+            ptr=efont.def.charInfo;
+            return 0;
+        };
+        if(type == GET_WIDTH || type == GET_DATA){
+            uint8_t width;
+            width=*(uint8_t*)ptr;
+            ptr=((uint8_t*)ptr)+1;
+            return width;
+        };
+        if(type == SEEK_DATA){
+            if(offset==REPEAT_LAST_CHARACTER)
+                offset=character;
+            else
+                character=offset;
+
+            ptr=efont.def.au8FontTable;
+            return 0;
+        };
+#endif
+    };
+
+    /* NOTREACHED */
+    return 0;
+};
+
+int _getIndex(int c){
+#define ERRCHR (font->u8FirstChar+1)
+    /* Does this font provide this character? */
+    if(c<font->u8FirstChar)
+        c=ERRCHR;
+    if(c>font->u8LastChar && efont.type!=FONT_EXTERNAL && font->charExtra == NULL)
+        c=ERRCHR;
+
+    if(c>font->u8LastChar && (efont.type==FONT_EXTERNAL || font->charExtra != NULL)){
+        if(efont.type==FONT_EXTERNAL){
+            _getFontData(SEEK_EXTRAS,0);
+            int cc=0;
+            int cache;
+            while( (cache=_getFontData(GET_EXTRAS,0)) < c)
+                cc++;
+            if( cache > c)
+                c=ERRCHR;
+            else
+                c=font->u8LastChar+cc+1;
+        }else{
+            int cc=0;
+            while( font->charExtra[cc] < c)
+                cc++;
+            if(font->charExtra[cc] > c)
+                c=ERRCHR;
+            else
+                c=font->u8LastChar+cc+1;
+        };
+    };
+    c-=font->u8FirstChar;
+    return c;
+};
+
+uint8_t charBuf[MAXCHR];
+
 int DoChar(int sx, int sy, int c){
+
+//    font=NULL;
+    if(font==NULL){
+        if(efont.type==FONT_INTERNAL){
+            font=&efont.def;
+        }else if (efont.type==FONT_EXTERNAL){
+            UINT res;
+            res=f_open(&file, efont.name, FA_OPEN_EXISTING|FA_READ);
+            if(res){
+                efont.type=0;
+                font=&Font_7x8;
+            }else{
+                _getFontData(START_FONT,0);
+                font=&efont.def;
+            };
+        }else{
+            font=&Font_7x8;
+        };
+    };
 
 	/* how many bytes is it high? */
 	char height=(font->u8Height-1)/8+1;
@@ -18,49 +195,76 @@ int DoChar(int sx, int sy, int c){
 	const uint8_t * data;
     int width,preblank=0,postblank=0; 
     do { /* Get Character data */
-        /* Does this font provide this character? */
-        if(c<font->u8FirstChar)
-            c=font->u8FirstChar+1; // error
-        if(c>font->u8LastChar && font->charExtra == NULL)
-            c=font->u8FirstChar+1; // error
-
-        if(c>font->u8LastChar && font->charExtra != NULL){
-            int cc=0;
-            while( font->charExtra[cc] < c)
-                cc++;
-            if(font->charExtra[cc] > c)
-                c=font->u8FirstChar+1; // error
-            else
-                c=font->u8LastChar+cc+1;
-        };
+        /* Get intex into character list */
+        c=_getIndex(c);
 
         /* starting offset into character source data */
         int toff=0;
 
         if(font->u8Width==0){
-            for(int y=0;y<c-font->u8FirstChar;y++)
-                toff+=font->charInfo[y].widthBits;
-            width=font->charInfo[c-font->u8FirstChar].widthBits;
+            if(efont.type == FONT_EXTERNAL){
+                _getFontData(SEEK_WIDTH,0);
+                for(int y=0;y<c;y++)
+                    toff+=_getFontData(GET_WIDTH,0);
+                width=_getFontData(GET_WIDTH,0);
 
-            toff*=height;
-            data=&font->au8FontTable[toff];
+                _getFontData(SEEK_DATA,toff);
+                UINT res;
+                UINT readbytes;
+                res = f_read(&file, charBuf, width*height, &readbytes);
+                if(res != FR_OK || readbytes<width*height)
+                    return sx;
+                data=charBuf;
+            }else{
+                for(int y=0;y<c;y++)
+                    toff+=font->charInfo[y].widthBits;
+                width=font->charInfo[c].widthBits;
+
+                toff*=height;
+                data=&font->au8FontTable[toff];
+            };
             postblank=1;
         }else if(font->u8Width==1){ // NEW CODE
-            // Find offset and length for our character
-            for(int y=0;y<c-font->u8FirstChar;y++)
-                toff+=font->charInfo[y].widthBits;
-            width=font->charInfo[c-font->u8FirstChar].widthBits;
-
-            if(font->au8FontTable[toff]>>4 == 15){ // It's a raw character!
-                preblank = font->au8FontTable[toff+1];
-                postblank= font->au8FontTable[toff+2];
-                data=&font->au8FontTable[toff+3];
-                width=(width-3/height);
+            if(efont.type == FONT_EXTERNAL){
+                _getFontData(SEEK_WIDTH,0);
+                for(int y=0;y<c;y++)
+                    toff+=_getFontData(GET_WIDTH,0);
+                width=_getFontData(GET_WIDTH,0);
+                _getFontData(SEEK_DATA,toff);
+                UINT res;
+                UINT readbytes;
+                uint8_t testbyte;
+                res = f_read(&file, &testbyte, sizeof(uint8_t), &readbytes);
+                if(testbyte>>4 ==15){
+                    res = f_read(&file, &preblank, sizeof(uint8_t), &readbytes);
+                    res = f_read(&file, &postblank, sizeof(uint8_t), &readbytes);
+                    width-=3;
+                    width/=height;
+                    res = f_read(&file, charBuf, width*height, &readbytes);
+                    if(res != FR_OK || readbytes<width*height)
+                        return sx;
+                    data=charBuf;
+                }else{
+                    _getFontData(SEEK_DATA,toff);
+                    data=pk_decode(NULL,&width); // Hackety-hack
+                };
             }else{
-                data=pk_decode(&font->au8FontTable[toff],&width);
-            }
+                // Find offset and length for our character
+                for(int y=0;y<c;y++)
+                    toff+=font->charInfo[y].widthBits;
+                width=font->charInfo[c].widthBits;
+                if(font->au8FontTable[toff]>>4 == 15){ // It's a raw character!
+                    preblank = font->au8FontTable[toff+1];
+                    postblank= font->au8FontTable[toff+2];
+                    data=&font->au8FontTable[toff+3];
+                    width=(width-3/height);
+                }else{
+                    data=pk_decode(&font->au8FontTable[toff],&width);
+                }
+            };
+
         }else{
-            toff=(c-font->u8FirstChar)*font->u8Width*height;
+            toff=(c)*font->u8Width*height;
             width=font->u8Width;
             data=&font->au8FontTable[toff];
         };

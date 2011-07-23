@@ -1,9 +1,6 @@
 #include <fonts.h>
 #include <render.h>
 
-#define MAXCHR (30*20)
-static uint8_t buf[MAXCHR];
-
 	// Local function: Get next nibble.
 	int ctr=0;  // offset for next nibble
 	int hilo=0; // 0= high nibble next, 1=low nibble next
@@ -15,7 +12,11 @@ static uint8_t buf[MAXCHR];
 			ctr++;
 		hilo=1-hilo;
 		if(hilo==1){
-			byte=data[ctr];
+            if(efont.type==FONT_EXTERNAL){
+                byte=_getFontData(GET_DATA,0);
+            }else{
+                byte=data[ctr];
+            };
 			val=byte>>4;
 		}else{
 			val=byte&0x0f;
@@ -44,7 +45,7 @@ uint8_t * pk_decode(const uint8_t * ldata,int * len){
 	int length=*len;      // Length of character bytestream
 	int height;           // Height of character in bytes
 	int hoff;             // bit position for non-integer heights
-	uint8_t * bufptr=buf; // Output buffer for decoded character
+	uint8_t * bufptr=charBuf; // Output buffer for decoded character
 
 	height=(font->u8Height-1)/8+1;
 	hoff=font->u8Height%8;
@@ -55,10 +56,17 @@ uint8_t * pk_decode(const uint8_t * ldata,int * len){
 	int pos=0;    // Decoder internal: current bit position (0..7)
 	int nyb;      // Decoder internal: current nibble / value
 
-	if(data[ctr]>>4 == 14){ // Char starts with 1-bits. 
-		gnn();
-		curbit=1;
-	};
+    if(efont.type==FONT_EXTERNAL){
+        if(_getFontData(PEEK_DATA,0)>>4 == 14){ // Char starts with 1-bits. 
+            gnn();
+            curbit=1;
+        };
+    }else{
+        if(data[ctr]>>4 == 14){ // Char starts with 1-bits. 
+            gnn();
+            curbit=1;
+        };
+    };
 
 	while(ctr<length){ /* Iterate the whole input stream */
 
@@ -89,14 +97,14 @@ uint8_t * pk_decode(const uint8_t * ldata,int * len){
 				*bufptr|=1<<(7-pos);
 			};
 			pos++;
-			if(((bufptr-buf)%height)==(height-1) && (pos==hoff)){
+			if(((bufptr-charBuf)%height)==(height-1) && (pos==hoff)){
 				// Finish incomplete last byte per column
 				pos=8;
 			};
 
 			if(pos==8){
 				bufptr++;
-				if((bufptr-buf)%height==0){ // End of column?
+				if((bufptr-charBuf)%height==0){ // End of column?
 					while(repeat>0){
 						for(int y=0;y<height;y++){
 							bufptr[0]=bufptr[-height];
@@ -111,6 +119,6 @@ uint8_t * pk_decode(const uint8_t * ldata,int * len){
 		curbit=1-curbit;
 	};
 		
-	*len=(bufptr-buf)/height; // return size of output buffer.
-	return buf;
+	*len=(bufptr-charBuf)/height; // return size of output buffer.
+	return charBuf;
 };
