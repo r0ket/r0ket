@@ -63,6 +63,7 @@ int filetransfer_receive(uint8_t *mac, uint32_t const k[4])
 {
     uint8_t buf[MAXSIZE+1];
     uint16_t size;
+    uint8_t n;
 
     UINT written = 0;
     FIL file;
@@ -73,7 +74,9 @@ int filetransfer_receive(uint8_t *mac, uint32_t const k[4])
     uint8_t metadata[32];
 
     //nrf_set_rx_mac(0, 32, 5, mac);
-    nrf_rcv_pkt_time_encr(3000, 32, metadata, k);
+    n = nrf_rcv_pkt_time_encr(3000, 32, metadata, k);
+    if( n != 32 )
+        return 1;       //timeout
     //nrf_set_rx_mac(0, 32, 5, macbuf);
     //lcdPrintln("got meta"); lcdRefresh();
     metadata[19] = 0; //enforce termination
@@ -83,7 +86,7 @@ int filetransfer_receive(uint8_t *mac, uint32_t const k[4])
     if( size > MAXSIZE ) return 1; //file to big
     //if(fileexists(metadata)) return 1;   //file already exists
     
-    lcdPrint("open"); lcdPrintln((const char*)metadata); lcdRefresh();
+    //lcdPrint("open"); lcdPrintln((const char*)metadata); lcdRefresh();
     res = f_open(&file, (const char*)metadata, FA_OPEN_ALWAYS|FA_WRITE);
 
     //lcdPrintln("file opened"); lcdRefresh();
@@ -94,9 +97,18 @@ int filetransfer_receive(uint8_t *mac, uint32_t const k[4])
     uint16_t wordcount = (size+3)/4;
     
     //nrf_set_rx_mac(0, 32, 5, mac);
-    lcdPrintln("get file"); lcdRefresh();
-    rftransfer_receive(buf, wordcount*4, 1000);
-    lcdPrintln("got file"); lcdRefresh();
+    //lcdPrintln("get file"); lcdRefresh();
+    int fres = rftransfer_receive(buf, wordcount*4, 1000);
+    if( fres == -1 ){
+        lcdPrintln("checksum wrong");
+    }else if( fres == -2 ){
+        lcdPrintln("timeout");
+    }else{
+        //lcdPrintln("got file");
+    }
+    lcdRefresh();
+    if( fres < 0 )
+        return;
     //nrf_set_rx_mac(0, 32, 5, macbuf);
 
     xxtea_decode_words((uint32_t *)buf, wordcount, k);
@@ -107,6 +119,8 @@ int filetransfer_receive(uint8_t *mac, uint32_t const k[4])
         return res;
     if( written != size )
         return 1;           //error while writing
+    lcdClear();
+    lcdPrintln("Received"); lcdPrintln((const char*)metadata); lcdRefresh();
 
     return 0;
 }

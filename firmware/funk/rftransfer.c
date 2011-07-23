@@ -16,7 +16,6 @@ void rftransfer_send(uint16_t size, uint8_t *data)
     buf[3] = rand >> 8;
     buf[4] = rand & 0xFF;
 
-    //nrf_snd_pkt_crc(5,buf);     //setup packet
     nrf_snd_pkt_crc(32,buf);     //setup packet
     delayms(20);
     uint16_t index = 0;
@@ -42,13 +41,11 @@ void rftransfer_send(uint16_t size, uint8_t *data)
     buf[2] = crc & 0xFF;
     buf[3] = rand >> 8;
     buf[4] = rand & 0xFF;
-    //nrf_snd_pkt_crc(5,buf);     //crc packet
     nrf_snd_pkt_crc(32,buf);     //setup packet
     delayms(20);
-    lcdPrint("crc="); lcdPrintIntHex(crc);lcdPrintln("");lcdRefresh();
 }
 
-uint16_t rftransfer_receive(uint8_t *buffer, uint16_t maxlen, uint16_t timeout)
+int16_t rftransfer_receive(uint8_t *buffer, uint16_t maxlen, uint16_t timeout)
 {
     uint8_t buf[MAXPACKET];
     uint8_t state = 0;
@@ -57,7 +54,7 @@ uint16_t rftransfer_receive(uint8_t *buffer, uint16_t maxlen, uint16_t timeout)
     unsigned int currentTick = systickGetTicks();
     unsigned int startTick = currentTick;
     
-    while(currentTick < (startTick+timeout) ){//this fails if either overflows
+    while(systickGetTicks() < (startTick+timeout) ){//this fails if either overflows
         n = nrf_rcv_pkt_time(1000, MAXPACKET, buf);
         switch(state){
             case 0:
@@ -67,49 +64,45 @@ uint16_t rftransfer_receive(uint8_t *buffer, uint16_t maxlen, uint16_t timeout)
                     seq = 0;
                     pos = 0;
                     if( size <= maxlen ){
-                        lcdClear();
-                        lcdPrint("got l="); lcdPrintInt(size);
-                        lcdPrintln(""); lcdRefresh();
+                        //lcdClear();
+                        //lcdPrint("got l="); lcdPrintInt(size);
+                        //lcdPrintln(""); lcdRefresh();
                         state = 1;
                     }
                 }
             break;
             case 1:
                 if( n == 32 && buf[0] == 'D' && ((buf[3]<<8)|buf[4])==rand ){
-                    lcdPrint("got d"); lcdRefresh();
+                    //lcdPrint("got d"); lcdRefresh();
                     if( seq == ((buf[1]<<8)|buf[2]) ){
-                        lcdPrintln(" in seq"); lcdRefresh();
-                        //if( (pos + n - 5)<maxlen ){
-                            //for(i=5; i<n; i++,pos++){
+                        //lcdPrintln(" in seq"); lcdRefresh();
                             for(i=5; i<n-2 && pos<size; i++,pos++){
                                 buffer[pos] = buf[i];
                             }
                             seq++;
-                        //}
                     }
                 }
                 if( pos == size ){
-                    lcdPrintln("got all"); lcdRefresh();
+                    //lcdPrintln("got all"); lcdRefresh();
                     crc = crc16(buffer, size);
-                    lcdPrint("crc="); lcdPrintIntHex(crc);
-                    lcdPrintln("");lcdRefresh();
                     state = 2;
                 }
             break;
             case 2:
                 if( n == 32 && buf[0] == 'C' && ((buf[3]<<8)|buf[4])==rand){
-                    lcdPrint("got crc"); lcdRefresh();
+                    //lcdPrint("got crc"); lcdRefresh();
                     if( crc == ((buf[1]<<8)|buf[2]) ){
-                        lcdPrintln(" ok"); lcdRefresh();
+                        //lcdPrintln(" ok"); lcdRefresh();
                         return size;
                     }else{
-                        lcdPrintln(" nok"); lcdRefresh();
-                        state = 0;
+                        //lcdPrintln(" nok"); lcdRefresh();
+                        return -1;
                     }
                 }
             break;
         };
     }
-    return 0;
+    //lcdPrintln("Timeout"); lcdRefresh();
+    return -2;
 }
 
