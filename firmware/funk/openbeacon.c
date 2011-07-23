@@ -96,7 +96,7 @@ uint8_t openbeaconSend(void)
     status = openbeaconSendPacket(oid, seq, 0xFF, strength++);
     if( strength == 4 )
         strength = 0;
-    if( seq++ & OPENBEACON_SAVE == OPENBEACON_SAVE )
+    if( (seq++ & OPENBEACON_SAVE) == OPENBEACON_SAVE )
         openbeaconSaveBlock();
     return status;
 }

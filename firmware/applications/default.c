@@ -5,6 +5,7 @@
 #include "lcd/fonts/smallfonts.h"
 #include "lcd/print.h"
 #include "filesystem/ff.h"
+#include "basic/random.h"
 
 /**************************************************************************/
 
@@ -92,6 +93,7 @@ int lcdInitConfig(){
 
 void main_default(void) {
     systickInit(10);
+    randomInit();
 
     if(getInputRaw()==BTN_ENTER){
         ISPandReset();

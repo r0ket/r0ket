@@ -12,7 +12,7 @@ void rftransfer_send(uint16_t size, uint8_t *data)
     buf[1] = size >> 8;
     buf[2] = size & 0xFF;
 
-    uint16_t rand = 5; //random_rand16();
+    uint16_t rand = random() & 0xFFFF;
     buf[3] = rand >> 8;
     buf[4] = rand & 0xFF;
 

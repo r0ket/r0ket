@@ -16,6 +16,7 @@ OBJS += menu.o
 OBJS += xxtea.o
 OBJS += ecc.o
 OBJS += byteorder.o
+OBJS += random.o
 
 LIBNAME=basic
 
