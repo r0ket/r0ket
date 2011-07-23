@@ -13,29 +13,15 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "ecc.h"
+#include "random.h"
 
 exp_t base_order;
 elem_t poly;                                      /* the reduction polynomial */
 elem_t coeff_b, base_x, base_y;
 
-static int xrandm=100000000;
-static int xrandm1=10000;
-static int xrandb1=51723621;
-
-int xmult(int p,int q)
-{
-int p1,p0,q1,q0;
-
-p1=p/xrandm1; p0=p%xrandm1;
-q1=q/xrandm1; q0=q%xrandm1;
-return (((p0*q1+p1*q0)%xrandm1)*xrandm1+p0*q0)%xrandm;
-}
-
 unsigned char rnd1()
 {
-static int a=123456789;
-a = (xmult(a,xrandb1)+1)%xrandm;
-return a & 0xff;
+    return random() & 0xFF;
 }
 
 
