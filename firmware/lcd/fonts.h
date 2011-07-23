@@ -20,17 +20,19 @@ struct FONT_DEF {
     const uint16_t *charExtra;      /* Pointer to array of extra char info  */
 };
 
+struct EXTFONT {
+    char type; // 0: none, 1: static, 2: loaded
+    char name[13];
+    struct FONT_DEF def;
+};
+
 typedef const struct FONT_DEF * FONT;
 
-/* interesting / exported stuff */
-
-#define FONT_DIR_LTR  0
-#define FONT_DIR_RTL  1
-// Not implemented
-// #define FONT_DIR_UP   2
-// #define FONT_DIR_DOWN 3
+#define FONT_DEFAULT 0
+#define FONT_INTERNAL 1
+#define FONT_EXTERNAL 2
 
 extern const struct FONT_DEF * font;
-extern char font_direction;
+extern struct EXTFONT efont;
 
 #endif

@@ -2,6 +2,7 @@
 #define __RENDER_H_
 
 #include "display.h"
+#include "fonts.h"
 
 /*
 #badge    <s> 96x68
@@ -33,5 +34,21 @@ int DoIntXn(int sx, int sy, unsigned int num, unsigned int maxlen);
 int DoIntX(int sx, int sy, unsigned int num);
 int DoCharX(int sx, int sy, unsigned char num);
 int DoShortX(int sx, int sy, uint16_t num);
+void setIntFont(const struct FONT_DEF * font);
+void setExtFont(const char *file);
+
+#define START_FONT 0
+#define SEEK_EXTRAS 1
+#define GET_EXTRAS 2
+#define SEEK_WIDTH 3
+#define GET_WIDTH 4
+#define SEEK_DATA 5
+#define GET_DATA 6
+#define PEEK_DATA 7
+
+int _getFontData(int type, int offset);
+
+#define MAXCHR (30*20)
+extern uint8_t charBuf[MAXCHR];
 
 #endif

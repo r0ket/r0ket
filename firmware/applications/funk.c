@@ -227,7 +227,7 @@ void main_funk(void) {
     backlightInit();
     font=&Font_7x8;
 
-    openbeaconSetup(0x5ec);
+    openbeaconSetup();
     while (1) {
         lcdFill(0); // clear display buffer
         lcdDisplay();

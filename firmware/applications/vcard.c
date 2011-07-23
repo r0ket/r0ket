@@ -58,7 +58,6 @@ int receiveKey(uint8_t type, uint8_t *x, uint8_t *y)
     uint8_t n;
     
     n = nrf_rcv_pkt_time(1000, 32, buf);
-    lcdPrint("pkt:"); lcdPrintInt(n);lcdPrintln(""); lcdRefresh();
     if( n == 32 && buf[0] == type && buf[1] == 'X' ){
         for(int i=0; i<NUMWORDS*4; i++)
             x[i] = buf[i+2];
@@ -116,7 +115,7 @@ int sendKeys(void)
     char key;
     while( !done ){
         lcdClear();
-        lcdPrintln("Sending key");lcdRefresh();
+        lcdPrintln("Sending PUBKEY");lcdRefresh();
         sendPublicKey(Px,Py);
         sendMac();
         lcdPrintln("Done");
@@ -146,7 +145,7 @@ int receiveKeys(uint8_t *px, uint8_t *py, uint8_t *mac)
     char key;
     while( !done ){
         lcdClear();
-        lcdPrintln("Receiving key");
+        lcdPrintln("Recv. PUBKEY");
         lcdPrintln("Down=Abort");
         lcdRefresh();
         key = getInput();
@@ -156,11 +155,11 @@ int receiveKeys(uint8_t *px, uint8_t *py, uint8_t *mac)
         }
         if( receivePublicKey(px,py) )
             continue;
-        lcdPrintln("Got PUBKEY");
-        lcdRefresh(); 
         if( receiveMac(mac) )
             continue;
-        lcdPrintln("Done");
+        lcdClear();
+        lcdPrintln("Got PUBKEY"); lcdRefresh(); 
+        lcdPrintln("Hash:");
         lcdPrintln("Right=OK");
         lcdPrintln("Left=Retry");
         lcdPrintln("Down=Abort");
@@ -203,27 +202,16 @@ void receiveFile(void)
         }
         if( receiveR(rx,ry) )
             continue;
-        lcdPrintln("Got R");
+        lcdPrintln("Creating key");
         lcdRefresh();
         ECIES_decryptkeygen(rx, ry, k1, k2, Priv);
-        #if 0
-        lcdClear();
-        for(int i=0; i<16; i++){
-            lcdPrintCharHex(k1[i]);
-            if((i+1)%4==0)
-                lcdPrintln("");
-        }
-        lcdRefresh();
-        #else
-        uint32_t k[4] = {0xffff,0xffff,0xffff,0xffff};
-        if( filetransfer_receive(mac,(uint32_t*)k) )
+        if( filetransfer_receive(mac,(uint32_t*)k1) < 0 )
             continue;
-        lcdPrintln("Done");
         lcdPrintln("Right=OK");
         lcdPrintln("Left=Retry");
         lcdPrintln("Down=Abort");
         lcdRefresh();
-        #endif
+
         while(1){
             key = getInput();
             delayms(20);
@@ -237,7 +225,6 @@ void receiveFile(void)
             }
         }
     }
-
 }
 
 void sendFile(char *filename)
@@ -252,31 +239,20 @@ void sendFile(char *filename)
     uint8_t key;
 
     uint8_t k1[16], k2[16], rx[4*NUMWORDS], ry[4*NUMWORDS];
+    
+    lcdClear();
+    lcdPrintln("Creating key"); lcdRefresh();
     ECIES_encyptkeygen(px, py, k1, k2, rx, ry);
     
     while( !done ){
-        lcdClear();
         lcdPrintln("Sending file");lcdRefresh();
         sendR(rx,ry);
-        lcdPrintln("Sent R");
-        lcdRefresh();
-        #if 0
-        lcdClear();
-        for(int i=0; i<16; i++){
-            lcdPrintCharHex(k1[i]);
-            if((i+1)%4==0)
-                lcdPrintln("");
-        }
-        #else
         delayms(3000);
-        uint32_t k[4] = {0xffff,0xffff,0xffff,0xffff};
-        filetransfer_send((uint8_t*)filename, 0, mac, (uint32_t*)k);
+        filetransfer_send((uint8_t*)filename, 0, mac, (uint32_t*)k1);
         lcdPrintln("Done");
         lcdPrintln("Right=OK");
         lcdPrintln("Left=Retry");
-        #endif
         lcdRefresh();
-
         while(1){
             key = getInput();
             delayms(20);
@@ -286,7 +262,8 @@ void sendFile(char *filename)
                 done = 1;
                 break;
             }
-        }
+        } 
+        lcdClear();
     }
 }
 
@@ -307,45 +284,25 @@ void main_vcard(void) {
     while (1) {
         key= getInput();
         delayms(20);
-
         // Easy flashing
         if(key==BTN_LEFT){
             DoString(0,8,"Enter ISP!");
             lcdDisplay();
             ISPandReset();
         }else if(key==BTN_UP){
-            //lcdClear();
-            //lcdPrintln("Generating...");
-            //lcdRefresh();
             char file[13];
             selectFile(file,"TXT");
             sendFile(file);
-            //uint8_t k1[16], k2[16], Rx[4*NUMWORDS], Ry[4*NUMWORDS];
-            //ECIES_encyptkeygen("1c56d302cf642a8e1ba4b48cc4fbe2845ee32dce7",
-            //                "45f46eb303edf2e62f74bd68368d979e265ee3c03",
-            //                k1, k2, Rx, Ry);
-            //nrf_snd_pkt_crc(30, k1); 
-            lcdPrintln("Done");
-            lcdRefresh();
         }else if(key==BTN_DOWN){
-            lcdClear();
-            lcdPrintln("Generating...");
-            lcdRefresh();
             receiveFile();
-            //uint8_t k1[16], k2[16], Rx[4*NUMWORDS], Ry[4*NUMWORDS];
-            //ECIES_encyptkeygen("1c56d302cf642a8e1ba4b48cc4fbe2845ee32dce7",
-            //                "45f46eb303edf2e62f74bd68368d979e265ee3c03",
-            //                k1, k2, Rx, Ry);
-            //nrf_snd_pkt_crc(30, k1); 
-            lcdPrintln("Done");
-            lcdRefresh();
         }else if(key==BTN_RIGHT){
+            DoString(0,8,"MSC Enabled.");
+            lcdDisplay();
+            usbMSCInit();
+            while(!getInputRaw())delayms(10);
+            DoString(0,16,"MSC Disabled.");
+            usbMSCOff();
         }
-
-                //encryption_decryption_demo("This is encrypted",
-        //                "1c56d302cf642a8e1ba4b48cc4fbe2845ee32dce7", 
-        //                "45f46eb303edf2e62f74bd68368d979e265ee3c03",
-        //                "0e10e787036941e6c78daf8a0e8e1dbfac68e26d2");
     }
 }
 
