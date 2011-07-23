@@ -27,10 +27,13 @@
 #define FLAME_I2C_LS0_LED2	0x04
 #define FLAME_I2C_LS0_LED3	0x06
 
+#define FLAME_OFF		0x00
 #define FLAME_UP		0x01
 #define FLAME_UP_WAIT		0x02
 #define FLAME_DOWN		0x03
 #define FLAME_DOWN_WAIT		0x04
+
+uint8_t isNight = 1; //TODO SEC implement me
 
 void ReinvokeISP(void);
 
@@ -46,13 +49,20 @@ void flameSetI2C(uint8_t cr, uint8_t value) {
 }
 
 
-uint8_t flameMode = FLAME_UP;
+uint8_t flameMode = FLAME_OFF;
 uint8_t flameI2Csend = 0;
 uint8_t flameI2Cpwm = 0;
 uint16_t flameTicks = 0;
 
 void tick_flame(void) { // every 10ms
     flameTicks++;
+
+    if (flameMode == FLAME_OFF) {
+	if (isNight == 1) {
+	    flameTicks = 0;
+	    flameMode = FLAME_UP;
+	}
+    }
 
     if (flameMode == FLAME_UP) {
 	flameI2Cpwm++;
@@ -64,7 +74,7 @@ void tick_flame(void) { // every 10ms
     }
 
     if (flameMode == FLAME_UP_WAIT) {
-	if (flameTicks > 0x1FF) {
+	if (flameTicks > 0xFF) {
 	    flameMode = FLAME_DOWN;
 	}
     }
@@ -79,8 +89,8 @@ void tick_flame(void) { // every 10ms
     }
 
     if (flameMode == FLAME_DOWN_WAIT) {
-	if (flameTicks > 0xFF) {
-	    flameMode = FLAME_UP;
+	if (flameTicks > 0x8F) {
+	    flameMode = FLAME_OFF;
 	}
     }
 }
