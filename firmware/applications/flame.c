@@ -33,8 +33,6 @@
 #define FLAME_DOWN		0x03
 #define FLAME_DOWN_WAIT		0x04
 
-uint8_t isNight = 1; //TODO SEC implement me
-
 void ReinvokeISP(void);
 
 /**************************************************************************/
@@ -58,7 +56,7 @@ void tick_flame(void) { // every 10ms
     flameTicks++;
 
     if (flameMode == FLAME_OFF) {
-	if (isNight == 1) {
+	if (isNight()) {
 	    flameTicks = 0;
 	    flameMode = FLAME_UP;
 	}
@@ -108,7 +106,7 @@ void main_flame(void) {
         
 	if (flameI2Csend == 1) {
 	    flameI2Csend = 0;
-	    flameSetI2C(FLAME_I2C_CR_PWM0, flameI2Cpwm); // set pwm	    
+	    flameSetI2C(FLAME_I2C_CR_PWM0, flameI2Cpwm); // set pwm
 	}
 
 	char key = getInput();
