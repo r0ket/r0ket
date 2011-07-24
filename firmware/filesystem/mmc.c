@@ -145,7 +145,7 @@ BYTE wait_ready (void)
 /*-----------------------------------------------------------------------*/
 
 static
-void deselect (void)
+void mmc_deselect (void)
 {
 	CS_HIGH();
 	rcvr_spi();
@@ -158,11 +158,11 @@ void deselect (void)
 /*-----------------------------------------------------------------------*/
 
 static
-BOOL select (void)	/* TRUE:Successful, FALSE:Timeout */
+BOOL mmc_select (void)	/* TRUE:Successful, FALSE:Timeout */
 {
 	CS_LOW();
 	if (wait_ready() != 0xFF) {
-		deselect();
+		mmc_deselect();
 		return FALSE;
 	}
 	return TRUE;
@@ -283,8 +283,8 @@ BYTE send_cmd (
 	}
 
 	/* Select the card and wait for ready */
-	deselect();
-	if (!select()) return 0xFF;
+	mmc_deselect();
+	if (!mmc_select()) return 0xFF;
 
 	/* Send command packet */
 	xmit_spi(cmd);						/* Start + Command index */
@@ -363,7 +363,7 @@ DSTATUS mmc_initialize ()
 		}
 	}
 	CardType = ty;
-	deselect();
+	mmc_deselect();
 
 	if (ty) {			/* Initialization succeded */
 		Stat &= ~STA_NOINIT;		/* Clear STA_NOINIT */
@@ -417,7 +417,7 @@ DRESULT mmc_read (
 			send_cmd(CMD12, 0);				/* STOP_TRANSMISSION */
 		}
 	}
-	deselect();
+	mmc_deselect();
 
 	return count ? RES_ERROR : RES_OK;
 }
@@ -457,7 +457,7 @@ DRESULT mmc_write (
 				count = 1;
 		}
 	}
-	deselect();
+	mmc_deselect();
 
 	return count ? RES_ERROR : RES_OK;
 }
@@ -505,9 +505,9 @@ DRESULT mmc_ioctl (
 
 		switch (ctrl) {
 		case CTRL_SYNC :		/* Make sure that no pending write process. Do not remove this or written sector might not left updated. */
-			if (select()) {
+			if (mmc_select()) {
 				res = RES_OK;
-				deselect();
+				mmc_deselect();
 			}
 			break;
 
@@ -588,7 +588,7 @@ DRESULT mmc_ioctl (
 			res = RES_PARERR;
 		}
 
-		deselect();
+		mmc_deselect();
 	}
 
 	return res;
