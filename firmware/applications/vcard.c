@@ -18,20 +18,40 @@ FATFS FatFs[_VOLUMES];		/* File system object for logical drive */
 /**************************************************************************/
 
 uint8_t mac[5] = {1,2,3,2,1};
-char *Px = "1c56d302cf642a8e1ba4b48cc4fbe2845ee32dce7";
-char *Py = "45f46eb303edf2e62f74bd68368d979e265ee3c03";
-char *Priv ="0e10e787036941e6c78daf8a0e8e1dbfac68e26d2";
 
-void sendPublicKey(char *px, char *py)
+void sendPublicKey(void)
 {
     uint8_t exp[2 + 4*NUMWORDS + 2];
+    char buf[42];
+    UINT readbytes;
+    FIL file;
+
+    if( f_open(&file, "pubx.key", FA_OPEN_EXISTING|FA_READ) ){
+        return;
+    }
+    if( f_read(&file, buf, 41, &readbytes) || readbytes != 41 ){
+        return;
+    }
+    f_close(&file);
+    buf[41] = 0;
+
     exp[0] = 'P';
-    bitstr_parse_export((char*)exp+2, px);
+    bitstr_parse_export((char*)exp+2, buf);
     exp[1] = 'X';
     nrf_snd_pkt_crc(32, exp);
     delayms(10);
+
+    if( f_open(&file, "puby.key", FA_OPEN_EXISTING|FA_READ) ){
+        return;
+    }
+    if( f_read(&file, buf, 41, &readbytes) || readbytes != 41 ){
+        return;
+    }
+    f_close(&file);
+    buf[41] = 0;
+
     exp[1] = 'Y';
-    bitstr_parse_export((char*)exp+2, py);
+    bitstr_parse_export((char*)exp+2, buf);
     nrf_snd_pkt_crc(32, exp);
     delayms(10);
 }
@@ -116,7 +136,7 @@ int sendKeys(void)
     while( !done ){
         lcdClear();
         lcdPrintln("Sending PUBKEY");lcdRefresh();
-        sendPublicKey(Px,Py);
+        sendPublicKey();
         sendMac();
         lcdPrintln("Done");
         lcdPrintln("Right=OK");
@@ -185,6 +205,19 @@ void receiveFile(void)
     if( sendKeys() )
         return;
 
+    char priv[42];
+    UINT readbytes;
+    FIL file;
+
+    if( f_open(&file, "priv.key", FA_OPEN_EXISTING|FA_READ) ){
+        return;
+    }
+    if( f_read(&file, priv, 41, &readbytes) || readbytes != 41 ){
+        return;
+    }
+    f_close(&file);
+    priv[41] = 0;
+
     uint8_t done = 0;
     uint8_t key;
     uint8_t k1[16], k2[16], rx[4*NUMWORDS], ry[4*NUMWORDS];
@@ -204,7 +237,7 @@ void receiveFile(void)
             continue;
         lcdPrintln("Creating key");
         lcdRefresh();
-        ECIES_decryptkeygen(rx, ry, k1, k2, Priv);
+        ECIES_decryptkeygen(rx, ry, k1, k2, priv);
         if( filetransfer_receive(mac,(uint32_t*)k1) < 0 )
             continue;
         lcdPrintln("Right=OK");
