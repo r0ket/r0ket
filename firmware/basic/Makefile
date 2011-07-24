@@ -17,6 +17,7 @@ OBJS += xxtea.o
 OBJS += ecc.o
 OBJS += byteorder.o
 OBJS += random.o
+OBJS += idle.o
 
 LIBNAME=basic
 

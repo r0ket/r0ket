@@ -15,6 +15,20 @@
 
 /**************************************************************************/
 
+void show_ticks(void) {
+    int dx=0;
+    int dy=8;
+    lcdClear();
+    dx=DoString(0,dy,"Ticks:");
+    while ((getInputRaw())==BTN_NONE){
+        DoInt(0,dy+8,_timectr);
+        lcdDisplay();
+    };
+    dy+=16;
+    dx=DoString(0,dy,"Done.");
+};
+
+
 void adc_light(void) {
     int dx=0;
     int dy=8;

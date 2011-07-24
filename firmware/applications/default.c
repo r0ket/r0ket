@@ -115,6 +115,7 @@ void main_default(void) {
 void tick_default(void) {
     static int ctr;
     ctr++;
+    incTimer();
     if(ctr>100){
         VoltageCheck();
         LightCheck();
@@ -144,3 +145,4 @@ void tick_default(void) {
 
     return;
 };
+

@@ -176,4 +176,9 @@ struct MENU {
 
 
 void handleMenu(const struct MENU *the_menu);
+
+// idle.c
+
+#include "basic/idle.h"
+
 #endif
