@@ -28,3 +28,5 @@ all : simulat0r
 
 simulat0r : simulat0r.o $(OBJS) $(LIBS) 
 
+clean:
+	$(RM) simulat0r.o

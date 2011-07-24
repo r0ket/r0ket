@@ -44,3 +44,11 @@ do
 	(printf "# GENERATED INCLUDE BRIDGE/\n"; echo include `dirname $i | sed "s#[^/]*#..#g" `/../$i) >simulat0r/$i
     fi
 done
+
+if cmp firmware/.gitignore simulat0r/firmware/.gitignore;
+then
+    echo OK .gitignore is the same in firmware/ and simulat0r/firmware
+else
+    echo WARNING: .gitignore mismatch in firmware/ and simulat0r/firmware
+    diff -y firmware/.gitignore simulat0r/firmware/.gitignore
+fi 
