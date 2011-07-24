@@ -19,7 +19,7 @@ void randomInit(void)
     xxtea_encode_words(state, STATE_SIZE, I);
 }
 
-uint32_t random(void)
+uint32_t getRandom(void)
 {
     xxtea_encode_words(state, STATE_SIZE, I);
     return state[0];

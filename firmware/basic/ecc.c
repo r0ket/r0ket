@@ -21,7 +21,7 @@ elem_t coeff_b, base_x, base_y;
 
 unsigned char rnd1()
 {
-    return random() & 0xFF;
+    return getRandom() & 0xFF;
 }
 
 
