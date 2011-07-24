@@ -2,9 +2,9 @@
 
 #include "basic/basic.h"
 
-//#include "lcd/render.h"
+#include "lcd/render.h"
 #include "lcd/display.h"
-//#include "lcd/allfonts.h"
+#include "lcd/allfonts.h"
 
 #define BITSET_X (RESX+2)
 #define BITSET_Y (RESY+2)
@@ -79,7 +79,7 @@ uint32_t sum_area(struct bitset *area, uchar x0, uchar y0, uchar x1, uchar y1) {
 void draw_area() {
   for(uchar x=0; x<RESX; ++x) {
     for(uchar y=0; y<RESY; ++y) {
-      lcdSetPixel(x,y,bitset_get2(life,x+1,y+1));
+      lcdSetPixel(x,y,lcdGetPixel(x,y)^bitset_get2(life,x+1,y+1));
     }
   }
 }
@@ -162,13 +162,18 @@ uchar randdensity=0;
 void main_life(void) {
     backlightInit();
     reset_area();
+
+    lcdFill(0);
+    font = &Font_Orbitron14pt;
+    int dx;
+    dx=DoString(20,20,"NICK");
+
     gpioSetValue (RB_LED0, CFG_LED_ON);
     gpioSetValue (RB_LED1, CFG_LED_ON);
     gpioSetValue (RB_LED2, CFG_LED_ON);
     gpioSetValue (RB_LED3, CFG_LED_ON);
     while (1) {
       //        checkISP();
-        lcdFill(0);
 	uint32_t button=(stepmode?getInputWait():getInput());
 	if(button!=BTN_ENTER) randdensity=0;
 	switch(button) {
@@ -193,8 +198,9 @@ void main_life(void) {
 	  stepmode=1;
 	  break;
 	}
-        draw_area();
+        draw_area(); // xor life pattern over display content
         lcdDisplay();
+        draw_area(); // xor life pattern again to restore original display content
         delayms(10);
 	calc_area();
     }
