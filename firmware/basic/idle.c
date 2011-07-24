@@ -25,7 +25,7 @@ void work_queue(void){
 	elem();
 };
 
-void idle_queue(uint32_t ms){
+void delayms_queue(uint32_t ms){
 	int end=_timectr+ms/10;
 	do {
 		if (the_queue.qstart == the_queue.qend){
@@ -34,6 +34,13 @@ void idle_queue(uint32_t ms){
 			work_queue();
 		};
 	} while (end >_timectr);
+};
+
+void delayms_power(uint32_t ms){
+	do {
+		ms-=10;
+		__asm volatile ("WFI");
+	} while(ms>10);
 };
 
 int push_queue(void (*new)(void)){

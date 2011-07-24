@@ -33,9 +33,9 @@ void s_ticks(void) {
 
 void b_one(void){
     gpioSetValue (RB_LED2, 0); 
-    delayms(100);
+    delayms_power(100);
     gpioSetValue (RB_LED2, 1); 
-    delayms(100);
+    delayms_power(1000);
     gpioSetValue (RB_LED2, 0); 
 };
 
@@ -44,7 +44,7 @@ void do_qone(void) {
 };
 
 void do_q(void) {
-    idle_queue(500);
+    delayms_queue(500);
 };
 
 void push_qone(void) {

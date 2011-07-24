@@ -31,8 +31,13 @@ uint8_t getInput(void) {
     uint8_t key = BTN_NONE;
 
     key=getInputRaw();
+    /* XXX: we should probably debounce the joystick.
+            Any ideas how to do this properly?
+            For now wait for any release.
+     */
     if(key != BTN_NONE)
-        while(key==getInputRaw()); // Wait for any release
+        while(key==getInputRaw())
+            work_queue();
 
     return key;
 }
@@ -41,6 +46,7 @@ uint8_t getInputWait(void) {
     uint8_t key;
     while ((key=getInput())==BTN_NONE)
         work_queue();
+    delayms_queue(10); /* Delay a little more to debounce */
     return key;
 };
 

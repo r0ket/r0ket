@@ -93,7 +93,6 @@ int lcdInitConfig(){
 
 void main_default(void) {
     systickInit(10);
-    randomInit();
 
     if(getInputRaw()==BTN_ENTER){
         ISPandReset();
@@ -105,8 +104,8 @@ void main_default(void) {
         getInputWait();
     }else{
         lcdDisplay();
-        delayms(300);
     };
+    randomInit();
 
     return;
 };
@@ -145,4 +144,3 @@ void tick_default(void) {
 
     return;
 };
-
