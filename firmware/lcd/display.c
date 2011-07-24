@@ -20,7 +20,7 @@ uint32_t intstatus; // Caches USB interrupt state
 #define TYPE_CMD    0
 #define TYPE_DATA   1
 
-static void select() {
+static void lcd_select() {
 #if CFG_USBMSC
     if(usbMSCenabled){
         intstatus=USB_DEVINTEN;
@@ -35,7 +35,7 @@ static void select() {
     gpioSetValue(RB_LCD_CS, 0);
 }
 
-static void deselect() {
+static void lcd_deselect() {
     gpioSetValue(RB_LCD_CS, 1);
     /* reset the bus to 8-Bit frames that everyone else uses */
     uint32_t configReg = ( SSP_SSP0CR0_DSS_8BIT     // Data size = 8-bit
@@ -77,7 +77,7 @@ void lcdInit(void) {
     gpioSetValue(RB_LCD_RST, 1);
     delayms(100);
 
-    select();
+    lcd_select();
 
     lcdWrite(TYPE_CMD,0xE2);
     delayms(5);
@@ -92,7 +92,7 @@ void lcdInit(void) {
     for(i=0; i<100; i++)
         lcdWrite(TYPE_DATA,0x00);
 
-    deselect();
+    lcd_deselect();
 }
 
 void lcdFill(char f){
@@ -130,7 +130,7 @@ bool lcdGetPixel(char x, char y){
 
 void lcdDisplay(void) {
     char byte;
-    select();
+    lcd_select();
 
     lcdWrite(TYPE_CMD,0xB0);
     lcdWrite(TYPE_CMD,0x10);
@@ -150,7 +150,7 @@ void lcdDisplay(void) {
         }
     }
 
-    deselect();
+    lcd_deselect();
 }
 
 inline void lcdInvert(void) {
