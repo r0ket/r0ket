@@ -13,7 +13,9 @@ void work_queue(void){
 	int start;
 
 	if (the_queue.qstart == the_queue.qend){
+#ifdef ARM
 		__asm volatile ("WFI");
+#endif
 		return;
 	};
 
@@ -29,7 +31,9 @@ void delayms_queue(uint32_t ms){
 	int end=_timectr+ms/10;
 	do {
 		if (the_queue.qstart == the_queue.qend){
+#ifdef ARM
 			__asm volatile ("WFI");
+#endif
 		}else{
 			work_queue();
 		};
@@ -39,7 +43,9 @@ void delayms_queue(uint32_t ms){
 void delayms_power(uint32_t ms){
 	do {
 		ms-=10;
+#ifdef ARM
 		__asm volatile ("WFI");
+#endif
 	} while(ms>10);
 };
 
