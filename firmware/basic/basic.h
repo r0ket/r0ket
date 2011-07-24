@@ -152,8 +152,7 @@ uint8_t getInputRaw(void);
 uint8_t getInputWait(void);
 
 //uuid.c
-uint32_t GetUUID32(void);
-uint16_t GetUUID16(void);
+#include "basic/uuid.h"
 
 // for core/iap/iap.c (no official definition)
 void iap_entry(uint32_t param_tab[], uint32_t result_tab[]);
