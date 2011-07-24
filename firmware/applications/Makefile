@@ -58,6 +58,22 @@ $(LOBJ):
 OBJS += $(LOBJ)
 endif
 
+ifeq "$(APP)" "tester"
+TSRCS = $(wildcard $(APP)/*.c)
+TOBJS = $(foreach mod,$(TSRCS),$(subst .c,.o,$(mod)))
+
+TWRAP=tester.gen
+
+.PHONY: $(TWRAP)
+
+$(APP).o: $(TWRAP)
+
+$(TWRAP):
+	./mktester $(TSRCS) > $@
+
+OBJS += $(TOBJS)
+endif
+
 $(LIBFILE): $(OBJS) $(WRAPOBJ)
 	$(AR) rcs $@ $(OBJS) $(WRAPOBJ)
 	
