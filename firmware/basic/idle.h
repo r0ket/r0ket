@@ -16,8 +16,8 @@ extern volatile uint32_t _timectr;
 void work_queue(void);
 void delayms_queue(uint32_t delayms);
 void delayms_power(uint32_t delayms);
-int push_queue(void (*new)(void));
-int magic(void *new);
+int push_queue(void (*qnew)(void));
+int magic(void *qnew);
 #define incTimer(void) do{_timectr++;}while(0);
 
 
