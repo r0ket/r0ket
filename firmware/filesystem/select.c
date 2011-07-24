@@ -20,11 +20,12 @@ int getFiles(char files[][FLEN], uint8_t count, uint16_t skip, char *ext)
         //lcdPrint("OpenDir:"); lcdPrintln(f_get_rc_string(res)); lcdRefresh(); 
         return 0;
     };
-    for(ctr=0;pos<count;ctr++) {
+    ctr=0;
+    while(1){
         res = f_readdir(&dir, &Finfo);
-        if ((res != FR_OK) || !Finfo.fname[0]) break;
-        if( ctr < skip )
-            continue;
+        if ((res != FR_OK) || !Finfo.fname[0])
+            break;
+
         int len=strlen(Finfo.fname);
         int extlen = strlen(ext);
 
@@ -33,7 +34,11 @@ int getFiles(char files[][FLEN], uint8_t count, uint16_t skip, char *ext)
         if (Finfo.fattrib & AM_DIR)
             continue;
 
+        if( ctr++ < skip )
+            continue;
         strcpy(files[pos++],Finfo.fname);
+        if( pos == count )
+            break;
     }
     return pos;
 }
@@ -54,13 +59,15 @@ int selectFile(char *filename, char *extension)
         lcdPrintln("Select file:");
         for(int i=0; i<count; i++){
             if( selected == i )
-                lcdPrint(">");
+                lcdPrint("*");
+            else
+                lcdPrint(" ");
             lcdPrintln(files[i]);
         }
         lcdRefresh();
         key=getInputWait();
         if( key==BTN_DOWN ){
-            if( selected < 6 ){
+            if( selected < count-1 ){
                 selected++;
                 goto redraw;
             }else{
