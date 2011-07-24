@@ -40,7 +40,7 @@ int _getFontData(int type, int offset){
     UINT res;
     static uint16_t extras;
     static uint16_t character;
-    static const void * ptr;
+//    static const void * ptr;
 
     if(efont.type == FONT_EXTERNAL){
 
