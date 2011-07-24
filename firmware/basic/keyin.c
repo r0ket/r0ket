@@ -40,7 +40,7 @@ uint8_t getInput(void) {
 uint8_t getInputWait(void) {
     uint8_t key;
     while ((key=getInput())==BTN_NONE)
-        delayms(10);
+        work_queue();
     return key;
 };
 

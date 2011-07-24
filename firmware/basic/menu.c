@@ -43,7 +43,7 @@ void handleMenu(const struct MENU *the_menu) {
         }
         lcdDisplay();
 
-        switch (getInput()) {
+        switch (getInputWait()) {
             case BTN_UP:
                 menuselection--;
                 if (menuselection < current_offset) {
