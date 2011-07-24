@@ -66,8 +66,6 @@ void main_fs(void) {
 
     backlightInit();
 
-    font_direction = FONT_DIR_LTR; // LeftToRight is the default
-
     while (1) {
         lcdDisplay();
         delayms(10);
