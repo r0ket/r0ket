@@ -67,6 +67,7 @@
 
 static bool _adcInitialised = false;
 static uint8_t _adcLastChannel = 0;
+uint8_t adcMutex = 0;
 
 /**************************************************************************/
 /*! 
@@ -89,6 +90,7 @@ static uint8_t _adcLastChannel = 0;
 /**************************************************************************/
 uint32_t adcRead (uint8_t channelNum)
 {
+  adcMutex = 1;
   if (!_adcInitialised) adcInit();
 
   uint32_t regVal, adcData;
@@ -154,11 +156,13 @@ uint32_t adcRead (uint8_t channelNum)
   /* return 0 if an overrun occurred */
   if ( regVal & ADC_DR_OVERRUN )
   {
+    adcMutex = 0;
     return (1);
   }
 
   /* return conversion results */
   adcData = (regVal >> 6) & 0x3FF;
+  adcMutex = 0;
   return (adcData);
 }
 

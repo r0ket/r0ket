@@ -41,6 +41,7 @@
 
 #include "projectconfig.h"
 
+extern uint8_t adcMutex;
 uint32_t   adcRead (uint8_t channelNum);
 void  adcInit (void);
 
