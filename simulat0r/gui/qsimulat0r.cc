@@ -19,9 +19,28 @@ using namespace std;
 
 extern "C" {
 #include "basic/basic.h"
+
+#define lcdGetPixel __hideaway_lcdGetPixel
 #include "lcd/display.h"
+#undef lcdGetPixel
+
 #include "../simcore/simulator.h"
 extern int lcd_layout;
+
+#define ptrXor(a,b) ((uint8_t*)(((uintptr_t)a)^((uintptr_t)b))) 
+
+uint8_t guiBuffer1[RESX*RESY_B];
+uint8_t guiBuffer2[RESX*RESY_B];
+uint8_t *guiBuffer=guiBuffer1;
+  uint8_t *xorBuffer=ptrXor(guiBuffer1,guiBuffer2);
+
+static  bool lcdGetPixel(char x, char y){
+  char y_byte = (RESY-(y+1)) / 8;
+  char y_off = (RESY-(y+1)) % 8;
+  char byte = guiBuffer[y_byte*RESX+(RESX-(x+1))];
+  return byte & (1 << y_off);
+}
+
 }
 
 time_t starttime;
@@ -181,6 +200,11 @@ public:
 
 extern "C" {
 void simlcdDisplayUpdate() {
+  uint8_t *src=lcdBuffer;
+  uint8_t *dst=ptrXor(guiBuffer,xorBuffer);
+  memcpy(dst,src,RESX*RESY_B);
+  guiBuffer=dst;
+
   hackptr->update();
   usleep(10000);
 }

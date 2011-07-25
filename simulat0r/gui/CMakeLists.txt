@@ -31,6 +31,7 @@ QT_WRAP_CPP(qsimulat0r MocSources ${qsimulat0r_SRCS})
 set(FIRMWARE_OBJS 
 ../simcore/simcore.o
 ../simcore/misc.o
+../simcore/timecounter.o
 )
 
 
