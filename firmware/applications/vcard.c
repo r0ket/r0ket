@@ -303,7 +303,6 @@ void sendFile(char *filename)
 void main_vcard(void) {
     char key;
     nrf_init();
-    f_mount(0, &FatFs[0]);
 
     struct NRF_CFG config = {
         .channel= 81,
@@ -330,6 +329,10 @@ void main_vcard(void) {
             receiveFile();
         }else if(key==BTN_RIGHT){
             DoString(0,8,"MSC Enabled.");
+            DoString(0,8,"MSC Enabled.");
+
+            //DoString(0,8,"MSC Enabled.");
+            
             lcdDisplay();
             usbMSCInit();
             while(!getInputRaw())delayms(10);
