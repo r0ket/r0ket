@@ -19,6 +19,10 @@ LIBS+= ../firmware/usb/libusb.a
 #LIBS += -lm
 LIBS += ../firmware/filesystem/libfat.a
 LIBS += ../firmware/core/libcore.a
+LIBS += ../firmware/funk/libfunk.a
+LIBS += ../firmware/usbcdc/libusbcdc.a
+LIBS += ../firmware/basic/libbasic.a
+
 
 
 OBJS+=../simcore/simcore.o ../simcore/misc.o
