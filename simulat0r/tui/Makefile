@@ -25,7 +25,7 @@ LIBS += ../firmware/basic/libbasic.a
 
 
 
-OBJS+=../simcore/simcore.o ../simcore/misc.o
+OBJS+=../simcore/simcore.o ../simcore/misc.o ../simcore/timecounter.o
 
 .PHONY : all
 all : simulat0r
