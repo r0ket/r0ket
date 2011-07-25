@@ -119,8 +119,10 @@ void tick_default(void) {
         if(!adcMutex){
             VoltageCheck();
             LightCheck();
+            ctr=0;
+        }else{
+            ctr--;
         };
-        ctr--;
     };
 
     if(isNight())
