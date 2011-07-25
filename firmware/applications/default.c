@@ -116,9 +116,11 @@ void tick_default(void) {
     ctr++;
     incTimer();
     if(ctr>100){
-        VoltageCheck();
-        LightCheck();
-        ctr=0;
+        if(!adcMutex){
+            VoltageCheck();
+            LightCheck();
+        };
+        ctr--;
     };
 
     if(isNight())
