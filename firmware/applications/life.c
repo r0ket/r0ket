@@ -2,6 +2,7 @@
 
 #include "basic/basic.h"
 
+#include "lcd/backlight.h"
 #include "lcd/render.h"
 #include "lcd/display.h"
 #include "lcd/allfonts.h"
@@ -165,8 +166,7 @@ void main_life(void) {
 
     lcdFill(0);
     font = &Font_Orbitron14pt;
-    int dx;
-    dx=DoString(20,20,"NICK");
+    DoString(20,20,"NICK");
 
     gpioSetValue (RB_LED0, CFG_LED_ON);
     gpioSetValue (RB_LED1, CFG_LED_ON);
