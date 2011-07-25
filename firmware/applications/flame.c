@@ -37,26 +37,29 @@ void ReinvokeISP(void);
 
 /**************************************************************************/
 
-void flameSetI2C(uint8_t cr, uint8_t value) {
+uint8_t flameEnabled = 0;
+uint8_t flameMode = FLAME_OFF;
+uint8_t flameI2Cpwm = 0;
+uint16_t flameTicks = 0;
+
+uint32_t flameSetI2C(uint8_t cr, uint8_t value) {
     I2CMasterBuffer[0] = FLAME_I2C_WRITE;
     I2CMasterBuffer[1] = cr;
     I2CMasterBuffer[2] = value;
     I2CWriteLength = 3;
     I2CReadLength = 0;
-    i2cEngine();
+    return i2cEngine();
 }
 
-
-uint8_t flameMode = FLAME_OFF;
-uint8_t flameI2Csend = 0;
-uint8_t flameI2Cpwm = 0;
-uint16_t flameTicks = 0;
+void setFlamePWM() {
+    flameSetI2C(FLAME_I2C_CR_PWM0, flameI2Cpwm); // set pwm
+}
 
 void tick_flame(void) { // every 10ms
     flameTicks++;
 
     if (flameMode == FLAME_OFF) {
-	if (isNight()) {
+	if (isNight() && flameEnabled) {
 	    flameTicks = 0;
 	    flameMode = FLAME_UP;
 	}
@@ -64,7 +67,7 @@ void tick_flame(void) { // every 10ms
 
     if (flameMode == FLAME_UP) {
 	flameI2Cpwm++;
-	flameI2Csend = 1;
+	push_queue(&setFlamePWM);
 	if (flameI2Cpwm == 0xFF) {
 	    flameMode = FLAME_UP_WAIT;
 	    flameTicks = 0;
@@ -79,7 +82,7 @@ void tick_flame(void) { // every 10ms
 
     if (flameMode == FLAME_DOWN) {
 	flameI2Cpwm--;
-	flameI2Csend = 1;
+	push_queue(&setFlamePWM);
 	if (flameI2Cpwm == 0x00) {
 	    flameMode = FLAME_DOWN_WAIT;
 	    flameTicks = 0;
@@ -97,18 +100,20 @@ void main_flame(void) {
 
     i2cInit(I2CMASTER); // Init I2C
 
-    flameSetI2C(FLAME_I2C_CR_PSC0, 0x00); // set prescaler
-    flameSetI2C(FLAME_I2C_CR_PWM0, 0x00); // set pwm
-    flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_PWM0 << FLAME_I2C_LS0_LED0); // set led0 to pwm
+    flameEnabled = (flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_OFF << FLAME_I2C_LS0_LED0) == I2CSTATE_ACK); // probe i2c
+
+    if (flameEnabled) {
+	flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_OFF << FLAME_I2C_LS0_LED0); // set led0 off
+	flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_OFF << FLAME_I2C_LS0_LED1); // set led1 off
+	flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_OFF << FLAME_I2C_LS0_LED2); // set led2 off
+	flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_OFF << FLAME_I2C_LS0_LED3); // set led3 off
+
+	flameSetI2C(FLAME_I2C_CR_PSC0, 0x00); // set prescaler
+	flameSetI2C(FLAME_I2C_CR_PWM0, 0x00); // set pwm
+	flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_PWM0 << FLAME_I2C_LS0_LED0); // set led0 to pwm
+    }
     
     while (1) {
-        delayms(20);
-        
-	if (flameI2Csend == 1) {
-	    flameI2Csend = 0;
-	    flameSetI2C(FLAME_I2C_CR_PWM0, flameI2Cpwm); // set pwm
-	}
-
 	char key = getInput();
 	if (key == BTN_ENTER) {
 	    DoString(0,50,"ISP!");
@@ -116,6 +121,7 @@ void main_flame(void) {
             ISPandReset();
         }
 
+	work_queue();
     }
     
     return;
