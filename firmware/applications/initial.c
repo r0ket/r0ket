@@ -11,6 +11,9 @@
 
 void main_initial(void) {
     char key=BTN_NONE;
+
+    systickInit(SYSTICKSPEED);
+
     gpioSetValue (RB_LED0, 0); 
     gpioSetValue (RB_LED1, 0); 
     gpioSetValue (RB_LED2, 0); 
@@ -89,6 +92,7 @@ void main_initial(void) {
 void tick_initial(void){
     static int foo=0;
     static int toggle=0;
+    incTimer();
     if(foo++>80){
         toggle=1-toggle;
         foo=0;

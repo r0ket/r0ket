@@ -3,6 +3,11 @@
 ##########################################################################
 
 OBJS =
+
+ifeq "$(APP)" "initial"
+NODEFAULT = y
+endif
+
 ifndef NODEFAULT
 OBJS += default.o
 endif
