@@ -58,4 +58,13 @@ done
 echo "NULL"
 echo "};"
 
+echo "inline void generated_tick(void){"
+for f in $* ; do
+    grep -h '^void tick_' $f|sed 's/^void //;s/(.*//'|while read a ; do
+    echo "$a();"
+    done
+done
+echo "return;"
+echo "};"
+
 

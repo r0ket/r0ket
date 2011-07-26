@@ -44,10 +44,16 @@ uint8_t getInput(void) {
 
 uint8_t getInputWait(void) {
     uint8_t key;
-    while ((key=getInput())==BTN_NONE)
+    while ((key=getInputRaw())==BTN_NONE)
         work_queue();
     delayms_queue(10); /* Delay a little more to debounce */
     return key;
+};
+
+void getInputWaitRelease(void) {
+    while (getInputRaw()!=BTN_NONE)
+        work_queue();
+    delayms_queue(10); /* Delay a little more to debounce */
 };
 
 

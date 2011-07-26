@@ -81,7 +81,7 @@ $(LIBFILE): $(OBJS) $(WRAPOBJ)
 	$(CC) $(CFLAGS) -o $@ $<
 
 clean:
-	rm -f $(OBJS) $(WRAPOBJ) $(WRAPSRC) $(LIBFILE) *.o
+	rm -f $(OBJS) $(WRAPOBJ) $(WRAPSRC) $(LIBFILE) *.o tester/*.o
 
 %.c:
 	@echo 

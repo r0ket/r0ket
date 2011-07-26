@@ -46,12 +46,12 @@ void delayms_queue(uint32_t ms){
 };
 
 void delayms_power(uint32_t ms){
+    ms+=_timectr;
 	do {
-		ms-=10;
 #ifdef ARM
-		__asm volatile ("WFI");
+			__asm volatile ("WFI");
 #endif
-	} while(ms>10);
+	} while (ms >_timectr);
 };
 
 int push_queue(void (*new)(void)){
