@@ -2,7 +2,11 @@
 # User configuration and firmware specific object files	
 ##########################################################################
 
-OBJS = default.o
+OBJS =
+ifndef NODEFAULT
+OBJS += default.o
+endif
+
 OBJS += $(foreach mod,$(APP),$(mod).o)
 
 SRCS = $(foreach mod,$(APP),$(mod).c)
@@ -53,7 +57,6 @@ LOBJ=loadable_$(LAPP).o
 
 $(LOBJ):
 	$(CC) $(CFLAGS) -o $@ $(LSRC)
-	$(RM) $(LIBFILE)
 
 OBJS += $(LOBJ)
 endif
@@ -75,6 +78,7 @@ OBJS += $(TOBJS)
 endif
 
 $(LIBFILE): $(OBJS) $(WRAPOBJ)
+	$(RM) -f $@
 	$(AR) rcs $@ $(OBJS) $(WRAPOBJ)
 	
 %.o : %.c
