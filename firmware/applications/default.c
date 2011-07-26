@@ -30,6 +30,9 @@ int lcdInitConfig(){
     lcdPrint("open:");
     lcdPrintln(f_get_rc_string(res));
     if(res){
+        if(res==FR_NO_FILESYSTEM)
+            return 1;
+
         lcdPrintln("new r0ket.cfg...");
 
         res=f_open(&file, "r0ket.cfg", FA_OPEN_ALWAYS|FA_WRITE);
