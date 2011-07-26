@@ -4,9 +4,10 @@
 #include "lcd/print.h"
 
 QUEUE the_queue;
-#ifdef ARM
+#ifdef __arm__
 volatile uint32_t _timectr=0;
 #else
+#error "foo"
 extern uint32_t simTimeCounter();
 #define _timectr (simTimeCounter())
 #endif
@@ -18,8 +19,10 @@ void work_queue(void){
 	int start;
 
 	if (the_queue.qstart == the_queue.qend){
-#ifdef ARM
+#ifdef __arm__
 		__asm volatile ("WFI");
+#else
+            delayms(10);
 #endif
 		return;
 	};
@@ -36,8 +39,10 @@ void delayms_queue(uint32_t ms){
 	int end=_timectr+ms/10;
 	do {
 		if (the_queue.qstart == the_queue.qend){
-#ifdef ARM
+#ifdef __arm__
 			__asm volatile ("WFI");
+#else
+            delayms(10);
 #endif
 		}else{
 			work_queue();
@@ -48,8 +53,10 @@ void delayms_queue(uint32_t ms){
 void delayms_power(uint32_t ms){
     ms+=_timectr;
 	do {
-#ifdef ARM
+#ifdef __arm__
 			__asm volatile ("WFI");
+#else
+            delayms(10);
 #endif
 	} while (ms >_timectr);
 };
