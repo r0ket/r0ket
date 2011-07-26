@@ -182,5 +182,7 @@ void handleMenu(const struct MENU *the_menu);
 
 #include "basic/idle.h"
 
+#define SYSTICKSPEED 10
+
 #endif
 

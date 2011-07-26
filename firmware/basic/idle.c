@@ -22,7 +22,7 @@ void work_queue(void){
 #ifdef __arm__
 		__asm volatile ("WFI");
 #else
-            delayms(10);
+            delayms(SYSTICKSPEED);
 #endif
 		return;
 	};
@@ -36,13 +36,13 @@ void work_queue(void){
 };
 
 void delayms_queue(uint32_t ms){
-	int end=_timectr+ms/10;
+	int end=_timectr+ms/SYSTICKSPEED;
 	do {
 		if (the_queue.qstart == the_queue.qend){
 #ifdef __arm__
 			__asm volatile ("WFI");
 #else
-            delayms(10);
+            delayms(SYSTICKSPEED);
 #endif
 		}else{
 			work_queue();
@@ -51,12 +51,13 @@ void delayms_queue(uint32_t ms){
 };
 
 void delayms_power(uint32_t ms){
+    ms/=SYSTICKSPEED;
     ms+=_timectr;
 	do {
 #ifdef __arm__
 			__asm volatile ("WFI");
 #else
-            delayms(10);
+            delayms(SYSTICKSPEED);
 #endif
 	} while (ms >_timectr);
 };
