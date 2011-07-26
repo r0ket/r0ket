@@ -19,6 +19,7 @@ using namespace std;
 
 extern "C" {
 #include "basic/basic.h"
+#include "lcd/backlight.h"
 
 #define lcdGetPixel __hideaway_lcdGetPixel
 #include "lcd/display.h"
@@ -86,7 +87,12 @@ public:
     painter.scale(1,1);
     QPoint pts[dimx*dimy];
 
-    pixmap.fill(0);
+    // draw backlight
+    const int backlight=backlightGetBrightness()*255/100;
+    pixmap.setPixel(1,1,(QColor(backlight,backlight,backlight).rgb()));
+    pixmap.fill(pixmap.pixel(1,1));
+
+    // draw lcd array
     for (int x = 0; x < dimx; ++x) {
       for(int y=0; y<dimy; ++y) {
 	int color;
@@ -103,6 +109,7 @@ public:
       }
     }
 
+    // draw leds
     const int x1=dimx*rasterx-1-ledsize;
     const int y1=dimy*rastery-1+2*ledsep+ledsize;
     drawLED(pixmap,0,x1,y1,colorGreenLED);
@@ -110,6 +117,7 @@ public:
     drawLED(pixmap,2,0,y1,colorGreenLED);
     drawLED(pixmap,3,x1,0,colorRedLED);
 
+    // finally output pixmap
     painter.drawImage(0,0,pixmap);
   }
 
