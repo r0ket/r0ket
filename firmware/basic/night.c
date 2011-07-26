@@ -7,6 +7,8 @@
 uint32_t light=300*HYST;
 char _isnight=1;
 
+#define threshold globalconfig.backlighttrigger
+
 void LightCheck(void){
     int iocon;
     char iodir;
@@ -25,16 +27,14 @@ void LightCheck(void){
     gpioSetDir(RB_LED3, iodir);
     IOCON_PIO1_11=iocon;
 
-    static uint16_t threshold=0;
-    if(threshold==0){
-        // read threshold from config
-        threshold=320 * HYST;
+    if(threshold==0){ // uninitialized?
+        threshold=320;
     };
 
-    if(_isnight && light>(threshold+RANGE*HYST))
+    if(_isnight && light/HYST>(threshold+RANGE))
         _isnight=0;
 
-    if(!_isnight && light<threshold)
+    if(!_isnight && light/HYST<threshold)
         _isnight=1;
 };
 

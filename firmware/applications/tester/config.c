@@ -3,6 +3,7 @@
 #include "basic/basic.h"
 
 #include "lcd/print.h"
+#include "lcd/display.h"
 
 #include "filesystem/ff.h"
 
@@ -33,5 +34,5 @@ void show(void){
 };
 
 void lcdmirror(void){
-    globalconfig.lcdstate^=2;
+    lcdToggleFlag(LCD_MIRRORX);
 };

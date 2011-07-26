@@ -13,7 +13,7 @@
 /**************************************************************************/
 
 uint8_t lcdBuffer[RESX*RESY_B];
-int lcd_layout = 0;
+#define lcd_layout globalconfig.lcdstate
 uint32_t intstatus; // Caches USB interrupt state
                     // (need to disable MSC while displaying)
 

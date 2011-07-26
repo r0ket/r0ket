@@ -39,7 +39,7 @@ void tick_default(void) {
     };
 
     if(isNight())
-        backlightSetBrightness(100);
+        backlightSetBrightness(globalconfig.backlightvalue);
     else
         backlightSetBrightness(0);
 

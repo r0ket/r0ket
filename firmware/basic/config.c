@@ -77,9 +77,5 @@ int readConfig(void){
 };
 
 int applyConfig(){
-    if(globalconfig.lcdstate & LCD_INVERTED)
-        lcdToggleFlag(LCD_INVERTED);
-    if(globalconfig.lcdstate & LCD_MIRRORX)
-        lcdToggleFlag(LCD_MIRRORX);
 	return 0;
 };
