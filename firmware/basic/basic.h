@@ -182,7 +182,24 @@ void handleMenu(const struct MENU *the_menu);
 
 #include "basic/idle.h"
 
+// config.c
+
+struct config_t {
+	time_t     time;
+	uint16_t   backlighttrigger;
+	char       backlightvalue; 
+	char       lcdstate;
+	char       privacy;
+} __attribute__((__packed__));
+
+typedef struct config_t CONFIG;
+
+extern CONFIG globalconfig;
+
+int readConfig(void);
+int saveConfig(void);
+int applyConfig(void);
+
 #define SYSTICKSPEED 10
 
 #endif
-

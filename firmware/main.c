@@ -22,6 +22,8 @@ int main(void) {
 
     // initialise basic badge functions
     rbInit();
+
+    fsInit();
   
     lcdInit(); // display
 

@@ -330,6 +330,7 @@ int ff_del_syncobj (_SYNC_t);		/* Delete a sync object */
 
 /* Utility functions */
 const char* f_get_rc_string (FRESULT rc);
+void fsInit();
 
 #ifdef __cplusplus
 }
