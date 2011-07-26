@@ -74,7 +74,8 @@ void msc_menu(void){
     DoString(0,8,"MSC Enabled.");
     lcdDisplay();
     usbMSCInit();
-    while(!getInputRaw())delayms(10);
+    getInputWaitRelease();
+    getInputWait();
     DoString(0,16,"MSC Disabled.");
     usbMSCOff();
 };
