@@ -74,7 +74,7 @@ void main_initial(void) {
             lcdRefresh();
 
             lcdPrintln("Formatting DF...");
-//            res=f_mkfs(0,1,0);
+            res=f_mkfs(0,1,0);
             lcdPrintln(f_get_rc_string(res));
             lcdRefresh();
 		}
