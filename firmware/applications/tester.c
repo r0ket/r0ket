@@ -17,15 +17,8 @@ void main_tester(void) {
     gotoISP();
 };
 
-void no_tick_tester(void){
-    static int foo=0;
-    static int toggle=0;
-	if(foo++>80){
-        toggle=1-toggle;
-		foo=0;
-        gpioSetValue (RB_LED0, toggle); 
-	};
-    return;
+void tick_tester(void){
+    generated_tick();
 };
 
 

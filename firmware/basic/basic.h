@@ -150,6 +150,7 @@ char isNight(void);
 uint8_t getInput(void);
 uint8_t getInputRaw(void);
 uint8_t getInputWait(void);
+void getInputWaitRelease(void);
 
 //uuid.c
 #include "basic/uuid.h"
@@ -182,3 +183,4 @@ void handleMenu(const struct MENU *the_menu);
 #include "basic/idle.h"
 
 #endif
+
