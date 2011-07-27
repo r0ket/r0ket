@@ -7,7 +7,6 @@ QUEUE the_queue;
 #ifdef __arm__
 volatile uint32_t _timectr=0;
 #else
-#error "foo"
 extern uint32_t simTimeCounter();
 #define _timectr (simTimeCounter())
 #endif
