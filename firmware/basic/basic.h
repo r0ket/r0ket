@@ -1,6 +1,7 @@
 #ifndef __BASIC_H_
 #define __BASIC_H_
 
+#include <time.h>
 #include "core/gpio/gpio.h"
 #include "core/adc/adc.h"
 
@@ -203,3 +204,4 @@ int applyConfig(void);
 #define SYSTICKSPEED 10
 
 #endif
+
