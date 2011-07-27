@@ -18,6 +18,7 @@ OBJS += ecc.o
 OBJS += byteorder.o
 OBJS += random.o
 OBJS += idle.o
+OBJS += config.o
 
 LIBNAME=basic
 

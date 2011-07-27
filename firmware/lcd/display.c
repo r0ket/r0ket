@@ -13,7 +13,7 @@
 /**************************************************************************/
 
 uint8_t lcdBuffer[RESX*RESY_B];
-int lcd_layout = 0;
+#define lcd_layout globalconfig.lcdstate
 uint32_t intstatus; // Caches USB interrupt state
                     // (need to disable MSC while displaying)
 
@@ -79,9 +79,23 @@ void lcdInit(void) {
 
     lcd_select();
 
+/* Small Nokia 1200 LCD docs:
+ *           clear/ set
+ *  on       0xae / 0xaf
+ *  invert   0xa6 / 0xa7
+ *  mirror-x 0xA0 / 0xA1
+ *  mirror-y 0xc7 / 0xc8
+ *
+ *  0x20+x contrast (0=black - 0x2e)
+ *  0x40+x offset in rows from top (-0x7f)
+ *  0x80+x contrast? (0=black -0x9f?)
+ *  0xd0+x black lines from top? (-0xdf?)
+ *
+ */
+
     lcdWrite(TYPE_CMD,0xE2);
     delayms(5);
-    lcdWrite(TYPE_CMD,0xAF);
+    lcdWrite(TYPE_CMD,0xAF); // Display ON
     lcdWrite(TYPE_CMD,0xA4);
     lcdWrite(TYPE_CMD,0x2F);
     lcdWrite(TYPE_CMD,0xB0);
@@ -252,3 +266,4 @@ void lcdShift(int x, int y, bool wrap) {
     while(y-->0)
 			lcdShiftV(dir, wrap);
 }
+

@@ -85,7 +85,7 @@ void usbMSCInit(void) {
 
   (*rom)->pUSBD->init(&DeviceInfo); /* USB Initialization */
   (*rom)->pUSBD->connect(true);     /* USB Connect */
-  usbMSCenabled=1;
+  usbMSCenabled|=USB_MSC_ENABLEFLAG;
 }
 
 #if CFG_USBMSC
@@ -96,6 +96,6 @@ void USB_IRQHandler() {
 
 void usbMSCOff(void) {
   (*rom)->pUSBD->connect(false);     /* USB Disconnect */
-  usbMSCenabled=0;
+  usbMSCenabled&=~USB_MSC_ENABLEFLAG;
 }
 

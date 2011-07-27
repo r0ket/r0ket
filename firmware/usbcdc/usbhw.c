@@ -27,6 +27,7 @@
 #include "usbcore.h"
 #include "usbuser.h"
 
+#include "usb/usbmsc.h"
 
 /*    
  *    USB and IO Clock configuration only. 
@@ -63,8 +64,8 @@ void USBIOClkConfig( void )
   SCB_USBCLKSEL = SCB_USBCLKSEL_SOURCE_USBPLLOUT;
 
   // Set USB pin functions
-  IOCON_PIO0_1 &= ~IOCON_PIO0_1_FUNC_MASK;
-  IOCON_PIO0_1 |= IOCON_PIO0_1_FUNC_CLKOUT;           // CLK OUT
+//  IOCON_PIO0_1 &= ~IOCON_PIO0_1_FUNC_MASK;
+//  IOCON_PIO0_1 |= IOCON_PIO0_1_FUNC_CLKOUT;           // CLK OUT
   IOCON_PIO0_3 &= ~IOCON_PIO0_3_FUNC_MASK;
   IOCON_PIO0_3 |= IOCON_PIO0_3_FUNC_USB_VBUS;         // VBus
   IOCON_PIO0_6 &= ~IOCON_PIO0_6_FUNC_MASK;
@@ -205,6 +206,10 @@ void USB_Init (void)
 
 void USB_Connect (uint32_t con) 
 {
+    if(con)
+        usbMSCenabled|=USB_CDC_ENABLEFLAG;
+    else
+        usbMSCenabled&=~USB_CDC_ENABLEFLAG;
   WrCmdDat(CMD_SET_DEV_STAT, DAT_WR_BYTE(con ? DEV_CON : 0));
 }
 

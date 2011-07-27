@@ -1,5 +1,7 @@
 #include <ff.h>
 
+FATFS FatFs;          /* File system object for logical drive */
+
 const TCHAR *rcstrings =
     _T("OK\0DISK_ERR\0INT_ERR\0NOT_READY\0NO_FILE\0NO_PATH\0INVALID_NAME\0")
     _T("DENIED\0EXIST\0INVALID_OBJECT\0WRITE_PROTECTED\0INVALID_DRIVE\0")
@@ -16,3 +18,7 @@ const char* f_get_rc_string (FRESULT rc) {
     return p;
 }
 
+
+void fsInit(){
+    f_mount(0, &FatFs);
+};

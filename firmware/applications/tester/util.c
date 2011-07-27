@@ -33,10 +33,11 @@ void adc_light(void) {
     int dx=0;
     int dy=8;
     dx=DoString(0,dy,"Light:");
-    DoString(0,dy+8,"Night:");
+    DoString(0,dy+16,"Night:");
     while ((getInputRaw())==BTN_NONE){
         DoInt(dx,dy,GetLight());
-        DoInt(dx,dy+8,isNight());
+        DoInt(dx,dy+16,isNight());
+        DoInt(dx,dy+8,globalconfig.backlighttrigger);
         lcdDisplay();
     };
     dy+=8;
@@ -74,7 +75,8 @@ void msc_menu(void){
     DoString(0,8,"MSC Enabled.");
     lcdDisplay();
     usbMSCInit();
-    while(!getInputRaw())delayms(10);
+    getInputWaitRelease();
+    getInputWait();
     DoString(0,16,"MSC Disabled.");
     usbMSCOff();
 };

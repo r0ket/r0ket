@@ -76,8 +76,14 @@ void EnableWatchdog(uint32_t ms){
 
 void ISPandReset(void){
 #if CFG_USBMSC
-    if(usbMSCenabled){
+    if(usbMSCenabled&USB_MSC_ENABLEFLAG){
         usbMSCOff();
+        delayms(500);
+    };
+#endif
+#if CFG_USBCDC
+    if(usbMSCenabled&USB_CDC_ENABLEFLAG){
+        USB_Connect(FALSE);
         delayms(500);
     };
 #endif

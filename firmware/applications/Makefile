@@ -2,7 +2,16 @@
 # User configuration and firmware specific object files	
 ##########################################################################
 
-OBJS = default.o
+OBJS =
+
+ifeq "$(APP)" "initial"
+NODEFAULT = y
+endif
+
+ifndef NODEFAULT
+OBJS += default.o
+endif
+
 OBJS += $(foreach mod,$(APP),$(mod).o)
 
 SRCS = $(foreach mod,$(APP),$(mod).c)
@@ -53,13 +62,15 @@ LOBJ=loadable_$(LAPP).o
 
 $(LOBJ):
 	$(CC) $(CFLAGS) -o $@ $(LSRC)
-	$(RM) $(LIBFILE)
 
 OBJS += $(LOBJ)
 endif
 
 ifeq "$(APP)" "tester"
-TSRCS = $(wildcard $(APP)/*.c)
+ifndef TYPE
+TYPE=$(APP)
+endif
+TSRCS = $(wildcard $(TYPE)/*.c)
 TOBJS = $(foreach mod,$(TSRCS),$(subst .c,.o,$(mod)))
 
 TWRAP=tester.gen
@@ -75,13 +86,14 @@ OBJS += $(TOBJS)
 endif
 
 $(LIBFILE): $(OBJS) $(WRAPOBJ)
+	$(RM) -f $@
 	$(AR) rcs $@ $(OBJS) $(WRAPOBJ)
 	
 %.o : %.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 clean:
-	rm -f $(OBJS) $(WRAPOBJ) $(WRAPSRC) $(LIBFILE) *.o tester/*.o
+	rm -f $(OBJS) $(WRAPOBJ) $(WRAPSRC) $(LIBFILE) *.o */*.o
 
 %.c:
 	@echo 

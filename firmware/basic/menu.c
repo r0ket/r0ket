@@ -76,6 +76,7 @@ void handleMenu(const struct MENU *the_menu) {
                 lcdClear();
                 lcdPrintln("Called...");
                 lcdRefresh();
+                getInputWaitRelease();
                 if (the_menu->entries[menuselection]->callback!=NULL)
                     the_menu->entries[menuselection]->callback();
                 lcdDisplay();
@@ -86,6 +87,7 @@ void handleMenu(const struct MENU *the_menu) {
                 /* no button pressed */
                 break;
         }
+        getInputWaitRelease();
 
     }
     return;

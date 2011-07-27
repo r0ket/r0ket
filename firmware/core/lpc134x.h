@@ -1937,7 +1937,7 @@ typedef struct
 
 #define NVIC                                      ((NVIC_Type *) NVIC_BASE_ADDRESS)
 
-#ifdef ARM
+#ifdef __arm__
 static inline void __enable_irq()                 { __asm volatile ("cpsie i"); }
 static inline void __disable_irq()                { __asm volatile ("cpsid i"); }
 #else
