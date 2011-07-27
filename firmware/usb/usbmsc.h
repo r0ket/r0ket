@@ -39,6 +39,8 @@
 
 #include "projectconfig.h"
 
+#define USB_MSC_ENABLEFLAG (1<<0)
+#define USB_CDC_ENABLEFLAG (1<<1)
 extern char usbMSCenabled;
 void usbMSCWrite(uint32_t offset, uint8_t src[], uint32_t length);
 void usbMSCRead(uint32_t offset, uint8_t dst[], uint32_t length);

@@ -67,7 +67,10 @@ OBJS += $(LOBJ)
 endif
 
 ifeq "$(APP)" "tester"
-TSRCS = $(wildcard $(APP)/*.c)
+ifndef TYPE
+TYPE=$(APP)
+endif
+TSRCS = $(wildcard $(TYPE)/*.c)
 TOBJS = $(foreach mod,$(TSRCS),$(subst .c,.o,$(mod)))
 
 TWRAP=tester.gen
@@ -90,7 +93,7 @@ $(LIBFILE): $(OBJS) $(WRAPOBJ)
 	$(CC) $(CFLAGS) -o $@ $<
 
 clean:
-	rm -f $(OBJS) $(WRAPOBJ) $(WRAPSRC) $(LIBFILE) *.o tester/*.o
+	rm -f $(OBJS) $(WRAPOBJ) $(WRAPSRC) $(LIBFILE) *.o */*.o
 
 %.c:
 	@echo 
