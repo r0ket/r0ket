@@ -41,6 +41,7 @@ LDLIBS += -Lbasic -lbasic
 LDLIBS += -Llcd -llcd
 LDLIBS += -Lcore -lcore
 LDLIBS += -Lusb -lusb
+LDLIBS += -lbasic
 OCFLAGS = --strip-unneeded
 
 SUBDIRS?= $(foreach lib,$(LIBS),$(dir $(lib)))
