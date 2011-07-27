@@ -157,6 +157,12 @@ void nrf_config_get(nrfconfig config);
 
 void nrf_set_strength(unsigned char strength);
 
+// new receive IF
+void nrf_rcv_pkt_start(void);
+int nrf_rcv_pkt_poll(int maxsize, uint8_t * pkt);
+int nrf_rcv_pkt_poll_dec(int maxsize, uint8_t * pkt, uint32_t const key[4]);
+void nrf_rcv_pkt_end(void);
+
 /* END */
 
 #endif /* _NRF24L01P_H */
