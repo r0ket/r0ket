@@ -203,5 +203,7 @@ int applyConfig(void);
 
 #define SYSTICKSPEED 10
 
-#endif
+// itoa.c
+const char* IntToStrX(unsigned int num, unsigned int mxlen);
 
+#endif
