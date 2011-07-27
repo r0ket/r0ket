@@ -1,1 +1,1 @@
-../tester/config.c
+#include "../tester/config.c"

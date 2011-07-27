@@ -1,1 +1,1 @@
-../tester/uuid.c
+#include "../tester/uuid.c"
