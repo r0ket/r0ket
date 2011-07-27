@@ -62,20 +62,71 @@ void s_init(void){
     nrf_config_set(&config);
 };
 
+ void process(uint8_t * input){
+    __attribute__ ((aligned (4))) uint8_t buf[32];
+    puts("process: ");
+    puts(input);
+    puts("\r\n");
+    if(input[0]=='M'){
+        buf[0]=0x10; // Length: 16 bytes
+        buf[1]='M'; // Proto
+        buf[2]=0x01;
+        buf[3]=0x01; // Unused
+
+        uint32touint8p(0,buf+4);
+
+        uint32touint8p(0x41424344,buf+8);
+
+        buf[12]=0xff; // salt (0xffff always?)
+        buf[13]=0xff;
+        nrf_snd_pkt_crc_encr(16,buf,remotekey);
+        nrf_rcv_pkt_start();
+    };
+
+};
+
+#define INPUTLEN 99
 void r_recv(void){
     __attribute__ ((aligned (4))) uint8_t buf[32];
     int len;
 
+    uint8_t input[INPUTLEN+1];
+    int inputptr=0;
+
     nrf_rcv_pkt_start();
+    puts("D start");
 
     getInputWaitRelease();
 
     while(!getInputRaw()){
         delayms(100);
+
+        // Input
+        int l=INPUTLEN-inputptr;
+        CDC_OutBufAvailChar (&l);
+
+        if(l>0){
+            CDC_RdOutBuf (input+inputptr, &l);
+            input[inputptr+l+1]=0;
+            for(int i=0;i<l;i++){
+                if(input[inputptr+i] =='\r'){
+                    input[inputptr+i]=0;
+                    process(input);
+                    if(i<l)
+                        memmove(input,input+inputptr+i+1,l-i);
+                    inputptr=-i-1;
+                    break;
+                };
+            };
+        };
+        inputptr+=l;
         len=nrf_rcv_pkt_poll_dec(sizeof(buf),buf,remotekey);
 
-        if(len<=0)
+        // Receive
+        if(len<=0){
+            delayms(10);
             continue;
+        };
 
         if(buf[1]=='C'){ // Cursor
             puts("C ");
@@ -106,9 +157,8 @@ void r_recv(void){
     };
 
     nrf_rcv_pkt_end();
-
+    puts("D exit");
 }
-
 
 
 void r_s1(void){
@@ -212,12 +262,13 @@ void r_send(void){
         lcdPrint("F-St:"); lcdPrintInt(status); 
         lcdDisplay();
 
-        len=nrf_rcv_pkt_time_encr(10,sizeof(buf),buf,remotekey);
+        len=nrf_rcv_pkt_time_encr(100,sizeof(buf),buf,remotekey);
         if(len>0){
             lcdPrint("Got!");
             lcdDisplay();
             break;
         };
+        delayms(10);
     };
 };
 
