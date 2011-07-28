@@ -96,10 +96,10 @@ public:
     for (int x = 0; x < dimx; ++x) {
       for(int y=0; y<dimy; ++y) {
 	int color;
-	if(lcd_layout & LCD_INVERTED) {
-	  color=lcdGetPixel((lcd_layout & LCD_MIRRORX)?(RESX-x-1):x,(lcd_layout & LCD_MIRRORY)?(RESY-y-1):y)?colorInvertedPixelOn:colorInvertedPixelOff;
+	if(globalconfig.lcdstate & LCD_INVERTED) {
+	  color=lcdGetPixel((globalconfig.lcdstate & LCD_MIRRORX)?(RESX-x-1):x,(globalconfig.lcdstate & LCD_MIRRORY)?(RESY-y-1):y)?colorInvertedPixelOn:colorInvertedPixelOff;
 	} else {
-	  color=lcdGetPixel((lcd_layout & LCD_MIRRORX)?(RESX-x-1):x,(lcd_layout & LCD_MIRRORY)?(RESY-y-1):y)?colorPixelOn:colorPixelOff;
+	  color=lcdGetPixel((globalconfig.lcdstate & LCD_MIRRORX)?(RESX-x-1):x,(globalconfig.lcdstate & LCD_MIRRORY)?(RESY-y-1):y)?colorPixelOn:colorPixelOff;
 	}
 	for(int minix=0; minix<pixw; ++minix) {
 	  for(int miniy=0; miniy<pixh; ++miniy) {
