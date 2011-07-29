@@ -18,6 +18,11 @@ void delayms_queue(uint32_t delayms);
 void delayms_power(uint32_t delayms);
 int push_queue(void (*qnew)(void));
 int magic(void *qnew);
-#define incTimer(void) do{_timectr++;}while(0);
 
+// Note: 
+// Our time implementation will fail after 497 days of continous uptime.
+// ( 2^32 / 1000 * SYSTICKSPEED ) seconds
+
+#define incTimer(void) do{_timectr++;}while(0);
+#define getTimer() (_timectr)
 
