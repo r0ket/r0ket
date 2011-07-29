@@ -63,6 +63,9 @@ void m_init(void){
     meshbuffer[0].pkt[0]='T';
     uint32touint8p(getSeconds(),meshbuffer[0].pkt+2);
     meshbuffer[0].flags=MF_USED;
+};
+
+void m_tset(void){
     _timet=1311961112;
 };
 
@@ -122,7 +125,7 @@ struct tm * mygmtime(register const time_t time) {
 void m_recv(void){
     __attribute__ ((aligned (4))) uint8_t buf[32];
     int len;
-    int recvend=100/SYSTICKSPEED+getTimer();
+    int recvend=5000/SYSTICKSPEED+getTimer();
 
     m_cleanup();
 
@@ -160,6 +163,7 @@ void m_recv(void){
         }else if (buf[0]>='A' && buf[0] <'T'){ // Truncate ascii packets.
             meshbuffer[i].pkt[MESHPKTSIZE-3]=0;
         };
+        lcdRefresh();
     }while(getTimer()<recvend);
     nrf_rcv_pkt_end();
     lcdPrintln("Done.");
@@ -203,7 +207,7 @@ void m_send(void){
             continue;
         ctr++;
         memcpy(buf,meshbuffer[i].pkt,MESHPKTSIZE);
-        status=nrf_snd_pkt_crc_encr(16,buf,meshkey);
+        status=nrf_snd_pkt_crc_encr(MESHPKTSIZE,buf,meshkey);
         //Check status? But what would we do...
     };
     lcdPrint("Pkts: "); lcdPrintInt(ctr); lcdNl();
