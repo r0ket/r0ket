@@ -1,6 +1,7 @@
 #ifndef __BASIC_H_
 #define __BASIC_H_
 
+#include <time.h>
 #include "core/gpio/gpio.h"
 #include "core/adc/adc.h"
 
@@ -201,5 +202,8 @@ int saveConfig(void);
 int applyConfig(void);
 
 #define SYSTICKSPEED 10
+
+// itoa.c
+const char* IntToStrX(unsigned int num, unsigned int mxlen);
 
 #endif
