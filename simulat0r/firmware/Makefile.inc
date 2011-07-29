@@ -41,6 +41,11 @@ endif
 # Compiler settings, parameters and flags
 ##########################################################################
 
-CFLAGS  = -std=c99 -c -g -O0 $(INCLUDE_PATHS) -Wall -funsigned-char -ffunction-sections -fdata-sections -fmessage-length=0 -DRAMCODE=$(RAMCODE) -fno-builtin -DSIMULATOR -I$(ROOT_PATH)/../simcore -include libc-unc0llide.h
+CFLAGS  = -std=c99 -c -g -O0 $(INCLUDE_PATHS) -Wall -funsigned-char -ffunction-sections -fdata-sections -fmessage-length=0 -DRAMCODE=$(RAMCODE) -fno-builtin -DSIMULATOR -I$(ROOT_PATH)/../simcore -include libc-unc0llide.h $(CONFIG_GCC_SHOWCOLUMN)
 #LDFLAGS = -nostartfiles
 
+
+CONFIG_MAKE_PRINTDIRECTORY = --no-print-directory 
+CONFIG_GCC_SHOWCOLUMN = 
+
+-include Makefile.sitespecific
