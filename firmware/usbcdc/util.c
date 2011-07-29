@@ -57,6 +57,6 @@ void usbCDCInit(){
 #endif
 }
 
-usbCDCOff(void){
+void usbCDCOff(void){
     USB_Connect(FALSE);
 }
