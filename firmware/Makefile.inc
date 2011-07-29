@@ -42,3 +42,9 @@ CPU_TYPE = cortex-$(CORTEX_TYPE)
 
 CFLAGS  = -std=c99 -c -g -Os $(INCLUDE_PATHS) -Wall -mthumb -ffunction-sections -fdata-sections -fmessage-length=0 -mcpu=$(CPU_TYPE) -DTARGET=$(TARGET) -DRAMCODE=$(RAMCODE) -fno-builtin
 LDFLAGS = -nostartfiles
+
+
+CONFIG_MAKE_PRINTDIRECTORY = --no-print-directory 
+CONFIG_GCC_SHOWCOLUMN = 
+
+-include Makefile.sitespecific

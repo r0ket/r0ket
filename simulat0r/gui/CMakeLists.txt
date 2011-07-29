@@ -1,5 +1,10 @@
 project (qsimulat0r)
 cmake_minimum_required(VERSION 2.4.0)
+
+if(POLICY CMP0015)
+   cmake_policy(SET CMP0015 OLD)
+endif(POLICY CMP0015)
+
 find_package(Qt4 REQUIRED)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../firmware ${CMAKE_CURRENT_SOURCE_DIR}/../firmware/core)
@@ -55,6 +60,9 @@ libfunk.a
 libusbcdc.a
 libbasic.a
 libcore.a
+
+liblcd.a
+
 )
 
 

@@ -63,7 +63,7 @@ loadables: $(OUTFILE).bin
 clean:
 	rm -f $(OBJS) $(LD_TEMP) $(OUTFILE).elf $(OUTFILE).bin $(OUTFILE).hex
 	for dir in $(SUBDIRS); do \
-	    $(MAKE) --no-print-directory -C $$dir clean; \
+	    $(MAKE) $(CONFIG_MAKE_PRINTDIRECTORY) -C $$dir clean; \
 	done
 flash: all
 	../tools/bootloader/autoflash
@@ -79,7 +79,7 @@ flash: all
 subdirs: $(SUBDIRS)
 
 $(SUBDIRS):
-	$(MAKE) ROOT_PATH=../$(ROOT_PATH) --no-print-directory -C $@
+	$(MAKE) ROOT_PATH=../$(ROOT_PATH) $(CONFIG_MAKE_PRINTDIRECTORY) -C $@
 
 ../tools/bootloader/lpcfix:
 	cd ../tools/bootloader && $(MAKE) 
