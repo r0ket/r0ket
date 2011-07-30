@@ -60,6 +60,7 @@ int process(char * input);
 void dwim(void){
     char input[INPUTLEN+1];
     int inputptr=0;
+    char dirty=0;
 
     usbCDCInit();
     delayms(500);
@@ -67,16 +68,23 @@ void dwim(void){
     puts("D start\r\n");
 
     while(!getInputRaw()){
-        delayms(10);
 
         // Input
         int l=INPUTLEN-inputptr;
         CDC_OutBufAvailChar (&l);
 
         if(l>0){
+            dirty=10;
+            if(l>1)
+                dirty=50;
             CDC_RdOutBuf (input+inputptr, &l);
+            if(input[inputptr]==8){
+                inputptr=0;
+                puts("<oops>\r\n");
+                continue;
+            };
             input[inputptr+l]=0;
-            puts(&input[inputptr]);
+            puts_plus(&input[inputptr]);
             for(int i=0;i<l;i++){
                 if(input[inputptr+i] =='\r'){
                     input[inputptr+i]=0;
@@ -87,6 +95,12 @@ void dwim(void){
                     break;
                 };
             };
+        }else{
+            delayms(1);
+            if(dirty>0)
+                dirty--;
+            if(dirty==1)
+                puts("");
         };
         inputptr+=l;
     };
@@ -94,13 +108,35 @@ void dwim(void){
     puts("D exit\r\n");
 }
 
+#define BUFLEN 32
+#define NYB(x) ((x>'9')?(x|0x20)-'a'+10:x-'0')
+uint8_t * hextobyte(char * input, int *len){
+    static uint8_t buf[BUFLEN];
+
+    int p=0;
+    int bp=0;
+    char c;
+    while(bp<BUFLEN){
+        if(input[p]==0 || input[p+1]==0)
+            break;
+        if(input[p]==' '){
+            p++;
+            continue;
+        };
+        buf[bp]= c=NYB(input[p])*16+NYB(input[p+1]);
+        bp++;p+=2;
+    };
+    *len=bp;
+    return buf;
+};
+
 int process(char * input){
     if(input == NULL || input[0]==0)
-        return;
+        return -1;
 
-    puts("\r\n");
-    puts("D [");
-    puts(input);
+    puts_plus("\r\n");
+    puts_plus("D [");
+    puts_plus(input);
     puts("]\r\n");
 
     if(input[0]=='i'){
@@ -133,85 +169,88 @@ int process(char * input){
             memcpy(thekey,beaconkey,sizeof(thekey));
         }else if(input[1]=='?'){
             nrf_config_get(&config);
-            puts("Ch: ");puts(IntToStrX( config.channel,2 )); puts("\r\n");
+            puts_plus("Ch: ");puts_plus(IntToStrX( config.channel,2 )); puts_plus("\r\n");
 
-            puts("TxMac: ");
+            puts_plus("TxMac: ");
             for(int i=0;i<5;i++)
-                puts(IntToStrX( config.txmac[i],2 ));
-            puts("\r\n");
+                puts_plus(IntToStrX( config.txmac[i],2 ));
+            puts_plus("\r\n");
 
-            puts("Len  : ");
+            puts_plus("Len  : ");
             for(int i=0;i<5;i++)
-                puts(IntToStrX( config.maclen[i],2 ));
-            puts("\r\n");
+                puts_plus(IntToStrX( config.maclen[i],2 ));
+            puts_plus("\r\n");
 
-            puts("0mac : ");
+            puts_plus("0mac : ");
             for(int i=0;i<5;i++)
-                puts(IntToStrX( config.mac0[i],2 ));
-            puts("\r\n");
+                puts_plus(IntToStrX( config.mac0[i],2 ));
+            puts_plus("\r\n");
 
-            puts("1mac : ");
+            puts_plus("1mac : ");
             for(int i=0;i<5;i++)
-                puts(IntToStrX( config.mac1[i],2 ));
-            puts("\r\n");
+                puts_plus(IntToStrX( config.mac1[i],2 ));
+            puts_plus("\r\n");
 
-            puts("2345 : ");
+            puts_plus("2345 : ");
             for(int i=0;i<4;i++)
-                puts(IntToStrX( config.mac2345[i],2 ));
-            puts("\r\n");
+                puts_plus(IntToStrX( config.mac2345[i],2 ));
+            puts_plus("\r\n");
 
-            puts("key : ");
+            puts_plus("key : ");
             for(int i=0;i<4;i++){
-                puts(IntToStrX( thekey[i],8 ));
-                puts(" ");
+                puts_plus(IntToStrX( thekey[i],8 ));
+                puts_plus(" ");
             };
-            puts("\r\n");
-        }else if(input[1]=='k'){
-            thekey[0]=0;
-            thekey[1]=0;
-            thekey[2]=0;
-            thekey[3]=0;
+            puts_plus("\r\n");
+        };
+    }else if(input[0]=='C'){
+        int len;
+        uint8_t *hex=hextobyte(&input[2],&len);
+        if(input[1]=='k'){
+            thekey[0]=uint8ptouint32(hex);
+            thekey[1]=uint8ptouint32(hex+4);
+            thekey[2]=uint8ptouint32(hex+8);
+            thekey[3]=uint8ptouint32(hex+12);
+        }else if(input[1]=='m'){
+            config.mac0[0]=uint8ptouint32(hex);
+            config.mac0[1]=uint8ptouint32(hex+4);
+            config.mac0[2]=uint8ptouint32(hex+8);
+            config.mac0[3]=uint8ptouint32(hex+12);
+            config.mac0[4]=uint8ptouint32(hex+16);
+            nrf_config_set(&config);
+        }else if(input[1]=='t'){
+            config.txmac[0]=uint8ptouint32(hex);
+            config.txmac[1]=uint8ptouint32(hex+4);
+            config.txmac[2]=uint8ptouint32(hex+8);
+            config.txmac[3]=uint8ptouint32(hex+12);
+            config.txmac[4]=uint8ptouint32(hex+16);
+            nrf_config_set(&config);
+        }else if(input[1]=='c'){
+            config.channel=*hex;
+            nrf_config_set(&config);
         };
     }else if (input[0]=='s'){
         __attribute__ ((aligned (4))) uint8_t buf[32];
         int status=0;
+        int len;
         if (input[1]==' '){
-            int p=2;
-            int bp=0;
-            char c;
-//            puts("\r\n");
-            while(bp<32){
-                if(input[p]==0 || input[p+1]==0)
-                    break;
-                if(input[p]==' '){
-                    p++;
-                    continue;
-                };
-                c=((input[p]>'9')?input[p]-'a'+10:input[p]-'0')*16+
-                    ((input[p+1]>'9')?input[p+1]-'a'+10:input[p+1]-'0');
-//                puts(IntToStrX( c,2 ));
-//                puts(".");
-                buf[bp]=c;
-                bp++;p+=2;
+            uint8_t *hex=hextobyte(&input[2],&len);
+            if(len<10) len=10;
+
+            len+=2;
+            puts_plus("S Len:");
+            puts_plus(IntToStrX( len,2 ));
+            puts_plus("\r\n");
+
+            status=nrf_snd_pkt_crc_encr(len,hex,thekey);
+
+            puts_plus("P ");
+            puts_plus("[");puts_plus(IntToStrX(len,2));puts_plus("] ");
+            for(int i=0;i<len;i++){
+                puts_plus(IntToStrX( hex[i],2 ));
+                puts_plus(" ");
             };
-//            puts("\r\n");
-
-            if(bp<10) bp=10;
-
-            bp+=2;
-            puts("S Len:");
-            puts(IntToStrX( bp,2 ));
-            puts("\r\n");
-
-            status=nrf_snd_pkt_crc_encr(bp,buf,thekey);
-
-            puts("P ");
-            puts("[");puts(IntToStrX(bp,2));puts("] ");
-            for(int i=0;i<bp;i++){
-                puts(IntToStrX( buf[i],2 ));
-                puts(" ");
-            };
-            puts("\r\n");
+            puts_plus("\r\n");
         }else if (input[1]=='t'){
             static int ctr=1;
             int status;
@@ -230,19 +269,28 @@ int process(char * input){
             status=nrf_snd_pkt_crc_encr(16,buf,thekey);
         }else{
         };
-        puts("S state=");
-        puts(IntToStrX( status,2 ));
-        puts("\r\n");
+        puts_plus("S state=");
+        puts_plus(IntToStrX( status,2 ));
+        puts_plus("\r\n");
     }else if (input[0]=='r'){
         __attribute__ ((aligned (4))) uint8_t buf[32];
         int len;
         int pctr=5;
         int t=getTimer()+5000/SYSTICKSPEED;
 
-        if(input[1]=='0')
+        if(input[1]=='+'){
+            if(input[2]!=0){
+                uint8_t *hex=hextobyte(&input[2],&len);
+                t=getTimer()+hex[0]*1000/SYSTICKSPEED;
+            };
             pctr=-1;
+        }
+        if(input[1]=='-'){
+            uint8_t *hex=hextobyte(&input[2],&len);
+            pctr=hex[0];
+        }
 
-        puts("D receive ...\r\n");
+        puts_plus("D receive ...\r\n");
         nrf_rcv_pkt_start();
         do{
             len=nrf_rcv_pkt_poll_dec(sizeof(buf),buf,thekey);
@@ -251,23 +299,32 @@ int process(char * input){
                 delayms(10);
                 continue;
             };
-            puts("R ");
-            puts("[");puts(IntToStrX(len,2));puts("] ");
-            for(int i=0;i<len;i++){
-                puts(IntToStrX( buf[i],2 ));
-                puts(" ");
+            puts_plus("R ");
+            puts_plus("[");puts_plus(IntToStrX(len,2));puts_plus("] ");
+            if(len==-3){
+                puts_plus("[!crc] ");
+                len=16;
             };
-            if(len==-3)
-                puts(" [!crc]");
+            for(int i=0;i<len;i++){
+                puts_plus(IntToStrX( buf[i],2 ));
+                puts_plus(" ");
+            };
+            if(pctr<0){
+                int l=0;
+                CDC_OutBufAvailChar (&l);
+                if(l>0){
+                    puts_plus("\r\nD Abort.\r\n");
+                    break;
+                };
+            };
             puts("\r\n");
-            delayms(1);
             if(pctr--==0)
                 break;
         }while(t>getTimer());
 
         nrf_rcv_pkt_end();
     }else{
-        puts("D no action\r\n");
+        puts_plus("D no action\r\n");
     };
     puts("D done.\r\n");
     return 0;

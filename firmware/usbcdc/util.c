@@ -28,14 +28,27 @@ int puts(const char * str){
     if (currentTick != lastTick){
         uint8_t frame[64];
         uint32_t bytesRead = 0;
+        char repeat=0;
         while (cdcBufferDataPending()){
             // Read up to 64 bytes as long as possible
             bytesRead = cdcBufferReadLen(frame, 64);
             USB_WriteEP (CDC_DEP_IN, frame, bytesRead);
-            systickDelay(1);
+            if(repeat)
+                systickDelay(1);
+            else
+                repeat=1;
         }
         lastTick = currentTick;
     }
+    return 0;
+}
+
+int puts_plus(const char * str){
+    if(!USB_Configuration)
+        return -1;
+
+    while(*str)
+        cdcBufferWrite(*str++);
     return 0;
 }
 
