@@ -71,7 +71,7 @@ void m_tset(void){
 
 void m_cleanup(void){
     time_t now=getSeconds();
-    for(int i=0;i<MESHBUFSIZE;i++){
+    for(int i=1;i<MESHBUFSIZE;i++){
         if(meshbuffer[i].flags&MF_USED){
             if (uint8ptouint32(meshbuffer[i].pkt+2)<now){
                 meshbuffer[i].flags=MF_FREE;
@@ -121,18 +121,23 @@ struct tm * mygmtime(register const time_t time) {
         return timep;
 }
 
+#define M_SENDINT 500
+#define M_RECVINT 1000
+#define M_RECVTIM 100
+
 
 void m_recv(void){
     __attribute__ ((aligned (4))) uint8_t buf[32];
     int len;
-    int recvend=5000/SYSTICKSPEED+getTimer();
+    int recvend=M_RECVTIM/SYSTICKSPEED+getTimer();
+
+    static int toggle=0;
+    gpioSetValue (RB_LED2, toggle); 
+    toggle=1-toggle;
 
     m_cleanup();
 
     nrf_rcv_pkt_start();
-
-    getInputWaitRelease();
-
     do{
         len=nrf_rcv_pkt_poll_dec(sizeof(buf),buf,meshkey);
 
@@ -154,20 +159,63 @@ void m_recv(void){
         meshbuffer[i].flags=MF_USED;
 
         if(buf[0]=='T'){
+            gpioSetValue (RB_LED1, 0); 
             time_t toff=uint8ptouint32(buf+2)-(getTimer()*SYSTICKSPEED/1000);
             if(toff>_timet) // Do not live in the past.
                 _timet = toff;
-            lcdPrintln("Got T");
-            lcdPrintInt(getSeconds());lcdNl();
-            
         }else if (buf[0]>='A' && buf[0] <'T'){ // Truncate ascii packets.
             meshbuffer[i].pkt[MESHPKTSIZE-3]=0;
         };
-        lcdRefresh();
     }while(getTimer()<recvend);
     nrf_rcv_pkt_end();
-    lcdPrintln("Done.");
 }
+
+void m_send(void){
+    int ctr=0;
+    __attribute__ ((aligned (4))) uint8_t buf[32];
+    int status;
+
+    // Update [T]ime packet
+
+    uint32touint8p(getSeconds(),meshbuffer[0].pkt+2);
+    for (int i=0;i<MESHBUFSIZE;i++){
+        if(!meshbuffer[i].flags&MF_USED)
+            continue;
+        ctr++;
+        memcpy(buf,meshbuffer[i].pkt,MESHPKTSIZE);
+        status=nrf_snd_pkt_crc_encr(MESHPKTSIZE,buf,meshkey);
+        //Check status? But what would we do...
+    };
+};
+
+void m_info(void){
+    char ctr=0;
+    getInputWaitRelease();
+    lcdClear();
+    for (int i=0;i<MESHBUFSIZE;i++){
+        if(!meshbuffer[i].flags&MF_USED)
+            continue;
+        ctr++;
+    };
+    lcdPrint("MeshQ:");
+    lcdPrintInt(ctr);
+    lcdNl();
+    lcdDisplay();
+};
+
+
+void tick_mesh(void){
+    static int ctr=0;
+    ctr++;
+    if((ctr % (M_RECVINT/SYSTICKSPEED))==0){
+        push_queue(&m_recv);
+    };
+
+    if((ctr % (M_SENDINT/SYSTICKSPEED))==0){
+        push_queue(&m_send);
+    };
+};
+
 
 void m_time(void){
     struct tm* tm;
@@ -189,28 +237,6 @@ void m_time(void){
         lcdPrintInt(tm->tm_year+YEAR0);
         lcdNl();
         lcdRefresh();
-        delayms(50);
+        delayms_queue(50);
     }while ((getInputRaw())==BTN_NONE);
 };
-
-void m_send(void){
-    int ctr=0;
-    __attribute__ ((aligned (4))) uint8_t buf[32];
-    int status;
-
-    lcdClear();
-    // Update [T]ime packet
-
-    uint32touint8p(getSeconds(),meshbuffer[0].pkt+2);
-    for (int i=0;i<MESHBUFSIZE;i++){
-        if(!meshbuffer[i].flags&MF_USED)
-            continue;
-        ctr++;
-        memcpy(buf,meshbuffer[i].pkt,MESHPKTSIZE);
-        status=nrf_snd_pkt_crc_encr(MESHPKTSIZE,buf,meshkey);
-        //Check status? But what would we do...
-    };
-    lcdPrint("Pkts: "); lcdPrintInt(ctr); lcdNl();
-    lcdDisplay();
-};
-
