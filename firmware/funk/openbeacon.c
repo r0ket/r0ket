@@ -32,7 +32,7 @@ void openbeaconSave(uint32_t s)
     BYTE buf[4];
     UINT readbytes;
 
-    if( f_open(&file, "beacon", FA_OPEN_ALWAYS|FA_WRITE) )
+    if( f_open(&file, "beacon.cfg", FA_OPEN_ALWAYS|FA_WRITE) )
         return;
 
     uint32touint8p(s, buf);
