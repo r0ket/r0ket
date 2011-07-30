@@ -86,7 +86,7 @@ void dwim(void){
             input[inputptr+l]=0;
             puts_plus(&input[inputptr]);
             for(int i=0;i<l;i++){
-                if(input[inputptr+i] =='\r'){
+                if(input[inputptr+i] =='\r' || input[inputptr+i] =='\n'){
                     input[inputptr+i]=0;
                     process(input);
                     if(i<l)
@@ -233,24 +233,41 @@ int process(char * input){
         __attribute__ ((aligned (4))) uint8_t buf[32];
         int status=0;
         int len;
-        if (input[1]==' '){
-            uint8_t *hex=hextobyte(&input[2],&len);
-            if(len<10) len=10;
+        int idx=1;
+        char ctr=1;
+        char debug=0;
+        if(input[idx]=='d'){
+            debug=1;
+            idx++;
+        };
+        if(input[idx]=='+'){
+            ctr=10;
+            idx++;
+        };
 
-            len+=2;
-            puts_plus("S Len:");
-            puts_plus(IntToStrX( len,2 ));
-            puts_plus("\r\n");
+        if (input[idx]==' '){
+            uint8_t *hex=hextobyte(&input[idx],&len);
+            if(len<10) len=10; // minmal packet length?
+            len+=2; // Add crc!
 
-            status=nrf_snd_pkt_crc_encr(len,hex,thekey);
+            memcpy(buf,hex,len);
+            status=nrf_snd_pkt_crc_encr(len,buf,thekey);
 
             puts_plus("P ");
             puts_plus("[");puts_plus(IntToStrX(len,2));puts_plus("] ");
-            for(int i=0;i<len;i++){
-                puts_plus(IntToStrX( hex[i],2 ));
-                puts_plus(" ");
+            if(debug){
+                for(int i=0;i<len;i++){
+                    puts_plus(IntToStrX( buf[i],2 ));
+                    puts_plus(" ");
+                };
             };
-            puts_plus("\r\n");
+            puts("\r\n");
+
+            while(--ctr>0){
+                delayms(23);
+                memcpy(buf,hex,len);
+                status=nrf_snd_pkt_crc_encr(len,buf,thekey);
+            };
         }else if (input[1]=='t'){
             static int ctr=1;
             int status;
