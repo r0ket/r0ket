@@ -44,17 +44,17 @@ void m_time(void){
     do{
         lcdClear();
         tm= mygmtime(getSeconds());
-        lcdPrintInt(tm->tm_hour);
+        lcdPrint(IntToStr(tm->tm_hour,2,F_LONG));
         lcdPrint(":");
-        lcdPrintInt(tm->tm_min);
+        lcdPrint(IntToStr(tm->tm_min,2,F_LONG|F_ZEROS));
         lcdPrint(":");
-        lcdPrintInt(tm->tm_sec);
+        lcdPrint(IntToStr(tm->tm_sec,2,F_LONG|F_ZEROS));
         lcdNl();
-        lcdPrintInt(tm->tm_mday);
+        lcdPrint(IntToStr(tm->tm_mday,2,F_LONG));
         lcdPrint(".");
-        lcdPrintInt(tm->tm_mon+1);
+        lcdPrint(IntToStr(tm->tm_mon+1,2,0));
         lcdPrint(".");
-        lcdPrintInt(tm->tm_year+YEAR0);
+        lcdPrint(IntToStr(tm->tm_year+YEAR0,4,F_LONG|F_ZEROS));
         lcdNl();
 
         lcdNl();
@@ -245,11 +245,11 @@ void m_choose(){
             break;
     };
     struct tm *tm= mygmtime(MO_TIME(meshbuffer[j].pkt));
-    lcdPrintInt(tm->tm_hour);
+    lcdPrint(IntToStr(tm->tm_hour,2,F_LONG));
     lcdPrint(":");
-    lcdPrintInt(tm->tm_min);
+    lcdPrint(IntToStr(tm->tm_min,2,F_LONG|F_ZEROS));
     lcdPrint(":");
-    lcdPrintInt(tm->tm_sec);
+    lcdPrint(IntToStr(tm->tm_sec,2,F_LONG|F_ZEROS));
     lcdNl();
     char *foo=(char *)MO_BODY(meshbuffer[j].pkt);
     while(strlen(foo)>13){
