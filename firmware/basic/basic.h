@@ -153,6 +153,8 @@ uint8_t getInputRaw(void);
 uint8_t getInputWait(void);
 void getInputWaitRelease(void);
 
+// stringin.c
+void input(char prompt[], char line[], uint8_t asciistart, uint8_t asciiend, uint8_t maxlength);
 //uuid.c
 #include "basic/uuid.h"
 
