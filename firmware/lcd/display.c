@@ -96,6 +96,7 @@ void lcdInit(void) {
     lcdWrite(TYPE_CMD,0xE2);
     delayms(5);
     lcdWrite(TYPE_CMD,0xAF); // Display ON
+    lcdWrite(TYPE_CMD,0xA1); // Mirror-X
     lcdWrite(TYPE_CMD,0xA4);
     lcdWrite(TYPE_CMD,0x2F);
     lcdWrite(TYPE_CMD,0xB0);
