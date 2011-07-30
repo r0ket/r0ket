@@ -208,4 +208,8 @@ int applyConfig(void);
 // itoa.c
 const char* IntToStrX(unsigned int num, unsigned int mxlen);
 
+// simpletime.c
+
+#include "basic/simpletime.h"
+
 #endif

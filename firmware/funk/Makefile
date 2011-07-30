@@ -8,6 +8,7 @@ OBJS += nrf24l01p.o
 OBJS += rftransfer.o
 OBJS += filetransfer.o
 OBJS += openbeacon.o
+OBJS += mesh.o
 
 LIBNAME=funk
 

@@ -10,38 +10,11 @@
 
 #include "funk/nrf24l01p.h"
 
+#include "funk/mesh.h"
+
 #include <string.h>
 
-#define MESH_CHANNEL 85
-#define MESH_MAC     "MESHB"
-
 /**************************************************************************/
-
-uint32_t const meshkey[4] = {
-    0x00000000, 0x00000000, 0x00000000, 0x00000000
-};
-
-#define MESHBUFSIZE 10
-#define MESHPKTSIZE 32
-typedef struct {
-    uint8_t pkt[32];
-    char flags;
-} MPKT;
-
-MPKT meshbuffer[MESHBUFSIZE];
-
-#define MF_FREE (0)
-#define MF_USED (1<<0)
-
-time_t _timet=0;
-
-// Timezones suck. Currently we only do it all in localtime.
-// I know it's broken. Sorry
-time_t getSeconds(void){
-    return _timet+(getTimer()*SYSTICKSPEED/1000);
-};
-
-// **********************************************************************
 
 void m_init(void){
     nrf_init();
@@ -56,169 +29,16 @@ void m_init(void){
 
     nrf_config_set(&config);
 
-    for(int i=0;i<MESHBUFSIZE;i++){
-        meshbuffer[i].flags=MF_FREE;
-    };
-    memset(meshbuffer[0].pkt,0,MESHPKTSIZE);
-    meshbuffer[0].pkt[0]='T';
-    uint32touint8p(getSeconds(),meshbuffer[0].pkt+2);
-    meshbuffer[0].flags=MF_USED;
+    initMesh();
 };
 
 void m_tset(void){
     _timet=1311961112;
 };
 
-void m_cleanup(void){
-    time_t now=getSeconds();
-    for(int i=1;i<MESHBUFSIZE;i++){
-        if(meshbuffer[i].flags&MF_USED){
-            if (uint8ptouint32(meshbuffer[i].pkt+2)<now){
-                meshbuffer[i].flags=MF_FREE;
-            };
-        };
-    };
-};
-
-#define YEAR0           1900                    /* the first year */
-#define EPOCH_YR        1970            /* EPOCH = Jan 1 1970 00:00:00 */
-#define SECS_DAY        (24L * 60L * 60L)
-#define LEAPYEAR(year)  (!((year) % 4) && (((year) % 100) || !((year) % 400)))
-#define YEARSIZE(year)  (LEAPYEAR(year) ? 366 : 365)
-
-int _ytab[2][12] = {
-    { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 },
-    { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 }
-};
-
-struct tm * mygmtime(register const time_t time) {
-        static struct tm br_time;
-        register struct tm *timep = &br_time;
-        register unsigned long dayclock, dayno;
-        int year = EPOCH_YR;
-
-        dayclock = (unsigned long)time % SECS_DAY;
-        dayno = (unsigned long)time / SECS_DAY;
-
-        timep->tm_sec = dayclock % 60;
-        timep->tm_min = (dayclock % 3600) / 60;
-        timep->tm_hour = dayclock / 3600;
-        timep->tm_wday = (dayno + 4) % 7;       /* day 0 was a thursday */
-        while (dayno >= YEARSIZE(year)) {
-                dayno -= YEARSIZE(year);
-                year++;
-        }
-        timep->tm_year = year - YEAR0;
-        timep->tm_yday = dayno;
-        timep->tm_mon = 0;
-        while (dayno >= _ytab[LEAPYEAR(year)][timep->tm_mon]) {
-                dayno -= _ytab[LEAPYEAR(year)][timep->tm_mon];
-                timep->tm_mon++;
-        }
-        timep->tm_mday = dayno + 1;
-        timep->tm_isdst = 0;
-
-        return timep;
-}
-
-#define M_SENDINT 500
-#define M_RECVINT 1000
-#define M_RECVTIM 100
-
-
-void m_recv(void){
-    __attribute__ ((aligned (4))) uint8_t buf[32];
-    int len;
-    int recvend=M_RECVTIM/SYSTICKSPEED+getTimer();
-
-    static int toggle=0;
-    gpioSetValue (RB_LED2, toggle); 
-    toggle=1-toggle;
-
-    m_cleanup();
-
-    nrf_rcv_pkt_start();
-    do{
-        len=nrf_rcv_pkt_poll_dec(sizeof(buf),buf,meshkey);
-
-        // Receive
-        if(len<=0){
-            delayms_power(10);
-            continue;
-        };
-
-        int i;
-        for(i=0;i<MESHBUFSIZE;i++){
-            if((meshbuffer[i].flags&MF_USED)==0)
-                break;
-        };
-        if(i==MESHBUFSIZE){ // Buffer full. Ah well. Kill a random packet
-            i=1; // XXX: GetRandom()?
-        };
-        memcpy(meshbuffer[i].pkt,buf,MESHPKTSIZE);
-        meshbuffer[i].flags=MF_USED;
-
-        if(buf[0]=='T'){
-            gpioSetValue (RB_LED1, 0); 
-            time_t toff=uint8ptouint32(buf+2)-(getTimer()*SYSTICKSPEED/1000);
-            if(toff>_timet) // Do not live in the past.
-                _timet = toff;
-        }else if (buf[0]>='A' && buf[0] <'T'){ // Truncate ascii packets.
-            meshbuffer[i].pkt[MESHPKTSIZE-3]=0;
-        };
-    }while(getTimer()<recvend);
-    nrf_rcv_pkt_end();
-}
-
-void m_send(void){
-    int ctr=0;
-    __attribute__ ((aligned (4))) uint8_t buf[32];
-    int status;
-
-    // Update [T]ime packet
-
-    uint32touint8p(getSeconds(),meshbuffer[0].pkt+2);
-    for (int i=0;i<MESHBUFSIZE;i++){
-        if(!meshbuffer[i].flags&MF_USED)
-            continue;
-        ctr++;
-        memcpy(buf,meshbuffer[i].pkt,MESHPKTSIZE);
-        status=nrf_snd_pkt_crc_encr(MESHPKTSIZE,buf,meshkey);
-        //Check status? But what would we do...
-    };
-};
-
-void m_info(void){
-    char ctr=0;
-    getInputWaitRelease();
-    lcdClear();
-    for (int i=0;i<MESHBUFSIZE;i++){
-        if(!meshbuffer[i].flags&MF_USED)
-            continue;
-        ctr++;
-    };
-    lcdPrint("MeshQ:");
-    lcdPrintInt(ctr);
-    lcdNl();
-    lcdDisplay();
-};
-
-
-void tick_mesh(void){
-    static int ctr=0;
-    ctr++;
-    if((ctr % (M_RECVINT/SYSTICKSPEED))==0){
-        push_queue(&m_recv);
-    };
-
-    if((ctr % (M_SENDINT/SYSTICKSPEED))==0){
-        push_queue(&m_send);
-    };
-};
-
-
 void m_time(void){
     struct tm* tm;
+    char c[2]={0,0};
     getInputWaitRelease();
     delayms(100);
     do{
@@ -236,7 +56,221 @@ void m_time(void){
         lcdPrint(".");
         lcdPrintInt(tm->tm_year+YEAR0);
         lcdNl();
+
+        lcdNl();
+        lcdPrint("<");
+
+        for(int i=0;i<MESHBUFSIZE;i++){
+            if(!meshbuffer[i].flags&MF_USED){
+                c[0]='_';
+            }else{
+                c[0]=meshbuffer[i].pkt[0];
+            };
+            lcdPrint(c);
+        };
+        lcdPrintln(">");
+
+        lcdPrint("Gen:");
+        lcdPrintInt(meshgen);
+        lcdNl();
         lcdRefresh();
         delayms_queue(50);
     }while ((getInputRaw())==BTN_NONE);
 };
+
+
+inline void blink(char a, char b){
+    gpioSetValue (a,b, 1-gpioGetValue(a,b));
+};
+
+
+int choose(char * texts, int8_t menuselection){
+    uint8_t numentries = 0;
+    uint8_t visible_lines = 0;
+    uint8_t current_offset = 0;
+
+    char*p=texts;
+
+    do{
+        lcdPrintln(p);
+        while(*p)p++;
+        numentries++;p++;
+    }while(*p);
+    numentries--;
+
+    visible_lines = (RESY/font->u8Height)-1; // subtract title line
+
+    while (1) {
+        // Display current menu page
+        lcdClear();
+        lcdPrintln(texts);
+        p=texts;
+        while(*p++);
+        for(int i=0;i<current_offset;i++)
+            while(*p++);
+        for (uint8_t i = current_offset; i < (visible_lines + current_offset) && i < numentries; i++) {
+            if (i == menuselection)
+                lcdPrint("*");
+            lcdSetCrsrX(14);
+            lcdPrintln(p);
+            while(*p++);
+        }
+        lcdRefresh();
+
+        switch (getInputWait()) {
+            case BTN_UP:
+                menuselection--;
+                if (menuselection < current_offset) {
+                    if (menuselection < 0) {
+                        menuselection = numentries-1;
+                        current_offset = ((numentries-1)/visible_lines) * visible_lines;
+                    } else {
+                        current_offset -= visible_lines;
+                    }
+                }
+                break;
+            case BTN_DOWN:
+                menuselection++;
+                if (menuselection > (current_offset + visible_lines-1) || menuselection >= numentries) {
+                    if (menuselection >= numentries) {
+                        menuselection = 0;
+                        current_offset = 0;
+                    } else {
+                        current_offset += visible_lines;
+                    }
+                }
+                break;
+            case BTN_LEFT:
+                return -1;
+            case BTN_RIGHT:
+            case BTN_ENTER:
+                return menuselection;
+        }
+        getInputWaitRelease();
+    }
+    /* NOTREACHED */
+}
+
+
+
+/***********************************************************************/
+
+char *meshmsgs(void){
+    static char msgtypes[MESHBUFSIZE+1];
+    memset(msgtypes,'_',MESHBUFSIZE);
+    msgtypes[MESHBUFSIZE]=0;
+    uint8_t lo=0;
+    uint8_t hi;
+
+    for(int o=0;o<MESHBUFSIZE;o++){
+        hi=0xff;
+        for(int i=0;i<MESHBUFSIZE;i++){
+            if(meshbuffer[i].flags&MF_USED){
+                if(MO_TYPE(meshbuffer[i].pkt)>lo)
+                    if(MO_TYPE(meshbuffer[i].pkt)<hi)
+                        hi=MO_TYPE(meshbuffer[i].pkt);
+            };
+        };
+        if(hi==0xff){
+            msgtypes[o]=0;
+            break;
+        };
+        msgtypes[o]=hi;
+        lo=hi;
+    };
+
+    return msgtypes;
+};
+
+
+
+extern MPKT meshbuffer[MESHBUFSIZE];
+void m_choose(){
+    char list[99];
+    int i=0;
+
+    while(1){
+    char *p=list;
+    strcpy(p,"Note");
+    while(*p++);
+
+    char *mm=meshmsgs();
+    char *tmm=mm;
+    while(*mm){
+        switch(*mm){
+            case('A'):
+                strcpy(p,"Message");
+                break;
+            case('E'):
+                strcpy(p,"Kourou");
+                break;
+            case('F'):
+                strcpy(p,"Baikonur");
+                break;
+            case('T'):
+                strcpy(p,"Time");
+                break;
+            default:
+                p[0]=*mm;
+                p[1]=0;
+        };
+        while(*p++);
+        mm++;
+    };
+    p[0]=0;
+
+    i=choose(list,i);
+    if(i<0)
+        return;
+    lcdClear();
+
+    int j=0;
+    for(int z=0;z<MESHBUFSIZE;z++)
+        if(meshbuffer[z].flags&MF_USED)
+            if(MO_TYPE(meshbuffer[z].pkt)==tmm[i])
+                j=z;
+
+    switch(tmm[i]){
+        case('A'):
+            lcdPrintln("Message");
+            break;
+        case('E'):
+            lcdPrintln("Kourou");
+            break;
+        case('F'):
+            lcdPrintln("Baikonur");
+            break;
+        case('T'):
+            lcdPrintln("Time");
+            break;
+    };
+    struct tm *tm= mygmtime(MO_TIME(meshbuffer[j].pkt));
+    lcdPrintInt(tm->tm_hour);
+    lcdPrint(":");
+    lcdPrintInt(tm->tm_min);
+    lcdPrint(":");
+    lcdPrintInt(tm->tm_sec);
+    lcdNl();
+    char *foo=(char *)MO_BODY(meshbuffer[j].pkt);
+    while(strlen(foo)>13){
+        int q;
+        for(q=0;q<13;q++){
+            if(foo[q]==' ')
+                break;
+        };
+        foo[q]=0;
+        lcdPrintln(foo);
+        foo[q]=' ';
+        foo+=q+1;
+    };
+    lcdPrintln(foo);
+    lcdRefresh();
+    getInputWaitRelease();
+    };
+};
+
+
+void tick_mesh(void){
+    mesh_systick();
+};
+
