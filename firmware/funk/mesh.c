@@ -68,13 +68,15 @@ void mesh_recvloop(void){
         pktctr++;
 
         if(MO_GEN(buf)>meshgen){
-            meshgen++;
+            if(meshgen)
+                meshgen++;
+            else
+                meshgen=MO_GEN(buf);
             _timet=0;
-            continue;
         };
 
         if(MO_TYPE(buf)=='T'){
-            time_t toff=MO_TIME(buf)-(getTimer()*SYSTICKSPEED/1000);
+            time_t toff=MO_TIME(buf)-((getTimer()-(200/SYSTICKSPEED))/(1000/SYSTICKSPEED));
             if (toff>_timet) // Do not live in the past.
                 _timet = toff;
             continue;
