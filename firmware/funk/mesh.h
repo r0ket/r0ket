@@ -17,6 +17,7 @@
 #define MO_GEN_set(x,y)  (x[1]=y)
 #define MO_TIME(x)       (uint8ptouint32(x+2))
 #define MO_TIME_set(x,y) (uint32touint8p(y,x+2))
+#define MO_BODY(x)       (x+6)
 
 typedef struct {
     uint8_t pkt[32];
