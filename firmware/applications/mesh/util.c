@@ -44,6 +44,39 @@ void adc_light(void) {
     dx=DoString(0,dy,"Done.");
 };
 
+void uptime(void) {
+    int t;
+    int h;
+    char flag;
+    while ((getInputRaw())==BTN_NONE){
+        lcdClear();
+        lcdPrintln("Uptime:");
+        t=getTimer()/(1000/SYSTICKSPEED);
+        h=t/60/60;
+        flag=F_ZEROS;
+        if(h>0){
+            lcdPrint(IntToStr(h,2,flag));
+            lcdPrint("h");
+            flag|=F_LONG;
+        };
+        h=t/60%60;
+        if(h>0){
+            lcdPrint(IntToStr(h,2,flag));
+            lcdPrint("m");
+            flag|=F_LONG;
+        };
+        h=t%60;
+        if(h>0){
+            lcdPrint(IntToStr(h,2,flag));
+            lcdPrint("s");
+        };
+        lcdNl();
+        lcdRefresh();
+        delayms_queue(200);
+    };
+    lcdPrintln("done.");
+};
+
 void gotoISP(void) {
     DoString(0,0,"Enter ISP!");
     lcdDisplay();
