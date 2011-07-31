@@ -332,6 +332,8 @@ int ff_del_syncobj (_SYNC_t);		/* Delete a sync object */
 #define FILENAMELEN 13 // 8+1+3+1
 const char* f_get_rc_string (FRESULT rc);
 void fsInit();
+int readFile(char * filename, char * data, int len);
+int writeFile(char * filename, char * data, int len);
 
 #ifdef __cplusplus
 }
