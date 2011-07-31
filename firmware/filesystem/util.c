@@ -38,6 +38,8 @@ int readFile(char * filename, char * data, int len){
         return -1;
     };
 
+    f_close(&file);
+
     data[readbytes]=0;
 	return readbytes;
 };
@@ -56,6 +58,7 @@ int writeFile(char * filename, char * data, int len){
     if(res){
         return -1;
     };
+    f_close(&file);
 
 	return writebytes;
 };
