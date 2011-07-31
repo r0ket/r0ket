@@ -6,9 +6,53 @@
 #include "filesystem/ff.h"
 #include "usb/usbmsc.h"
 
+#include "funk/nrf24l01p.h"
 
 FATFS FatFs;
 /**************************************************************************/
+
+#define BEACON_CHANNEL 81
+#define BEACON_MAC     "\x1\x2\x3\x2\1"
+
+uint32_t const testkey[4] = {
+    0xB4595344,0xD3E119B6,0xA814D0EC,0xEFF5A24E
+};
+
+void f_init(void){
+    nrf_init();
+
+    struct NRF_CFG config = {
+        .channel= BEACON_CHANNEL,
+        .txmac= BEACON_MAC,
+        .nrmacs=1,
+        .mac0=  BEACON_MAC,
+        .maclen ="\x10",
+    };
+
+    nrf_config_set(&config);
+};
+
+void f_recv(void){
+    __attribute__ ((aligned (4))) uint8_t buf[32];
+    int len;
+    static int foo = 0;
+    len=nrf_rcv_pkt_time_encr(100,sizeof(buf),buf,testkey);
+
+    if(len==0){
+        return;
+    };
+    
+    if( foo )
+        foo = 0;
+    else
+        foo = 1;
+ 
+    gpioSetValue (RB_LED0, foo); 
+    gpioSetValue (RB_LED1, foo); 
+    gpioSetValue (RB_LED2, foo); 
+    gpioSetValue (RB_LED3, foo); 
+};
+
 
 void init(void)
 {
@@ -20,20 +64,36 @@ void init(void)
     gpioSetValue (RB_LED3, 0); 
     IOCON_PIO1_11 = 0x0;
     gpioSetDir(RB_LED3, gpioDirection_Output);
+    f_init();
 }
 
-void format(void)
+void mount(void)
 {
     int res;
     lcdPrintln("Mount DF:");
     res=f_mount(0, &FatFs);
     lcdPrintln(f_get_rc_string(res));
     lcdRefresh();
+}
 
+void format(void)
+{
+    int res;
     lcdPrintln("Formatting DF...");
     res=f_mkfs(0,1,0);
     lcdPrintln(f_get_rc_string(res));
     lcdRefresh();
+}
+
+int check(void)
+{
+    FIL file;
+    int res = 1;
+    res=f_open(&file, "flashed.cfg", FA_OPEN_EXISTING|FA_READ);
+    lcdPrint("open:");
+    lcdPrintln(f_get_rc_string(res));
+    lcdRefresh();
+    return res;
 }
 
 void msc(int timeout)
@@ -42,8 +102,17 @@ void msc(int timeout)
     lcdRefresh();
     delayms_power(300);
     usbMSCInit();
-    while(timeout--)
-        delayms(1000);
+
+    while(check()){
+        mount();
+        delayms(100);
+        f_recv();
+    }
+
+    while(timeout--){
+        //f_recv();
+        delayms(100);
+    }
     lcdPrintln("MSC Disabled.");
     usbMSCOff();
     lcdRefresh();
@@ -58,8 +127,10 @@ void isp(void)
 	
 void main_initial(void) {
     init();
+    mount();
+    //if( check() )
     format();
-    msc(10);
+    msc(5);
     isp();
 }
 
