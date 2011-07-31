@@ -33,6 +33,7 @@ endif
 WRAP=wrapper
 LIBNAME=app
 
+
 ##########################################################################
 # GNU GCC compiler flags
 ##########################################################################
@@ -66,21 +67,21 @@ $(LOBJ):
 OBJS += $(LOBJ)
 endif
 
-ifeq "$(APP)" "tester"
+ifeq "$(wildcard $(APP))" "$(APP)"
 ifndef TYPE
 TYPE=$(APP)
 endif
 TSRCS = $(wildcard $(TYPE)/*.c)
 TOBJS = $(foreach mod,$(TSRCS),$(subst .c,.o,$(mod)))
 
-TWRAP=tester.gen
+TWRAP=$(APP).gen
 
 .PHONY: $(TWRAP)
 
 $(APP).o: $(TWRAP)
 
 $(TWRAP):
-	./mktester $(TSRCS) > $@
+	./mkfirmware $(APP) $(TSRCS) > $@
 
 OBJS += $(TOBJS)
 endif
@@ -93,7 +94,7 @@ $(LIBFILE): $(OBJS) $(WRAPOBJ)
 	$(CC) $(CFLAGS) -o $@ $<
 
 clean:
-	rm -f $(OBJS) $(WRAPOBJ) $(WRAPSRC) $(LIBFILE) *.o */*.o
+	rm -f $(OBJS) $(WRAPOBJ) $(WRAPSRC) $(LIBFILE) *.o */*.o *.gen
 
 %.c:
 	@echo 
