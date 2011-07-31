@@ -131,7 +131,8 @@ void main_initial(void) {
     //if( check() )
     format();
     msc(5);
-    isp();
+    delayms(200);
+    ReinvokeISP();
 }
 
 void tick_initial(void){
