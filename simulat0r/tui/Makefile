@@ -6,7 +6,6 @@ CFLAGS += -I../firmware
 CFLAGS += -I../firmware/core # for gpio.h including projectconfig.h without path
 CFLAGS += -I../simcore
 
-OBJS+= ../firmware/basic/*.o
 OBJS+= ../firmware/core/*.o
 OBJS+= ../firmware/core/*/*.o
 LIBS+= ../firmware/applications/libapp.a
