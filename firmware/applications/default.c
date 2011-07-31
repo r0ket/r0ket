@@ -1,5 +1,6 @@
 #include <sysinit.h>
 #include "basic/basic.h"
+#include "basic/config.h"
 
 #include "lcd/lcd.h"
 #include "lcd/fonts/smallfonts.h"
