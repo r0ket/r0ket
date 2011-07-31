@@ -1,6 +1,7 @@
 #include <sysinit.h>
 
 #include "basic/basic.h"
+#include "basic/config.h"
 
 #define SAMPCT (4)
 uint32_t light=300*SAMPCT;

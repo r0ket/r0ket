@@ -186,37 +186,6 @@ void handleMenu(const struct MENU *the_menu);
 
 #include "basic/idle.h"
 
-// config.c
-
-int readConfig(void);
-int saveConfig(void);
-void applyConfig(void);
-
-
-struct CDESC {
-    char *name;
-    char value;
-    char min;
-    char max;
-};
-
-extern struct CDESC the_config[];
-
-#define GLOBALversion      (the_config[0].value)
-#define GLOBALprivacy      (the_config[1].value)
-#define GLOBALdaytrig      (the_config[2].value)
-#define GLOBALdaytrighyst  (the_config[3].value)
-#define GLOBALdayinvert    (the_config[4].value)
-#define GLOBALlcdbacklight (the_config[5].value)
-#define GLOBALlcdmirror    (the_config[6].value)
-#define GLOBALlcdinvert    (the_config[7].value)
-#define GLOBALlcdcontrast  (the_config[8].value)
-
-#define GLOBAL(x) GLOBAL ## x
-
-
-#define SYSTICKSPEED 10
-
 // itoa.c
 #define F_ZEROS  (1<<0)
 #define F_LONG   (1<<1)
@@ -228,5 +197,9 @@ const char* IntToStr(int num, unsigned int mxlen, char flag);
 // simpletime.c
 
 #include "basic/simpletime.h"
+
+// global
+#define SYSTICKSPEED 10
+
 
 #endif

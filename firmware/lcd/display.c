@@ -6,6 +6,7 @@
 #include "core/ssp/ssp.h"
 #include "gpio/gpio.h"
 #include "basic/basic.h"
+#include "basic/config.h"
 #include "usb/usbmsc.h"
 
 /**************************************************************************/

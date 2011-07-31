@@ -4,8 +4,9 @@
 #include "lcd/print.h"
 #include "filesystem/ff.h"
 #include "basic/random.h"
+#include "basic/config.h"
 
-#define CFGVER 23
+#define CFGVER 24
 
 struct CDESC the_config[]= {
     {"version",          CFGVER, CFGVER, CFGVER},
@@ -19,6 +20,9 @@ struct CDESC the_config[]= {
     {"lcdcontrast",      0,     1, 6  },
     { NULL,              0,     0, 0  },
 };
+
+char nickname[MAXNICK]="anonymous";
+char nickfont[FILENAMELEN];
 
 #define CONFFILE "r0ket.cfg"
 #define CONF_ITER for(int i=0;the_config[i].name!=NULL;i++)
