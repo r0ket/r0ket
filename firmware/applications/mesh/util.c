@@ -37,7 +37,7 @@ void adc_light(void) {
     while ((getInputRaw())==BTN_NONE){
         DoInt(dx,dy,GetLight());
         DoInt(dx,dy+16,isNight());
-        DoInt(dx,dy+8,globalconfig.backlighttrigger);
+        DoInt(dx,dy+8,GLOBAL(nighttrigger));
         lcdDisplay();
     };
     dy+=8;
