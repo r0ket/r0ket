@@ -23,6 +23,8 @@ CC = $(CROSS_COMPILE)gcc
 LD = $(CROSS_COMPILE)ld
 REALLD = $(CROSS_COMPILE)ld
 SIZE = $(CROSS_COMPILE)size
+AR = $(CROSS_COMPILE)ar
+RANLIB = $(CROSS_COMPILE)ranlib
 OBJCOPY = $(CROSS_COMPILE)objcopy
 OBJDUMP = $(CROSS_COMPILE)objdump
 OUTFILE = firmware
@@ -44,6 +46,12 @@ endif
 CFLAGS  = -std=c99 -c -g -O0 $(INCLUDE_PATHS) -Wall -funsigned-char -ffunction-sections -fdata-sections -fmessage-length=0 -DRAMCODE=$(RAMCODE) -fno-builtin -DSIMULATOR -I$(ROOT_PATH)/../simcore -include libc-unc0llide.h $(CONFIG_GCC_SHOWCOLUMN)
 #LDFLAGS = -nostartfiles
 
+ifeq ($(shell uname), Darwin)
+# Mac OS X provides a stdio.h with unwanted defines
+CFLAGS += -D_FORTIFY_SOURCE=0
+# ld64 has problems with common symbols <rdar://problem/9870713>, apply a workaround
+RANLIBFLAGS = -c
+endif
 
 CONFIG_MAKE_PRINTDIRECTORY = --no-print-directory 
 CONFIG_GCC_SHOWCOLUMN = 
