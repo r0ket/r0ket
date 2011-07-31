@@ -187,21 +187,31 @@ void handleMenu(const struct MENU *the_menu);
 
 // config.c
 
-struct config_t {
-	time_t     time;
-	uint16_t   backlighttrigger;
-	char       backlightvalue; 
-	char       lcdstate;
-	char       privacy;
-} __attribute__((__packed__));
-
-typedef struct config_t CONFIG;
-
-extern CONFIG globalconfig;
-
 int readConfig(void);
 int saveConfig(void);
-int applyConfig(void);
+void applyConfig(void);
+
+
+struct CDESC {
+    char *name;
+    char value;
+    char min;
+    char max;
+};
+
+extern struct CDESC the_config[];
+
+#define GLOBALversion      (the_config[0].value)
+#define GLOBALprivacy      (the_config[1].value)
+#define GLOBALnighttrigger (the_config[2].value)
+#define GLOBALnightinvert  (the_config[3].value)
+#define GLOBALlcdbacklight (the_config[4].value)
+#define GLOBALlcdmirror    (the_config[5].value)
+#define GLOBALlcdinvert    (the_config[6].value)
+#define GLOBALlcdcontrast  (the_config[7].value)
+
+#define GLOBAL(x) GLOBAL ## x
+
 
 #define SYSTICKSPEED 10
 

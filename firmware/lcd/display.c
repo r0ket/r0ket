@@ -13,7 +13,6 @@
 /**************************************************************************/
 
 uint8_t lcdBuffer[RESX*RESY_B];
-#define lcd_layout globalconfig.lcdstate
 uint32_t intstatus; // Caches USB interrupt state
                     // (need to disable MSC while displaying)
 
@@ -153,12 +152,12 @@ void lcdDisplay(void) {
     uint16_t i,page;
     for(page=0; page<RESY_B;page++) {
         for(i=0; i<RESX; i++) {
-            if (lcd_layout & LCD_MIRRORX)
+            if (GLOBAL(lcdmirror))
                 byte=lcdBuffer[page*RESX+RESX-1-(i)];
             else
                 byte=lcdBuffer[page*RESX+(i)];
 
-            if (lcd_layout & LCD_INVERTED)
+            if (GLOBAL(lcdinvert))
                 byte=~byte;
 
             lcdWrite(TYPE_DATA,byte);
@@ -169,13 +168,36 @@ void lcdDisplay(void) {
 }
 
 inline void lcdInvert(void) {
-    lcdToggleFlag(LCD_INVERTED);
+    GLOBAL(lcdinvert)=!GLOBAL(lcdinvert);
 }
 
-void lcdToggleFlag(int flag) {
-    lcd_layout=lcd_layout ^ flag;
-}
+void lcdSetContrast(int c) {
+    c+=0x20;
+    if(c>0x2e) c=0x24;
+    lcd_select();
+    lcdWrite(TYPE_CMD,c);
+    lcd_deselect();
+};
 
+void lcdSetInvert(int c) {
+    if(c>1)
+        c=1;
+    if(c<0)
+        c=1;
+
+    c+=0xa6;
+    lcd_select();
+    lcdWrite(TYPE_CMD,c);
+    lcd_deselect();
+};
+
+/* deprecated */
+void __attribute__((__deprecated__)) lcdToggleFlag(int flag) {
+    if(flag==LCD_MIRRORX)
+        GLOBAL(lcdmirror)=!GLOBAL(lcdmirror);
+    if(flag==LCD_INVERTED)
+        GLOBAL(lcdinvert)=!GLOBAL(lcdinvert);
+}
 
 
 void lcdShiftH(bool right, bool wrap) {
