@@ -20,6 +20,8 @@ OBJS += random.o
 OBJS += idle.o
 OBJS += config.o
 OBJS += itoa.o
+OBJS += stringin.o
+OBJS += simpletime.o
 
 LIBNAME=basic
 

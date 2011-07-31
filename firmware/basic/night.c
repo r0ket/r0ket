@@ -7,7 +7,7 @@
 uint32_t light=300*HYST;
 char _isnight=1;
 
-#define threshold globalconfig.backlighttrigger
+#define threshold GLOBAL(nighttrigger)
 
 void LightCheck(void){
     int iocon;
@@ -22,7 +22,7 @@ void LightCheck(void){
     gpioSetDir(RB_LED3, gpioDirection_Input);
     IOCON_PIO1_11 = IOCON_PIO1_11_FUNC_AD7|IOCON_PIO1_11_ADMODE_ANALOG;
     light-=light/HYST;
-	light += adcRead(7);
+	light += (adcRead(7)/2);
     
     gpioSetDir(RB_LED3, iodir);
     IOCON_PIO1_11=iocon;

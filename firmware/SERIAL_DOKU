@@ -1,0 +1,14 @@
+i: initialize
+cb / cm / cr: config funk for beacon/mesh/remote
+Ck<hex>: set encryptionkey
+Ct<hex>: set txmac
+Cc<hex>: set channel
+Ct<hex>: set rxmac(0)
+
+s <hex>: send packet
+s+ <hex>: send packet 10 times
+sd <hex>: send packet with debugoutput
+
+r: recv packets
+r+<hex>: recv packets for <hex> seconds
+r-<hex>: recv <hex> packets (5 seconds max)

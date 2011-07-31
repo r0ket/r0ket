@@ -34,6 +34,12 @@ void setExtFont(const char *fname){
     font=NULL;
 };
 
+int getFontHeight(void){
+    if(font)
+        return font->u8Height;
+    return 8; // XXX: Should be done right.
+};
+
 
 int _getFontData(int type, int offset){
     UINT readbytes;

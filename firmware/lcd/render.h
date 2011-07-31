@@ -36,6 +36,7 @@ int DoCharX(int sx, int sy, unsigned char num);
 int DoShortX(int sx, int sy, uint16_t num);
 void setIntFont(const struct FONT_DEF * font);
 void setExtFont(const char *file);
+int getFontHeight(void);
 
 #define START_FONT 0
 #define SEEK_EXTRAS 1

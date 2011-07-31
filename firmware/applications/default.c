@@ -38,10 +38,17 @@ void tick_default(void) {
         };
     };
 
-    if(isNight())
-        backlightSetBrightness(globalconfig.backlightvalue);
-    else
-        backlightSetBrightness(0);
+    if(ctr>100/SYSTICKSPEED){
+        if(isNight()){
+            backlightSetBrightness(GLOBAL(lcdbacklight));
+            if(GLOBAL(nightinvert))
+                lcdSetInvert(0);
+        } else {
+            backlightSetBrightness(0);
+            if(GLOBAL(nightinvert))
+                lcdSetInvert(1);
+        }
+    }
 
     if(ctr%(50/SYSTICKSPEED)==0){
 
