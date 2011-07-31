@@ -81,6 +81,7 @@
 #define RB_PWR_GOOD		1,8
 
 #define RB_PWR_CHRG		2,3
+#define RB_PWR_CHRG_IO	IOCON_PIO2_3
 
 #define RB_PWR_LCDBL    0,0
 #define RB_PWR_LCDBL_IO IOCON_nRESET_PIO0_0
@@ -203,12 +204,13 @@ extern struct CDESC the_config[];
 
 #define GLOBALversion      (the_config[0].value)
 #define GLOBALprivacy      (the_config[1].value)
-#define GLOBALnighttrigger (the_config[2].value)
-#define GLOBALnightinvert  (the_config[3].value)
-#define GLOBALlcdbacklight (the_config[4].value)
-#define GLOBALlcdmirror    (the_config[5].value)
-#define GLOBALlcdinvert    (the_config[6].value)
-#define GLOBALlcdcontrast  (the_config[7].value)
+#define GLOBALdaytrig      (the_config[2].value)
+#define GLOBALdaytrighyst  (the_config[3].value)
+#define GLOBALdayinvert    (the_config[4].value)
+#define GLOBALlcdbacklight (the_config[5].value)
+#define GLOBALlcdmirror    (the_config[6].value)
+#define GLOBALlcdinvert    (the_config[7].value)
+#define GLOBALlcdcontrast  (the_config[8].value)
 
 #define GLOBAL(x) GLOBAL ## x
 

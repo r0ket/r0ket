@@ -2,12 +2,12 @@
 
 #include "basic/basic.h"
 
-#define RANGE (10)
-#define HYST (4)
-uint32_t light=300*HYST;
+#define SAMPCT (4)
+uint32_t light=300*SAMPCT;
 char _isnight=1;
 
-#define threshold GLOBAL(nighttrigger)
+#define threshold GLOBAL(daytrig)
+#define RANGE GLOBAL(daytrighyst)
 
 void LightCheck(void){
     int iocon;
@@ -21,7 +21,7 @@ void LightCheck(void){
 
     gpioSetDir(RB_LED3, gpioDirection_Input);
     IOCON_PIO1_11 = IOCON_PIO1_11_FUNC_AD7|IOCON_PIO1_11_ADMODE_ANALOG;
-    light-=light/HYST;
+    light-=light/SAMPCT;
 	light += (adcRead(7)/2);
     
     gpioSetDir(RB_LED3, iodir);
@@ -31,15 +31,15 @@ void LightCheck(void){
         threshold=320;
     };
 
-    if(_isnight && light/HYST>(threshold+RANGE))
+    if(_isnight && light/SAMPCT>(threshold+RANGE))
         _isnight=0;
 
-    if(!_isnight && light/HYST<threshold)
+    if(!_isnight && light/SAMPCT<threshold)
         _isnight=1;
 };
 
 uint32_t GetLight(void){
-    return light/HYST;
+    return light/SAMPCT;
 };
 
 char isNight(void){

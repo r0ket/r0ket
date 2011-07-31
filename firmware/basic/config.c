@@ -10,12 +10,13 @@
 struct CDESC the_config[]= {
     {"version",          CFGVER, CFGVER, CFGVER},
     {"privacy",          3,     0, 2  },
-    {"nighttrigger",     310/2, 0, 255},
-    {"nightinvert",      1,     0, 1  },
+    {"daytrig",          310/2, 0, 255},
+    {"daytrighyst",      10,    0, 50 },
+    {"dayinvert",        1,     0, 1  },
     {"lcdbacklight",     50,    0, 100},
     {"lcdmirror",        0,     0, 1  },
     {"lcdinvert",        0,     0, 1  },
-    {"lcdcontrast",      3,     1, 6  },
+    {"lcdcontrast",      0,     1, 6  },
     { NULL,              0,     0, 0  },
 };
 
@@ -25,7 +26,8 @@ struct CDESC the_config[]= {
 /**************************************************************************/
 
 void applyConfig(){
-    lcdSetContrast(GLOBAL(lcdcontrast));
+    if(GLOBAL(lcdcontrast)>0)
+        lcdSetContrast(GLOBAL(lcdcontrast));
 	return 0;
 };
 
