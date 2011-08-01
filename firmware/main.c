@@ -5,6 +5,7 @@
 
 #include "basic/basic.h"
 #include "lcd/render.h"
+#include "filesystem/ff.h"
 
 /**************************************************************************/
 

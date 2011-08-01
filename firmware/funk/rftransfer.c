@@ -1,6 +1,7 @@
 #include "rftransfer.h"
 #include "nrf24l01p.h"
 #include <basic/basic.h>
+#include <basic/random.h>
 #include <core/systick/systick.h>
 #include <lcd/print.h>
 

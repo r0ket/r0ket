@@ -1,6 +1,7 @@
 #include <sysinit.h>
 #include "basic/basic.h"
 
+#include "lcd/display.h"
 #include "lcd/print.h"
 #include "filesystem/ff.h"
 #include "basic/random.h"
@@ -32,7 +33,7 @@ char nickfont[FILENAMELEN];
 void applyConfig(){
     if(GLOBAL(lcdcontrast)>0)
         lcdSetContrast(GLOBAL(lcdcontrast));
-	return 0;
+	return;
 };
 
 int saveConfig(void){

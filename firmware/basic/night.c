@@ -14,8 +14,6 @@ void LightCheck(void){
     int iocon;
     char iodir;
 
-    int value;
-
     iocon=IOCON_PIO1_11;
 //    iodir=gpioGetDir(RB_LED3);
     iodir= (GPIO_GPIO1DIR & (1 << (RB_LED3) ))?1:0;
@@ -27,10 +25,6 @@ void LightCheck(void){
     
     gpioSetDir(RB_LED3, iodir);
     IOCON_PIO1_11=iocon;
-
-    if(threshold==0){ // uninitialized?
-        threshold=320;
-    };
 
     if(_isnight && light/SAMPCT>(threshold+RANGE))
         _isnight=0;
