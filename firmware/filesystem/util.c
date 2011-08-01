@@ -1,3 +1,4 @@
+#include <sysdefs.h>
 #include <ff.h>
 
 FATFS FatFs;          /* File system object for logical drive */
@@ -20,6 +21,11 @@ const char* f_get_rc_string (FRESULT rc) {
 
 
 void fsInit(){
+    f_mount(0, &FatFs);
+};
+
+void fsReInit(){
+    f_mount(0, NULL);
     f_mount(0, &FatFs);
 };
 
