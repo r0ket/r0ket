@@ -4,7 +4,7 @@
 #include "basic/config.h"
 
 #define SAMPCT (4)
-uint32_t light=300*SAMPCT;
+uint32_t light=150*SAMPCT;
 char _isnight=1;
 
 #define threshold GLOBAL(daytrig)
