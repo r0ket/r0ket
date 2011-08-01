@@ -66,6 +66,7 @@ int selectFile(char *filename, char *extension)
         }
         lcdRefresh();
         key=getInputWait();
+        getInputWaitRelease();
         if( key==BTN_DOWN ){
             if( selected < count-1 ){
                 selected++;

@@ -20,6 +20,7 @@
 /* Display buffer */
 extern uint8_t lcdBuffer[RESX*RESY_B];
 
+uint8_t lcdRead(uint8_t data);
 void lcdInit(void);
 void lcdFill(char f);
 void lcdDisplay(void);

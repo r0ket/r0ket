@@ -17,7 +17,7 @@ struct CDESC the_config[]= {
     {"lcdbacklight",     50,    0, 100},
     {"lcdmirror",        0,     0, 1  },
     {"lcdinvert",        0,     0, 1  },
-    {"lcdcontrast",      0,     1, 6  },
+    {"lcdcontrast",      3,     0, 31 },
     { NULL,              0,     0, 0  },
 };
 
