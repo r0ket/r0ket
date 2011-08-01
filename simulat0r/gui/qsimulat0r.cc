@@ -92,15 +92,15 @@ public:
     pixmap.setPixel(1,1,(QColor(backlight,backlight,backlight).rgb()));
     pixmap.fill(pixmap.pixel(1,1));
 
+    const int pixelOn=GLOBAL(lcdinvert)?colorInvertedPixelOn:colorPixelOn;
+    const int pixelOff=GLOBAL(lcdinvert)?colorInvertedPixelOff:colorPixelOff;
+
     // draw lcd array
     for (int x = 0; x < dimx; ++x) {
       for(int y=0; y<dimy; ++y) {
 	int color;
-	if(globalconfig.lcdstate & LCD_INVERTED) {
-	  color=lcdGetPixel((globalconfig.lcdstate & LCD_MIRRORX)?(RESX-x-1):x,(globalconfig.lcdstate & LCD_MIRRORY)?(RESY-y-1):y)?colorInvertedPixelOn:colorInvertedPixelOff;
-	} else {
-	  color=lcdGetPixel((globalconfig.lcdstate & LCD_MIRRORX)?(RESX-x-1):x,(globalconfig.lcdstate & LCD_MIRRORY)?(RESY-y-1):y)?colorPixelOn:colorPixelOff;
-	}
+	color=lcdGetPixel((GLOBAL(lcdmirror) /* LCD_MIRRORX */ )?(RESX-x-1):x,( 1 /* LCD_MIRRORY */)?(RESY-y-1):y)?colorInvertedPixelOn:colorInvertedPixelOff;
+	
 	for(int minix=0; minix<pixw; ++minix) {
 	  for(int miniy=0; miniy<pixh; ++miniy) {
 	    pixmap.setPixel(x*rasterx+minix,ledsize+ledsep+y*rastery+miniy,color);
