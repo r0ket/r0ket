@@ -395,3 +395,10 @@ void nrf_init() {
     nrf_write_reg(R_RF_SETUP,DEFAULT_SPEED|R_RF_SETUP_RF_PWR_3);
 };
 
+void nrf_off() {
+    nrf_write_reg(R_CONFIG,
+            R_CONFIG_MASK_RX_DR|
+            R_CONFIG_MASK_TX_DS|
+            R_CONFIG_MASK_MAX_RT
+            ); // Most important: no R_CONFIG_PWR_UP
+};

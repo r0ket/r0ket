@@ -11,6 +11,7 @@ void VoltageCheck(void){
 	results /= 1024;
 
 	if( results < 3500 ){
+        nrf_off();
 	    gpioSetValue (RB_PWR_GOOD, 0); 
 	    gpioSetValue (RB_LCD_BL, 0); 
 	    SCB_SCR |= SCB_SCR_SLEEPDEEP;
