@@ -1,5 +1,8 @@
 #!/bin/sh
 
+APP=$1
+shift
+
 for f in $* ; do
     grep -h '^void ' $f|sed 's/^void //;s/(.*//'|while read a ; do
         echo "void $a(void);"
@@ -58,7 +61,7 @@ done
 echo "NULL"
 echo "};"
 
-echo "inline void generated_tick(void){"
+echo "inline void tick_${APP}(void){"
 for f in $* ; do
     grep -h '^void tick_' $f|sed 's/^void //;s/(.*//'|while read a ; do
     echo "$a();"

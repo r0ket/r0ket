@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include "random.h"
 #include "xxtea.h"
+#include "core/adc/adc.h"
 
 #define STATE_SIZE  8
 uint32_t state[STATE_SIZE];

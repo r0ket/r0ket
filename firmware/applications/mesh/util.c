@@ -1,6 +1,7 @@
 #include <sysinit.h>
 
 #include "basic/basic.h"
+#include "basic/config.h"
 
 #include "lcd/lcd.h"
 #include "lcd/print.h"
@@ -29,6 +30,18 @@ void show_ticks(void) {
 };
 
 
+void chrg_stat(void) {
+    int stat;
+    while ((getInputRaw())==BTN_NONE){
+        lcdClear();
+        lcdPrintln("Chrg_stat:");
+        stat=gpioGetValue(RB_PWR_CHRG);
+        lcdPrint(IntToStr(stat,3,0));
+        lcdNl();
+        lcdRefresh();
+    };
+    lcdPrintln("Done.");
+};
 void adc_light(void) {
     int dx=0;
     int dy=8;
@@ -37,7 +50,7 @@ void adc_light(void) {
     while ((getInputRaw())==BTN_NONE){
         DoInt(dx,dy,GetLight());
         DoInt(dx,dy+16,isNight());
-        DoInt(dx,dy+8,GLOBAL(nighttrigger));
+        DoInt(dx,dy+8,GLOBAL(daytrig));
         lcdDisplay();
     };
     dy+=8;

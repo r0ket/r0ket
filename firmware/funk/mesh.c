@@ -76,7 +76,7 @@ void mesh_recvloop(void){
         };
 
         if(MO_TYPE(buf)=='T'){
-            time_t toff=MO_TIME(buf)-((getTimer()-(200/SYSTICKSPEED))/(1000/SYSTICKSPEED));
+            time_t toff=MO_TIME(buf)-((getTimer()+(300/SYSTICKSPEED))/(1000/SYSTICKSPEED));
             if (toff>_timet) // Do not live in the past.
                 _timet = toff;
             continue;

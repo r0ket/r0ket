@@ -20,6 +20,7 @@
 /* Display buffer */
 extern uint8_t lcdBuffer[RESX*RESY_B];
 
+uint8_t lcdRead(uint8_t data);
 void lcdInit(void);
 void lcdFill(char f);
 void lcdDisplay(void);
@@ -30,4 +31,5 @@ void lcdSafeSetPixel(char x, char y, bool f);
 bool lcdGetPixel(char x, char y);
 void lcdShift(int x, int y, bool wrap);
 void lcdSetContrast(int c);
+void lcdSetInvert();
 #endif

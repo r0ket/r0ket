@@ -1,10 +1,12 @@
 #include <sysinit.h>
 #include "basic/basic.h"
+#include "basic/config.h"
 
 #include "lcd/lcd.h"
 #include "lcd/fonts/smallfonts.h"
 #include "lcd/print.h"
 #include "filesystem/ff.h"
+#include "usb/usbmsc.h"
 #include "basic/random.h"
 
 /**************************************************************************/
@@ -12,12 +14,18 @@
 void main_default(void) {
     systickInit(SYSTICKSPEED);
 
-    if(getInputRaw()==BTN_ENTER){
-        ISPandReset();
+    switch(getInputRaw()){
+        case BTN_ENTER:
+            ISPandReset();
+            break;
+        case BTN_DOWN:
+            usbMSCInit();
+            while(1)
+                delayms_power(100);
+            break;
     };
 
     readConfig();
-    applyConfig();
     randomInit();
 
     return;
@@ -41,12 +49,13 @@ void tick_default(void) {
     if(ctr>100/SYSTICKSPEED){
         if(isNight()){
             backlightSetBrightness(GLOBAL(lcdbacklight));
-            if(GLOBAL(nightinvert))
-                lcdSetInvert(0);
+            lcdSetInvert(0);
         } else {
             backlightSetBrightness(0);
-            if(GLOBAL(nightinvert))
+            if(GLOBAL(dayinvert))
                 lcdSetInvert(1);
+            else
+                lcdSetInvert(0);
         }
     }
 

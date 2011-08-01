@@ -138,6 +138,7 @@ int nrf_rcv_pkt_time_encr(int maxtime, int maxsize, uint8_t * pkt, uint32_t cons
 char nrf_snd_pkt_crc_encr(int size, uint8_t * pkt, uint32_t const k[4]);
 
 void nrf_init() ;
+void nrf_off() ;
 
 void nrf_cmd(uint8_t cmd);
 uint8_t nrf_cmd_status(uint8_t cmd);

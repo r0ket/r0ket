@@ -18,10 +18,10 @@ FIL file; /* current font file */
 
 /* Exported Functions */
 
-void setIntFont(const struct FONT_DEF * font){
-    memcpy(&efont.def,font,sizeof(struct FONT_DEF));
+void setIntFont(const struct FONT_DEF * newfont){
+    memcpy(&efont.def,newfont,sizeof(struct FONT_DEF));
     efont.type=FONT_INTERNAL;
-    font=NULL;
+    font=&efont.def;
 };
 
 void setExtFont(const char *fname){
