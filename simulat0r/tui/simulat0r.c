@@ -1,5 +1,6 @@
 #include "simulator.h"
 #include "../firmware/basic/basic.h"
+#include "../firmware/basic/config.h"
 #include "../firmware/lcd/display.h"
 
 #include <unistd.h>

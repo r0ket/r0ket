@@ -19,6 +19,7 @@ using namespace std;
 
 extern "C" {
 #include "basic/basic.h"
+#include "basic/config.h"
 #include "lcd/backlight.h"
 
 #define lcdGetPixel __hideaway_lcdGetPixel
