@@ -12,7 +12,7 @@ void simlcdDisplayUpdate() {
 
   for(int y=0; y<RESY; ++y) {
     for(int x=0; x<RESX; ++x) {
-      write(1,(lcdGetPixel((GLOBAL(lcdmirror) /* LCD_MIRRORX */ )?(RESX-x-1):x,(1 /* & LCD_MIRRORY */)?(RESY-y-1):y)?symbolOn:symbolOff),1);
+      write(1,(lcdGetPixel((GLOBAL(lcdmirror) /* LCD_MIRRORX */ )?(RESX-x-1):x,(0 /* & LCD_MIRRORY */)?(RESY-y-1):y)?symbolOn:symbolOff),1);
     }
       write(1,("\n"),1);
   }

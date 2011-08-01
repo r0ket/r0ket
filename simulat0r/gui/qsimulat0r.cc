@@ -100,7 +100,7 @@ public:
     for (int x = 0; x < dimx; ++x) {
       for(int y=0; y<dimy; ++y) {
 	int color;
-	color=lcdGetPixel((GLOBAL(lcdmirror) /* LCD_MIRRORX */ )?(RESX-x-1):x,( 1 /* LCD_MIRRORY */)?(RESY-y-1):y)?colorInvertedPixelOn:colorInvertedPixelOff;
+	color=lcdGetPixel((GLOBAL(lcdmirror) /* LCD_MIRRORX */ )?(RESX-x-1):x,( 0 /* LCD_MIRRORY */)?(RESY-y-1):y)?pixelOn:pixelOff;
 	
 	for(int minix=0; minix<pixw; ++minix) {
 	  for(int miniy=0; miniy<pixh; ++miniy) {

@@ -16,3 +16,5 @@ void main_tester(void) {
     handleMenu(&mainmenu);
     gotoISP();
 };
+
+void tick_tester(void);
