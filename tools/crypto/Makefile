@@ -1,7 +1,7 @@
 CC = gcc
 LD = gcc
 LDFLAGS = -Wall -O2 -std=c99
-EXES = xxtea
+EXES = main
 TESTFILE= test.out
 
 all: $(EXES)
