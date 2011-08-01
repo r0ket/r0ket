@@ -2,7 +2,6 @@
 
 #include "basic/basic.h"
 
-#include "lcd/fonts.h"
 #include "lcd/render.h"
 #include "lcd/print.h"
 
@@ -21,27 +20,24 @@ void handleMenu(const struct MENU *the_menu) {
 
     for (numentries = 0; the_menu->entries[numentries] != NULL; numentries++);
 
-    visible_lines = (RESY/font->u8Height)-1; // subtract title line
+    visible_lines = (RESY/getFontHeight())-1; // subtract title line
 #ifdef SAFETY
     if (visible_lines < 2) return;
 #endif
 
     while (!back) {
-        uint8_t line = 0;
-
         // Display current menu page
-        lcdFill(0);
-        DoString(0, line, the_menu->title);
-        line += font->u8Height;
+        lcdClear();
+        lcdPrintln(the_menu->title);
 
         for (uint8_t i = current_offset; i < (visible_lines + current_offset) && i < numentries; i++) {
-            DoString(14, line, the_menu->entries[i]->text);
             if (i == menuselection) {
-                DoString(0, line, "* ");
+                lcdPrint("*");
             }
-            line += font->u8Height;
+            lcdSetCrsrX(14);
+            lcdPrintln(the_menu->entries[i]->text);
         }
-        lcdDisplay();
+        lcdRefresh();
 
         switch (getInputWait()) {
             case BTN_UP:
