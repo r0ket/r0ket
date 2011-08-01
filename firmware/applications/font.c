@@ -27,18 +27,6 @@ void f_init(void){
     UINT readbytes;
     int res;
 
-    nrf_init();
-
-    struct NRF_CFG config = {
-        .channel= 81,
-        .txmac= "REMOT",
-        .nrmacs=1,
-        .mac0=  "REMOT",
-        .maclen ="\x10",
-    };
-
-    nrf_config_set(&config);
-
     res=f_open(&file[0], "nick.cfg", FA_OPEN_EXISTING|FA_READ);
     lcdPrint("open:");
     lcdPrintln(f_get_rc_string(res));
@@ -79,7 +67,6 @@ void f_init(void){
 char fontname[15];
 
 void f_nick(void){
-    static char ctr=0;
     char key;
     static signed char x=10;
     static signed char y=10;
@@ -96,6 +83,7 @@ void f_nick(void){
         lcdPrintInt(x);
         lcdPrint("x");
         lcdPrintInt(y);
+
 
         lcdDisplay();
         delayms(40);
@@ -117,7 +105,6 @@ void f_nick(void){
             lcdClear();
             lcdPrintln("Done.");
             lcdDisplay();
-            ctr++;
             break;
         };
     };

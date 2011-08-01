@@ -13,29 +13,30 @@ int getFiles(char files[][FLEN], uint8_t count, uint16_t skip, char *ext)
     DIR dir;                /* Directory object */
     FILINFO Finfo;
     FRESULT res;
-    int ctr;
     int pos = 0;
+    int extlen = strlen(ext);
     res = f_opendir(&dir, "0:");
     if(res){
         //lcdPrint("OpenDir:"); lcdPrintln(f_get_rc_string(res)); lcdRefresh(); 
         return 0;
     };
-    ctr=0;
-    while(1){
-        res = f_readdir(&dir, &Finfo);
-        if ((res != FR_OK) || !Finfo.fname[0])
-            break;
-
+    while(f_readdir(&dir, &Finfo) == FR_OK && Finfo.fname[0]){
         int len=strlen(Finfo.fname);
-        int extlen = strlen(ext);
+
+        if(len<extlen)
+            continue;
 
         if( strcmp(Finfo.fname+len-extlen, ext) != 0)
             continue;
+
         if (Finfo.fattrib & AM_DIR)
             continue;
 
-        if( ctr++ < skip )
+        if( skip>0 ){
+            skip--;
             continue;
+        };
+
         strcpy(files[pos++],Finfo.fname);
         if( pos == count )
             break;
@@ -43,6 +44,7 @@ int getFiles(char files[][FLEN], uint8_t count, uint16_t skip, char *ext)
     return pos;
 }
 
+#define PERPAGE 7
 int selectFile(char *filename, char *extension)
 {
     int skip = 0;
@@ -50,13 +52,29 @@ int selectFile(char *filename, char *extension)
     int selected = 0;
     font=&Font_7x8;
     while(1){
-        char files[7][FLEN];
-        int count = getFiles(files, 7, skip, extension);
+        char files[PERPAGE][FLEN];
+        int count = getFiles(files, PERPAGE, skip, extension);
+        if(!count){
+            lcdPrintln("No Files?");
+            lcdRefresh();
+            getInputWait();
+            getInputWaitRelease();
+            return -1;
+        };
+
+        if(count<PERPAGE && selected==count){
+            skip--;
+            continue;
+        };
         
         redraw:
-        if( count )
-            lcdClear();
-        lcdPrintln("Select file:");
+        lcdClear();
+        lcdPrint("Select file:");
+        lcdSetCrsrX(40);
+        lcdPrint(IntToStr(skip,1,0));
+        lcdPrint("/");
+        lcdPrint(IntToStr(selected,1,0));
+        lcdNl();
         for(int i=0; i<count; i++){
             if( selected == i )
                 lcdPrint("*");
@@ -67,27 +85,31 @@ int selectFile(char *filename, char *extension)
         lcdRefresh();
         key=getInputWait();
         getInputWaitRelease();
-        if( key==BTN_DOWN ){
-            if( selected < count-1 ){
-                selected++;
-                goto redraw;
-            }else{
-                skip++;
-            }
-        }else if( key==BTN_UP ){
-            if( selected > 0 ){
-                selected--;
-                goto redraw;
-            }else{
-                if( skip > 0 ){
-                    skip--;
+        switch(key){
+            case BTN_DOWN:
+                if( selected < count-1 ){
+                    selected++;
+                    goto redraw;
+                }else{
+                    skip++;
                 }
-            }
-        }else if( key==BTN_LEFT ){
-            return 1;
-        }else if( key==BTN_RIGHT ){
-            strcpy(filename, files[selected]);
-            return 0;
+                break;
+            case BTN_UP:
+                if( selected > 0 ){
+                    selected--;
+                    goto redraw;
+                }else{
+                    if( skip > 0 ){
+                        skip--;
+                    }
+                }
+                break;
+            case BTN_LEFT:
+                return -1;
+            case BTN_ENTER:
+            case BTN_RIGHT:
+                strcpy(filename, files[selected]);
+                return 0;
         }
     }
 }
