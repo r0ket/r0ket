@@ -26,6 +26,7 @@ typedef struct {
 
 #define MF_FREE (0)
 #define MF_USED (1<<0)
+#define MF_LOCK (1<<1)
 
 extern char meshgen; // Generation
 extern MPKT meshbuffer[MESHBUFSIZE];
@@ -35,5 +36,6 @@ void mesh_cleanup(void);
 void mesh_recvloop(void);
 void mesh_sendloop(void);
 void mesh_systick(void);
+MPKT * meshGetMessage(uint8_t type);
 
 #endif
