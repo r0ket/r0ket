@@ -38,16 +38,15 @@ const uint8_t InvadersBitmaps[] = {
   0x9c,  /* *  ***   */ 
 
 
- /* Char 67 is 9px wide @ 23 */
+ /* Char 67 is 8px wide @ 23 */
   0x58,  /*  * **    */ 
   0xbc,  /* * ****   */ 
   0x16,  /*    * **  */ 
   0x3f,  /*   ****** */ 
   0x3f,  /*   ****** */ 
-  0x36,  /*   ** **  */ 
-  0x1c,  /*    ***   */ 
-  0xb8,  /* * ***    */ 
-  0x40,  /*  *       */ 
+  0x16,  /*    * **  */ 
+  0xbc,  /* * ****   */ 
+  0x58,  /*  * **    */ 
 
 
  /* Char 80 is 7px wide @ 32 */
@@ -125,7 +124,7 @@ const uint8_t InvadersBitmaps[] = {
 const FONT_CHAR_INFO InvadersLengths[] = {
  {11}, /* A */
  {12}, /* B */
- { 9}, /* C */
+ { 8}, /* C */
  { 7}, /* P */
  {16}, /* U */
  {11}, /* a */
