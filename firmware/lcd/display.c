@@ -61,6 +61,55 @@ static void lcdWrite(uint8_t cd, uint8_t data) {
     frame = SSP_SSP0DR;
 }
 
+#define CS 2,1
+#define SCK 2,11
+#define SDA 0,9
+#define RST 2,2
+
+uint8_t lcdRead(uint8_t data)
+{
+    uint8_t i;
+
+    gpioSetDir(SDA, 1);
+    gpioSetValue(SCK, 0);
+    delayms(1);
+    gpioSetValue(CS, 0);
+    delayms(1);
+
+    gpioSetValue(SDA, 0);
+    delayms(1);
+    gpioSetValue(SCK, 1);
+    delayms(1);
+    
+    for(i=0; i<8; i++){
+        gpioSetValue(SCK, 0);
+        delayms(1);
+        if( data & 0x80 )
+            gpioSetValue(SDA, 1);
+        else
+            gpioSetValue(SDA, 0);
+        data <<= 1;
+        gpioSetValue(SCK, 1);
+        delayms(1);
+    }
+    uint8_t ret = 0;
+
+    gpioSetDir(SDA, 0);
+    for(i=0; i<8; i++){
+        gpioSetValue(SCK, 0);
+        delayms(1);
+        ret <<= 1;
+        ret |= gpioGetValue(SDA);
+        gpioSetValue(SCK, 1);
+        delayms(1);
+    }
+
+    gpioSetValue(CS, 0);
+    gpioSetDir(SDA, 1);
+    delayms(1);
+}
+
+
 void lcdInit(void) {
     sspInit(0, sspClockPolarity_Low, sspClockPhase_RisingEdge);
 
@@ -172,8 +221,9 @@ inline void lcdInvert(void) {
 }
 
 void lcdSetContrast(int c) {
-    c+=0x20;
-    if(c>0x2e) c=0x24;
+    c+=0x80;
+    if(c>0x9F)
+        return;
     lcd_select();
     lcdWrite(TYPE_CMD,c);
     lcd_deselect();
