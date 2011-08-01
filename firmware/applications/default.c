@@ -31,41 +31,49 @@ void main_default(void) {
     return;
 };
 
+
+
+void queue_setinvert(void){
+    lcdSetInvert(1);
+};
+void queue_unsetinvert(void){
+    lcdSetInvert(0);
+};
+
+#define EVERY(x,y) if((ctr+y)%(x/SYSTICKSPEED)==0)
+
 // every 10 ms
 void tick_default(void) {
     static int ctr;
     ctr++;
     incTimer();
-    if(ctr>1000/SYSTICKSPEED){
+
+    EVERY(1000,0){
         if(!adcMutex){
             VoltageCheck();
             LightCheck();
-            ctr=0;
         }else{
             ctr--;
         };
     };
 
-    if(ctr>100/SYSTICKSPEED){
-        if(isNight()){
-            backlightSetBrightness(GLOBAL(lcdbacklight));
-            lcdSetInvert(0);
-        } else {
-            backlightSetBrightness(0);
-            if(GLOBAL(dayinvert))
-                lcdSetInvert(1);
-            else
-                lcdSetInvert(0);
-        }
-    }
+    static char night=0;
+    EVERY(100,2){
+        if(night!=isNight()){
+            night=isNight();
+            if(night){
+                backlightSetBrightness(GLOBAL(lcdbacklight));
+                push_queue(queue_setinvert);
+            }else{
+                backlightSetBrightness(0);
+                push_queue(queue_unsetinvert);
+            };
+        };
+    };
 
-    if(ctr%(50/SYSTICKSPEED)==0){
 
-        if(GetVoltage()<3600
-#ifdef SAFE
-                || GetVoltage() > 10000 // pin not connected
-#endif
-                ){
+    EVERY(50,0){
+        if(GetVoltage()<3600){
             IOCON_PIO1_11 = 0x0;
             gpioSetDir(RB_LED3, gpioDirection_Output);
             if( (ctr/(50/SYSTICKSPEED))%10 == 1 )
@@ -74,6 +82,5 @@ void tick_default(void) {
                 gpioSetValue (RB_LED3, 0);
         };
     };
-
     return;
 };
