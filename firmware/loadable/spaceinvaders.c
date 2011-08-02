@@ -37,11 +37,12 @@ struct gamestate {
 	char shots_x[ENEMY_COLUMNS];
 	char shots_y[ENEMY_COLUMNS];
     char alive;
-    char move, direction, lastcol;
+    int16_t move; 
+	char direction, lastcol;
     bool killed; 
 	bool step;
 	uint32_t score;
-	char level;
+	uint16_t level;
 	int8_t rokets;
     char enemy_x[ENEMY_ROWS][ENEMY_COLUMNS];
     char enemy_row_y[ENEMY_ROWS];
@@ -268,7 +269,7 @@ void move_shots() {
 		if (game.shots_x[col] == DISABLED) {
 			for (char row = 0; row<ENEMY_ROWS; row++) {
 				if (game.enemy_x[row][col] != DISABLED) {	
-					if(getRandom()%(game.alive*5)==0) {
+					if(getRandom()%(game.alive*20/((game.level/3)+1))==0) {
 						game.shots_x[col] = game.enemy_x[row][col]+5;
 						game.shots_y[col] = game.enemy_row_y[row]+0;
 					}
@@ -343,7 +344,7 @@ void move_player() {
 
 void move_enemy() {
     if(game.move > 0){
-        game.move--;
+        game.move-=game.level/5+1;
         return;
     }
     
@@ -380,7 +381,7 @@ void move_enemy() {
                    (pos >=RESX-11-1 && game.direction == 1)){
                     game.direction = (game.direction==1)?-1:1;
                     for (char r = 0; r<ENEMY_ROWS; r++) {
-                        game.enemy_row_y[r]+=2;
+                        game.enemy_row_y[r]+=game.level>=23?4:2;
                     }
                     return;
                 }
@@ -389,7 +390,7 @@ void move_enemy() {
         }
     }
     
-    game.move = game.alive-1;
+    game.move = game.alive*2-1;
 }
 
 void draw_player() {
@@ -476,7 +477,7 @@ void check_end() {
     if (game.killed) {
 		game.rokets--;
 		delayms(500);
-        game.player = RESX/2+4;
+        game.player = RESX/2-4;
         
 		for(int col=0; col<ENEMY_COLUMNS; col++) {
 			game.shots_x[col] = DISABLED;

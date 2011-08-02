@@ -1,18 +1,13 @@
 CC = gcc
-LD = gcc
-LDFLAGS = -Wall -O2 -std=c99
-EXES = xxtea
+CFLAGS = -Wall -O2 -std=c99 -DSAFE
+EXE = xxtea
+FILES = main.c xxtea.c
+OBJS = main.o xxtea.o
+
 TESTFILE= test.out
 
-all: $(EXES)
-
-% : %.c
-	$(LD) $(LDFLAGS) -o $@ $<
+all: $(FILES)
+	$(CC) $(CFLAGS) $(FILES) -o $(EXE)
 
 clean: 
-	rm -f $(EXES) $(TESTFILE)
-
-tests: all
-	./xxtea -o $(TESTFILE) test/in.1
-	cmp $(TESTFILE) test/out.1
-	$(RM) $(TESTFILE)
+	rm -f $(EXE) $(OBJS)
