@@ -6,6 +6,7 @@
 #include "basic/byteorder.h"
 
 #define OPENBEACON_SAVE 0xFFFF
+#define OPENBEACON_CHANNEL 81
 
 void openbeaconShutdown(void);
 void openbeaconSaveBlock(void);

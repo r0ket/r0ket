@@ -90,6 +90,7 @@ uint8_t openbeaconSendPacket(uint32_t id, uint32_t seq,
 uint8_t openbeaconSend(void)
 {
     uint8_t status;
+    nrf_set_channel(OPENBEACON_CHANNEL);
     nrf_set_strength(strength);
     nrf_set_tx_mac(sizeof(mac), mac);
 
