@@ -11,6 +11,7 @@
 
 struct CDESC the_config[]= {
     {"version",          CFGVER, CFGVER, CFGVER},
+    //                   dflt  min max
     {"privacy",          3,     0, 2  },
     {"daytrig",          310/2, 0, 255},
     {"daytrighyst",      10,    0, 50 },
@@ -19,6 +20,11 @@ struct CDESC the_config[]= {
     {"lcdmirror",        0,     0, 1  },
     {"lcdinvert",        0,     0, 1  },
     {"lcdcontrast",      3,     0, 31 },
+    {"flamemax",         255,   0, 255},
+    {"flamemin",         0,     0, 255},
+    {"flamespeed",       1,     1, 100},
+    {"flamemaxw",        255,   1, 255},
+    {"flameminw",        0x8f,  1, 255},
     { NULL,              0,     0, 0  },
 };
 

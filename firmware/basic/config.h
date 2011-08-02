@@ -27,6 +27,11 @@ extern char nickfont[];
 #define GLOBALlcdmirror    (the_config[6].value)
 #define GLOBALlcdinvert    (the_config[7].value)
 #define GLOBALlcdcontrast  (the_config[8].value)
+#define GLOBALflamemax     (the_config[9].value)
+#define GLOBALflamemin     (the_config[10].value)
+#define GLOBALflamespeed   (the_config[11].value)
+#define GLOBALflamemaxw    (the_config[12].value)
+#define GLOBALflameminw    (the_config[13].value)
 #define GLOBALnickname     (nickname)
 #define GLOBALnickfont     (nickfont)
 

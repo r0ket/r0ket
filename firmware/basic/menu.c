@@ -2,7 +2,6 @@
 
 #include "basic/basic.h"
 
-#include "lcd/render.h"
 #include "lcd/print.h"
 
 /**************************************************************************/
@@ -16,11 +15,11 @@ void handleMenu(const struct MENU *the_menu) {
 
     if (the_menu == NULL) return;
 
-//    font = &Font_7x8; // Font needs to be set externally?
+    setSystemFont();
 
     for (numentries = 0; the_menu->entries[numentries] != NULL; numentries++);
 
-    visible_lines = (RESY/getFontHeight())-1; // subtract title line
+    visible_lines = lcdGetVisibleLines()-1; // subtract title line
 #ifdef SAFETY
     if (visible_lines < 2) return;
 #endif
@@ -75,7 +74,7 @@ void handleMenu(const struct MENU *the_menu) {
                 getInputWaitRelease();
                 if (the_menu->entries[menuselection]->callback!=NULL)
                     the_menu->entries[menuselection]->callback();
-                lcdDisplay();
+                lcdRefresh();
                 getInputWait();
 
                 break;

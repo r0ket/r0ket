@@ -69,12 +69,7 @@ int selectFile(char *filename, char *extension)
         
         redraw:
         lcdClear();
-        lcdPrint("Select file:");
-        lcdSetCrsrX(40);
-        lcdPrint(IntToStr(skip,1,0));
-        lcdPrint("/");
-        lcdPrint(IntToStr(selected,1,0));
-        lcdNl();
+        lcdPrintln("Select file:");
         for(int i=0; i<count; i++){
             if( selected == i )
                 lcdPrint("*");

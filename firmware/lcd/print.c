@@ -2,6 +2,7 @@
 #include <render.h>
 #include <fonts.h>
 #include <print.h>
+#include <fonts/smallfonts.h>
 
 int x=0;
 int y=0;
@@ -69,3 +70,13 @@ void lcdSetCrsr(int dx,int dy){
 void lcdSetCrsrX(int dx){
     x=dx;
 };
+
+void setSystemFont(void){
+    setIntFont(&Font_7x8);
+};
+
+
+int lcdGetVisibleLines(void){
+    return (RESY/getFontHeight()); // subtract title line
+};
+

@@ -25,8 +25,26 @@ void initMesh(void){
     meshbuffer[0].flags=MF_USED;
 };
 
-inline void blink(char a, char b){
-    gpioSetValue (a,b, 1-gpioGetValue(a,b));
+MPKT * meshGetMessage(uint8_t type){
+    int free=-1;
+    for(int i=0;i<MESHBUFSIZE;i++){
+        if ( ((meshbuffer[i].flags&MF_USED)==0) && free<0 )
+            free=i;
+        if ( (meshbuffer[i].flags&MF_USED) &&
+                (MO_TYPE(meshbuffer[i].pkt) == type)){
+            free=i;
+            break;
+        };
+    };
+    if(free==-1){ // Buffer full. Ah well. Kill a random packet
+        free=1; // XXX: GetRandom()?
+        meshbuffer[free].flags=MF_FREE;
+    };
+    if(meshbuffer[free].flags==MF_FREE){
+        memset(&meshbuffer[free],0,sizeof(MPKT));
+        MO_TYPE_set(meshbuffer[free].pkt,type);
+    };
+    return &meshbuffer[free];
 };
 
 void mesh_cleanup(void){
@@ -35,10 +53,15 @@ void mesh_cleanup(void){
         if(meshbuffer[i].flags&MF_USED){
             if (MO_GEN(meshbuffer[i].pkt)<meshgen)
                 meshbuffer[i].flags=MF_FREE;
-            if (MO_TIME(meshbuffer[i].pkt)<now)
-                meshbuffer[i].flags=MF_FREE;
-            if (MO_TIME(meshbuffer[i].pkt)-now>SECS_DAY)
-                meshbuffer[i].flags=MF_FREE;
+            if (MO_TYPE(meshbuffer[i].pkt)>='a' &&
+                    MO_TYPE(meshbuffer[i].pkt)<='z'){
+                ;
+            }else{
+                if (MO_TIME(meshbuffer[i].pkt)<now)
+                    meshbuffer[i].flags=MF_FREE;
+                if (MO_TIME(meshbuffer[i].pkt)-now>SECS_DAY)
+                    meshbuffer[i].flags=MF_FREE;
+            };
         };
     };
 };
@@ -83,37 +106,22 @@ void mesh_recvloop(void){
         };
 
         // Safety: Truncate ascii packets by 0-ing the CRC
-        if (MO_TYPE(buf) >='A' && MO_TYPE(buf) <='Z'){
-            buf[MESHPKTSIZE-2]=0;
-        };
+        buf[MESHPKTSIZE-2]=0;
 
-        // Store packet in a free slot
-        int free=-1;
-        for(int i=0;i<MESHBUFSIZE;i++){
-            if ( ((meshbuffer[i].flags&MF_USED)==0) && free<0 )
-                free=i;
-            if ( (meshbuffer[i].flags&MF_USED) &&
-                    (MO_TYPE(meshbuffer[i].pkt) == MO_TYPE(buf))){
-                if ( MO_TIME(buf) >
-                        MO_TIME(meshbuffer[i].pkt)){
-                    free=i;
-                    break;
-                }else{
-                    free=-2;
-                    break;
-                };
-            };
-        };
+        // Store packet in a same/free slot
+        MPKT* mpkt=meshGetMessage(MO_TYPE(buf));
 
-        if(free==-1){ // Buffer full. Ah well. Kill a random packet
-            free=1; // XXX: GetRandom()?
-        };
-
-        if(free<0)
+        // Skip locked packet
+        if(mpkt->flags&MF_LOCK)
             continue;
 
-        memcpy(meshbuffer[free].pkt,buf,MESHPKTSIZE);
-        meshbuffer[free].flags=MF_USED;
+        // only accept newer/better packets
+        if(mpkt->flags==MF_USED)
+            if(MO_TIME(buf)<MO_TIME(mpkt->pkt))
+                continue;
+
+        memcpy(mpkt->pkt,buf,MESHPKTSIZE);
+        mpkt->flags=MF_USED;
 
     }while(getTimer()<recvend || pktctr>MESHBUFSIZE);
 
@@ -136,6 +144,8 @@ void mesh_sendloop(void){
 
     for (int i=0;i<MESHBUFSIZE;i++){
         if(!meshbuffer[i].flags&MF_USED)
+            continue;
+        if(meshbuffer[i].flags&MF_LOCK)
             continue;
         ctr++;
         memcpy(buf,meshbuffer[i].pkt,MESHPKTSIZE);
@@ -162,4 +172,3 @@ void mesh_systick(void){
         sendctr+=getRandom()%(sendctr*2);
     };
 };
-
