@@ -63,10 +63,10 @@ void tick_default(void) {
             night=isNight();
             if(night){
                 backlightSetBrightness(GLOBAL(lcdbacklight));
-                push_queue(queue_setinvert);
+                push_queue(queue_unsetinvert);
             }else{
                 backlightSetBrightness(0);
-                push_queue(queue_unsetinvert);
+                push_queue(queue_setinvert);
             };
         };
     };
