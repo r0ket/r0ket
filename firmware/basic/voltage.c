@@ -1,6 +1,7 @@
 #include <sysinit.h>
 
 #include "basic/basic.h"
+#include "funk/nrf24l01p.h"
 
 uint32_t results=5000;
 
