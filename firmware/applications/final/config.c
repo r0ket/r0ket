@@ -75,7 +75,7 @@ void changer(void){
         }
         lcdRefresh();
 
-        switch (getInputWait()) {
+        switch (getInputWaitRepeat()) {
             case BTN_UP:
                 menuselection--;
                 if (menuselection < current_offset) {
@@ -121,7 +121,6 @@ void changer(void){
                     saveConfig();
                 return;
         }
-        getInputWaitRelease();
     }
     /* NOTREACHED */
 }

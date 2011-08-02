@@ -73,10 +73,12 @@ uint8_t getInputWaitRepeat(void) {
             dtime=600;
         else if(repeatctr<5)
             dtime=250;
-        else if(repeatctr<30)
+        else if(repeatctr<25)
             dtime=150;
-        else
+        else if(repeatctr<50)
             dtime=80;
+        else
+            dtime=20;
         repeatctr++;
         int end=_timectr+(dtime/SYSTICKSPEED);
         while(_timectr<end && key==getInputRaw())
