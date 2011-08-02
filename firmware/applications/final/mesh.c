@@ -4,6 +4,7 @@
 
 #include "basic/basic.h"
 #include "basic/byteorder.h"
+#include "basic/config.h"
 
 #include "lcd/lcd.h"
 #include "lcd/print.h"
@@ -175,7 +176,7 @@ char *meshmsgs(void){
 
 
 extern MPKT meshbuffer[MESHBUFSIZE];
-//# MENU mesh Messages
+//# MENU Messages
 void m_choose(){
     char list[99];
     int i=0;
@@ -272,6 +273,7 @@ void m_choose(){
 
 
 void tick_mesh(void){
-    mesh_systick();
+    if(GLOBAL(privacy)<2)
+        mesh_systick();
 };
 
