@@ -31,7 +31,6 @@ OBJS += simulat0r.o
 all : simulat0r
 
 simulat0r : $(OBJS) $(LIBS)
-	$(LD) $(OBJS) $(LIBS) -lc -o $@
 
 clean:
 	$(RM) simulat0r.o
