@@ -60,7 +60,7 @@ void doFont(void){
         lcdPrintln("No file selected.");
         return;
     };
-	writeFile("font.cfg",GLOBAL(nickname),strlen(GLOBAL(nickname)));
+	writeFile("font.cfg",GLOBAL(nickfont),strlen(GLOBAL(nickfont)));
 
     lcdClear();
     setIntFont(&Font_7x8);
