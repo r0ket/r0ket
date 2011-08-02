@@ -62,6 +62,39 @@ uint8_t getInputWaitTimeout(int timeout) {
     return key;
 };
 
+uint8_t getInputWaitRepeat(void) {
+    static uint8_t oldkey=BTN_NONE;
+    static int repeatctr=0;
+    uint8_t key=getInputRaw();
+
+    if (key != BTN_NONE && key==oldkey){
+        int dtime;
+        if(!repeatctr)
+            dtime=600;
+        else if(repeatctr<5)
+            dtime=250;
+        else if(repeatctr<30)
+            dtime=150;
+        else
+            dtime=80;
+        repeatctr++;
+        int end=_timectr+(dtime/SYSTICKSPEED);
+        while(_timectr<end && key==getInputRaw())
+            work_queue();
+        key=getInputRaw();
+        if (key==oldkey)
+            return key;
+    };
+
+    repeatctr=0;
+    while ((key=getInputRaw())==BTN_NONE){
+        work_queue();
+    };
+    delayms_queue(10); /* Delay a little more to debounce */
+    oldkey=key;
+    return key;
+};
+
 void getInputWaitRelease(void) {
     while (getInputRaw()!=BTN_NONE)
         work_queue();

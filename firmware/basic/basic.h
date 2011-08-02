@@ -152,6 +152,7 @@ char isNight(void);
 uint8_t getInput(void);
 uint8_t getInputRaw(void);
 uint8_t getInputWait(void);
+uint8_t getInputWaitRepeat(void);
 uint8_t getInputWaitTimeout(int timeout);
 void getInputWaitRelease(void);
 
