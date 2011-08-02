@@ -61,8 +61,21 @@ void setFlamePWM() {
     flameSetI2C(FLAME_I2C_CR_PWM0, flameI2Cpwm); // set pwm
 }
 
-
 void tick_flame(void) { // every 10ms
+    static char night=0;
+
+    if(!flameEnabled)
+        return;
+
+    if(night!=isNight()){
+        night=isNight();
+        if(!night){
+            flameMode = FLAME_OFF;
+            flameI2Cpwm = 0;
+            push_queue(&setFlamePWM);
+        };
+    };
+
     flameTicks++;
 
     if (flameI2Cpwm > flameBrightnessMax) {
@@ -118,6 +131,7 @@ void tick_flame(void) { // every 10ms
     }
 }
 
+//# MENU flame
 void flameInit(void) {
 
     i2cInit(I2CMASTER); // Init I2C
@@ -134,4 +148,27 @@ void flameInit(void) {
         flameSetI2C(FLAME_I2C_CR_PWM0, 0x00); // set pwm
         flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_PWM0 << FLAME_I2C_LS0_LED0); // set led0 to pwm
     }
+}
+
+#include "lcd/print.h"
+
+//# MENU debug ChkFlame
+void ChkFlame(void) {
+    do{
+        lcdClear();
+        lcdPrint("Enabled:");
+        lcdPrintln(IntToStr(flameEnabled,1,0));
+
+        lcdPrint("State:");
+        lcdPrintln(IntToStr(flameMode,1,0));
+
+        lcdPrint("PWMtarg:");
+        lcdPrintln(IntToStr(flameI2Cpwm,3,0));
+
+        lcdPrint("FTicks:");
+        lcdPrintln(IntToStr(flameTicks,3,0));
+
+        lcdRefresh();
+        delayms_queue(10);
+    } while ((getInputRaw())==BTN_NONE);
 }

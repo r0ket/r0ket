@@ -172,11 +172,9 @@ struct MENU_DEF {
     void (*callback)(void);
 };
 
-typedef const struct MENU_DEF * menuentry;
-
 struct MENU {
     char *title;
-    menuentry *entries;
+    struct MENU_DEF entries[];
 };
 
 

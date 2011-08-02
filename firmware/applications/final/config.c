@@ -25,6 +25,7 @@ void applycfg(void){
     applyConfig();
 };
 
+//# MENU config
 void changer(void){
     uint8_t numentries = 0;
     signed char menuselection = 0;

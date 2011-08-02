@@ -7,7 +7,7 @@
 #include "basic/random.h"
 #include "basic/config.h"
 
-#define CFGVER 24
+#define CFGVER 1
 
 struct CDESC the_config[]= {
     {"version",          CFGVER, CFGVER, CFGVER},
@@ -19,7 +19,8 @@ struct CDESC the_config[]= {
     {"lcdbacklight",     50,    0, 100},
     {"lcdmirror",        0,     0, 1  },
     {"lcdinvert",        0,     0, 1  },
-    {"lcdcontrast",      3,     0, 31 },
+    {"lcdcontrast",      14,    0, 31 },
+    {"alivechk",         0,     0, 2  },
     {"flamemax",         255,   0, 255},
     {"flamemin",         0,     0, 255},
     {"flamespeed",       1,     1, 100},

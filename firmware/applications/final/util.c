@@ -4,6 +4,7 @@
 #include "basic/basic.h"
 #include "basic/config.h"
 
+#include "lcd/render.h"
 #include "lcd/print.h"
 
 #include "usb/usbmsc.h"
@@ -12,6 +13,7 @@
 
 /**************************************************************************/
 
+//# MENU debug ChkLight
 void ChkLight(void) {
     int dx=0;
     int dy=8;
@@ -27,6 +29,7 @@ void ChkLight(void) {
     dx=DoString(0,dy+24,"Done.");
 }
 
+//# MENU debug ChkBattery
 void ChkBattery(void) {
     do{
         lcdClear();
@@ -40,10 +43,11 @@ void ChkBattery(void) {
             lcdPrintln("0");
         };
         lcdRefresh();
-        delayms_queue(100);
+//        delayms_queue(100);
     } while ((getInputRaw())==BTN_NONE);
 }
 
+//# MENU debug Uptime
 void uptime(void) {
     int t;
     int h;
@@ -80,6 +84,7 @@ void uptime(void) {
     lcdPrintln("done.");
 }
 
+//# MENU debug Uuid
 void uuid(void) {
     IAP_return_t iap_return;
     iap_return = iapReadSerialNumber();
@@ -94,3 +99,41 @@ void uuid(void) {
     lcdPrintln(IntToStrX(GetUUID32(),4));
     lcdRefresh();
 }
+
+//# MENU debug Qstatus
+void Qstatus(void) {
+    int dx=0;
+    int dy=8;
+    lcdClear();
+    dx=DoString(0,dy+16,"Qdepth:");
+    while ((getInputRaw())!=BTN_ENTER){
+        DoInt(dx,dy+16,(the_queue.qend-the_queue.qstart+MAXQENTRIES)%MAXQENTRIES);
+        lcdDisplay();
+        if(getInputRaw()!=BTN_NONE)
+            work_queue();
+        else
+            delayms(10);
+    };
+    dy+=16;
+    dx=DoString(0,dy,"Done.");
+};
+
+void blink_led0(void){
+    gpioSetValue (RB_LED0, 1-gpioGetValue(RB_LED0));
+};
+
+void tick_alive(void){
+    static int foo=0;
+
+    if(GLOBAL(alivechk)==0)
+        return;
+
+	if(foo++>500/SYSTICKSPEED){
+		foo=0;
+        if(GLOBAL(alivechk)==2)
+            push_queue(blink_led0);
+        else
+            blink_led0();
+	};
+    return;
+};
