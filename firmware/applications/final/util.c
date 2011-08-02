@@ -43,7 +43,7 @@ void ChkBattery(void) {
             lcdPrintln("0");
         };
         lcdRefresh();
-//        delayms_queue(100);
+        delayms_queue(100);
     } while ((getInputRaw())==BTN_NONE);
 }
 
@@ -136,4 +136,21 @@ void tick_alive(void){
             blink_led0();
 	};
     return;
+};
+
+//# MENU debug ShowSP
+void getsp(void) {
+    int dx=0;
+    int dy=8;
+    int x;
+    lcdClear();
+    dx=DoString(0,dy,"SP:");
+    while ((getInputRaw())==BTN_NONE){
+        __asm(  "mov %0, sp\n" : "=r" (x) :);
+        DoIntX(0,dy+8,x);
+        lcdDisplay();
+        delayms_queue(50);
+    };
+    dy+=16;
+    dx=DoString(0,dy,"Done.");
 };
