@@ -43,7 +43,7 @@ void fancyNickname(void) {
 
 void init_nick(void){
 	readFile("nick.cfg",GLOBAL(nickname),MAXNICK);
-//	readFile("font.cfg",GLOBAL(nickfont),FILENAMELEN);
+	readFile("font.cfg",GLOBAL(nickfont),FILENAMELEN);
 };
 
 //# MENU nick editNick
@@ -60,13 +60,14 @@ void doFont(void){
         lcdPrintln("No file selected.");
         return;
     };
+	writeFile("font.cfg",GLOBAL(nickname),strlen(GLOBAL(nickname)));
 
     lcdClear();
-    lcdPrintln(GLOBAL(nickfont));
-    setExtFont(GLOBAL(nickfont));
-    lcdPrintln("PUabc€");
     setIntFont(&Font_7x8);
-    lcdPrintln("done.");
+    lcdPrintln("Test:");
+    setExtFont(GLOBAL(nickfont));
+    lcdPrintln(GLOBAL(nickname));
     lcdDisplay();
+    setIntFont(&Font_7x8);
     while(!getInputRaw())delayms(10);
 };
