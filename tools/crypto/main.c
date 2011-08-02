@@ -15,10 +15,10 @@
 
 #include <stdint.h>
 #include <getopt.h>
+#include "xxtea.h"
 
 // default block size
 
-void btea(uint32_t *v, int n, uint32_t const k[4]);
 void hexkey(char *string, uint32_t k[4]);
 
 int main(int argc, char *argv[]) {
@@ -28,14 +28,15 @@ int main(int argc, char *argv[]) {
   char *prog;
   char c;			/* for getopt */
   uint32_t k[4];    /* key */
-  uint32_t *buf;
+  uint8_t *buf;
 
   /* Default values */
   char verbose=0;	// be silent
   k[0]=0; k[1]=0; k[2]=0; k[3]=0;
-  char block=16;
   char *outfile=NULL; // outfile == infile
   int decrypt=0;
+  int encrypt=0;
+  int sign=0;
 
   /* init section */
   prog=argv[0];
@@ -46,7 +47,7 @@ int main(int argc, char *argv[]) {
   }
 
   /* The big getopt loop */
-  while ((c = getopt(argc, argv, "vhdk:b:o:")) != EOF)
+  while ((c = getopt(argc, argv, "vhesdk:o:")) != EOF)
 	  switch (c) {
 		  case 'v':
 			  verbose++;
@@ -56,12 +57,16 @@ int main(int argc, char *argv[]) {
 			  decrypt=1;
 			  break;
 
+          case 'e':
+              encrypt=1;
+              break;
+
+          case 's':
+              sign=1;
+              break;
+
 		  case 'k':
               hexkey(optarg, k);
-			  break;
-
-		  case 'b':
-			  block=atoi(optarg);
 			  break;
 
 		  case 'o':
@@ -74,10 +79,11 @@ int main(int argc, char *argv[]) {
 "This program en/decrypts a file with the XXTEA algorithm\n"
 "\n\n"
 "-v           Be verbose (-v -v = even more)\n"
-"-d           Decrypt (instead of encrypt)\n"
+"-d           Decrypt file\n"
+"-e           Encrypt file\n"
+"-s           Sign file\n\n"
 "-o file      Output to <file>. (Default: overwrite input file)\n"
 "-k key       128bit hex key.\n"
-"-b block     Set blocksize. (Default: file size)\n"
 "-h           This help\n\n"
 "\n",prog);
 			  exit(255);
@@ -91,6 +97,15 @@ int main(int argc, char *argv[]) {
 	  exit(254);
   };
 
+  if( !(decrypt||encrypt||sign) ){
+      fprintf(stderr, "No operation specified!\n");
+	  exit(254);
+  }
+
+  if( decrypt && (encrypt || sign) ){
+      fprintf(stderr, "Can not decrypt and sign or decrypt and encrypt!\n");
+	  exit(254);
+  }
   if(outfile){
       if ((fp = fopen(argv[0],"rb")) == NULL){
           fprintf(stderr,"Error: Can't open file %s\n",argv[0]);
@@ -108,53 +123,92 @@ int main(int argc, char *argv[]) {
       ofp=fp;
   };
 
-  if(block==0){
-      fseek(fp, 0L, SEEK_END);
-      block = ftell(fp)/sizeof(*buf); // XXX: padding!
-      fseek(fp, 0L, SEEK_SET);
-  };
-  buf=malloc(sizeof(*buf)*block);
+  fseek(fp, 0L, SEEK_END);
+  int filesize = ftell(fp);
+  fseek(fp, 0L, SEEK_SET);
+
+  if (verbose)
+    fprintf(stderr,"file size=%d\n", filesize);
+  
+  int words = (filesize+3)/sizeof(uint32_t);
+  int bytes = sizeof(uint32_t)*words;
+
+  if (verbose)
+    fprintf(stderr,"byte count=%d word count=%d\n", bytes, words);
+  
+
+  buf=malloc(bytes);
 
   if(!buf){
       fprintf(stderr,"Error: malloc() failed.\n");
+      exit(253);
   };
 
   if (verbose)
       fprintf(stderr,"Key: %08x %08x %08x %08x\n",k[0],k[1],k[2],k[3]);
 
-  int cnt;
-  if (verbose)
-      fprintf(stderr,"Encrypting: ");
+  if( sign ){
+      if (verbose)
+          fprintf(stderr,"Signing: ");
+      memset(buf, 0, bytes);
+	  int cnt = fread(buf,sizeof(*buf),filesize,fp);
+      uint32_t mac[4];
+      xxtea_cbcmac(mac, (uint32_t*)buf, words, k);
 
-  do{
-	  cnt=fread(buf,sizeof(*buf),block,fp); // XXX: deal with non-block-sized?
-
-      if(cnt<0){
-		  fprintf(stderr, "Error: read failed\n");
-		  exit(253);
-      };
-
-      if(verbose)
-          fprintf(stderr,"cnt=%d:",cnt);
-/*      if(cnt%sizeof(*buf)!=0){
-          fprintf(stderr,"Whoops. needs padding: cnt=%d, mod=%d\n",cnt,cnt%sizeof(*buf));
-      }; */
-
-      btea(buf, decrypt?-cnt:cnt, k);
+      if (verbose)
+        fprintf(stderr,"MAC: %08x %08x %08x %08x\n",mac[0],mac[1],mac[2],mac[3]);
 
       if(!outfile) // in-place crypting...
-          if (fseek(fp,-cnt*sizeof(*buf),SEEK_CUR) != 0){
+          if( fseek(fp, 0L, SEEK_SET) != 0){
               fprintf(stderr, "Error: Seek failed\n");
               exit(253);
           }
 
-      if (fwrite(buf,sizeof(*buf),cnt,ofp) != cnt){
-          fprintf(stderr, "Error: CRC write failed\n");
+      if (fwrite(buf,sizeof(*buf),bytes,ofp) != bytes){
+          fprintf(stderr, "Error: write failed\n");
+          exit(253);
+      }
+      if (fwrite(mac,sizeof(*mac),4,ofp) != 4*sizeof(*mac)){
+          fprintf(stderr, "Error: write failed\n");
           exit(253);
       }
       if(verbose) fprintf(stderr,".\n");
-  }while(cnt==block);
+  }
 
+  if( encrypt ){
+    int cnt, block;
+    if (verbose)
+        fprintf(stderr,"Encrypting: ");
+
+    do{
+        cnt=fread(buf,sizeof(*buf),block,fp); // XXX: deal with non-block-sized?
+
+        if(cnt<0){
+            fprintf(stderr, "Error: read failed\n");
+            exit(253);
+        };
+
+        if(verbose)
+            fprintf(stderr,"cnt=%d:",cnt);
+    /*      if(cnt%sizeof(*buf)!=0){
+            fprintf(stderr,"Whoops. needs padding: cnt=%d, mod=%d\n",cnt,cnt%sizeof(*buf));
+        }; */
+
+        //btea(buf, decrypt?-cnt:cnt, k);
+
+        if(!outfile) // in-place crypting...
+            if (fseek(fp,-cnt*sizeof(*buf),SEEK_CUR) != 0){
+                fprintf(stderr, "Error: Seek failed\n");
+                exit(253);
+            }
+
+        if (fwrite(buf,sizeof(*buf),cnt,ofp) != cnt){
+            fprintf(stderr, "Error: CRC write failed\n");
+            exit(253);
+        }
+        if(verbose) fprintf(stderr,".\n");
+    }while(cnt==block);
+  }
   if(verbose)
       fprintf(stderr,"done\n");
 
@@ -164,43 +218,6 @@ int main(int argc, char *argv[]) {
       fclose(ofp);
   
   return 0;
-}
-
-#define DELTA 0x9e3779b9
-#define MX (((z>>5^y<<2) + (y>>3^z<<4)) ^ ((sum^y) + (k[(p&3)^e] ^ z)))
-
-void btea(uint32_t *v, int n, uint32_t const k[4]) {
-    uint32_t y, z, sum;
-    unsigned p, rounds, e;
-    if (n > 1) {          /* Coding Part */
-        rounds = 6 + 52/n;
-        sum = 0;
-        z = v[n-1];
-        do {
-            sum += DELTA;
-            e = (sum >> 2) & 3;
-            for (p=0; p<n-1; p++) {
-                y = v[p+1]; 
-                z = v[p] += MX;
-            }
-            y = v[0];
-            z = v[n-1] += MX;
-        } while (--rounds);
-    } else if (n < -1) {  /* Decoding Part */
-        n = -n;
-        rounds = 6 + 52/n;
-        sum = rounds*DELTA;
-        y = v[0];
-        do {
-            e = (sum >> 2) & 3;
-            for (p=n-1; p>0; p--) {
-                z = v[p-1];
-                y = v[p] -= MX;
-            }
-            z = v[n-1];
-            y = v[0] -= MX;
-        } while ((sum -= DELTA) != 0);
-    }
 }
 
 void hexkey(char *string, uint32_t k[4]){
