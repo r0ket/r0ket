@@ -34,6 +34,9 @@ void rbInit() {
     gpioSetDir(RB_BTN4, gpioDirection_Input);
     gpioSetPullup (&RB_BTN4_IO, gpioPullupMode_PullUp);
 
+    // prepate chrg_stat
+    gpioSetDir(RB_PWR_CHRG, gpioDirection_Input);
+    gpioSetPullup (&RB_PWR_CHRG_IO, gpioPullupMode_PullUp);
 
     // prepare LEDs
     IOCON_JTAG_TDI_PIO0_11 &= ~IOCON_JTAG_TDI_PIO0_11_FUNC_MASK;

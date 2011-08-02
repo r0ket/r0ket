@@ -27,18 +27,6 @@ void f_init(void){
     UINT readbytes;
     int res;
 
-    nrf_init();
-
-    struct NRF_CFG config = {
-        .channel= 81,
-        .txmac= "REMOT",
-        .nrmacs=1,
-        .mac0=  "REMOT",
-        .maclen ="\x10",
-    };
-
-    nrf_config_set(&config);
-
     res=f_open(&file[0], "nick.cfg", FA_OPEN_EXISTING|FA_READ);
     lcdPrint("open:");
     lcdPrintln(f_get_rc_string(res));
@@ -79,7 +67,6 @@ void f_init(void){
 char fontname[15];
 
 void f_nick(void){
-    static char ctr=0;
     char key;
     static signed char x=10;
     static signed char y=10;
@@ -96,6 +83,7 @@ void f_nick(void){
         lcdPrintInt(x);
         lcdPrint("x");
         lcdPrintInt(y);
+
 
         lcdDisplay();
         delayms(40);
@@ -117,7 +105,6 @@ void f_nick(void){
             lcdClear();
             lcdPrintln("Done.");
             lcdDisplay();
-            ctr++;
             break;
         };
     };
@@ -180,31 +167,19 @@ void msc_menu(void){
 
 /**************************************************************************/
 
-const struct MENU_DEF menu_ISP =    {"Invoke ISP",  &gotoISP};
-const struct MENU_DEF menu_init =   {"F Init",   &f_init};
-const struct MENU_DEF menu_nick =    {"F Nick",   &f_nick};
-const struct MENU_DEF menu_font =    {"F sel",   &f_font};
-const struct MENU_DEF menu_mirror = {"Mirror",   &lcd_mirror};
-const struct MENU_DEF menu_invert = {"Invert",   &lcd_invert};
-const struct MENU_DEF menu_volt =   {"Akku",   &adc_check};
-const struct MENU_DEF menu_msc =   {"MSC",   &msc_menu};
-const struct MENU_DEF menu_nop =    {"---",   NULL};
 
-static menuentry menu[] = {
-    &menu_init,
-    &menu_nick,
-    &menu_font,
-    &menu_nop,
-    &menu_mirror,
-    &menu_invert,
-    &menu_volt,
-    &menu_msc,
-    &menu_nop,
-    &menu_ISP,
-    NULL,
-};
-
-static const struct MENU mainmenu = {"Mainmenu", menu};
+static const struct MENU mainmenu = {"Mainmenu",  {
+    {"Invoke ISP",  &gotoISP},
+    {"F Init",   &f_init},
+    {"F Nick",   &f_nick},
+    {"F sel",   &f_font},
+    {"Mirror",   &lcd_mirror},
+    {"Invert",   &lcd_invert},
+    {"Akku",   &adc_check},
+    {"MSC",   &msc_menu},
+    {"---",   NULL},
+    {NULL,NULL}
+}};
 
 void main_font(void) {
 

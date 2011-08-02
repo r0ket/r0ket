@@ -127,3 +127,44 @@ void f_font(void){
     while(!getInputRaw())delayms(10);
 };
 
+
+void f_speedtest(void){
+    lcdClear();
+    lcdPrintln("Speedtest");
+    lcdNl();
+    lcdNl();
+    lcdPrintln("running...");
+    
+    int start=getTimer();
+    int ctr=0;
+    while(ctr++<1000){
+        lcdRefresh();
+    };
+    start=getTimer()-start;
+    lcdPrint("Ticks:");
+    lcdPrintln(IntToStr(start,6,0));
+    lcdPrint("Tickspd:");
+    lcdPrintln(IntToStr(SYSTICKSPEED,3,0));
+    lcdRefresh();
+    getInputWait();
+    getInputWaitRelease();
+};
+
+void f_speedtest2(void){
+    lcdClear();
+    lcdPrintln("Speedtest");
+    lcdNl();
+    lcdNl();
+    lcdPrintln("running...");
+    
+    int start=getTimer();
+    int ctr=0;
+    int tm;
+    while(!getInputRaw()){
+        ctr++;
+        tm=((getTimer()-start)*SYSTICKSPEED)*1000/ctr;
+        DoInt(0,32,tm);
+        lcdRefresh();
+    };
+    getInputWaitRelease();
+};

@@ -159,6 +159,7 @@ void nextledcycle() {
 
 uchar stepmode=0;
 uchar randdensity=0;
+//uint8_t bl=0;
 
 void main_life(void) {
     backlightInit();
@@ -198,9 +199,12 @@ void main_life(void) {
 	  stepmode=1;
 	  break;
 	}
+	//	bl=(bl+1)%101;
+	//	backlightSetBrightness(bl);
         draw_area(); // xor life pattern over display content
         lcdDisplay();
         draw_area(); // xor life pattern again to restore original display content
+	lcdShift(1,-2,1);
         delayms(10);
 	calc_area();
     }

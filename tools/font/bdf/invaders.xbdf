@@ -41,14 +41,14 @@ ENDCHAR
 STARTCHAR alien3-1
 ENCODING 67
 XBITMAP
-...xx....
-..xxxx...
-.xxxxxx..
-xx.xx.xx.
-xxxxxxxx.
-.x.xxx.x.
-x.......x
-.x.....x.
+...xx...
+..xxxx..
+.xxxxxx.
+xx.xx.xx
+xxxxxxxx
+.x.xx.x.
+x......x
+.x....x.
 ENDCHAR
 
 STARTCHAR alien1-2

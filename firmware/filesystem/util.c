@@ -1,3 +1,4 @@
+#include <sysdefs.h>
 #include <ff.h>
 
 FATFS FatFs;          /* File system object for logical drive */
@@ -22,3 +23,49 @@ const char* f_get_rc_string (FRESULT rc) {
 void fsInit(){
     f_mount(0, &FatFs);
 };
+
+void fsReInit(){
+    f_mount(0, NULL);
+    f_mount(0, &FatFs);
+};
+
+int readFile(char * filename, char * data, int len){
+    FIL file;
+    UINT readbytes;
+    int res;
+
+    res=f_open(&file, filename, FA_OPEN_EXISTING|FA_READ);
+    if(res){
+        return -1;
+    };
+
+    res = f_read(&file, data, len-1, &readbytes);
+    if(res){
+        return -1;
+    };
+
+    f_close(&file);
+
+    data[readbytes]=0;
+	return readbytes;
+};
+
+int writeFile(char * filename, char * data, int len){
+    FIL file;
+    UINT writebytes;
+    int res;
+
+	res=f_open(&file, filename, FA_OPEN_ALWAYS|FA_WRITE);
+    if(res){
+        return -1;
+    };
+
+    res = f_write(&file, data, len, &writebytes);
+    if(res){
+        return -1;
+    };
+    f_close(&file);
+
+	return writebytes;
+};
+

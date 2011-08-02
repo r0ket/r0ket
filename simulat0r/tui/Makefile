@@ -9,11 +9,8 @@ CFLAGS += -I../simcore
 OBJS+= ../firmware/basic/*.o
 OBJS+= ../firmware/core/*.o
 OBJS+= ../firmware/core/*/*.o
-LDFLAGS+= -L../firmware/applications
 LIBS+= ../firmware/applications/libapp.a
-LDFLAGS+= -L../firmware/lcd
 LIBS+= ../firmware/lcd/liblcd.a
-LDFLAGS+= -L../firmware/usb
 LIBS+= ../firmware/usb/libusb.a
 
 #LIBS += -lm
@@ -27,10 +24,13 @@ LIBS += ../firmware/basic/libbasic.a
 
 OBJS+=../simcore/simcore.o ../simcore/misc.o ../simcore/timecounter.o
 
+OBJS += simulat0r.o
+
 .PHONY : all
 all : simulat0r
 
-simulat0r : simulat0r.o $(OBJS) $(LIBS) 
+simulat0r : $(OBJS) $(LIBS)
+	$(LD) $(OBJS) $(LIBS) -lc -o $@
 
 clean:
 	$(RM) simulat0r.o

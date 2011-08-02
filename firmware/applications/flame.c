@@ -37,10 +37,20 @@ void ReinvokeISP(void);
 
 /**************************************************************************/
 
+//TODO SEC move to config
+uint8_t flameBrightnessMax = 0xff;
+uint8_t flameBrightnessMin = 0x00;
+uint8_t flameSpeedUp = 0x01;
+uint8_t flameSpeedDown = 0x01;
+uint8_t flameWaitUp = 0xff;
+uint8_t flameWaitDown = 0x8f;
+//TODO SEC move to config
+
+
 uint8_t flameEnabled = 0;
 uint8_t flameMode = FLAME_OFF;
 uint8_t flameI2Cpwm = 0;
-uint16_t flameTicks = 0;
+uint8_t flameTicks = 0;
 
 uint32_t flameSetI2C(uint8_t cr, uint8_t value) {
     I2CMasterBuffer[0] = FLAME_I2C_WRITE;
@@ -55,8 +65,16 @@ void setFlamePWM() {
     flameSetI2C(FLAME_I2C_CR_PWM0, flameI2Cpwm); // set pwm
 }
 
+
 void tick_flame(void) { // every 10ms
     flameTicks++;
+
+    if (flameI2Cpwm > flameBrightnessMax) {
+	flameI2Cpwm = flameBrightnessMax;
+    }
+    if (flameI2Cpwm < flameBrightnessMin) {
+	flameI2Cpwm = flameBrightnessMin;
+    }
 
     if (flameMode == FLAME_OFF) {
 	if (isNight() && flameEnabled) {
@@ -66,31 +84,39 @@ void tick_flame(void) { // every 10ms
     }
 
     if (flameMode == FLAME_UP) {
-	flameI2Cpwm++;
+	if (flameI2Cpwm + flameSpeedUp > flameI2Cpwm ) {
+	    flameI2Cpwm += flameSpeedUp;
+	} else {	
+	    flameI2Cpwm = 0xFF;
+	}
 	push_queue(&setFlamePWM);
-	if (flameI2Cpwm == 0xFF) {
+	if (flameI2Cpwm == flameBrightnessMax) {
 	    flameMode = FLAME_UP_WAIT;
 	    flameTicks = 0;
 	}
     }
 
     if (flameMode == FLAME_UP_WAIT) {
-	if (flameTicks > 0xFF) {
+	if (flameTicks >= flameWaitUp) {
 	    flameMode = FLAME_DOWN;
 	}
     }
 
     if (flameMode == FLAME_DOWN) {
-	flameI2Cpwm--;
+	if (flameI2Cpwm - flameSpeedDown < flameI2Cpwm ) {
+	    flameI2Cpwm -= flameSpeedDown;
+	} else {
+	    flameI2Cpwm = 0x00;
+	}
 	push_queue(&setFlamePWM);
-	if (flameI2Cpwm == 0x00) {
+	if (flameI2Cpwm == flameBrightnessMin) {
 	    flameMode = FLAME_DOWN_WAIT;
 	    flameTicks = 0;
 	}
     }
 
     if (flameMode == FLAME_DOWN_WAIT) {
-	if (flameTicks > 0x8F) {
+	if (flameTicks >= flameWaitDown) {
 	    flameMode = FLAME_OFF;
 	}
     }

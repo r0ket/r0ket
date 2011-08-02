@@ -15,9 +15,6 @@ void main_adc(void) {
     uint32_t brightness = 0;
     uint8_t c = 0;
 
-    font_direction = FONT_DIR_LTR; // LeftToRight is the default
-    font = &Font_7x8;
-
     DoString(0, 0, "adc");
 
     backlightInit();

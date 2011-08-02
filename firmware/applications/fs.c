@@ -25,42 +25,25 @@ void fs_mount(void);
 
 /**************************************************************************/
 
-const struct MENU_DEF menu_incBL =  {"Backlight++", &incBacklight};
-const struct MENU_DEF menu_decBL =  {"Backlight--", &decBacklight};
-const struct MENU_DEF menu_ISP =    {"Invoke ISP",  &gotoISP};
-const struct MENU_DEF menu_status = {"FS Status",   &fs_status};
-const struct MENU_DEF menu_mount =  {"FS Mount",    &fs_mount};
-const struct MENU_DEF menu_list =   {"FS List",     &fs_list};
-const struct MENU_DEF menu_create = {"FS Create",   &fs_create};
-const struct MENU_DEF menu_format = {"FS format",   &fs_format};
-const struct MENU_DEF menu_read   = {"FS read",     &fs_read};
+static const struct MENU mainmenu = {"Mainmenu", {
+    {"FS Mount",    &fs_mount},
+    {"FS Status",   &fs_status},
+    {"FS List",     &fs_list},
+    {"FS Create",   &fs_create},
+    {"FS read",     &fs_read},
+    {"FS format",   &fs_format},
+    {"---",   NULL},
 #if CFG_USBMSC
-const struct MENU_DEF menu_usb   =  {"USB mount",   &usbMSCInit};
-const struct MENU_DEF menu_usboff   =  {"USB unmount", &usbMSCOff};
+    {"USB mount",   &usbMSCInit},
+    {"USB unmount", &usbMSCOff},
+    {"---",   NULL},
 #endif
-const struct MENU_DEF menu_nop =    {"---",   NULL};
+    {"Invoke ISP",  &gotoISP},
+    {"Backlight++", &incBacklight},
+    {"Backlight--", &decBacklight},
+    {NULL,NULL}
+}};
 
-static menuentry menu[] = {
-    &menu_mount,
-    &menu_status,
-    &menu_list,
-    &menu_create,
-    &menu_read,
-    &menu_nop,
-    &menu_format,
-    &menu_nop,
-#if CFG_USBMSC
-    &menu_usb,
-    &menu_usboff,
-#endif
-    &menu_nop,
-    &menu_ISP,
-    &menu_incBL,
-    &menu_decBL,
-    NULL,
-};
-
-static const struct MENU mainmenu = {"Mainmenu", menu};
 
 void main_fs(void) {
 

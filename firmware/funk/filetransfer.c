@@ -108,7 +108,7 @@ int filetransfer_receive(uint8_t *mac, uint32_t const k[4])
     }
     lcdRefresh();
     if( fres < 0 )
-        return;
+        return 1;
     //nrf_set_rx_mac(0, 32, 5, macbuf);
 
     xxtea_decode_words((uint32_t *)buf, wordcount, k);

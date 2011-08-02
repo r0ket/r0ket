@@ -45,26 +45,17 @@ void msc_menu(void){
 
 extern void (*ram)(void);
 
-const struct MENU_DEF menu_ISP =    {"Invoke ISP",  &gotoISP};
-const struct MENU_DEF menu_again = {"Run Loadable",   &ram};
-const struct MENU_DEF menu_nop =    {"---",   NULL};
-const struct MENU_DEF menu_msc =   {"MSC",   &msc_menu};
-const struct MENU_DEF menu_volt =   {"Akku",   &adc_check};
-const struct MENU_DEF menu_mirror = {"Mirror",   &lcd_mirror};
-const struct MENU_DEF menu_invert = {"Invert",   &lcd_invert};
+static const struct MENU mainmenu = {"Mainmenu", {
+    {"Run Loadable",   &ram},
+    {"Invoke ISP",  &gotoISP},
+    {"---",   NULL},
+    {"MSC",   &msc_menu},
+    {"Akku",   &adc_check},
+    {"Mirror",   &lcd_mirror},
+    {"Invert",   &lcd_invert},
+    {NULL,NULL}
+}};
 
-static menuentry menu[] = {
-    &menu_again,
-    &menu_ISP,
-    &menu_nop,
-    &menu_msc,
-    &menu_mirror,
-    &menu_invert,
-    &menu_volt,
-    NULL,
-};
-
-static const struct MENU mainmenu = {"Mainmenu", menu};
 
 
 /**************************************************************************/

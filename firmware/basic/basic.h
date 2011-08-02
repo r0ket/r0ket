@@ -81,6 +81,7 @@
 #define RB_PWR_GOOD		1,8
 
 #define RB_PWR_CHRG		2,3
+#define RB_PWR_CHRG_IO	IOCON_PIO2_3
 
 #define RB_PWR_LCDBL    0,0
 #define RB_PWR_LCDBL_IO IOCON_nRESET_PIO0_0
@@ -171,11 +172,9 @@ struct MENU_DEF {
     void (*callback)(void);
 };
 
-typedef const struct MENU_DEF * menuentry;
-
 struct MENU {
     char *title;
-    menuentry *entries;
+    struct MENU_DEF entries[];
 };
 
 
@@ -184,36 +183,6 @@ void handleMenu(const struct MENU *the_menu);
 // idle.c
 
 #include "basic/idle.h"
-
-// config.c
-
-int readConfig(void);
-int saveConfig(void);
-void applyConfig(void);
-
-
-struct CDESC {
-    char *name;
-    char value;
-    char min;
-    char max;
-};
-
-extern struct CDESC the_config[];
-
-#define GLOBALversion      (the_config[0].value)
-#define GLOBALprivacy      (the_config[1].value)
-#define GLOBALnighttrigger (the_config[2].value)
-#define GLOBALnightinvert  (the_config[3].value)
-#define GLOBALlcdbacklight (the_config[4].value)
-#define GLOBALlcdmirror    (the_config[5].value)
-#define GLOBALlcdinvert    (the_config[6].value)
-#define GLOBALlcdcontrast  (the_config[7].value)
-
-#define GLOBAL(x) GLOBAL ## x
-
-
-#define SYSTICKSPEED 10
 
 // itoa.c
 #define F_ZEROS  (1<<0)
@@ -226,5 +195,9 @@ const char* IntToStr(int num, unsigned int mxlen, char flag);
 // simpletime.c
 
 #include "basic/simpletime.h"
+
+// global
+#define SYSTICKSPEED 10
+
 
 #endif

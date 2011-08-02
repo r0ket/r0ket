@@ -31,4 +31,5 @@ void lcdSafeSetPixel(char x, char y, bool f);
 bool lcdGetPixel(char x, char y);
 void lcdShift(int x, int y, bool wrap);
 void lcdSetContrast(int c);
+void lcdSetInvert();
 #endif

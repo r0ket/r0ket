@@ -236,9 +236,13 @@ DRESULT dataflash_ioctl(BYTE ctrl, void *buff) {
 }
 #endif /* _USE_IOCTL != 0 */
 
-
-
 DWORD get_fattime () {
-    // ToDo!
-    return 0;
+    struct tm* tm=mygmtime(getSeconds());
+    DWORD t= (((tm->tm_year+YEAR0-1980)<<9)|
+            ((tm->tm_mon+1)<<5)|
+            (tm->tm_mday))<<16 |
+            ((tm->tm_hour<<11)|
+            (tm->tm_min<<5)|
+            (tm->tm_sec>>1));
+    return t;
 }

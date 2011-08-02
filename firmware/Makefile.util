@@ -6,6 +6,7 @@ all: $(LIBFILE)
 
 $(LIBFILE): $(OBJS)
 	$(AR) rcs $@ $(OBJS)
+	$(RANLIB) $(RANLIBFLAGS) $@
 	
 %.o : %.c
 	$(CC) $(CFLAGS) -o $@ $<

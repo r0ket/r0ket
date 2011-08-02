@@ -52,24 +52,16 @@ void adc_check(void) {
 
 /**************************************************************************/
 
-const struct MENU_DEF menu_ISP =    {"Invoke ISP",  &gotoISP};
-const struct MENU_DEF menu_mirror = {"Mirror",   &lcd_mirror};
-const struct MENU_DEF menu_volt =   {"Akku",   &adc_check};
-const struct MENU_DEF menu_nop =    {"---",   NULL};
-const struct MENU_DEF menu_msc =   {"MSC",   &msc_menu};
-const struct MENU_DEF menu_exe =   {"Exec",   &execute_menu};
+static const struct MENU mainmenu = {"Mainmenu", {
+    {"MSC",   &msc_menu},
+    {"Exec",   &execute_menu},
+    {"---",   NULL},
+    {"Mirror",   &lcd_mirror},
+    {"Akku",   &adc_check},
+    {"Invoke ISP",  &gotoISP},
+    {NULL,NULL}
+}};
 
-static menuentry menu[] = {
-    &menu_msc,
-    &menu_exe,
-    &menu_nop,
-    &menu_mirror,
-    &menu_volt,
-    &menu_ISP,
-    NULL,
-};
-
-static const struct MENU mainmenu = {"Mainmenu", menu};
 
 void main_exe(void) {
 

@@ -1,23 +1,36 @@
 #include <sysinit.h>
 #include "basic/basic.h"
 
+#include "lcd/display.h"
 #include "lcd/print.h"
 #include "filesystem/ff.h"
 #include "basic/random.h"
+#include "basic/config.h"
 
-#define CFGVER 23
+#define CFGVER 1
 
 struct CDESC the_config[]= {
     {"version",          CFGVER, CFGVER, CFGVER},
+    //                   dflt  min max
     {"privacy",          3,     0, 2  },
-    {"nighttrigger",     310/2, 0, 255},
-    {"nightinvert",      1,     0, 1  },
+    {"daytrig",          310/2, 0, 255},
+    {"daytrighyst",      10,    0, 50 },
+    {"dayinvert",        1,     0, 1  },
     {"lcdbacklight",     50,    0, 100},
     {"lcdmirror",        0,     0, 1  },
     {"lcdinvert",        0,     0, 1  },
-    {"lcdcontrast",      3,     0, 31  },
+    {"lcdcontrast",      14,    0, 31 },
+    {"alivechk",         0,     0, 2  },
+    {"flamemax",         255,   0, 255},
+    {"flamemin",         0,     0, 255},
+    {"flamespeed",       1,     1, 100},
+    {"flamemaxw",        255,   1, 255},
+    {"flameminw",        0x8f,  1, 255},
     { NULL,              0,     0, 0  },
 };
+
+char nickname[MAXNICK]="anonymous";
+char nickfont[FILENAMELEN];
 
 #define CONFFILE "r0ket.cfg"
 #define CONF_ITER for(int i=0;the_config[i].name!=NULL;i++)
@@ -25,8 +38,9 @@ struct CDESC the_config[]= {
 /**************************************************************************/
 
 void applyConfig(){
-    lcdSetContrast(GLOBAL(lcdcontrast));
-	return 0;
+    if(GLOBAL(lcdcontrast)>0)
+        lcdSetContrast(GLOBAL(lcdcontrast));
+	return;
 };
 
 int saveConfig(void){
