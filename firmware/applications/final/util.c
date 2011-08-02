@@ -154,3 +154,16 @@ void getsp(void) {
     dy+=16;
     dx=DoString(0,dy,"Done.");
 };
+
+//# MENU msc
+void msc_menu(void){
+    lcdClear();
+    lcdPrintln("MSC Enabled.");
+    lcdRefresh();
+    usbMSCInit();
+    while(!getInputRaw())delayms_queue(10);
+    DoString(0,16,"MSC Disabled.");
+    usbMSCOff();
+    fsReInit();
+};
+
