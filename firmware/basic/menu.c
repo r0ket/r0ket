@@ -6,6 +6,8 @@
 
 /**************************************************************************/
 
+uint8_t menuflags=0;
+
 void handleMenu(const struct MENU *the_menu) {
     uint8_t back = 0;
     int8_t menuselection = 0;
@@ -38,7 +40,7 @@ void handleMenu(const struct MENU *the_menu) {
         }
         lcdRefresh();
 
-        switch (getInputWait()) {
+        switch (getInputWaitTimeout((menuflags&MENU_TIMEOUT)?15:0)) {
             case BTN_UP:
                 menuselection--;
                 if (menuselection < current_offset) {
@@ -78,12 +80,13 @@ void handleMenu(const struct MENU *the_menu) {
                 getInputWait();
 
                 break;
+            case BTN_NONE: /* timeout */
+                return;
             default:
-                /* no button pressed */
+                /* NOTREACHED */
                 break;
         }
         getInputWaitRelease();
-
     }
     return;
 }

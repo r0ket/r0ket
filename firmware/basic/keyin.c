@@ -50,6 +50,18 @@ uint8_t getInputWait(void) {
     return key;
 };
 
+uint8_t getInputWaitTimeout(int timeout) {
+    uint8_t key;
+    int end=_timectr+timeout*(1000/SYSTICKSPEED);
+    while ((key=getInputRaw())==BTN_NONE){
+        if(_timectr>end)
+            break;
+        work_queue();
+    };
+    delayms_queue(10); /* Delay a little more to debounce */
+    return key;
+};
+
 void getInputWaitRelease(void) {
     while (getInputRaw()!=BTN_NONE)
         work_queue();
