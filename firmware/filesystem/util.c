@@ -55,7 +55,7 @@ int writeFile(char * filename, char * data, int len){
     UINT writebytes;
     int res;
 
-	res=f_open(&file, filename, FA_OPEN_ALWAYS|FA_WRITE);
+	res=f_open(&file, filename, FA_CREATE_ALWAYS|FA_WRITE);
     if(res){
         return -1;
     };
