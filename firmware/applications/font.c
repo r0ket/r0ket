@@ -167,31 +167,19 @@ void msc_menu(void){
 
 /**************************************************************************/
 
-const struct MENU_DEF menu_ISP =    {"Invoke ISP",  &gotoISP};
-const struct MENU_DEF menu_init =   {"F Init",   &f_init};
-const struct MENU_DEF menu_nick =    {"F Nick",   &f_nick};
-const struct MENU_DEF menu_font =    {"F sel",   &f_font};
-const struct MENU_DEF menu_mirror = {"Mirror",   &lcd_mirror};
-const struct MENU_DEF menu_invert = {"Invert",   &lcd_invert};
-const struct MENU_DEF menu_volt =   {"Akku",   &adc_check};
-const struct MENU_DEF menu_msc =   {"MSC",   &msc_menu};
-const struct MENU_DEF menu_nop =    {"---",   NULL};
 
-static menuentry menu[] = {
-    &menu_init,
-    &menu_nick,
-    &menu_font,
-    &menu_nop,
-    &menu_mirror,
-    &menu_invert,
-    &menu_volt,
-    &menu_msc,
-    &menu_nop,
-    &menu_ISP,
-    NULL,
-};
-
-static const struct MENU mainmenu = {"Mainmenu", menu};
+static const struct MENU mainmenu = {"Mainmenu",  {
+    {"Invoke ISP",  &gotoISP},
+    {"F Init",   &f_init},
+    {"F Nick",   &f_nick},
+    {"F sel",   &f_font},
+    {"Mirror",   &lcd_mirror},
+    {"Invert",   &lcd_invert},
+    {"Akku",   &adc_check},
+    {"MSC",   &msc_menu},
+    {"---",   NULL},
+    {NULL,NULL}
+}};
 
 void main_font(void) {
 

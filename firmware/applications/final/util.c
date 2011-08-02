@@ -13,6 +13,7 @@
 
 /**************************************************************************/
 
+//# MENU debug ChkLight
 void ChkLight(void) {
     int dx=0;
     int dy=8;
@@ -28,6 +29,7 @@ void ChkLight(void) {
     dx=DoString(0,dy+24,"Done.");
 }
 
+//# MENU debug ChkBattery
 void ChkBattery(void) {
     do{
         lcdClear();
@@ -45,6 +47,7 @@ void ChkBattery(void) {
     } while ((getInputRaw())==BTN_NONE);
 }
 
+//# MENU debug Uptime
 void uptime(void) {
     int t;
     int h;
@@ -81,6 +84,7 @@ void uptime(void) {
     lcdPrintln("done.");
 }
 
+//# MENU debug Uuid
 void uuid(void) {
     IAP_return_t iap_return;
     iap_return = iapReadSerialNumber();
@@ -96,6 +100,7 @@ void uuid(void) {
     lcdRefresh();
 }
 
+//# MENU debug Qstatus
 void Qstatus(void) {
     int dx=0;
     int dy=8;

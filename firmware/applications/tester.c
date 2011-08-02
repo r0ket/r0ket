@@ -10,8 +10,6 @@
 
 #include "tester.gen"
 
-static const struct MENU mainmenu = {"Mainmenu", mentry};
-
 void main_tester(void) {
     handleMenu(&mainmenu);
     gotoISP();

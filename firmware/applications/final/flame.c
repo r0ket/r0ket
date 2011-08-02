@@ -131,6 +131,7 @@ void tick_flame(void) { // every 10ms
     }
 }
 
+//# MENU flame
 void flameInit(void) {
 
     i2cInit(I2CMASTER); // Init I2C
@@ -151,6 +152,7 @@ void flameInit(void) {
 
 #include "lcd/print.h"
 
+//# MENU debug ChkFlame
 void ChkFlame(void) {
     do{
         lcdClear();
@@ -167,5 +169,6 @@ void ChkFlame(void) {
         lcdPrintln(IntToStr(flameTicks,3,0));
 
         lcdRefresh();
+        delayms_queue(10);
     } while ((getInputRaw())==BTN_NONE);
 }

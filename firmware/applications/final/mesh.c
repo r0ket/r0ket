@@ -16,19 +16,8 @@
 
 /**************************************************************************/
 
-void m_init(void){
+void init_mesh(void){
     nrf_init();
-
-    struct NRF_CFG config = {
-        .channel= MESH_CHANNEL,
-        .txmac= MESH_MAC,
-        .nrmacs=1,
-        .mac0=  MESH_MAC,
-        .maclen ="\x20", // XXX: MESHPKTSIZE
-    };
-
-    nrf_config_set(&config);
-
     initMesh();
 };
 
@@ -36,6 +25,7 @@ void m_tset(void){
     _timet=1311961112;
 };
 
+//# MENU debug MeshInfo
 void m_time(void){
     struct tm* tm;
     char c[2]={0,0};
@@ -185,6 +175,7 @@ char *meshmsgs(void){
 
 
 extern MPKT meshbuffer[MESHBUFSIZE];
+//# MENU mesh Messages
 void m_choose(){
     char list[99];
     int i=0;

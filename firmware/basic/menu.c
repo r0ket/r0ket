@@ -17,7 +17,7 @@ void handleMenu(const struct MENU *the_menu) {
 
     setSystemFont();
 
-    for (numentries = 0; the_menu->entries[numentries] != NULL; numentries++);
+    for (numentries = 0; the_menu->entries[numentries].text != NULL ; numentries++);
 
     visible_lines = lcdGetVisibleLines()-1; // subtract title line
 #ifdef SAFETY
@@ -34,7 +34,7 @@ void handleMenu(const struct MENU *the_menu) {
                 lcdPrint("*");
             }
             lcdSetCrsrX(14);
-            lcdPrintln(the_menu->entries[i]->text);
+            lcdPrintln(the_menu->entries[i].text);
         }
         lcdRefresh();
 
@@ -64,16 +64,16 @@ void handleMenu(const struct MENU *the_menu) {
             case BTN_LEFT:
                 return;
             case BTN_RIGHT:
-                if (the_menu->entries[menuselection]->callback!=NULL)
-                    the_menu->entries[menuselection]->callback();
+                if (the_menu->entries[menuselection].callback!=NULL)
+                    the_menu->entries[menuselection].callback();
                 break;
             case BTN_ENTER:
                 lcdClear();
                 lcdPrintln("Called...");
                 lcdRefresh();
                 getInputWaitRelease();
-                if (the_menu->entries[menuselection]->callback!=NULL)
-                    the_menu->entries[menuselection]->callback();
+                if (the_menu->entries[menuselection].callback!=NULL)
+                    the_menu->entries[menuselection].callback();
                 lcdRefresh();
                 getInputWait();
 

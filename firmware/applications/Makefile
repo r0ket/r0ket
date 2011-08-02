@@ -8,6 +8,10 @@ ifeq "$(APP)" "initial"
 NODEFAULT = y
 endif
 
+ifeq "$(APP)" "tester"
+DEBUG = -d
+endif
+
 ifndef NODEFAULT
 OBJS += default.o
 endif
@@ -71,7 +75,7 @@ ifeq "$(wildcard $(APP))" "$(APP)"
 ifndef TYPE
 TYPE=$(APP)
 endif
-TSRCS = $(wildcard $(TYPE)/*.c)
+TSRCS = $(foreach type,$(TYPE),$(wildcard $(type)/*.c))
 TOBJS = $(foreach mod,$(TSRCS),$(subst .c,.o,$(mod)))
 
 TWRAP=$(APP).gen
@@ -81,7 +85,7 @@ TWRAP=$(APP).gen
 $(APP).o: $(TWRAP)
 
 $(TWRAP):
-	./mkfirmware $(APP) $(TSRCS) > $@
+	./mkfirmware.pl $(DEBUG) $(APP) $(TSRCS) > $@
 
 OBJS += $(TOBJS)
 endif

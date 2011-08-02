@@ -10,15 +10,13 @@
 
 #include "final.gen"
 
-static const struct MENU mainmenu = {"Menu", mentry};
-
-void initNick();
+void init_nick();
 void fancyNickname();
 
 void main_final(void) {
     //checkFirstBoot();
+    init_final();
 
-    initNick();
     while(1){
 #ifndef FINAL
         if(getInputRaw()==BTN_LEFT)
@@ -27,7 +25,7 @@ void main_final(void) {
         if(getInput()){
             handleMenu(&mainmenu);
             getInputWaitRelease();
-            initNick();
+            init_nick();
         };
         fancyNickname();
         delayms_queue(100);
