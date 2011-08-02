@@ -100,7 +100,7 @@ void tick_flame(void) { // every 10ms
             flameI2Cpwm = 0xFF;
         }
         push_queue(&setFlamePWM);
-        if (flameI2Cpwm => flameBrightnessMax) {
+        if (flameI2Cpwm >= flameBrightnessMax) {
             flameMode = FLAME_UP_WAIT;
             flameTicks = 0;
         }
@@ -132,9 +132,7 @@ void tick_flame(void) { // every 10ms
     }
 }
 
-//# MENU flame
-void flameInit(void) {
-
+void init_flame(void) {
     i2cInit(I2CMASTER); // Init I2C
 
     flameEnabled = (flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_OFF << FLAME_I2C_LS0_LED0) == I2CSTATE_ACK); // probe i2c
