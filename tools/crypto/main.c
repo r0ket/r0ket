@@ -130,7 +130,7 @@ int main(int argc, char *argv[]) {
   if (verbose)
     fprintf(stderr,"file size=%d\n", filesize);
   
-  int words = (filesize+3)/sizeof(uint32_t);
+  int words = (((filesize+3)/sizeof(uint32_t)+3)/4)*4;
   int bytes = sizeof(uint32_t)*words;
 
   if (verbose)
@@ -152,6 +152,7 @@ int main(int argc, char *argv[]) {
           fprintf(stderr,"Signing: ");
       memset(buf, 0, bytes);
 	  int cnt = fread(buf,sizeof(*buf),filesize,fp);
+      cnt = 0;
       uint32_t mac[4];
       xxtea_cbcmac(mac, (uint32_t*)buf, words, k);
 
@@ -165,18 +166,18 @@ int main(int argc, char *argv[]) {
           }
 
       if (fwrite(buf,sizeof(*buf),bytes,ofp) != bytes){
-          fprintf(stderr, "Error: write failed\n");
+          fprintf(stderr, "Error: file write failed\n");
           exit(253);
       }
-      if (fwrite(mac,sizeof(*mac),4,ofp) != 4*sizeof(*mac)){
-          fprintf(stderr, "Error: write failed\n");
+      if (fwrite(mac,sizeof(*mac),4,ofp) != 4){
+          fprintf(stderr, "Error: mac write failed\n");
           exit(253);
       }
       if(verbose) fprintf(stderr,".\n");
   }
 
   if( encrypt ){
-    int cnt, block;
+    int cnt, block=0;
     if (verbose)
         fprintf(stderr,"Encrypting: ");
 

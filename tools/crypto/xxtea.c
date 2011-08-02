@@ -3,32 +3,15 @@
  * BSD Licence
  *
  * btea function is from 
- * <https://secure.wikimedia.org/wikipedia/en/wiki/XXTEA#Reference_code>
+ * <https://secure.wikim
+ * edia.org/wikipedia/en/wiki/XXTEA#Reference_code>
  *
  * (c) by Sec <sec@42.org> 6/2011
  */
 
 #include <stdint.h>
 #include "xxtea.h"
-
-#ifdef SAFE
-uint32_t htonl(uint32_t v)
-{
-    uint32_t r=0;
-    r |= (v>> 0)&0xFF; r<<=8;
-    r |= (v>> 8)&0xFF; r<<=8;
-    r |= (v>>16)&0xFF; r<<=8;
-    r |= (v>>24)&0xFF;
-    return r;
-}
-#else
-uint32_t htonl(uint32_t v){
-    __asm("rev %[value], %[value];" \
-            : [value] "+r" (v) : );
-    return v;
-};
-#endif
-
+#include <arpa/inet.h>
 
 void htonlp(uint32_t *v, uint8_t n)
 {
