@@ -22,12 +22,20 @@ void fancyNickname(void) {
     static uint32_t ctr=0;
 	ctr++;
 
+	setExtFont(GLOBAL(nickfont));
+	dx=DoString(0,0,GLOBAL(nickname));
+    dx=(RESX-dx)/2;
+    if(dx<0)
+        dx=0;
+    dy=(RESY-getFontHeight())/2;
 
 	lcdClear();
-	setExtFont(GLOBAL(nickfont));
 	DoString(dx,dy,GLOBAL(nickname));
 	lcdRefresh();
 
+    while(getInputRaw()==BTN_NONE){
+        work_queue();
+    };
     return;
 }
 

@@ -37,8 +37,8 @@ void main_final(void) {
             getInputWaitRelease();
             init_nick();
         };
+        work_queue();
         fancyNickname();
-        delayms_queue(100);
     };
 };
 
