@@ -1,48 +1,18 @@
 #include <sysinit.h>
+#include <string.h>
 
 #include "basic/basic.h"
 #include "basic/config.h"
 
-#include "lcd/lcd.h"
 #include "lcd/print.h"
-#include "lcd/allfonts.h"
 
-#include "filesystem/ff.h"
-#include "filesystem/select.h"
-#include "funk/nrf24l01p.h"
 #include "usb/usbmsc.h"
 
-#include <string.h>
+#include "core/iap/iap.h"
 
 /**************************************************************************/
 
-void show_ticks(void) {
-    int dx=0;
-    int dy=8;
-    lcdClear();
-    dx=DoString(0,dy,"Ticks:");
-    while ((getInputRaw())==BTN_NONE){
-        DoInt(0,dy+8,_timectr);
-        lcdDisplay();
-    };
-    dy+=16;
-    dx=DoString(0,dy,"Done.");
-};
-
-
-void chrg_stat(void) {
-    int stat;
-    while ((getInputRaw())==BTN_NONE){
-        lcdClear();
-        lcdPrintln("Chrg_stat:");
-        stat=gpioGetValue(RB_PWR_CHRG);
-        lcdPrint(IntToStr(stat,3,0));
-        lcdNl();
-        lcdRefresh();
-    };
-    lcdPrintln("Done.");
-};
-void adc_light(void) {
+void ChkLight(void) {
     int dx=0;
     int dy=8;
     dx=DoString(0,dy,"Light:");
@@ -52,10 +22,27 @@ void adc_light(void) {
         DoInt(dx,dy+16,isNight());
         DoInt(dx,dy+8,GLOBAL(daytrig));
         lcdDisplay();
+        delayms_queue(100);
     };
-    dy+=8;
-    dx=DoString(0,dy,"Done.");
-};
+    dx=DoString(0,dy+24,"Done.");
+}
+
+void ChkBattery(void) {
+    do{
+        lcdClear();
+        lcdPrintln("Voltage:");
+        lcdPrintln(IntToStr(GetVoltage(),5,0));
+        lcdNl();
+        lcdPrintln("Chrg_stat:");
+        if(gpioGetValue(RB_PWR_CHRG)){
+            lcdPrintln("1");
+        }else{
+            lcdPrintln("0");
+        };
+        lcdRefresh();
+        delayms_queue(100);
+    } while ((getInputRaw())==BTN_NONE);
+}
 
 void uptime(void) {
     int t;
@@ -84,46 +71,26 @@ void uptime(void) {
             lcdPrint("s");
         };
         lcdNl();
+        lcdNl();
+        lcdPrintln("Ticks:");
+        lcdPrint(IntToStr(_timectr,10,0));
         lcdRefresh();
         delayms_queue(200);
     };
     lcdPrintln("done.");
-};
-
-void gotoISP(void) {
-    DoString(0,0,"Enter ISP!");
-    lcdDisplay();
-    ISPandReset();
 }
 
-void lcd_mirror(void) {
-    lcdToggleFlag(LCD_MIRRORX);
-};
-
-void lcd_invert(void) {
-    lcdToggleFlag(LCD_INVERTED);
-};
-
-void adc_check(void) {
-    int dx=0;
-    int dy=8;
-    // Print Voltage
-    dx=DoString(0,dy,"Voltage:");
-    while ((getInputRaw())==BTN_NONE){
-        DoInt(dx,dy,GetVoltage());
-       lcdDisplay();
-    };
-    dy+=8;
-    dx=DoString(0,dy,"Done.");
-};
-
-void msc_menu(void){
-    DoString(0,8,"MSC Enabled.");
-    lcdDisplay();
-    usbMSCInit();
-    getInputWaitRelease();
-    getInputWait();
-    DoString(0,16,"MSC Disabled.");
-    usbMSCOff();
-    fsReInit();
-};
+void uuid(void) {
+    IAP_return_t iap_return;
+    iap_return = iapReadSerialNumber();
+    lcdClear();
+    lcdPrintln("UUID:");
+    lcdPrintIntHex(iap_return.Result[0]); lcdNl();
+    lcdPrintIntHex(iap_return.Result[1]); lcdNl();
+    lcdPrintIntHex(iap_return.Result[2]); lcdNl();
+    lcdPrintIntHex(iap_return.Result[3]); lcdNl();
+    lcdNl();
+    lcdPrintln("Beacon ID:");
+    lcdPrintln(IntToStrX(GetUUID32(),4));
+    lcdRefresh();
+}
