@@ -54,3 +54,10 @@ bitstr_parse_export
 f_get_rc_string
 xxtea_decode_words
 systickGetTicks
+lcdFill
+memcpy
+DoChar
+font
+Font_Invaders
+Font_7x8
+lcdBuffer
