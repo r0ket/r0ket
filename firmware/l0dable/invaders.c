@@ -77,6 +77,7 @@ void ram(void) {
 		screen_intro();
 		game.rokets = 3; 
 		game.level = 1;
+		game.score = 0;
 		init_game();
 		screen_level();
 		while (game.rokets>=0) {
@@ -162,7 +163,6 @@ void init_game(void) {
 	game.killed = 0;
 	game.step = false;
 	game.ufo = DISABLED;
-	game.score = 0;
 	init_enemy();
 	
 	for (int col=0; col<ENEMY_COLUMNS; col++){
