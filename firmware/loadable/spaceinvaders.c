@@ -6,9 +6,9 @@
 #include "lcd/display.h"
 #include "lcd/allfonts.h"
 
-void ReinvokeISP(void);
-void EnableWatchdog(uint32_t ms);
-void delayms(uint32_t ms);
+//void ReinvokeISP(void);
+//void EnableWatchdog(uint32_t ms);
+//void delayms(uint32_t ms);
 
 /**************************************************************************/
 #define POS_PLAYER_Y 60
@@ -150,11 +150,17 @@ void init_game(void) {
 	game.shot_y = 0;
 	game.alive = ENEMY_ROWS*ENEMY_COLUMNS;
 	game.move = 0;
-	game.direction = -1;
-	game.lastcol = ENEMY_COLUMNS-1;
+	if (getRandom()%2 == 0) {
+		game.direction = -1;
+		game.lastcol = ENEMY_COLUMNS-1;
+	} else {
+		game.direction = 1;
+		game.lastcol = 0;
+	}
 	game.killed = 0;
 	game.step = false;
 	game.ufo = DISABLED;
+	game.score = 0;
 	init_enemy();
 	
 	for (char col=0; col<ENEMY_COLUMNS; col++){
@@ -242,7 +248,7 @@ void move_shot() {
                     game.enemy_x[row][col]=DISABLED;
                     game.shot_x = DISABLED;
                     game.alive--;
-					game.score++;
+					game.score+=(3-row)*10;
                     return;
                 }
             }
@@ -255,7 +261,7 @@ void move_shot() {
 		game.shot_y<8) {
 
 		game.ufo = DISABLED;
-		game.score += 5;
+		game.score += 50;
 	}
 
     game.shot_y -= 2;
