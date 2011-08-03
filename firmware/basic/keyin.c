@@ -52,6 +52,8 @@ uint8_t getInputWait(void) {
 
 uint8_t getInputWaitTimeout(int timeout) {
     uint8_t key;
+    if(timeout==0)
+        return getInputWait();
     int end=_timectr+timeout*(1000/SYSTICKSPEED);
     while ((key=getInputRaw())==BTN_NONE){
         if(_timectr>end)
