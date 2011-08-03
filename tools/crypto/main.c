@@ -136,8 +136,10 @@ int main(int argc, char *argv[]) {
   if (verbose)
     fprintf(stderr,"byte count=%d word count=%d\n", bytes, words);
   
-
-  buf=malloc(bytes);
+  if( sign )
+      buf=malloc(bytes+sizeof(uint32_t)*4);
+  else
+      buf=malloc(bytes);
 
   if(!buf){
       fprintf(stderr,"Error: malloc() failed.\n");
@@ -147,69 +149,48 @@ int main(int argc, char *argv[]) {
   if (verbose)
       fprintf(stderr,"Key: %08x %08x %08x %08x\n",k[0],k[1],k[2],k[3]);
 
+  memset(buf, 0, bytes);
+  if( fread(buf,sizeof(*buf),filesize,fp) != filesize ){
+      fprintf(stderr, "Error: read failed\n");
+      exit(253);
+  };
+
+  if( encrypt ){
+      if (verbose)
+          fprintf(stderr,"Encrypting: ");
+
+      xxtea_encode_words((uint32_t*)buf, words, k);
+      if(verbose) fprintf(stderr,".\n");
+  }
+
   if( sign ){
       if (verbose)
           fprintf(stderr,"Signing: ");
-      memset(buf, 0, bytes);
-	  int cnt = fread(buf,sizeof(*buf),filesize,fp);
-      cnt = 0;
       uint32_t mac[4];
       xxtea_cbcmac(mac, (uint32_t*)buf, words, k);
 
       if (verbose)
         fprintf(stderr,"MAC: %08x %08x %08x %08x\n",mac[0],mac[1],mac[2],mac[3]);
-
-      if(!outfile) // in-place crypting...
-          if( fseek(fp, 0L, SEEK_SET) != 0){
-              fprintf(stderr, "Error: Seek failed\n");
-              exit(253);
-          }
-
-      if (fwrite(buf,sizeof(*buf),bytes,ofp) != bytes){
-          fprintf(stderr, "Error: file write failed\n");
-          exit(253);
-      }
-      if (fwrite(mac,sizeof(*mac),4,ofp) != 4){
-          fprintf(stderr, "Error: mac write failed\n");
-          exit(253);
-      }
+      memcpy(buf+bytes, mac, sizeof(*mac)*4);
+      bytes += sizeof(*mac)*4;
       if(verbose) fprintf(stderr,".\n");
   }
 
-  if( encrypt ){
-    int cnt, block=0;
-    if (verbose)
-        fprintf(stderr,"Encrypting: ");
+  if(!outfile) // in-place crypting...
+      if (fseek(fp,0,SEEK_SET) != 0){
+          fprintf(stderr, "Error: Seek failed\n");
+          exit(253);
+      }
 
-    do{
-        cnt=fread(buf,sizeof(*buf),block,fp); // XXX: deal with non-block-sized?
-
-        if(cnt<0){
-            fprintf(stderr, "Error: read failed\n");
-            exit(253);
-        };
-
-        if(verbose)
-            fprintf(stderr,"cnt=%d:",cnt);
-    /*      if(cnt%sizeof(*buf)!=0){
-            fprintf(stderr,"Whoops. needs padding: cnt=%d, mod=%d\n",cnt,cnt%sizeof(*buf));
-        }; */
-
-        //btea(buf, decrypt?-cnt:cnt, k);
-
-        if(!outfile) // in-place crypting...
-            if (fseek(fp,-cnt*sizeof(*buf),SEEK_CUR) != 0){
-                fprintf(stderr, "Error: Seek failed\n");
-                exit(253);
-            }
-
-        if (fwrite(buf,sizeof(*buf),cnt,ofp) != cnt){
-            fprintf(stderr, "Error: CRC write failed\n");
-            exit(253);
-        }
-        if(verbose) fprintf(stderr,".\n");
-    }while(cnt==block);
+  if (fwrite(buf,sizeof(*buf),bytes,ofp) != bytes){
+      fprintf(stderr, "Error: CRC write failed\n");
+      exit(253);
   }
+  if( fseek(ofp, 0L, SEEK_SET) != 0){
+      fprintf(stderr, "Error: Seek failed\n");
+      exit(253);
+  }
+
   if(verbose)
       fprintf(stderr,"done\n");
 
