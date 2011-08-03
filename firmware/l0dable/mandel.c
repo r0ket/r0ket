@@ -5,7 +5,6 @@
 #include "lcd/render.h"
 #include "lcd/display.h"
 #include "lcd/allfonts.h"
-
 #include "usetable.h"
 
 #define FIXSIZE 25
@@ -38,7 +37,8 @@ void ram(void) {
 
 struct mb {
     long rmin, rmax, imin, imax;
-    bool dirty, dup, ddown, dleft, dright;
+    bool dirty, dup, ddown, dleft, dright, clickmark;
+    int presscount, presslimitzin, presslimitzout, zoomlevel, maxzoomin, maxzoomout;
 } mandel;
 
 void mandelInit() {
@@ -50,12 +50,19 @@ void mandelInit() {
     mandel.rmax = fixpt(1);
     mandel.imin = fixpt(-2);
     mandel.imax = fixpt(2);
-    
+    mandel.presscount = 0;
+    mandel.presslimitzin = 40;    
+    mandel.presslimitzout = 30;
+    mandel.zoomlevel = 0;
+    mandel.maxzoomin = 65;
+    mandel.maxzoomout = -12;
+
     mandel.dirty = true;
     mandel.dup = false;
     mandel.ddown = false;
     mandel.dleft = false;
     mandel.dright = false;
+    mandel.clickmark = false;
 }
 
 void mandelMove() {
@@ -67,7 +74,7 @@ void mandelMove() {
     
 	char key = getInputRaw();
     
-	 if (key == BTN_LEFT) {
+       if (key == BTN_LEFT) {
         mandel.imax -=is;
         mandel.imin -=is;
         mandel.dleft = true;
@@ -79,23 +86,41 @@ void mandelMove() {
         mandel.rmax += rs;
         mandel.rmin += rs;
         mandel.ddown = true;
-     } else if (key == BTN_UP) {
-        mandel.rmax -= rs;
-        mandel.rmin -= rs;
-        mandel.dup = true;
-     } else if (key == (BTN_ENTER +  BTN_UP)) {
+       } else if (key == BTN_UP) {
+	  mandel.rmax -= rs;
+	  mandel.rmin -= rs;
+	  mandel.dup = true;
+       } else if (key == BTN_ENTER) {
+	   if (mandel.presscount < mandel.presslimitzin) {
+	      mandel.presscount = mandel.presscount + 1;
+              }
+       } else if (key == BTN_NONE) {
+	   if(mandel.presscount > 0 ) {
+	      mandel.presscount = mandel.presscount - 1;
+              mandel.clickmark = true;
+	      }
+           if (mandel.presscount == 0 ) {
+              mandel.clickmark = false;
+              }
+       }
+       if (mandel.presscount > mandel.presslimitzout && mandel.clickmark && key == BTN_ENTER && mandel.zoomlevel >= mandel.maxzoomout) {
+	mandel.imin = mandel.imin - (mandel.imax-mandel.imin)/10;
+        mandel.imax = mandel.imax + (mandel.imax-mandel.imin)/10;
+        mandel.rmin = mandel.rmin -(mandel.rmax-mandel.rmin)/10;
+        mandel.rmax = mandel.rmax +(mandel.rmax-mandel.rmin)/10;
+        mandel.dirty = true;
+        delayms(10);
+        mandel.zoomlevel = mandel.zoomlevel - 1 ;
+	 }
+       else if (mandel.presscount == mandel.presslimitzin && key == BTN_ENTER && mandel.zoomlevel <= mandel.maxzoomin ) {
         mandel.imin = mandel.imin + (mandel.imax-mandel.imin)/10;
         mandel.imax = mandel.imax - (mandel.imax-mandel.imin)/10;
         mandel.rmin = mandel.rmin +(mandel.rmax-mandel.rmin)/10;
         mandel.rmax = mandel.rmax -(mandel.rmax-mandel.rmin)/10;
         mandel.dirty = true;
-     } else if (key == (BTN_ENTER + BTN_DOWN)) {
-		mandel.imin = mandel.imin - (mandel.imax-mandel.imin)/10;
-        mandel.imax = mandel.imax + (mandel.imax-mandel.imin)/10;
-        mandel.rmin = mandel.rmin -(mandel.rmax-mandel.rmin)/10;
-        mandel.rmax = mandel.rmax +(mandel.rmax-mandel.rmin)/10;
-        mandel.dirty = true;
-	 }
+        delayms(10);
+        mandel.zoomlevel = mandel.zoomlevel + 1 ;
+     } 
 }
 
 void mandelPixel(int x, int y) {

@@ -94,7 +94,7 @@ void tick_flame(void) { // every 10ms
     }
 
     if (flameMode == FLAME_UP) {
-        if (flameI2Cpwm + flameSpeedUp > flameI2Cpwm ) {
+        if (0xFF - flameI2Cpwm >= flameSpeedUp ) {
             flameI2Cpwm += flameSpeedUp;
         } else {        
             flameI2Cpwm = 0xFF;
@@ -113,7 +113,7 @@ void tick_flame(void) { // every 10ms
     }
 
     if (flameMode == FLAME_DOWN) {
-        if (flameI2Cpwm - flameSpeedDown < flameI2Cpwm ) {
+        if (flameSpeedDown <= flameI2Cpwm) {
             flameI2Cpwm -= flameSpeedDown;
         } else {
             flameI2Cpwm = 0x00;

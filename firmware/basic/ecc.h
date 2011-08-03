@@ -17,20 +17,16 @@ int bitstr_parse_export(char *exp, const char *s);
 
 void ECIES_setup(void);
 
-void ECIES_encyptkeygen(uint8_t *px, uint8_t *py,
-                uint8_t k1[16], uint8_t k2[16], uint8_t *Rx_exp, uint8_t *Ry_exp);
+void ECIES_encyptkeygen(uint8_t *px, uint8_t *py, uint8_t k1[16], uint8_t k2[16], uint8_t *Rx_exp, uint8_t *Ry_exp);
 
-int ECIES_decryptkeygen(uint8_t *rx, uint8_t *ry,
-             uint8_t k1[16], uint8_t k2[16], const char *privkey);
+int ECIES_decryptkeygen(uint8_t *rx, uint8_t *ry, uint8_t k1[16], uint8_t k2[16], const char *privkey);
 #define ECIES_OVERHEAD (8 * NUMWORDS + 8)
 
                   /* ECIES encryption; the resulting cipher text message will be
                                             (len + ECIES_OVERHEAD) bytes long */
-void ECIES_encryption(char *msg, const char *text, int len, 
-		      const char *Px, const char *Py);
+void ECIES_encryption(char *msg, const char *text, int len, const char *Px, const char *Py);
                                                           /* ECIES decryption */
-int ECIES_decryption(char *text, const char *msg, int len, 
-		     const char *privkey);
+int ECIES_decryption(char *text, const char *msg, int len, const char *privkey);
 
 #define MACRO(A) do { A; } while(0)
 #define MIN(a, b) ((a) < (b) ? (a) : (b))

@@ -36,7 +36,8 @@ void ram(void) {
 
 struct mb {
     long rmin, rmax, imin, imax;
-    bool dirty, dup, ddown, dleft, dright;
+    bool dirty, dup, ddown, dleft, dright, clickmark;
+    int count, limitZIn, limitZOut;
 } mandel;
 
 void mandelInit() {
@@ -48,12 +49,16 @@ void mandelInit() {
     mandel.rmax = fixpt(1);
     mandel.imin = fixpt(-2);
     mandel.imax = fixpt(2);
-    
+    mandel.count = 0;
+    mandel.limitZIn = 40;    
+    mandel.limitZOut = 30;
+
     mandel.dirty = true;
     mandel.dup = false;
     mandel.ddown = false;
     mandel.dleft = false;
     mandel.dright = false;
+    mandel.clickmark = false;
 }
 
 void mandelMove() {
@@ -65,7 +70,7 @@ void mandelMove() {
     
 	char key = getInputRaw();
     
-	 if (key == BTN_LEFT) {
+       if (key == BTN_LEFT) {
         mandel.imax -=is;
         mandel.imin -=is;
         mandel.dleft = true;
@@ -77,23 +82,37 @@ void mandelMove() {
         mandel.rmax += rs;
         mandel.rmin += rs;
         mandel.ddown = true;
-     } else if (key == BTN_UP) {
-        mandel.rmax -= rs;
-        mandel.rmin -= rs;
-        mandel.dup = true;
-     } else if (key == (BTN_ENTER +  BTN_UP)) {
-        mandel.imin = mandel.imin + (mandel.imax-mandel.imin)/10;
-        mandel.imax = mandel.imax - (mandel.imax-mandel.imin)/10;
-        mandel.rmin = mandel.rmin +(mandel.rmax-mandel.rmin)/10;
-        mandel.rmax = mandel.rmax -(mandel.rmax-mandel.rmin)/10;
-        mandel.dirty = true;
-     } else if (key == (BTN_ENTER + BTN_DOWN)) {
-		mandel.imin = mandel.imin - (mandel.imax-mandel.imin)/10;
+       } else if (key == BTN_UP) {
+	  mandel.rmax -= rs;
+	  mandel.rmin -= rs;
+	  mandel.dup = true;
+       } else if (key == BTN_ENTER) {
+	   if (mandel.count < mandel.limitZIn) {
+	      mandel.count = mandel.count + 1;
+              }
+       } else if (key == BTN_NONE) {
+	   if(mandel.count > 0 ) {
+	      mandel.count = mandel.count - 1;
+              mandel.clickmark = true;
+	      }
+           if (mandel.count == 0 ) {
+              mandel.clickmark = false;
+              }
+       }
+       if (mandel.count > mandel.limitZOut && mandel.clickmark && key == BTN_ENTER) {
+	mandel.imin = mandel.imin - (mandel.imax-mandel.imin)/10;
         mandel.imax = mandel.imax + (mandel.imax-mandel.imin)/10;
         mandel.rmin = mandel.rmin -(mandel.rmax-mandel.rmin)/10;
         mandel.rmax = mandel.rmax +(mandel.rmax-mandel.rmin)/10;
         mandel.dirty = true;
 	 }
+       if (mandel.count == mandel.limitZIn && key == BTN_ENTER) {
+        mandel.imin = mandel.imin + (mandel.imax-mandel.imin)/10;
+        mandel.imax = mandel.imax - (mandel.imax-mandel.imin)/10;
+        mandel.rmin = mandel.rmin +(mandel.rmax-mandel.rmin)/10;
+        mandel.rmax = mandel.rmax -(mandel.rmax-mandel.rmin)/10;
+        mandel.dirty = true;
+     } 
 }
 
 void mandelPixel(int x, int y) {

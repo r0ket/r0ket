@@ -14,7 +14,7 @@ struct in{
 	bool done;
 } s_input;
 
-void inputInit(char p[],char s[], uint8_t l, uint8_t as, uint8_t ae) {
+static void inputInit(char p[],char s[], uint8_t l, uint8_t as, uint8_t ae) {
 	//TODO: Check length!
 	s_input.prompt = p;
 	s_input.line = s;
@@ -30,7 +30,7 @@ void inputInit(char p[],char s[], uint8_t l, uint8_t as, uint8_t ae) {
 }
 
 
-void inputMove() {
+static void inputMove() {
 	char *cur = s_input.line+s_input.pos+s_input.dcursor;
     switch(getInputWaitRepeat()){
         case BTN_LEFT:
@@ -78,7 +78,7 @@ void inputMove() {
     }
 }
 
-void inputDraw() {
+static void inputDraw() {
     char tmp[2]= {0,0};
 	lcdClear();
 	DoString(0,0,s_input.prompt);
@@ -89,7 +89,7 @@ void inputDraw() {
 	DoString(s_input.dcursor * CHARWIDTH, 40, "-");
 }
 
-void inputClean() {
+static void inputClean() {
 	for (int x=0;x<=s_input.maxlength;x++) {
 		if (s_input.line[x] == 0) {
 			x--;

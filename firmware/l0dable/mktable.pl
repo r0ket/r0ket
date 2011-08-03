@@ -18,6 +18,8 @@ my @symb;
 open(Q,"<","l0dable/EXPORTS") || die "$!";
 while(<Q>){
     chomp;s/\r$//;
+    next if /^#/;
+    next if /^\s*$/;
     push @symb,$_;
 };
 close(Q);
@@ -47,18 +49,18 @@ sub wanted {
 	open(F,"<",$_) || die;
 	while(<F>){
 		chomp;s/\r$//;
-		if(m!^[^(]* ([\w]+)\s*\(.*\);\s*(//.*)?$!){
+		if(m!^[^(]* ([\w]+)\s*\(.*\);\s*(//.*)?(/\*[^/]*\*/)?$!){
             $id=$1;
             s/$id/(*)/;
             s/;//;
             s!//.*!!;
 			$types{$id}="*($_)";
 			$files{$id}=$File::Find::name;
-		}elsif (m!^\s*extern\s[^(]* ([\w]+)\s*(\[\w*\]\s*)?;\s*(//.*)?$!){
+		}elsif (m!^\s*extern\s[^(]* ([\w]+)\s*(\[[^]]*\]\s*)?;\s*(//.*)?(/\*[^/]*\*/)?$!){
             $id=$1;
             s/extern //;
             my $star="*";
-            if( s/\[\w*\]//){
+            if( s/\[.*\]//){
                 $star="";
             };
             s/$id/*/;

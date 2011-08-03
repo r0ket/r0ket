@@ -109,13 +109,13 @@ print "}};";
 
 print "";
 print "// Tick & init functions:";
-print qq!void tick_$app(void) {!;
+print qq!inline void tick_$app(void) {!;
 for (sort @ticks){
     print qq!\t$_();!;
 };
 print qq!};!;
 
-print qq!void init_$app(void) {!;
+print qq!inline void init_$app(void) {!;
 for (sort @inits){
     print qq!\t$_();!;
 };

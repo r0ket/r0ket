@@ -73,6 +73,8 @@ clean:
 	for dir in $(SUBDIRS); do \
 	    $(MAKE) $(CONFIG_MAKE_PRINTDIRECTORY) -C $$dir clean; \
 	done
+	$(MAKE) $(CONFIG_MAKE_PRINTDIRECTORY) -C l0dable clean
+
 flash: all
 	../tools/bootloader/autoflash
 

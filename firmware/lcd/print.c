@@ -53,9 +53,6 @@ void lcdClear(){
   lcdFill(0);
 };
 
-void lcdRefresh(){
-    lcdDisplay();
-};
 
 void lcdMoveCrsr(signed int dx,signed int dy){
     x+=dx;

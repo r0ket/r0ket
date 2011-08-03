@@ -4,6 +4,8 @@ Ck<hex>: set encryptionkey
 Ct<hex>: set txmac
 Cc<hex>: set channel
 Ct<hex>: set rxmac(0)
+Cl<hex>: set rxlens
+Ce<hex>: sec encrpytion on/off
 
 s <hex>: send packet
 s+ <hex>: send packet 10 times
