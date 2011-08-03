@@ -35,3 +35,15 @@ push_queue
 the_config
 the_queue
 work_queue
+selectFile
+nrf_snd_pkt_crc_encr
+nrf_rcv_pkt_time_encr
+getInput
+ECIES_encyptkeygen
+f_open
+f_read
+strlen
+strcpy
+xxtea_encode_words
+getRandom
+crc16
