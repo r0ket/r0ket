@@ -8,7 +8,7 @@
 #include "basic/random.h"
 
 char meshgen=0; // Generation
-char meshincctr=0; // Generation
+char meshincctr=0;
 MPKT meshbuffer[MESHBUFSIZE];
 
 uint32_t const meshkey[4] = {
@@ -45,6 +45,8 @@ MPKT * meshGetMessage(uint8_t type){
     if(meshbuffer[free].flags==MF_FREE){
         memset(&meshbuffer[free],0,sizeof(MPKT));
         MO_TYPE_set(meshbuffer[free].pkt,type);
+        MO_GEN_set(meshbuffer[free].pkt,meshgen);
+        meshbuffer[free].flags=MF_USED;
     };
     return &meshbuffer[free];
 };
