@@ -4,7 +4,9 @@
 
 time_t _timet=0;
 
-char _ytab[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+char _ytab[12] = {
+    { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 }
+};
 
 struct tm * mygmtime(register const time_t time) {
         static struct tm br_time;
