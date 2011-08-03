@@ -30,12 +30,23 @@
 
 //#include "lcd/print.h"
 
-
+void sendFile(char *filename);
 
 uint8_t mac[5] = {1,2,3,2,1};
+    struct NRF_CFG config = {
+        .channel= 81,
+        .txmac= "\x1\x2\x3\x2\x1",
+        .nrmacs=1,
+        .mac0=  "\x1\x2\x3\x2\x1",
+        .maclen ="\x20",
+    };
 
 void ram(void)
 {
+
+    nrf_config_set(&config);
+
+
     char file[13];
     selectFile(file,"TXT");
     sendFile(file); 
@@ -43,18 +54,34 @@ void ram(void)
 
 void sendR(uint8_t *rx, uint8_t *ry)
 {
-    uint8_t exp[2 + 4*NUMWORDS + 2];
+    //uint8_t exp[2 + 4*NUMWORDS + 2];
+    uint8_t exp[32];
     exp[0] = 'R';
     for(int i=0; i<4*NUMWORDS; i++)
         exp[2+i] = rx[i];
     exp[1] = 'X';
+    lcdPrintln("foo");
+    lcdRefresh();
+ 
     nrf_snd_pkt_crc(32, exp);
+    lcdPrintln("bar");
+    lcdRefresh();
+ 
     delayms(10);
     exp[1] = 'Y';
     for(int i=0; i<4*NUMWORDS; i++)
         exp[2+i] = ry[i]; 
+    lcdPrintln("foo");
+    lcdRefresh();
+ 
     nrf_snd_pkt_crc(32, exp);
+    lcdPrintln("bar");
+    lcdRefresh();
+ 
     delayms(10);
+    lcdPrintln("bar");
+    lcdRefresh();
+ 
 }
 
 int receiveKey(uint8_t type, uint8_t *x, uint8_t *y)
@@ -169,9 +196,13 @@ void sendFile(char *filename)
     ECIES_encyptkeygen(px, py, k1, k2, rx, ry);
     
     while( !done ){
-        lcdPrintln("Sending file");lcdRefresh();
+        lcdPrintln("Sending fil");lcdRefresh();
         sendR(rx,ry);
+        lcdPrintln("wait");
+        lcdRefresh();
         delayms(3000);
+        lcdPrintln("filetrans");
+        lcdRefresh();
         filetransfer_send((uint8_t*)filename, 0, mac, (uint32_t*)k1);
         lcdPrintln("Done");
         lcdPrintln("Right=OK");
