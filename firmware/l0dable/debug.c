@@ -124,7 +124,7 @@ void uuid(void) {
     lcdPrintIntHex(iap_return.Result[3]); lcdNl();
     lcdNl();
     lcdPrintln("Beacon ID:");
-    lcdPrintln(IntToStrX(GetUUID32(),4));
+    lcdPrintln(IntToStrX(GetUUID32(),8));
     lcdRefresh();
 }
 
