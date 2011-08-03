@@ -227,23 +227,3 @@ void m_time(void){
         delayms_queue(50);
     }while ((getInputRaw())==BTN_NONE);
 };
-
-void ChkFlame(void) {
-    do{
-        lcdClear();
-        lcdPrint("Enabled:");
-        lcdPrintln(IntToStr(flameEnabled,1,0));
-
-        lcdPrint("State:");
-        lcdPrintln(IntToStr(flameMode,1,0));
-
-        lcdPrint("PWMtarg:");
-        lcdPrintln(IntToStr(flameI2Cpwm,3,0));
-
-        lcdPrint("FTicks:");
-        lcdPrintln(IntToStr(flameTicks,3,0));
-
-        lcdRefresh();
-        delayms_queue(10);
-    } while ((getInputRaw())==BTN_NONE);
-}
