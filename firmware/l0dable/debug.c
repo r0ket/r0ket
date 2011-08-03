@@ -27,7 +27,7 @@ void uuid(void);
 
 static const struct MENU submenu_debug={ "debug", {
 	{ "ChkBattery", &ChkBattery},
-//	{ "ChkFlame", &ChkFlame},
+	{ "hkFlame", &ChkFlame},
 	{ "ChkLight", &ChkLight},
 	{ "MeshInfo", &m_time},
 	{ "Qstatus", &Qstatus},
@@ -118,10 +118,10 @@ void uuid(void) {
     iap_return = iapReadSerialNumber();
     lcdClear();
     lcdPrintln("UUID:");
-    lcdPrintIntHex(iap_return.Result[0]); lcdNl();
-    lcdPrintIntHex(iap_return.Result[1]); lcdNl();
-    lcdPrintIntHex(iap_return.Result[2]); lcdNl();
-    lcdPrintIntHex(iap_return.Result[3]); lcdNl();
+    lcdPrintln(IntToStrX(iap_return.Result[0],8));
+    lcdPrintln(IntToStrX(iap_return.Result[1],8));
+    lcdPrintln(IntToStrX(iap_return.Result[2],8));
+    lcdPrintln(IntToStrX(iap_return.Result[3],8));
     lcdNl();
     lcdPrintln("Beacon ID:");
     lcdPrintln(IntToStrX(GetUUID32(),8));
@@ -228,3 +228,22 @@ void m_time(void){
     }while ((getInputRaw())==BTN_NONE);
 };
 
+void ChkFlame(void) {
+    do{
+        lcdClear();
+        lcdPrint("Enabled:");
+        lcdPrintln(IntToStr(flameEnabled,1,0));
+
+        lcdPrint("State:");
+        lcdPrintln(IntToStr(flameMode,1,0));
+
+        lcdPrint("PWMtarg:");
+        lcdPrintln(IntToStr(flameI2Cpwm,3,0));
+
+        lcdPrint("FTicks:");
+        lcdPrintln(IntToStr(flameTicks,3,0));
+
+        lcdRefresh();
+        delayms_queue(10);
+    } while ((getInputRaw())==BTN_NONE);
+}
