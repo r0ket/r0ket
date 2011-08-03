@@ -18,6 +18,12 @@ void forLoadables(int i){
     if(i){
         lcdSetPixel(0,0);
         font=&Font_Invaders;
+        filetransfer_send();
+        ECIES_encyptkeygen();
+        filetransfer_receive();
+        ECIES_decryptkeygen();
+        bitstr_parse_export();
+        nrf_rcv_pkt_time_encr();
     };
 };
 
