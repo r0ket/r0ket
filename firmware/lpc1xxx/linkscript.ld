@@ -36,6 +36,7 @@ SECTIONS
   .text :
   {
     KEEP(*(.irq_vectors))
+    KEEP(*(table))
     *(.text*)
     *(.rodata*)
   } > flash
