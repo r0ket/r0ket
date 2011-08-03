@@ -18,6 +18,8 @@ my @symb;
 open(Q,"<","l0dable/EXPORTS") || die "$!";
 while(<Q>){
     chomp;s/\r$//;
+    next if /^#/;
+    next if /^\s*$/;
     push @symb,$_;
 };
 close(Q);
