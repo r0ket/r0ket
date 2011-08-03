@@ -12,7 +12,7 @@ char meshincctr=0; // Generation
 MPKT meshbuffer[MESHBUFSIZE];
 
 uint32_t const meshkey[4] = {
-    0x00000000, 0x00000000, 0x00000000, 0x00000000
+    0x00000042, 0x000005ec, 0x00000023, 0x00000005
 };
 
 struct NRF_CFG oldconfig;

@@ -30,7 +30,7 @@ void execute_file (const char * fname, uint8_t checksignature, uint8_t decode){
     dst=(void (*)(void)) (sram_top); 
     lcdPrint("T:"); lcdPrintIntHex(dst); lcdNl();
     */
-    dst=(void (*)(void)) 0x10001800;
+    dst=(void (*)(void)) 0x1000160C;
 
     res=f_open(&file, fname, FA_OPEN_EXISTING|FA_READ);
 

@@ -22,59 +22,6 @@ void init_mesh(void){
     initMesh();
 };
 
-void m_tset(void){
-    _timet=1311961112;
-};
-
-//# MENU debug MeshInfo
-void m_time(void){
-    struct tm* tm;
-    char c[2]={0,0};
-    getInputWaitRelease();
-    delayms(100);
-    do{
-        lcdClear();
-        tm= mygmtime(getSeconds());
-        lcdPrint(IntToStr(tm->tm_hour,2,F_LONG));
-        lcdPrint(":");
-        lcdPrint(IntToStr(tm->tm_min,2,F_LONG|F_ZEROS));
-        lcdPrint(":");
-        lcdPrint(IntToStr(tm->tm_sec,2,F_LONG|F_ZEROS));
-        lcdNl();
-        lcdPrint(IntToStr(tm->tm_mday,2,F_LONG));
-        lcdPrint(".");
-        lcdPrint(IntToStr(tm->tm_mon+1,2,0));
-        lcdPrint(".");
-        lcdPrint(IntToStr(tm->tm_year+YEAR0,4,F_LONG|F_ZEROS));
-        lcdNl();
-
-        lcdNl();
-        lcdPrint("<");
-
-        for(int i=0;i<MESHBUFSIZE;i++){
-            if(!meshbuffer[i].flags&MF_USED){
-                c[0]='_';
-            }else{
-                c[0]=meshbuffer[i].pkt[0];
-            };
-            lcdPrint(c);
-        };
-        lcdPrintln(">");
-
-        lcdPrint("Gen:");
-        lcdPrintInt(meshgen);
-        lcdNl();
-        lcdRefresh();
-        delayms_queue(50);
-    }while ((getInputRaw())==BTN_NONE);
-};
-
-
-inline void blink(char a, char b){
-    gpioSetValue (a,b, 1-gpioGetValue(a,b));
-};
-
-
 int choose(char * texts, int8_t menuselection){
     uint8_t numentries = 0;
     uint8_t visible_lines = 0;

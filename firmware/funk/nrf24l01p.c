@@ -153,13 +153,12 @@ int nrf_rcv_pkt_poll_dec(int maxsize, uint8_t * pkt, uint32_t const key[4]){
         return len;
 
     cmpcrc=crc16(pkt,len-2);
-    if(cmpcrc != (pkt[len-2] <<8 | pkt[len-1])) {
+    if(key!=NULL)
         xxtea_decode_words((uint32_t*)pkt,len/4,key);
 
-        cmpcrc=crc16(pkt,len-2);
-        if(cmpcrc != (pkt[len-2] <<8 | pkt[len-1])) {
-            return -3; // CRC failed
-        };
+    cmpcrc=crc16(pkt,len-2);
+    if(cmpcrc != (pkt[len-2] <<8 | pkt[len-1])) {
+        return -3; // CRC failed
     };
     return len;
 };
