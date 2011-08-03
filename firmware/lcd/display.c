@@ -216,6 +216,7 @@ void lcdDisplay(void) {
 
     lcd_deselect();
 }
+void lcdRefresh() __attribute__ ((weak, alias ("lcdDisplay")));
 
 inline void lcdInvert(void) {
     GLOBAL(lcdinvert)=!GLOBAL(lcdinvert);
