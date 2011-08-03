@@ -27,8 +27,8 @@ void delayms(uint32_t ms);
 
 #define BUNKERS 3
 #define BUNKER_WIDTH  10
-static const BUNKER_X[] = {15, RESX/2-BUNKER_WIDTH/2,RESX-BUNKER_WIDTH-15};
-static const ENEMY_WIDTHS[] = {10,11,8};
+static const uint8_t BUNKER_X[] = {15, RESX/2-BUNKER_WIDTH/2,RESX-BUNKER_WIDTH-15};
+static const uint8_t ENEMY_WIDTHS[] = {10,11,8};
 
 struct gamestate {
     char player;
