@@ -149,3 +149,25 @@ void init_flame(void) {
     }
 }
 
+#include "lcd/print.h"
+
+//# MENU debug ChkFlame
+void ChkFlame(void) {
+    do{
+        lcdClear();
+        lcdPrint("Enabled:");
+        lcdPrintln(IntToStr(flameEnabled,1,0));
+
+        lcdPrint("State:");
+        lcdPrintln(IntToStr(flameMode,1,0));
+
+        lcdPrint("PWMtarg:");
+        lcdPrintln(IntToStr(flameI2Cpwm,3,0));
+
+        lcdPrint("FTicks:");
+        lcdPrintln(IntToStr(flameTicks,3,0));
+
+        lcdRefresh();
+        delayms_queue(10);
+    } while ((getInputRaw())==BTN_NONE);
+}
