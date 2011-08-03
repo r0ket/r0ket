@@ -8,7 +8,6 @@
 #include "fonts/smallfonts.h"
 
 #include "filesystem/ff.h"
-#include "render.h"
 
 /* Global Variables */
 const struct FONT_DEF * font = NULL;
@@ -37,17 +36,10 @@ void setExtFont(const char *fname){
 
 int getFontHeight(void){
     if(font)
-      return font->u8Height;
+        return font->u8Height;
     return 8; // XXX: Should be done right.
 };
 
-static uint8_t read_byte (void)
-{
-  UINT    readbytes;
-  uint8_t byte;
-  f_read(&file, &byte, sizeof(uint8_t), &readbytes);
-  return byte;
-}
 
 int _getFontData(int type, int offset){
     UINT readbytes;
@@ -59,10 +51,10 @@ int _getFontData(int type, int offset){
     if(efont.type == FONT_EXTERNAL){
 
     if (type == START_FONT){
-        efont.def.u8Width = read_byte ();
-        efont.def.u8Height = read_byte ();
-        efont.def.u8FirstChar = read_byte ();
-        efont.def.u8LastChar = read_byte ();
+        res = f_read(&file, &efont.def.u8Width, sizeof(uint8_t), &readbytes);
+        res = f_read(&file, &efont.def.u8Height, sizeof(uint8_t), &readbytes);
+        res = f_read(&file, &efont.def.u8FirstChar, sizeof(uint8_t), &readbytes);
+        res = f_read(&file, &efont.def.u8LastChar, sizeof(uint8_t), &readbytes);
         res = f_read(&file, &extras, sizeof(uint16_t), &readbytes);
         return 0;
     };
@@ -80,7 +72,9 @@ int _getFontData(int type, int offset){
         return 0;
     };
     if(type == GET_WIDTH || type == GET_DATA){
-        return read_byte ();
+        uint8_t width;
+        res = f_read(&file, &width, sizeof(uint8_t), &readbytes);
+        return width;
     };
     if(type == SEEK_DATA){
         character=offset;
@@ -93,7 +87,7 @@ int _getFontData(int type, int offset){
     };
     if(type == PEEK_DATA){
         uint8_t width;
-        width = read_byte ();
+        res = f_read(&file, &width, sizeof(uint8_t), &readbytes);
         f_lseek(&file,6+
                 (extras*sizeof(uint16_t))+
                 ((extras+font->u8LastChar-font->u8FirstChar)*sizeof(uint8_t))+
@@ -246,10 +240,10 @@ int DoChar(int sx, int sy, int c){
                 UINT res;
                 UINT readbytes;
                 uint8_t testbyte;
-                testbyte = read_byte ();
+                res = f_read(&file, &testbyte, sizeof(uint8_t), &readbytes);
                 if(testbyte>>4 ==15){
-                    preblank = read_byte ();
-                    postblank = read_byte ();
+                    res = f_read(&file, &preblank, sizeof(uint8_t), &readbytes);
+                    res = f_read(&file, &postblank, sizeof(uint8_t), &readbytes);
                     width-=3;
                     width/=height;
                     res = f_read(&file, charBuf, width*height, &readbytes);
