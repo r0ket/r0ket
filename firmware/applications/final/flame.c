@@ -151,7 +151,6 @@ void init_flame(void) {
 
 #include "lcd/print.h"
 
-//# MENU debug ChkFlame
 void ChkFlame(void) {
     do{
         lcdClear();
