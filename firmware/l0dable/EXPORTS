@@ -61,3 +61,7 @@ font
 Font_Invaders
 Font_7x8
 lcdBuffer
+meshGetMessage
+nickname
+uint32touint8p
+uint8ptouint32

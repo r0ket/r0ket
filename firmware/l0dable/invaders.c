@@ -9,6 +9,8 @@
 #include "lcd/display.h"
 #include "lcd/allfonts.h"
 
+#include "funk/mesh.h"
+
 #include "usetable.h"
 /**************************************************************************/
 #define POS_PLAYER_Y 60
@@ -155,11 +157,22 @@ void screen_level() {
 }
 
 bool highscore_set(uint32_t score, char nick[]) {
+    MPKT * mpkt= meshGetMessage('i');
+    if(MO_TIME(mpkt->pkt)>score)
+        return false;
+
+    MO_TIME_set(mpkt->pkt,score);
+    strcpy((char*)MO_BODY(mpkt->pkt),nick);
+
 	return true;
 }
 
 uint32_t highscore_get(char nick[]){
-	return 0;
+    MPKT * mpkt= meshGetMessage('i');
+
+    strcpy(nick,(char*)MO_BODY(mpkt->pkt));
+
+	return MO_TIME(mpkt->pkt);
 }
 
 void init_game(void) {
