@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "basic/basic.h"
+#include "basic/config.h"
 #include "basic/random.h"
 
 #include "lcd/render.h"
@@ -49,6 +50,8 @@ struct gamestate {
     uint8_t bunker[BUNKERS][BUNKER_WIDTH]; 
 } game; 
 char key;
+bool highscore_set(uint32_t score, char nick[]);
+uint32_t highscore_get(char nick[]);
 
 void init_game();
 void init_enemy();
@@ -106,7 +109,7 @@ void ram(void) {
 
 void screen_intro() {
 	uint32_t highscore;
-	char[20] highnick;
+	char highnick[20];
 	char key=0;
 	while(key==0) {
 		lcdFill(0);
@@ -152,9 +155,11 @@ void screen_level() {
 }
 
 bool highscore_set(uint32_t score, char nick[]) {
+	return true;
 }
 
 uint32_t highscore_get(char nick[]){
+	return 0;
 }
 
 void init_game(void) {
