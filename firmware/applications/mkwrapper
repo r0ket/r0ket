@@ -3,6 +3,7 @@
 for a in $* ; do
     case $a in 
     loadable_*) continue;;
+    l0dable_*) continue;;
     */*) continue;;
     esac
 	base=${a%.o}
@@ -16,6 +17,7 @@ echo "void wrapper(void){"
 for a in $* ; do
     case $a in 
     loadable_*) continue;;
+    l0dable_*) continue;;
     */*) continue;;
     esac
 	base=${a%.o}
@@ -29,6 +31,7 @@ echo "void tick_wrapper(void){"
 for a in $* ; do
     case $a in 
     loadable_*) continue;;
+    l0dable_*) continue;;
     */*) continue;;
     esac
 	base=${a%.o}
