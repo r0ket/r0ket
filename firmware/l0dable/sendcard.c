@@ -60,28 +60,14 @@ void sendR(uint8_t *rx, uint8_t *ry)
     for(int i=0; i<4*NUMWORDS; i++)
         exp[2+i] = rx[i];
     exp[1] = 'X';
-    lcdPrintln("foo");
-    lcdRefresh();
- 
     nrf_snd_pkt_crc(32, exp);
-    lcdPrintln("bar");
-    lcdRefresh();
- 
     delayms(10);
     exp[1] = 'Y';
     for(int i=0; i<4*NUMWORDS; i++)
         exp[2+i] = ry[i]; 
-    lcdPrintln("foo");
-    lcdRefresh();
- 
     nrf_snd_pkt_crc(32, exp);
-    lcdPrintln("bar");
-    lcdRefresh();
  
     delayms(10);
-    lcdPrintln("bar");
-    lcdRefresh();
- 
 }
 
 int receiveKey(uint8_t type, uint8_t *x, uint8_t *y)
@@ -196,13 +182,9 @@ void sendFile(char *filename)
     ECIES_encyptkeygen(px, py, k1, k2, rx, ry);
     
     while( !done ){
-        lcdPrintln("Sending fil");lcdRefresh();
+        lcdPrintln("Sending file");lcdRefresh();
         sendR(rx,ry);
-        lcdPrintln("wait");
-        lcdRefresh();
         delayms(3000);
-        lcdPrintln("filetrans");
-        lcdRefresh();
         filetransfer_send((uint8_t*)filename, 0, mac, (uint32_t*)k1);
         lcdPrintln("Done");
         lcdPrintln("Right=OK");
