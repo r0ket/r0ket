@@ -105,6 +105,8 @@ void ram(void) {
 }
 
 void screen_intro() {
+	uint32_t highscore;
+	char[20] highnick;
 	char key=0;
 	while(key==0) {
 		lcdFill(0);
@@ -113,9 +115,10 @@ void screen_intro() {
 		font = &Font_7x8;
 		DoString (28,40,"SPACE");
 		DoString (18,50,"INVADERS");
-		//DoString (20,RESY-24, "Highscore");
-		DoString (0, 0, "12345");
-		DoString (0, 9, "iggy");
+		
+		highscore = highscore_get(highnick);
+		DoInt(0, 0, highscore);
+		DoString (0, 9, highnick);
 		lcdDisplay();
 
 		delayms_queue(50);
@@ -130,7 +133,8 @@ void screen_gameover() {
 		font = &Font_7x8;
 		DoString (12,32, "GAME OVER");
 		DoInt (0,0, game.score);
-		DoString (0,9,"HIGHSCORE!");
+		if (highscore_set(game.score, GLOBAL(nickname)))
+			DoString (0,9,"HIGHSCORE!");
 		lcdDisplay();
 		delayms_queue(50);
 		key=getInput();
@@ -145,6 +149,12 @@ void screen_level() {
 	DoInt(dx,32,game.level);
 	lcdDisplay();
 	delayms(500);
+}
+
+bool highscore_set(uint32_t score, char nick[]) {
+}
+
+uint32_t highscore_get(char nick[]){
 }
 
 void init_game(void) {
