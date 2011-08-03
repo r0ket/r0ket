@@ -2,10 +2,10 @@
 #include <render.h>
 
 	// Local function: Get next nibble.
-	int ctr=0;  // offset for next nibble
-	int hilo=0; // 0= high nibble next, 1=low nibble next
+	static int ctr=0;  // offset for next nibble
+	static int hilo=0; // 0= high nibble next, 1=low nibble next
 	const uint8_t * data;
-	char gnn(){ // Get next nibble
+	static char gnn(){ // Get next nibble
 		static int byte;
 		int val;
 		if(hilo==1)
