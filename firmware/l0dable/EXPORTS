@@ -65,3 +65,5 @@ meshGetMessage
 nickname
 uint32touint8p
 uint8ptouint32
+memset
+nrf_config_set

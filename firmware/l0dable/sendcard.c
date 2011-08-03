@@ -30,12 +30,23 @@
 
 //#include "lcd/print.h"
 
-
+void sendFile(char *filename);
 
 uint8_t mac[5] = {1,2,3,2,1};
+    struct NRF_CFG config = {
+        .channel= 81,
+        .txmac= "\x1\x2\x3\x2\x1",
+        .nrmacs=1,
+        .mac0=  "\x1\x2\x3\x2\x1",
+        .maclen ="\x20",
+    };
 
 void ram(void)
 {
+
+    nrf_config_set(&config);
+
+
     char file[13];
     selectFile(file,"TXT");
     sendFile(file); 
@@ -43,7 +54,8 @@ void ram(void)
 
 void sendR(uint8_t *rx, uint8_t *ry)
 {
-    uint8_t exp[2 + 4*NUMWORDS + 2];
+    //uint8_t exp[2 + 4*NUMWORDS + 2];
+    uint8_t exp[32];
     exp[0] = 'R';
     for(int i=0; i<4*NUMWORDS; i++)
         exp[2+i] = rx[i];
@@ -54,6 +66,7 @@ void sendR(uint8_t *rx, uint8_t *ry)
     for(int i=0; i<4*NUMWORDS; i++)
         exp[2+i] = ry[i]; 
     nrf_snd_pkt_crc(32, exp);
+ 
     delayms(10);
 }
 
