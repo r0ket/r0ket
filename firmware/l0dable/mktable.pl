@@ -56,11 +56,11 @@ sub wanted {
             s!//.*!!;
 			$types{$id}="*($_)";
 			$files{$id}=$File::Find::name;
-		}elsif (m!^\s*extern\s[^(]* ([\w]+)\s*(\[\w*\]\s*)?;\s*(//.*)?(/\*[^/]*\*/)?$!){
+		}elsif (m!^\s*extern\s[^(]* ([\w]+)\s*(\[[^]]*\]\s*)?;\s*(//.*)?(/\*[^/]*\*/)?$!){
             $id=$1;
             s/extern //;
             my $star="*";
-            if( s/\[\w*\]//){
+            if( s/\[.*\]//){
                 $star="";
             };
             s/$id/*/;
