@@ -25,9 +25,6 @@ unsigned char rnd1()
 }
 
 
-#define MACRO(A) do { A; } while(0)
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-
 //compiles to a quite reasonable assembly code
 //void INT2CHARS (unsigned char *ptr, uint32_t val) 
 void INT2CHARS (char *ptr, uint32_t val) 
@@ -49,17 +46,6 @@ r|=*ptr--; r<<=8;
 r|=*ptr--; 
 return r;
 }
-
-     /* some basic bit-manipulation routines that act on these vectors follow */
-#define bitstr_getbit(A, idx) ((A[(idx) / 32] >> ((idx) % 32)) & 1)
-#define bitstr_setbit(A, idx) MACRO( A[(idx) / 32] |= 1 << ((idx) % 32) )
-#define bitstr_clrbit(A, idx) MACRO( A[(idx) / 32] &= ~(1 << ((idx) % 32)) )
-
-#define bitstr_clear(A) MACRO( memset(A, 0, sizeof(bitstr_t)) )
-#define bitstr_copy(A, B) MACRO( memcpy(A, B, sizeof(bitstr_t)) )
-#define bitstr_swap(A, B) MACRO( bitstr_t h; \
-  bitstr_copy(h, A); bitstr_copy(A, B); bitstr_copy(B, h) )
-#define bitstr_is_equal(A, B) (! memcmp(A, B, sizeof(bitstr_t)))
 
 int bitstr_is_clear(const bitstr_t x)
 {
@@ -184,7 +170,6 @@ int bitstr_parse_export(char *exp, const char *s)
 
 
 
-#define field_set1(A) MACRO( A[0] = 1; memset(A + 1, 0, sizeof(elem_t) - 4) )
 
 int field_is1(const elem_t x)
 {
@@ -252,12 +237,6 @@ void field_invert(elem_t z, const elem_t x)                /* field inversion */
    coefficient 'a' is equal to 1 (this is the case for all NIST binary
    curves). Coefficient 'b' is given in 'coeff_b'.  '(base_x, base_y)'
    is a point that generates a large prime order group.             */
-
-
-#define point_is_zero(x, y) (bitstr_is_clear(x) && bitstr_is_clear(y))
-#define point_set_zero(x, y) MACRO( bitstr_clear(x); bitstr_clear(y) )
-#define point_copy(x1, y1, x2, y2) MACRO( bitstr_copy(x1, x2); \
-                                          bitstr_copy(y1, y2) )
 
                            /* check if y^2 + x*y = x^3 + *x^2 + coeff_b holds */
 int is_point_on_curve(const elem_t x, const elem_t y)

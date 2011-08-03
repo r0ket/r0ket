@@ -6,6 +6,8 @@
 
 #include <string.h>
 
+#include "basic/ecc.h"
+
 /**************************************************************************/
 
 #include "final.gen"
@@ -18,14 +20,12 @@ void forLoadables(int i){
     if(i){
         lcdSetPixel(0,0);
         font=&Font_Invaders;
-        //filetransfer_send();
-        ECIES_encyptkeygen();
-        //filetransfer_receive();
-        //rftransfer_receive(); 
-        //rftransfer_send(); 
+        ECIES_encyptkeygen(0,0,0,0,0,0);
         systickGetTicks();
-        ECIES_decryptkeygen();
-        bitstr_parse_export();
+        ECIES_embedded_public_key_validation();
+        point_copy(0,0,0,0);
+        point_is_zero(0,0);
+        bitstr_parse_export(0,0);
         nrf_rcv_pkt_time_encr();
     };
 };

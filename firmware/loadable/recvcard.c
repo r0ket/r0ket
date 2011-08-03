@@ -318,3 +318,21 @@ int16_t rftransfer_receive(uint8_t *buffer, uint16_t maxlen, uint16_t timeout)
     return -2;
 }
 
+int ECIES_decryptkeygen(uint8_t *rx, uint8_t *ry,
+             uint8_t k1[16], uint8_t k2[16], const char *privkey)
+{
+  elem_t Rx, Ry, Zx, Zy;
+  exp_t d;
+  bitstr_import(Rx, (char*)rx);
+  bitstr_import(Ry, (char*)ry);
+  if (ECIES_embedded_public_key_validation(Rx, Ry) < 0)
+    return -1;
+  bitstr_parse(d, privkey);
+  point_copy(Zx, Zy, Rx, Ry);
+  point_mult(Zx, Zy, d);
+  point_double(Zx, Zy);                             /* cofactor h = 2 on B163 */
+  if (point_is_zero(Zx, Zy))
+    return -1;
+  ECIES_kdf((char*)k1,(char*) k2, Zx, Rx, Ry);
+  return 0;
+}
