@@ -47,7 +47,7 @@ void changer(void){
         lcdPrint("[");
         lcdPrint(IntToStr(current_offset/visible_lines,1,0));
         lcdPrint("/");
-        lcdPrint(IntToStr(numentries/visible_lines,1,0));
+        lcdPrint(IntToStr((numentries-1)/visible_lines,1,0));
         lcdPrint("]");
         lcdNl();
 
