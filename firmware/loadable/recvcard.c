@@ -180,4 +180,141 @@ int sendKeys(void)
     }
     return 0;
 }
+#include <string.h>
+#include "funk/nrf24l01p.h"
+#include "funk/filetransfer.h"
+#include "funk/rftransfer.h"
+#include "basic/basic.h"
+#include "basic/xxtea.h"
+#include "filesystem/ff.h"
+#include "lcd/print.h"
+
+
+int filetransfer_receive(uint8_t *mac, uint32_t const k[4])
+{
+    uint8_t buf[MAXSIZE+1];
+    uint16_t size;
+    uint8_t n;
+
+    UINT written = 0;
+    FIL file;
+    FRESULT res;
+    //uint8_t macbuf[5];
+    //nrf_get_rx_max(0,5,macbuf);
+
+    uint8_t metadata[32];
+
+    //nrf_set_rx_mac(0, 32, 5, mac);
+    n = nrf_rcv_pkt_time_encr(3000, 32, metadata, k);
+    if( n != 32 )
+        return 1;       //timeout
+    //nrf_set_rx_mac(0, 32, 5, macbuf);
+    //lcdPrintln("got meta"); lcdRefresh();
+    metadata[19] = 0; //enforce termination
+    size = (metadata[20] << 8) | metadata[21];
+
+    if( size > MAXSIZE ) {lcdPrintln("too big"); lcdRefresh(); while(1);}
+    if( size > MAXSIZE ) return 1; //file to big
+    //if(fileexists(metadata)) return 1;   //file already exists
+    
+    //lcdPrint("open"); lcdPrintln((const char*)metadata); lcdRefresh();
+    res = f_open(&file, (const char*)metadata, FA_OPEN_ALWAYS|FA_WRITE);
+
+    //lcdPrintln("file opened"); lcdRefresh();
+    if( res ) {lcdPrintln("res"); lcdPrint(f_get_rc_string(res)); lcdRefresh(); while(1);}
+    if( res )
+        return res;
+    
+    uint16_t wordcount = (size+3)/4;
+    
+    //nrf_set_rx_mac(0, 32, 5, mac);
+    //lcdPrintln("get file"); lcdRefresh();
+    int fres = rftransfer_receive(buf, wordcount*4, 1000);
+    if( fres == -1 ){
+        lcdPrintln("checksum wrong");
+    }else if( fres == -2 ){
+        lcdPrintln("timeout");
+    }else{
+        //lcdPrintln("got file");
+    }
+    lcdRefresh();
+    if( fres < 0 )
+        return 1;
+    //nrf_set_rx_mac(0, 32, 5, macbuf);
+
+    xxtea_decode_words((uint32_t *)buf, wordcount, k);
+    
+    res = f_write(&file, buf, size, &written);
+    f_close(&file);
+    if( res )
+        return res;
+    if( written != size )
+        return 1;           //error while writing
+    lcdClear();
+    lcdPrintln("Received"); lcdPrintln((const char*)metadata); lcdRefresh();
+
+    return 0;
+}
+
+#define MAXPACKET   32
+int16_t rftransfer_receive(uint8_t *buffer, uint16_t maxlen, uint16_t timeout)
+{
+    uint8_t buf[MAXPACKET];
+    uint8_t state = 0;
+    uint16_t pos = 0, seq = 0, size = 0, rand = 0, crc = 0;
+    int n,i;
+    unsigned int currentTick = systickGetTicks();
+    unsigned int startTick = currentTick;
+    
+    while(systickGetTicks() < (startTick+timeout) ){//this fails if either overflows
+        n = nrf_rcv_pkt_time(1000, MAXPACKET, buf);
+        switch(state){
+            case 0:
+                if( n == 32 && buf[0] == 'L' ){
+                    size = (buf[1] << 8) | buf[2];
+                    rand =  (buf[3] << 8) | buf[4];
+                    seq = 0;
+                    pos = 0;
+                    if( size <= maxlen ){
+                        //lcdClear();
+                        //lcdPrint("got l="); lcdPrintInt(size);
+                        //lcdPrintln(""); lcdRefresh();
+                        state = 1;
+                    }
+                }
+            break;
+            case 1:
+                if( n == 32 && buf[0] == 'D' && ((buf[3]<<8)|buf[4])==rand ){
+                    //lcdPrint("got d"); lcdRefresh();
+                    if( seq == ((buf[1]<<8)|buf[2]) ){
+                        //lcdPrintln(" in seq"); lcdRefresh();
+                            for(i=5; i<n-2 && pos<size; i++,pos++){
+                                buffer[pos] = buf[i];
+                            }
+                            seq++;
+                    }
+                }
+                if( pos == size ){
+                    //lcdPrintln("got all"); lcdRefresh();
+                    crc = crc16(buffer, size);
+                    state = 2;
+                }
+            break;
+            case 2:
+                if( n == 32 && buf[0] == 'C' && ((buf[3]<<8)|buf[4])==rand){
+                    //lcdPrint("got crc"); lcdRefresh();
+                    if( crc == ((buf[1]<<8)|buf[2]) ){
+                        //lcdPrintln(" ok"); lcdRefresh();
+                        return size;
+                    }else{
+                        //lcdPrintln(" nok"); lcdRefresh();
+                        return -1;
+                    }
+                }
+            break;
+        };
+    }
+    //lcdPrintln("Timeout"); lcdRefresh();
+    return -2;
+}
 
