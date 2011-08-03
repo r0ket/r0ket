@@ -27,7 +27,6 @@ void uuid(void);
 
 static const struct MENU submenu_debug={ "debug", {
 	{ "ChkBattery", &ChkBattery},
-	{ "hkFlame", &ChkFlame},
 	{ "ChkLight", &ChkLight},
 	{ "MeshInfo", &m_time},
 	{ "Qstatus", &Qstatus},
