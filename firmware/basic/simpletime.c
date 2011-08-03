@@ -4,9 +4,8 @@
 
 time_t _timet=0;
 
-int _ytab[2][12] = {
-    { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 },
-    { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 }
+char _ytab[12] = {
+    { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 }
 };
 
 struct tm * mygmtime(register const time_t time) {
@@ -14,6 +13,7 @@ struct tm * mygmtime(register const time_t time) {
         register struct tm *timep = &br_time;
         register unsigned long dayclock, dayno;
         int year = EPOCH_YR;
+        int month_days;
 
         dayclock = (unsigned long)time % SECS_DAY;
         dayno = (unsigned long)time / SECS_DAY;
@@ -29,9 +29,10 @@ struct tm * mygmtime(register const time_t time) {
         timep->tm_year = year - YEAR0;
         timep->tm_yday = dayno;
         timep->tm_mon = 0;
-        while (dayno >= _ytab[LEAPYEAR(year)][timep->tm_mon]) {
-                dayno -= _ytab[LEAPYEAR(year)][timep->tm_mon];
-                timep->tm_mon++;
+        while (dayno >= (month_days = _ytab[timep->tm_mon] +
+                         (LEAPYEAR (year) && timep->tm_mon==2)?1:0)) {
+               dayno -= month_days;
+               timep->tm_mon++;
         }
         timep->tm_mday = dayno + 1;
         timep->tm_isdst = 0;
