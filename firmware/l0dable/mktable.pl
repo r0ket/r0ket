@@ -82,7 +82,10 @@ my %defs;
 for my $idx (0..$#symb){
     $_=$symb[$idx];
 	if(!$types{$_}){
-		warn "Couldn't find $symb[$idx]";
+		warn "Couldn't find $symb[$idx] - ignoring it.";
+        print C "NULL,";
+        print I "#define $_ (NULL)";
+        next;
 	};
     if(!$defs{$files{$_}}){
 		print H qq!#include "$files{$_}"!;
@@ -102,4 +105,6 @@ print C "};";
 close(I);
 close(H);
 close(C);
+
+print "done.";
 
