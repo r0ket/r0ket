@@ -12,6 +12,7 @@ void delayms(uint32_t ms);
 
 /**************************************************************************/
 #define POS_PLAYER_Y 60
+#define POS_PLAYER_X RESX/2-3
 #define POS_UFO_Y 0
 #define ENEMY_ROWS 3
 #define ENEMY_COLUMNS 6
@@ -20,15 +21,15 @@ void delayms(uint32_t ms);
 #define UFO_PROB 1024
 
 #define TYPE_PLAYER 1
-#define TYPE_ENEMY_A 2
-#define TYPE_ENEMY_B 3
+#define TYPE_ENEMY_A 3
+#define TYPE_ENEMY_B 2
 #define TYPE_ENEMY_C 4
 #define TYPE_UFO 5
 
 #define BUNKERS 3
 #define BUNKER_WIDTH  10
 static const uint8_t BUNKER_X[] = {15, RESX/2-BUNKER_WIDTH/2,RESX-BUNKER_WIDTH-15};
-static const uint8_t ENEMY_WIDTHS[] = {10,11,8};
+static const uint8_t ENEMY_WIDTHS[] = {8,10,12};
 
 struct gamestate {
     char player;
@@ -144,7 +145,7 @@ void screen_level() {
 }
 
 void init_game(void) {
-	game.player = RESX/2-4;
+	game.player = POS_PLAYER_X;
 	game.shot_x = DISABLED;
 	game.shot_y = 0;
 	game.alive = ENEMY_ROWS*ENEMY_COLUMNS;
@@ -181,7 +182,7 @@ void init_enemy() {
     for (int row = 0; row<ENEMY_ROWS; row++) {
         game.enemy_row_y[row] = 10 + (40/ENEMY_ROWS)*row;
         for (int col = 0; col<ENEMY_COLUMNS; col++) {
-            game.enemy_x[row][col] = 5+(86/ENEMY_COLUMNS)*col;
+            game.enemy_x[row][col] = 5+(86/ENEMY_COLUMNS)*col+(2-row);
         }
     }
 }
@@ -378,7 +379,7 @@ void move_enemy() {
 
 			    //Are we at the beginning or end? Direction change	
                 if((pos <=0 && game.direction != 1) ||
-                   (pos >=RESX-11-1 && game.direction == 1)){
+                   (pos >=RESX-10 && game.direction == 1)){
                     game.direction = (game.direction==1)?-1:1;
                     for (char r = 0; r<ENEMY_ROWS; r++) {
                         game.enemy_row_y[r]+=game.level>=23?4:2;
@@ -407,7 +408,7 @@ void draw_enemy() {
     for (int row = 0; row<ENEMY_ROWS; row++) {
         for (int col = 0; col<ENEMY_COLUMNS; col++) {
             if (game.enemy_x[row][col] != DISABLED) {
-                draw_sprite(TYPE_ENEMY_A+row,game.enemy_x[row][col],game.enemy_row_y[row]);
+                draw_sprite(TYPE_ENEMY_C-row,game.enemy_x[row][col],game.enemy_row_y[row]);
             }
         }
     }
@@ -477,7 +478,7 @@ void check_end() {
     if (game.killed) {
 		game.rokets--;
 		delayms(500);
-        game.player = RESX/2-4;
+        game.player = POS_PLAYER_X;
         
 		for(int col=0; col<ENEMY_COLUMNS; col++) {
 			game.shots_x[col] = DISABLED;

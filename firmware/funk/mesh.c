@@ -1,3 +1,4 @@
+#include <sysdefs.h>
 #include <sysinit.h>
 #include <string.h>
 #include "basic/basic.h"
@@ -7,6 +8,7 @@
 #include "basic/random.h"
 
 char meshgen=0; // Generation
+char meshincctr=0; // Generation
 MPKT meshbuffer[MESHBUFSIZE];
 
 uint32_t const meshkey[4] = {
@@ -96,12 +98,15 @@ void mesh_recvloop(void){
             else
                 meshgen=MO_GEN(buf);
             _timet=0;
+            meshincctr=0;
         };
 
         if(MO_TYPE(buf)=='T'){
-            time_t toff=MO_TIME(buf)-((getTimer()+(300/SYSTICKSPEED))/(1000/SYSTICKSPEED));
-            if (toff>_timet) // Do not live in the past.
+            time_t toff=MO_TIME(buf)-((getTimer()+(600/SYSTICKSPEED))/(1000/SYSTICKSPEED));
+            if (toff>_timet){ // Do not live in the past.
                 _timet = toff;
+                meshincctr++;
+            };
             continue;
         };
 

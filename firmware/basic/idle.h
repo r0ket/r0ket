@@ -1,3 +1,6 @@
+#ifndef __BASICIDLE_H_
+#define __BASICIDLE_H_
+
 #define MAXQENTRIES 8
 
 typedef struct {
@@ -14,8 +17,8 @@ extern QUEUE the_queue;
 extern volatile uint32_t _timectr;
 
 void work_queue(void);
-void delayms_queue(uint32_t delayms);
-void delayms_power(uint32_t delayms);
+void delayms_queue(uint32_t);
+void delayms_power(uint32_t);
 int push_queue(void (*qnew)(void));
 int magic(void *qnew);
 
@@ -26,3 +29,4 @@ int magic(void *qnew);
 #define incTimer(void) do{_timectr++;}while(0);
 #define getTimer() (_timectr)
 
+#endif
