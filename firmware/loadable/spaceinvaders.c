@@ -17,7 +17,7 @@ void delayms(uint32_t ms);
 #define ENEMY_COLUMNS 6
 #define DISABLED 255
 
-#define UFO_PROB 1000
+#define UFO_PROB 1024
 
 #define TYPE_PLAYER 1
 #define TYPE_ENEMY_A 2
