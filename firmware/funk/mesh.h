@@ -29,6 +29,7 @@ typedef struct {
 #define MF_LOCK (1<<1)
 
 extern char meshgen; // Generation
+extern char meshincctr; // Time checker
 extern MPKT meshbuffer[MESHBUFSIZE];
 
 void initMesh(void);
