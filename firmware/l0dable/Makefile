@@ -5,6 +5,8 @@ SRCS = $(wildcard *.c)
 OBJS = $(foreach mod,$(SRCS),$(subst .c,.o,$(mod)))
 ELFS = $(foreach mod,$(SRCS),$(subst .c,.elf,$(mod)))
 BINS = $(foreach mod,$(SRCS),$(subst .c,.bin,$(mod)))
+CODS = $(foreach mod,$(SRCS),$(subst .c,.c0d,$(mod)))
+NIKS = $(foreach mod,$(wildcard nick_*.c),$(subst .c,.nik,$(subst nick_,,$(mod))))
 
 ##########################################################################
 # GNU GCC compiler flags
@@ -22,7 +24,10 @@ LDSRCFILE=ram.ld
 LDFILE=loadable.ld
 CFLAGS+=-mlong-calls -fno-toplevel-reorder
 
-all: $(OBJS) $(ELFS) $(BINS)
+CRYPT=cp
+CRYPTFLAGS=-p
+
+all: $(OBJS) $(ELFS) $(BINS) $(CODS) $(NIKS) 1boot.int
 
 $(LDFILE):
 	-@echo "MEMORY" > $(LDFILE)
@@ -40,6 +45,15 @@ $(LDFILE):
 
 %.bin: %.elf
 	$(OBJCOPY) $(OCFLAGS) -O binary $< $@
+
+%.c0d: %.bin
+	$(CRYPT) $(CRYPTFLAGS) $< $@
+
+%.nik: .PHONY
+	@a=$@;a=nick_$${a%.nik}.c0d;echo mv $$a $@;mv $$a $@
+
+1boot.int: 1boot.c0d .PHONY
+	mv $< $@
 
 clean:
 	rm -f *.o *.elf *.bin usetable.h
