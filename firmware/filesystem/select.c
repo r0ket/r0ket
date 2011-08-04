@@ -75,7 +75,17 @@ int selectFile(char *filename, char *extension)
                 lcdPrint("*");
             else
                 lcdPrint(" ");
+            lcdSetCrsrX(14);
+            int dot=-1;
+            for(int j=0;files[j];j++)
+                if(files[i][j]=='.'){
+                    files[i][j]=0;
+                    dot=j;
+                    break;
+                };
             lcdPrintln(files[i]);
+            if(dot>0)
+                files[i][dot]='.';
         }
         lcdRefresh();
         key=getInputWait();
