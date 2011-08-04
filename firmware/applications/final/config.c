@@ -33,7 +33,8 @@ void changer(void){
     uint8_t current_offset = 0;
 
     for (int i=0;the_config[i].name!=NULL;i++){
-        numentries++;
+        if(!the_config[i].disabled)
+            numentries++;
     };
 
     visible_lines = ((RESY/getFontHeight())-1)/2;
@@ -45,15 +46,21 @@ void changer(void){
         
         lcdSetCrsrX(60);
         lcdPrint("[");
-        lcdPrint(IntToStr(current_offset/visible_lines,1,0));
+        lcdPrint(IntToStr((current_offset/visible_lines)+1,1,0));
         lcdPrint("/");
-        lcdPrint(IntToStr((numentries-1)/visible_lines,1,0));
+        lcdPrint(IntToStr(((numentries-1)/visible_lines)+1,1,0));
         lcdPrint("]");
         lcdNl();
 
         lcdNl();
 
-        for (uint8_t i = current_offset; i < (visible_lines + current_offset) && i < numentries; i++) {
+        uint8_t j=0;
+        for (uint8_t i=0;i<current_offset;i++,j++)
+            if(the_config[j].disabled)
+                j++;
+
+        for (uint8_t i = current_offset; i < (visible_lines + current_offset) && i < numentries; i++,j++) {
+            while(the_config[j].disabled)j++;
             if(i==0){
                 lcdPrintln("Save changes:");
                 if (i == menuselection)
@@ -64,16 +71,24 @@ void changer(void){
                 else
                     lcdPrintln("no");
             }else{
-                lcdPrintln(the_config[i].name);
-                if (i == menuselection)
+                lcdPrintln(the_config[j].name);
+                if (j == menuselection)
                     lcdPrint("*");
                 lcdSetCrsrX(14);
                 lcdPrint("<");
-                lcdPrint(IntToStr(the_config[i].value,3,F_LONG));
+                lcdPrint(IntToStr(the_config[j].value,3,F_LONG));
                 lcdPrintln(">");
             };
         }
         lcdRefresh();
+
+        j=menuselection;
+        int t=0;
+        while(j){
+            if(!the_config[t].disabled)
+               j--;
+            t++;
+        }
 
         switch (getInputWaitRepeat()) {
             case BTN_UP:
@@ -99,21 +114,21 @@ void changer(void){
                 }
                 break;
             case BTN_LEFT:
-                if(the_config[menuselection].value >
-                        the_config[menuselection].min)
-                    the_config[menuselection].value--;
-                if(the_config[menuselection].value > the_config[menuselection].max)
-                    the_config[menuselection].value=
-                        the_config[menuselection].max;
+                if(the_config[t].value >
+                        the_config[t].min)
+                    the_config[t].value--;
+                if(the_config[t].value > the_config[t].max)
+                    the_config[t].value=
+                        the_config[t].max;
                 applyConfig();
                 break;
             case BTN_RIGHT:
-                if(the_config[menuselection].value <
-                        the_config[menuselection].max)
-                    the_config[menuselection].value++;
-                if(the_config[menuselection].value < the_config[menuselection].min)
-                    the_config[menuselection].value=
-                        the_config[menuselection].min;
+                if(the_config[t].value <
+                        the_config[t].max)
+                    the_config[t].value++;
+                if(the_config[t].value < the_config[t].min)
+                    the_config[t].value=
+                        the_config[t].min;
                 applyConfig();
                 break;
             case BTN_ENTER:

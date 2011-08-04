@@ -147,26 +147,6 @@ void Qstatus(void) {
     dx=DoString(0,dy,"Done.");
 };
 
-void blink_led0(void){
-    gpioSetValue (RB_LED0, 1-gpioGetValue(RB_LED0));
-};
-
-void tick_alive(void){
-    static int foo=0;
-
-    if(GLOBAL(alivechk)==0)
-        return;
-
-	if(foo++>500/SYSTICKSPEED){
-		foo=0;
-        if(GLOBAL(alivechk)==2)
-            push_queue(blink_led0);
-        else
-            blink_led0();
-	};
-    return;
-};
-
 //# MENU debug ShowSP
 void getsp(void) {
     int dx=0;

@@ -4,14 +4,20 @@
 int readConfig(void);
 int saveConfig(void);
 void applyConfig(void);
-
+void enableConfig(char type,char enable);
 
 struct CDESC {
     char *name;
     char value;
     char min;
     char max;
+    unsigned disabled :1;
+    unsigned type     :3;
 };
+
+#define CFG_TYPE_BASIC 0
+#define CFG_TYPE_DEVEL 1
+#define CFG_TYPE_FLAME 2
 
 #define MAXNICK 20
 extern struct CDESC the_config[];

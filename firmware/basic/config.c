@@ -10,23 +10,23 @@
 #define CFGVER 1
 
 struct CDESC the_config[]= {
-    {"version",          CFGVER, CFGVER, CFGVER},
+    {"version",          CFGVER, CFGVER, CFGVER, 0, 0},
     //                   dflt  min max
-    {"privacy",          3,     0, 2  },
-    {"daytrig",          310/2, 0, 255},
-    {"daytrighyst",      10,    0, 50 },
-    {"dayinvert",        1,     0, 1  },
-    {"lcdbacklight",     50,    0, 100},
-    {"lcdmirror",        0,     0, 1  },
-    {"lcdinvert",        0,     0, 1  },
-    {"lcdcontrast",      14,    0, 31 },
-    {"alivechk",         0,     0, 2  },
-    {"flamemax",         255,   0, 255},
-    {"flamemin",         0,     0, 255},
-    {"flamespeed",       1,     1, 100},
-    {"flamemaxw",        255,   1, 255},
-    {"flameminw",        0x8f,  1, 255},
-    { NULL,              0,     0, 0  },
+    {"privacy",          3,     0, 2  , 0, 0},
+    {"daytrig",          310/2, 0, 255, 0, 0},
+    {"daytrighyst",      10,    0, 50 , 0, 0},
+    {"dayinvert",        1,     0, 1  , 0, 0},
+    {"lcdbacklight",     50,    0, 100, 0, 0},
+    {"lcdmirror",        0,     0, 1  , 0, 0},
+    {"lcdinvert",        0,     0, 1  , 0, 0},
+    {"lcdcontrast",      14,    0, 31 , 0, 0},
+    {"alivechk",         0,     0, 2  , 0, 0},
+    {"flamemax",         255,   0, 255, 1, CFG_TYPE_FLAME},
+    {"flamemin",         0,     0, 255, 1, CFG_TYPE_FLAME},
+    {"flamespeed",       1,     1, 100, 1, CFG_TYPE_FLAME},
+    {"flamemaxw",        255,   1, 255, 1, CFG_TYPE_FLAME},
+    {"flameminw",        0x8f,  1, 255, 1, CFG_TYPE_FLAME},
+    { NULL,              0,     0, 0  , 0, 0},
 };
 
 char nickname[MAXNICK]="anonymous";
@@ -112,3 +112,10 @@ int readConfig(void){
     return 0;
 };
 
+void enableConfig(char type,char enable){
+    CONF_ITER{
+        if(the_config[i].type == type){
+            the_config[i].disabled=!enable;
+        }
+    }
+}
