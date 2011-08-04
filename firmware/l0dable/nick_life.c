@@ -67,7 +67,7 @@ void ram(void) {
         lcdShift(1,-2,1);
         if(getInputRaw())
             return;
-        delayms_queue(10);
+        delayms_queue_plus(10,0);
         calc_area();
     }
     return;
