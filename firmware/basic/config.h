@@ -42,9 +42,10 @@ extern char nickl0[];
 #define GLOBALflamemaxw    (the_config[14].value)
 #define GLOBALflameminw    (the_config[15].value)
 #define GLOBALl0nick       (the_config[16].value)
+#define GLOBALchargeled    (the_config[17].value)
 #define GLOBALnickname     (nickname)
 #define GLOBALnickfont     (nickfont)
-#define GLOBALnickl0     (nickl0)
+#define GLOBALnickl0       (nickl0)
 
 #define GLOBAL(x) GLOBAL ## x
 

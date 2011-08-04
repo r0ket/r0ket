@@ -28,6 +28,7 @@ struct CDESC the_config[]= {
     {"flamemaxw",        255,   1, 255, 1, CFG_TYPE_FLAME},
     {"flameminw",        0x8f,  1, 255, 1, CFG_TYPE_FLAME},
     {"l0nick",           0,     0, 1  , 0, 0},
+    {"chargeled",        1,     0, 1  , 0, 0},
     { NULL,              0,     0, 0  , 0, 0},
 };
 
