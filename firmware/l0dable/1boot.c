@@ -25,7 +25,7 @@ static const struct MENU submenu_privacy={ "Privacy?", {
 
 void ram(void){
 	bool again = true;
-	menuflags|=MENU_JUSTONCE;
+	menuflags|=(MENU_JUSTONCE|MENU_BIG);
 	screen_intro();
 	while (again) {
 		privacy_set = false;
@@ -36,7 +36,7 @@ void ram(void){
 		getInputWaitRelease();
 		again = screen_overview();
 	}
-	menuflags&= (~MENU_JUSTONCE);
+	menuflags&= (~(MENU_JUSTONCE|MENU_BIG));
 	writeFile("nick.cfg",GLOBAL(nickname),strlen(GLOBAL(nickname)));
 	saveConfig();
 };
