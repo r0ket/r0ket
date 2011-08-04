@@ -128,6 +128,9 @@ void m_choose(){
     char list[99];
     int i=0;
 
+    meshmsg=0;
+    gpioSetValue (RB_LED1, 0); 
+
     while(1){
     char *p=list;
     strcpy(p,"Note");
@@ -231,5 +234,10 @@ void m_choose(){
 void tick_mesh(void){
     if(GLOBAL(privacy)<2)
         mesh_systick();
+    if(_timectr%64)
+        if(meshmsg){
+            gpioSetValue (RB_LED1, 1); 
+            meshmsg=0;
+        };
 };
 

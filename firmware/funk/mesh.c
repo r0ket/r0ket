@@ -9,6 +9,7 @@
 
 char meshgen=0; // Generation
 char meshincctr=0;
+char meshmsg=0;
 MPKT meshbuffer[MESHBUFSIZE];
 
 uint32_t const meshkey[4] = {
@@ -124,8 +125,12 @@ void mesh_recvloop(void){
 
         // only accept newer/better packets
         if(mpkt->flags==MF_USED)
-            if(MO_TIME(buf)<MO_TIME(mpkt->pkt))
+            if(MO_TIME(buf)<=MO_TIME(mpkt->pkt))
                 continue;
+
+        if((MO_TYPE(buf)>='A' && MO_TYPE(buf)<='C') ||
+                (MO_TYPE(buf)>='A' && MO_TYPE(buf)<='C'))
+                    meshmsg=1;
 
         memcpy(mpkt->pkt,buf,MESHPKTSIZE);
         mpkt->flags=MF_USED;
