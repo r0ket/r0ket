@@ -19,7 +19,7 @@ struct CDESC {
 #define CFG_TYPE_DEVEL 1
 #define CFG_TYPE_FLAME 2
 
-#define MAXNICK 20
+#define MAXNICK 17
 extern struct CDESC the_config[];
 extern char nickname[];
 extern char nickfont[];
