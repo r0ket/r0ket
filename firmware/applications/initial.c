@@ -70,7 +70,7 @@ void init(void)
 void mount(void)
 {
     int res;
-    lcdPrintln("Mount DF:");
+    lcdPrint("Mount:");
     res=f_mount(0, &FatFs);
     lcdPrintln(f_get_rc_string(res));
     lcdRefresh();
@@ -79,7 +79,8 @@ void mount(void)
 void format(void)
 {
     int res;
-    lcdPrintln("Formatting DF...");
+    lcdPrintln("Format DF:");
+    res=f_mount(0, &FatFs);
     res=f_mkfs(0,1,0);
     lcdPrintln(f_get_rc_string(res));
     lcdRefresh();
@@ -91,29 +92,34 @@ int check(void)
     int res = 1;
     res=f_open(&file, "flashed.cfg", FA_OPEN_EXISTING|FA_READ);
     lcdPrint("open:");
-    lcdPrintln(f_get_rc_string(res));
+    lcdPrint(f_get_rc_string(res));
+    lcdPrintln("   ");
     lcdRefresh();
     return res;
 }
 
 void msc(int timeout)
 {
-    lcdPrintln("MSC Enabled.");
+    lcdPrintln("MSC: Wait4data...");
     lcdRefresh();
     delayms_power(300);
     usbMSCInit();
 
-    while(check()){
+    while(1){
+        lcdSetCrsr(0,3*8);
         mount();
+        if(!check())
+            break;
+        if(getInputRaw())
+            break;
         delayms(100);
         f_recv();
+        lcdRefresh();
     }
-
     while(timeout--){
-        //f_recv();
         delayms(100);
     }
-    lcdPrintln("MSC Disabled.");
+    lcdPrintln("MSC:Off.");
     usbMSCOff();
     lcdRefresh();
 }
@@ -127,11 +133,13 @@ void isp(void)
 	
 void main_initial(void) {
     init();
-    mount();
-    //if( check() )
     format();
     msc(5);
     delayms(200);
+    lcdPrintln("ISP:ON");
+    lcdPrintln("turn off");
+    lcdPrintln("when done.");
+    lcdRefresh();
     ReinvokeISP();
 }
 

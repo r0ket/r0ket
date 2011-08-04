@@ -42,13 +42,13 @@ void queue_unsetinvert(void){
 
 #define EVERY(x,y) if((ctr+y)%(x/SYSTICKSPEED)==0)
 
-// every 10 ms
+// every SYSTICKSPEED ms
 void tick_default(void) {
     static int ctr;
     ctr++;
     incTimer();
 
-    EVERY(1000,0){
+    EVERY(1024,0){
         if(!adcMutex){
             VoltageCheck();
             LightCheck();
@@ -58,7 +58,7 @@ void tick_default(void) {
     };
 
     static char night=0;
-    EVERY(100,2){
+    EVERY(128,2){
         if(night!=isNight()){
             night=isNight();
             if(night){
@@ -81,6 +81,10 @@ void tick_default(void) {
             else
                 gpioSetValue (RB_LED3, 0);
         };
+    };
+
+    EVERY(4096,17){
+        nrf_check_reset();
     };
     return;
 };

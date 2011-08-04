@@ -11,12 +11,13 @@
 
 #include "core/iap/iap.h"
 
+#include "funk/nrf24l01p.h"
 #include "funk/mesh.h"
 
 #include "usetable.h"
 
 /**************************************************************************/
-void ChkFlame(void);
+void ChkFunk(void);
 void ChkLight(void);
 void ChkBattery(void);
 void m_time(void);
@@ -29,6 +30,7 @@ static const struct MENU submenu_debug={ "debug", {
 	{ "ChkBattery", &ChkBattery},
 	{ "ChkLight", &ChkLight},
 	{ "MeshInfo", &m_time},
+	{ "ChkFunk", &ChkFunk},
 	{ "Qstatus", &Qstatus},
 	{ "ShowSP", &getsp},
 	{ "Uptime", &uptime},
@@ -226,3 +228,17 @@ void m_time(void){
         delayms_queue(50);
     }while ((getInputRaw())==BTN_NONE);
 };
+
+void ChkFunk(){
+    lcdPrint("st: ");
+    lcdPrintln(IntToStrX(nrf_read_reg(R_STATUS),2));
+    lcdPrint("fifost:");
+    lcdPrintln(IntToStrX(nrf_read_reg(R_FIFO_STATUS),2));
+    lcdPrint("cfg:");
+    lcdPrintln(IntToStrX(nrf_read_reg(R_CONFIG),2));
+    lcdPrintln("Resets:");
+    lcdPrintln(IntToStr(nrf_check_reset(),3,0));
+    lcdRefresh();
+    while(!getInputRaw())work_queue();
+};
+

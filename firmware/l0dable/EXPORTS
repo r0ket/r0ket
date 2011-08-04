@@ -67,3 +67,8 @@ uint32touint8p
 uint8ptouint32
 memset
 nrf_config_set
+nrf_read_reg
+nrf_check_reset
+sspSend
+sspReceive
+sspSendReceive
