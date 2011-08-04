@@ -79,3 +79,4 @@ setExtFont
 getFontHeight
 menuflags
 delayms_queue_plus
+getInputWaitTimeout
