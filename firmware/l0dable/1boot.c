@@ -23,10 +23,7 @@ static const struct MENU submenu_privacy={ "Privacy?", {
 void ram(void){
 	// check privacy
 	menuflags|=MENU_JUSTONCE;
-    if ((GLOBAL(privacy)!=3)) { //TODO Change!
-		handleMenu(&submenu_privacy);
-	}
-
+    handleMenu(&submenu_privacy);
 	menuflags&= (~MENU_JUSTONCE);
 };
 

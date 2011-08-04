@@ -8,6 +8,8 @@
 
 #include "basic/ecc.h"
 
+#include "basic/config.h"
+
 /**************************************************************************/
 
 #include "final.gen"
@@ -16,6 +18,20 @@ void init_nick();
 void fancyNickname();
 
 void main_final(void) {
+    if(GLOBAL(privacy)>2){ //firstboot
+        if(execute_file("1boot.int",0,0)){
+            lcdPrintln("Badge SETUP");
+            lcdPrintln("error.");
+            lcdPrintln("Features may");
+            lcdPrintln("be broken.");
+            lcdRefresh();
+            getInputWait();
+            getInputWaitRelease();
+            GLOBAL(privacy)=0;
+        }else{
+            saveConfig();
+        };
+    };
     //checkFirstBoot();
     init_final();
     menuflags|=MENU_TIMEOUT;
