@@ -127,7 +127,7 @@ static bool screen_intro() {
 		DoString (0, 9, highnick);
 		lcdDisplay();
 		step = !step;
-		key=getInputWaitTimeout(1);
+		key=getInputWaitTimeout(1000);
 	}
 	return !(key==BTN_LEFT);
 }
@@ -142,7 +142,7 @@ static bool screen_gameover() {
 		if (highscore_set(game.score, GLOBAL(nickname)))
 			DoString (0,9,"HIGHSCORE!");
 		lcdDisplay();
-		key=getInputWaitTimeout(5);
+		key=getInputWaitTimeout(5000);
 	}
 	return !(key==BTN_LEFT);
 }	
