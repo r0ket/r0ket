@@ -179,8 +179,9 @@ struct MENU {
     struct MENU_DEF entries[];
 };
 
-#define MENU_TIMEOUT (1<<0)
+#define MENU_TIMEOUT  (1<<0)
 #define MENU_JUSTONCE (1<<1)
+#define MENU_BIG      (1<<2)
 extern uint8_t menuflags;
 
 
