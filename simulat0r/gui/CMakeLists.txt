@@ -37,6 +37,7 @@ set(FIRMWARE_OBJS
 ../simcore/simcore.o
 ../simcore/misc.o
 ../simcore/timecounter.o
+../firmware/table.o
 )
 
 
