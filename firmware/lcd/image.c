@@ -34,7 +34,11 @@ uint8_t lcdShowAnim(char *fname, uint32_t framems) {
             continue;
         };
 		lcdDisplay();
-		state=delayms_queue_plus(framems,0);
+        if(framems<100){
+            state=delayms_queue_plus(framems,0);
+        }else{
+            getInputWaitTimeout(framems);
+        };
 	}
 
 	if(state)

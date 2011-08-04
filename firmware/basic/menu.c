@@ -46,7 +46,7 @@ void handleMenu(const struct MENU *the_menu) {
         }
         lcdRefresh();
 
-        switch (getInputWaitTimeout((menuflags&MENU_TIMEOUT)?15:0)) {
+        switch (getInputWaitTimeout((menuflags&MENU_TIMEOUT)?15000:0)) {
             case BTN_UP:
                 menuselection--;
                 if (menuselection < current_offset) {

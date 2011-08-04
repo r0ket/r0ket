@@ -84,3 +84,5 @@ readFile
 writeFile
 input
 saveConfig
+lcdShowAnim
+lcdLoadImage
