@@ -3,6 +3,7 @@
 #include "basic/basic.h"
 #include "basic/byteorder.h"
 #include "basic/config.h"
+#include "basic/random.h"
 
 #include "funk/nrf24l01p.h"
 #include "funk/openbeacon.h"
