@@ -432,9 +432,9 @@ int DoInt(int sx, int sy, int num){
 #undef mxlen
 };
 
+#define MAX 8
 int DoIntXn(int sx, int sy, unsigned int num, unsigned int mxlen){
-	char s[(mxlen+1)];
-	char * o=s;
+	char s[(MAX+1)];
 	int len;
 	s[mxlen]=0;
 	for (len=(mxlen-1);len>=0;len--){
@@ -443,8 +443,9 @@ int DoIntXn(int sx, int sy, unsigned int num, unsigned int mxlen){
 			s[len]+='A'-'9'-1;
 		num/=16;
 	};
-	return DoString(sx,sy,o);
+	return DoString(sx,sy,s);
 };
+#undef MAX
 
 int DoIntX(int sx, int sy, unsigned int num){
     return DoIntXn(sx, sy, num, 8);

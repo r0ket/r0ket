@@ -27,7 +27,6 @@ void uuid(void);
 
 static const struct MENU submenu_debug={ "debug", {
 	{ "ChkBattery", &ChkBattery},
-//	{ "ChkFlame", &ChkFlame},
 	{ "ChkLight", &ChkLight},
 	{ "MeshInfo", &m_time},
 	{ "Qstatus", &Qstatus},
@@ -118,10 +117,10 @@ void uuid(void) {
     iap_return = iapReadSerialNumber();
     lcdClear();
     lcdPrintln("UUID:");
-    lcdPrintIntHex(iap_return.Result[0]); lcdNl();
-    lcdPrintIntHex(iap_return.Result[1]); lcdNl();
-    lcdPrintIntHex(iap_return.Result[2]); lcdNl();
-    lcdPrintIntHex(iap_return.Result[3]); lcdNl();
+    lcdPrintln(IntToStrX(iap_return.Result[0],8));
+    lcdPrintln(IntToStrX(iap_return.Result[1],8));
+    lcdPrintln(IntToStrX(iap_return.Result[2],8));
+    lcdPrintln(IntToStrX(iap_return.Result[3],8));
     lcdNl();
     lcdPrintln("Beacon ID:");
     lcdPrintln(IntToStrX(GetUUID32(),8));
@@ -227,4 +226,3 @@ void m_time(void){
         delayms_queue(50);
     }while ((getInputRaw())==BTN_NONE);
 };
-

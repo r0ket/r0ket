@@ -199,6 +199,15 @@ void m_choose(){
         lcdPrint(":");
         lcdPrint(IntToStr(tm->tm_sec,2,F_LONG|F_ZEROS));
         lcdNl();
+
+        if(tmm[i]=='T'){
+            lcdPrint(IntToStr(tm->tm_mday,2,F_LONG));
+            lcdPrint(".");
+            lcdPrint(IntToStr(tm->tm_mon+1,2,0));
+            lcdPrint(".");
+            lcdPrint(IntToStr(tm->tm_year+YEAR0,4,F_LONG|F_ZEROS));
+            lcdNl();
+        };
     };
     char *foo=(char *)MO_BODY(meshbuffer[j].pkt);
     while(strlen(foo)>13){
