@@ -13,18 +13,6 @@
 
 /**************************************************************************/
 
-void readcfg(void) {
-    readConfig();
-};
-
-void savecfg(void){
-    saveConfig();
-};
-
-void applycfg(void){
-    applyConfig();
-};
-
 //# MENU config
 void changer(void){
     uint8_t numentries = 0;

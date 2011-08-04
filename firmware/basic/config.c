@@ -49,6 +49,8 @@ int saveConfig(void){
     UINT allwrite=0;
     int res;
 
+    lcdClear();
+
 	res=f_open(&file, CONFFILE, FA_OPEN_ALWAYS|FA_WRITE);
 	lcdPrint("create:");
 	lcdPrintln(f_get_rc_string(res));
