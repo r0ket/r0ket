@@ -68,6 +68,10 @@ void handleMenu(const struct MENU *the_menu) {
             case BTN_RIGHT:
                 if (the_menu->entries[menuselection].callback!=NULL)
                     the_menu->entries[menuselection].callback();
+				
+				if (menuflags&MENU_JUSTONCE)
+					return;
+				
                 break;
             case BTN_ENTER:
                 lcdClear();
@@ -77,6 +81,10 @@ void handleMenu(const struct MENU *the_menu) {
                 if (the_menu->entries[menuselection].callback!=NULL)
                     the_menu->entries[menuselection].callback();
                 lcdRefresh();
+				
+				if (menuflags&MENU_JUSTONCE)
+					return;
+
                 getInputWait();
 
                 break;
