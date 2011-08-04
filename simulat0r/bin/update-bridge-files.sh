@@ -22,7 +22,7 @@ fi
 done
 
 echo "Updating bridge files for C source"
-for i in `find firmware/ \! -path firmware/lcd/allfonts.h -type f -iname \*.[ch]`
+for i in `find firmware/ \! -path firmware/lcd/allfonts.h \! -path firmware/l0dable/usetable.h -type f -iname \*.[ch]`
 do 
     if test -f simulat0r/$i; 
     then
