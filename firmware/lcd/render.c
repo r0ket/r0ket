@@ -14,7 +14,7 @@ const struct FONT_DEF * font = NULL;
 
 struct EXTFONT efont;
 
-FIL file; /* current font file */
+static FIL file; /* current font file */
 
 /* Exported Functions */
 
@@ -138,7 +138,7 @@ int _getFontData(int type, int offset){
     return 0;
 };
 
-int _getIndex(int c){
+static int _getIndex(int c){
 #define ERRCHR (font->u8FirstChar+1)
     /* Does this font provide this character? */
     if(c<font->u8FirstChar)
