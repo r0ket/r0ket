@@ -210,6 +210,7 @@ void m_choose(){
             lcdPrint(".");
             lcdPrint(IntToStr(tm->tm_year+YEAR0,4,F_LONG|F_ZEROS));
             lcdNl();
+            MO_BODY(meshbuffer[j].pkt)[0]=0;
         };
     };
     char *foo=(char *)MO_BODY(meshbuffer[j].pkt);
