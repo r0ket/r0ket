@@ -136,13 +136,12 @@ void screen_gameover() {
 	while(key==0) {
 		lcdFill(0);
 		font = &Font_7x8;
-		DoString (12,32, "GAME OVER");
+		DoString (14,32, "GAME OVER");
 		DoInt (0,0, game.score);
 		if (highscore_set(game.score, GLOBAL(nickname)))
 			DoString (0,9,"HIGHSCORE!");
 		lcdDisplay();
-		delayms_queue(50);
-		key=getInput();
+		key=getInputWaitTimeout(5);
 	}
 }	
 
@@ -153,7 +152,7 @@ void screen_level() {
 	int dx = DoString(20,32, "Level ");
 	DoInt(dx,32,game.level);
 	lcdDisplay();
-	delayms(500);
+	delayms_queue(500);
 }
 
 bool highscore_set(uint32_t score, char nick[]) {
@@ -163,7 +162,6 @@ bool highscore_set(uint32_t score, char nick[]) {
 
     MO_TIME_set(mpkt->pkt,score);
     strcpy((char*)MO_BODY(mpkt->pkt),nick);
-
 	return true;
 }
 
@@ -474,7 +472,7 @@ void draw_score() {
 void check_end() {
     if (game.killed) {
 		game.rokets--;
-		delayms(500);
+		delayms_queue(500);
         game.player = POS_PLAYER_X;
         
 		for(int col=0; col<ENEMY_COLUMNS; col++) {
