@@ -4,6 +4,9 @@
 
 #define PW_LEN 8
 
+void pw_cleanup(char * pw);
+void pw_set(char * pw, uint16_t * k);
+
 void ram(void)
 {
 	char pw[PW_LEN+1];
@@ -17,7 +20,7 @@ void ram(void)
 		lcdPrintln("    generator");
 		lcdNl();
 		lcdNl();
-		pw_set(pw,&k);
+		pw_set(pw,k);
 		pw_cleanup(pw);
 		lcdPrint("   ");
 		lcdPrintln(pw);
