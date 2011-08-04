@@ -7,7 +7,7 @@
 #include "basic/random.h"
 #include "basic/config.h"
 
-#define CFGVER 1
+#define CFGVER 2
 
 struct CDESC the_config[]= {
     {"version",          CFGVER, CFGVER, CFGVER, 0, 0},
@@ -20,7 +20,8 @@ struct CDESC the_config[]= {
     {"lcdmirror",        0,     0, 1  , 0, 0},
     {"lcdinvert",        0,     0, 1  , 0, 0},
     {"lcdcontrast",      14,    0, 31 , 0, 0},
-    {"alivechk",         0,     0, 2  , 0, 0},
+    {"alivechk",         0,     0, 2  , 1, CFG_TYPE_DEVEL},
+    {"develmode",        0,     0, 1  , 1, CFG_TYPE_DEVEL},
     {"flamemax",         255,   0, 255, 1, CFG_TYPE_FLAME},
     {"flamemin",         0,     0, 255, 1, CFG_TYPE_FLAME},
     {"flamespeed",       1,     1, 100, 1, CFG_TYPE_FLAME},
@@ -40,7 +41,7 @@ char nickfont[FILENAMELEN];
 void applyConfig(){
     if(GLOBAL(lcdcontrast)>0)
         lcdSetContrast(GLOBAL(lcdcontrast));
-	return;
+    enableConfig(CFG_TYPE_DEVEL,GLOBAL(develmode));
 };
 
 int saveConfig(void){
