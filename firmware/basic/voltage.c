@@ -3,9 +3,12 @@
 #include "basic/basic.h"
 #include "funk/nrf24l01p.h"
 
-uint32_t results=5000;
+static uint32_t results=5000;
+static uint8_t chrg=1;
 
 void VoltageCheck(void){
+
+    chrg=gpioGetValue(RB_PWR_CHRG);
 
 	results = adcRead(1);
 	results *= 10560;
@@ -23,4 +26,8 @@ void VoltageCheck(void){
 
 uint32_t GetVoltage(void){
     return results;
+};
+
+uint8_t GetChrgStat(void){
+    return !chrg;
 };
