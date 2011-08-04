@@ -3,6 +3,7 @@ all : tui gui
 .PHONY : tui gui tui-core clean
 
 tui-core :
+	$(MAKE) -C ../firmware/l0dable usetable.h
 	$(MAKE) -C firmware
 	$(MAKE) -C simcore
 	$(MAKE) -C tui
