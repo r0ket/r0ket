@@ -30,6 +30,7 @@ void main_default(void) {
             break;
         case BTN_RIGHT: 
             GLOBAL(develmode)=1;
+            applyConfig();
             break;
         case BTN_DOWN:
             usbMSCInit();

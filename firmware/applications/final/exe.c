@@ -19,3 +19,9 @@ void execute_menu(void){
     lcdRefresh();
 };
 
+//# MENU |devel
+void execute_devel(void){
+    while(getInput()!=BTN_NONE);
+    executeSelect("INT");
+    lcdRefresh();
+};

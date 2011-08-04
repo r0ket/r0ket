@@ -1,6 +1,7 @@
 #include <sysinit.h>
 
 #include "basic/basic.h"
+#include "basic/config.h"
 
 #include "lcd/print.h"
 
@@ -11,7 +12,7 @@ uint8_t menuflags=0;
 void handleMenu(const struct MENU *the_menu) {
     uint8_t back = 0;
     int8_t menuselection = 0;
-    uint8_t numentries = 0;
+    uint8_t numentries;
     uint8_t visible_lines = 0;
     uint8_t current_offset = 0;
 
@@ -20,6 +21,9 @@ void handleMenu(const struct MENU *the_menu) {
     setSystemFont();
 
     for (numentries = 0; the_menu->entries[numentries].text != NULL ; numentries++);
+
+    if(the_menu->entries[numentries-1].text[0]=='|' && !GLOBAL(develmode))
+        numentries--;
 
     visible_lines = lcdGetVisibleLines()-1; // subtract title line
 
@@ -81,8 +85,8 @@ void handleMenu(const struct MENU *the_menu) {
                 break;
             case BTN_ENTER:
                 lcdClear();
-                lcdPrintln("Called...");
-                lcdRefresh();
+//                lcdPrintln("Called...");
+//                lcdRefresh();
                 getInputWaitRelease();
                 if (the_menu->entries[menuselection].callback!=NULL)
                     the_menu->entries[menuselection].callback();
@@ -91,7 +95,7 @@ void handleMenu(const struct MENU *the_menu) {
 				if (menuflags&MENU_JUSTONCE)
 					return;
 
-                getInputWait();
+//                getInputWait();
 
                 break;
             case BTN_NONE: /* timeout */
