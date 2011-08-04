@@ -180,6 +180,7 @@ struct MENU {
 };
 
 #define MENU_TIMEOUT (1<<0)
+#define MENU_JUSTONCE (1<<1)
 extern uint8_t menuflags;
 
 
