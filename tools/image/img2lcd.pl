@@ -46,9 +46,13 @@ my $image = GD::Image->new($in);
 my $w=$image->width;
 my $h=$image->height;
 
+if($verbose){
+	print STDERR "$in: ${w}x$h\n\n";
+};
+
 my @img;
-for my $y (0..$h){
-	for my $x (0..$w){
+for my $y (0..$h-1){
+	for my $x (0..$w-1){
 		my $px= $image->getPixel($x,$y);
 		$img[$x][$y/8]|=$px<<(7-$y%8);
 		if($verbose){
@@ -62,10 +66,11 @@ for my $y (0..$h){
 
 open(F,">",$out)||die "open: $!";
 
-my $hb=int($h/8);
+$|=1;
+my $hb=int(($h-1)/8);
 for my $y (0..$hb){
-	for my $x (0..$w){
-		printf F "%c",$img[$w-$x][$hb-$y];
+	for my $x (0..$w-1){
+		printf F "%c",$img[$w-$x-1][$hb-$y];
 	};
 };
 
