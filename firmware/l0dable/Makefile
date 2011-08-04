@@ -42,13 +42,16 @@ $(LDFILE):
 	$(OBJCOPY) $(OCFLAGS) -O binary $< $@
 
 clean:
-	rm -f *.o *.elf *.bin
+	rm -f *.o *.elf *.bin usetable.h
 
 IDIR=/cygdrive/f
 install:
 	for a in $(BINS) ; do f=$${a#*/};cp $$a $(IDIR)/$${f%.bin}.c0d ; done
 
 $(OBJS): usetable.h
+
+usetable.h:
+	./mktable.pl
 
 .SUFFIXES:
 
