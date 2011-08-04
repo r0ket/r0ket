@@ -43,40 +43,36 @@ void changer(void){
         lcdNl();
 
         uint8_t j=0;
-        for (uint8_t i=0;i<current_offset;i++,j++)
-            if(the_config[j].disabled)
-                j++;
+        for (uint8_t i=0;i<current_offset;i++)
+            while (the_config[++j].disabled);
+
+        uint8_t t=0;
+        for (uint8_t i=0;i<menuselection;i++)
+            while (the_config[++t].disabled);
 
         for (uint8_t i = current_offset; i < (visible_lines + current_offset) && i < numentries; i++,j++) {
             while(the_config[j].disabled)j++;
             if(i==0){
                 lcdPrintln("Save changes:");
-                if (i == menuselection)
+                if (i == t)
                     lcdPrint("*");
                 lcdSetCrsrX(14);
-                if (i == menuselection)
+                if (i == t)
                     lcdPrintln("YES");
                 else
                     lcdPrintln("no");
             }else{
                 lcdPrintln(the_config[j].name);
-                if (j == menuselection)
+                if (j == t)
                     lcdPrint("*");
                 lcdSetCrsrX(14);
                 lcdPrint("<");
                 lcdPrint(IntToStr(the_config[j].value,3,F_LONG));
                 lcdPrintln(">");
             };
+        lcdRefresh();
         }
         lcdRefresh();
-
-        j=menuselection;
-        int t=0;
-        while(j){
-            if(!the_config[t].disabled)
-               j--;
-            t++;
-        }
 
         switch (getInputWaitRepeat()) {
             case BTN_UP:
