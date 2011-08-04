@@ -67,6 +67,7 @@ static void lcdWrite(uint8_t cd, uint8_t data) {
 #define SDA 0,9
 #define RST 2,2
 
+#ifdef NOTYET
 uint8_t lcdRead(uint8_t data)
 {
     uint8_t i;
@@ -109,6 +110,7 @@ uint8_t lcdRead(uint8_t data)
     gpioSetDir(SDA, 1);
     delayms(1);
 }
+#endif
 
 
 void lcdInit(void) {

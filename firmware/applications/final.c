@@ -9,6 +9,7 @@
 #include "basic/ecc.h"
 
 #include "basic/config.h"
+#include "filesystem/execute.h"
 
 /**************************************************************************/
 

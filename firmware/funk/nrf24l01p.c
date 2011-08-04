@@ -405,11 +405,10 @@ void nrf_off() {
 };
 
 
-uint8_t nrf_check_reset(void){
+void nrf_check_reset(void){
     static uint8_t _nrfresets=0;
     if(nrf_cmd_status(C_NOP) & R_STATUS_MAX_RT){
         _nrfresets++;
         nrf_init();
     };
-    return _nrfresets;
 };
