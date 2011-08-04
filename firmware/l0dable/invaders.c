@@ -52,33 +52,33 @@ struct gamestate {
     uint8_t bunker[BUNKERS][BUNKER_WIDTH]; 
 } game; 
 char key;
-bool highscore_set(uint32_t score, char nick[]);
-uint32_t highscore_get(char nick[]);
 
-void init_game();
-void init_enemy();
-void check_end();
-void move_ufo();
-void move_shot();
-void move_shots();
-void move_player();
-void move_enemy();
-void draw_score();
-void draw_bunker();
-void draw_player();
-void draw_enemy();
-void draw_shots();
-void draw_sprite(char type, char x, char y);
-void draw_ufo();
-void screen_intro();
-void screen_gameover();
-void screen_level();
-bool check_bunker(char xpos, char ypos, int8_t shift);
+static bool highscore_set(uint32_t score, char nick[]);
+static uint32_t highscore_get(char nick[]);
+static void init_game();
+static void init_enemy();
+static void check_end();
+static void move_ufo();
+static void move_shot();
+static void move_shots();
+static void move_player();
+static void move_enemy();
+static void draw_score();
+static void draw_bunker();
+static void draw_player();
+static void draw_enemy();
+static void draw_shots();
+static void draw_sprite(char type, char x, char y);
+static void draw_ufo();
+static bool screen_intro();
+static bool screen_gameover();
+static void screen_level();
+static bool check_bunker(char xpos, char ypos, int8_t shift);
 
 void ram(void) {
-    //gpioSetValue (RB_LED1, CFG_LED_OFF); 
-    //backlightInit();
-    while(1) {
+	while(1) {
+		if (!screen_intro())
+			return;
 		screen_intro();
 		game.rokets = 3; 
 		game.level = 1;
@@ -104,19 +104,20 @@ void ram(void) {
 			lcdDisplay();
 			delayms(12);
 		}
-		screen_gameover();
+		if (!screen_gameover())
+			return;
 	}
-    return;
 }
 
-void screen_intro() {
+static bool screen_intro() {
 	uint32_t highscore;
 	char highnick[20];
 	char key=0;
+	bool step = false;
 	while(key==0) {
 		lcdFill(0);
 		font = &Font_Invaders;
-        DoString(28,25,"ABC");
+        DoString(28,25,step?"ABC":"abc");
 		font = &Font_7x8;
 		DoString (28,40,"SPACE");
 		DoString (18,50,"INVADERS");
@@ -125,49 +126,48 @@ void screen_intro() {
 		DoInt(0, 0, highscore);
 		DoString (0, 9, highnick);
 		lcdDisplay();
-
-		delayms_queue(50);
-		key=getInput();
+		step = !step;
+		key=getInputWaitTimeout(1);
 	}
+	return !(key==BTN_LEFT);
 }
 
-void screen_gameover() {
+static bool screen_gameover() {
 	char key =0;
 	while(key==0) {
 		lcdFill(0);
 		font = &Font_7x8;
-		DoString (12,32, "GAME OVER");
+		DoString (14,32, "GAME OVER");
 		DoInt (0,0, game.score);
 		if (highscore_set(game.score, GLOBAL(nickname)))
 			DoString (0,9,"HIGHSCORE!");
 		lcdDisplay();
-		delayms_queue(50);
-		key=getInput();
+		key=getInputWaitTimeout(5);
 	}
+	return !(key==BTN_LEFT);
 }	
 
-void screen_level() {
+static void screen_level() {
 	lcdFill(0);
 	draw_score();
 	font = &Font_7x8;
 	int dx = DoString(20,32, "Level ");
 	DoInt(dx,32,game.level);
 	lcdDisplay();
-	delayms(500);
+	delayms_queue(500);
 }
 
-bool highscore_set(uint32_t score, char nick[]) {
+static bool highscore_set(uint32_t score, char nick[]) {
     MPKT * mpkt= meshGetMessage('i');
     if(MO_TIME(mpkt->pkt)>score)
         return false;
 
     MO_TIME_set(mpkt->pkt,score);
     strcpy((char*)MO_BODY(mpkt->pkt),nick);
-
 	return true;
 }
 
-uint32_t highscore_get(char nick[]){
+static uint32_t highscore_get(char nick[]){
     MPKT * mpkt= meshGetMessage('i');
 
     strcpy(nick,(char*)MO_BODY(mpkt->pkt));
@@ -175,7 +175,7 @@ uint32_t highscore_get(char nick[]){
 	return MO_TIME(mpkt->pkt);
 }
 
-void init_game(void) {
+static void init_game(void) {
 	game.player = POS_PLAYER_X;
 	game.shot_x = DISABLED;
 	game.shot_y = 0;
@@ -214,7 +214,7 @@ void init_game(void) {
 	}
 }
 
-void init_enemy() {
+static void init_enemy() {
     for (int row = 0; row<ENEMY_ROWS; row++) {
         game.enemy_row_y[row] = 10 + (40/ENEMY_ROWS)*row;
         for (int col = 0; col<ENEMY_COLUMNS; col++) {
@@ -223,7 +223,7 @@ void init_enemy() {
     }
 }
 
-bool check_bunker(char xpos, char ypos, int8_t shift){
+static bool check_bunker(char xpos, char ypos, int8_t shift){
 	for (int b=0; b<BUNKERS; b++) {
 		if (xpos>BUNKER_X[BUNKERS-1-b] &&
 				xpos<BUNKER_X[BUNKERS-1-b]+BUNKER_WIDTH &&
@@ -242,7 +242,7 @@ bool check_bunker(char xpos, char ypos, int8_t shift){
 	return false;
 }
 
-void move_shot() {
+static void move_shot() {
     //No shot, do nothing
     if(game.shot_x == DISABLED) {
         return;
@@ -288,7 +288,7 @@ void move_shot() {
 
 
 
-void move_shots() {
+static void move_shots() {
     for (int col = 0; col<ENEMY_COLUMNS; col++){
 		//No shot, maybe generate
 		if (game.shots_x[col] == DISABLED) {
@@ -325,7 +325,7 @@ void move_shots() {
 	}
 }
 
-void move_ufo() {
+static void move_ufo() {
 	if (game.ufo == DISABLED) {
 		if ((getRandom()%UFO_PROB)==0) {
 			game.ufo = 0;
@@ -339,7 +339,7 @@ void move_ufo() {
 	game.ufo++;
 }
 
-void move_player() {
+static void move_player() {
     if(gpioGetValue(RB_BTN0)==0 && game.player > 0 ){
         game.player-=1;
     }
@@ -354,7 +354,7 @@ void move_player() {
     }
 }
 
-void move_enemy() {
+static void move_enemy() {
     if(game.move > 0){
         game.move-=game.level/5+1;
         return;
@@ -392,16 +392,16 @@ void move_enemy() {
     game.move = game.alive*2-1;
 }
 
-void draw_player() {
+static void draw_player() {
     draw_sprite(TYPE_PLAYER, game.player, POS_PLAYER_Y);
 }
 
-void draw_ufo() {
+static void draw_ufo() {
 	if (game.ufo!=DISABLED)
 		draw_sprite(TYPE_UFO, game.ufo, POS_UFO_Y);
 }
 
-void draw_enemy() {
+static void draw_enemy() {
     for (int row = 0; row<ENEMY_ROWS; row++) {
         for (int col = 0; col<ENEMY_COLUMNS; col++) {
             if (game.enemy_x[row][col] != DISABLED) {
@@ -411,13 +411,13 @@ void draw_enemy() {
     }
 }
     
-void draw_bunker() {
+static void draw_bunker() {
 	for (int b=0; b<BUNKERS; b++) {
 		memcpy(lcdBuffer+(RESX*1+BUNKER_X[b]),game.bunker+b,BUNKER_WIDTH);
 	}
 }
 
-void draw_shots() {
+static void draw_shots() {
     if (game.shot_x != 255) {
         for (int length=0; length<=5; length++) {
             lcdSetPixel(game.shot_x, game.shot_y+length, true);
@@ -434,13 +434,13 @@ void draw_shots() {
 
 }
 
-void draw_status() {
+static void draw_status() {
     for (int p = 0; p<game.alive; p++){
         lcdSetPixel(p+1,1,true);
     }
 }
 
-void draw_sprite(char type, char x, char y) {
+static void draw_sprite(char type, char x, char y) {
 	font = &Font_Invaders;
 	switch(type) {
 		case TYPE_PLAYER:
@@ -461,7 +461,7 @@ void draw_sprite(char type, char x, char y) {
 	}
 }
 
-void draw_score() {
+static void draw_score() {
 	font = &Font_7x8;
 	DoInt(0,0,game.score);
     
@@ -471,10 +471,10 @@ void draw_score() {
 }
 
 
-void check_end() {
+static void check_end() {
     if (game.killed) {
 		game.rokets--;
-		delayms(500);
+		delayms_queue(500);
         game.player = POS_PLAYER_X;
         
 		for(int col=0; col<ENEMY_COLUMNS; col++) {

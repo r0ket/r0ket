@@ -72,3 +72,15 @@ nrf_check_reset
 sspSend
 sspReceive
 sspSendReceive
+getInputWait
+lcdGetPixel
+nickfont
+setExtFont
+getFontHeight
+menuflags
+delayms_queue_plus
+getInputWaitTimeout
+readFile
+writeFile
+input
+saveConfig

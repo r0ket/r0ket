@@ -8,6 +8,7 @@
 #include "filesystem/ff.h"
 #include "usb/usbmsc.h"
 #include "basic/random.h"
+#include "funk/nrf24l01p.h"
 
 /**************************************************************************/
 
@@ -17,6 +18,9 @@ void main_default(void) {
     switch(getInputRaw()){
         case BTN_ENTER:
             ISPandReset();
+            break;
+        case BTN_UP: // Reset config
+            f_unlink("r0ket.cfg");
             break;
         case BTN_DOWN:
             usbMSCInit();
@@ -84,7 +88,7 @@ void tick_default(void) {
     };
 
     EVERY(4096,17){
-        nrf_check_reset();
+        push_queue(nrf_check_reset);
     };
     return;
 };

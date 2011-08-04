@@ -128,6 +128,9 @@ void m_choose(){
     char list[99];
     int i=0;
 
+    meshmsg=0;
+    gpioSetValue (RB_LED1, 0); 
+
     while(1){
     char *p=list;
     strcpy(p,"Note");
@@ -207,6 +210,7 @@ void m_choose(){
             lcdPrint(".");
             lcdPrint(IntToStr(tm->tm_year+YEAR0,4,F_LONG|F_ZEROS));
             lcdNl();
+            MO_BODY(meshbuffer[j].pkt)[0]=0;
         };
     };
     char *foo=(char *)MO_BODY(meshbuffer[j].pkt);
@@ -231,5 +235,10 @@ void m_choose(){
 void tick_mesh(void){
     if(GLOBAL(privacy)<2)
         mesh_systick();
+    if(_timectr%64)
+        if(meshmsg){
+            gpioSetValue (RB_LED1, 1); 
+            meshmsg=0;
+        };
 };
 

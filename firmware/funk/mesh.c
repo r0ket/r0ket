@@ -6,9 +6,11 @@
 #include "funk/nrf24l01p.h"
 #include "basic/byteorder.h"
 #include "basic/random.h"
+#include "basic/config.h"
 
 char meshgen=0; // Generation
 char meshincctr=0;
+char meshmsg=0;
 MPKT meshbuffer[MESHBUFSIZE];
 
 uint32_t const meshkey[4] = {
@@ -70,11 +72,38 @@ void mesh_cleanup(void){
     };
 };
 
-void mesh_recvloop(void){
+void mesh_sendloop(void){
+    int ctr=0;
     __attribute__ ((aligned (4))) uint8_t buf[32];
-    int len;
-    int recvend=M_RECVTIM/SYSTICKSPEED+getTimer();
-    int pktctr=0;
+    int status;
+
+    nrf_config_get(&oldconfig);
+    nrf_set_channel(MESH_CHANNEL);
+    nrf_set_tx_mac(strlen(MESH_MAC),(uint8_t*)MESH_MAC);
+
+    // Update [T]ime packet
+    MO_TIME_set(meshbuffer[0].pkt,getSeconds());
+    MO_GEN_set(meshbuffer[0].pkt,meshgen);
+    if(GLOBAL(privacy)==0)
+        uint32touint8p(GetUUID32(),MO_BODY(meshbuffer[0].pkt));
+    else
+        uint32touint8p(0,MO_BODY(meshbuffer[0].pkt));
+
+    for (int i=0;i<MESHBUFSIZE;i++){
+        if(!meshbuffer[i].flags&MF_USED)
+            continue;
+        if(meshbuffer[i].flags&MF_LOCK)
+            continue;
+        ctr++;
+        memcpy(buf,meshbuffer[i].pkt,MESHPKTSIZE);
+        status=nrf_snd_pkt_crc_encr(MESHPKTSIZE,buf,meshkey);
+        //Check status? But what would we do...
+    };
+
+    nrf_config_set(&oldconfig);
+};
+
+void mesh_recvqloop_setup(void){
 
     nrf_config_get(&oldconfig);
 
@@ -84,15 +113,18 @@ void mesh_recvloop(void){
     mesh_cleanup();
 
     nrf_rcv_pkt_start();
-    do{
+};
+
+uint8_t mesh_recvqloop_work(void){
+    __attribute__ ((aligned (4))) uint8_t buf[32];
+    int len;
+
         len=nrf_rcv_pkt_poll_dec(sizeof(buf),buf,meshkey);
 
         // Receive
         if(len<=0){
-            delayms_power(10);
-            continue;
+            return 0;
         };
-        pktctr++;
 
         if(MO_GEN(buf)>meshgen){
             if(meshgen)
@@ -109,7 +141,7 @@ void mesh_recvloop(void){
                 _timet = toff;
                 meshincctr++;
             };
-            continue;
+            return 1;
         };
 
         // Safety: Truncate ascii packets by 0-ing the CRC
@@ -120,47 +152,67 @@ void mesh_recvloop(void){
 
         // Skip locked packet
         if(mpkt->flags&MF_LOCK)
-            continue;
+            return 2;
 
         // only accept newer/better packets
         if(mpkt->flags==MF_USED)
-            if(MO_TIME(buf)<MO_TIME(mpkt->pkt))
-                continue;
+            if(MO_TIME(buf)<=MO_TIME(mpkt->pkt))
+                return 2;
+
+        if((MO_TYPE(buf)>='A' && MO_TYPE(buf)<='C') ||
+                (MO_TYPE(buf)>='A' && MO_TYPE(buf)<='C'))
+                    meshmsg=1;
 
         memcpy(mpkt->pkt,buf,MESHPKTSIZE);
         mpkt->flags=MF_USED;
+        return 1;
+};
 
-    }while(getTimer()<recvend || pktctr>MESHBUFSIZE);
-
+void mesh_recvqloop_end(void){
     nrf_rcv_pkt_end();
     nrf_config_set(&oldconfig);
 }
 
-void mesh_sendloop(void){
-    int ctr=0;
-    __attribute__ ((aligned (4))) uint8_t buf[32];
-    int status;
+void mesh_recvloop(void){
+    int recvend=M_RECVTIM/SYSTICKSPEED+getTimer();
+    int pktctr=0;
 
-    nrf_config_get(&oldconfig);
-    nrf_set_channel(MESH_CHANNEL);
-    nrf_set_tx_mac(strlen(MESH_MAC),(uint8_t*)MESH_MAC);
+    mesh_recvqloop_setup();
+    do{
+        if( mesh_recvqloop_work() ){
+            pktctr++;
+        }else{
+            delayms_power(10);
+        };
+    }while(getTimer()<recvend || pktctr>MESHBUFSIZE);
+    mesh_recvqloop_end();
+};
 
-    // Update [T]ime packet
-    MO_TIME_set(meshbuffer[0].pkt,getSeconds());
-    MO_GEN_set(meshbuffer[0].pkt,meshgen);
+uint8_t mesh_recvloop_plus(uint8_t state){
+    static int recvend=0;
+    static int pktctr=0;
 
-    for (int i=0;i<MESHBUFSIZE;i++){
-        if(!meshbuffer[i].flags&MF_USED)
-            continue;
-        if(meshbuffer[i].flags&MF_LOCK)
-            continue;
-        ctr++;
-        memcpy(buf,meshbuffer[i].pkt,MESHPKTSIZE);
-        status=nrf_snd_pkt_crc_encr(MESHPKTSIZE,buf,meshkey);
-        //Check status? But what would we do...
+    if (state==0){
+            recvend=M_RECVTIM/SYSTICKSPEED+getTimer();
+            pktctr=0;
+
+            mesh_recvqloop_setup();
+            state=1;
+    };
+    if(state==1){
+            if( mesh_recvqloop_work() ){
+                pktctr++;
+            }else{
+                delayms_power(10);
+            };
+            if(getTimer()>recvend || pktctr>MESHBUFSIZE)
+                state=0xff;
+    };
+    if(state==0xff){
+        return 0xff;
     };
 
-    nrf_config_set(&oldconfig);
+    return state;
 };
 
 void mesh_systick(void){
@@ -168,7 +220,7 @@ void mesh_systick(void){
     static int sendctr=0;
 
     if(rcvctr--<0){
-        push_queue(&mesh_recvloop);
+        push_queue_plus(&mesh_recvloop_plus);
         rcvctr=M_RECVINT/SYSTICKSPEED/2;
         rcvctr+=getRandom()%(rcvctr*2);
     };
@@ -179,3 +231,4 @@ void mesh_systick(void){
         sendctr+=getRandom()%(sendctr*2);
     };
 };
+

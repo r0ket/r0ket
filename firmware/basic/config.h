@@ -21,8 +21,9 @@ struct CDESC {
 
 #define MAXNICK 20
 extern struct CDESC the_config[];
-extern char nickname[MAXNICK];
+extern char nickname[];
 extern char nickfont[];
+extern char nickl0[];
 
 #define GLOBALversion      (the_config[ 0].value)
 #define GLOBALprivacy      (the_config[ 1].value)
@@ -34,13 +35,16 @@ extern char nickfont[];
 #define GLOBALlcdinvert    (the_config[ 7].value)
 #define GLOBALlcdcontrast  (the_config[ 8].value)
 #define GLOBALalivechk     (the_config[ 9].value)
-#define GLOBALflamemax     (the_config[10].value)
-#define GLOBALflamemin     (the_config[11].value)
-#define GLOBALflamespeed   (the_config[12].value)
-#define GLOBALflamemaxw    (the_config[13].value)
-#define GLOBALflameminw    (the_config[14].value)
+#define GLOBALdevelmode    (the_config[10].value)
+#define GLOBALflamemax     (the_config[11].value)
+#define GLOBALflamemin     (the_config[12].value)
+#define GLOBALflamespeed   (the_config[13].value)
+#define GLOBALflamemaxw    (the_config[14].value)
+#define GLOBALflameminw    (the_config[15].value)
+#define GLOBALl0nick       (the_config[16].value)
 #define GLOBALnickname     (nickname)
 #define GLOBALnickfont     (nickfont)
+#define GLOBALnickl0     (nickl0)
 
 #define GLOBAL(x) GLOBAL ## x
 

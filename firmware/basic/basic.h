@@ -179,7 +179,9 @@ struct MENU {
     struct MENU_DEF entries[];
 };
 
-#define MENU_TIMEOUT (1<<0)
+#define MENU_TIMEOUT  (1<<0)
+#define MENU_JUSTONCE (1<<1)
+#define MENU_BIG      (1<<2)
 extern uint8_t menuflags;
 
 
@@ -203,6 +205,13 @@ const char* IntToStr(int num, unsigned int mxlen, char flag);
 
 // global
 #define SYSTICKSPEED 10
+
+#ifdef __arm__
+#define WFI        __asm volatile ("WFI")
+#else
+#define WFI       delayms(SYSTICKSPEED)
+#endif
+
 
 
 #endif

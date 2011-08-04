@@ -22,6 +22,10 @@ void handleMenu(const struct MENU *the_menu) {
     for (numentries = 0; the_menu->entries[numentries].text != NULL ; numentries++);
 
     visible_lines = lcdGetVisibleLines()-1; // subtract title line
+
+    if(menuflags&MENU_BIG)
+        visible_lines/=2;
+
 #ifdef SAFETY
     if (visible_lines < 2) return;
 #endif
@@ -32,6 +36,8 @@ void handleMenu(const struct MENU *the_menu) {
         lcdPrintln(the_menu->title);
 
         for (uint8_t i = current_offset; i < (visible_lines + current_offset) && i < numentries; i++) {
+            if(menuflags&MENU_BIG)
+                lcdNl();
             if (i == menuselection) {
                 lcdPrint("*");
             }
@@ -68,6 +74,10 @@ void handleMenu(const struct MENU *the_menu) {
             case BTN_RIGHT:
                 if (the_menu->entries[menuselection].callback!=NULL)
                     the_menu->entries[menuselection].callback();
+				
+				if (menuflags&MENU_JUSTONCE)
+					return;
+				
                 break;
             case BTN_ENTER:
                 lcdClear();
@@ -77,6 +87,10 @@ void handleMenu(const struct MENU *the_menu) {
                 if (the_menu->entries[menuselection].callback!=NULL)
                     the_menu->entries[menuselection].callback();
                 lcdRefresh();
+				
+				if (menuflags&MENU_JUSTONCE)
+					return;
+
                 getInputWait();
 
                 break;

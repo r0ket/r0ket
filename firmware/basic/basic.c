@@ -43,26 +43,19 @@ void rbInit() {
     IOCON_JTAG_TDI_PIO0_11 |= IOCON_JTAG_TDI_PIO0_11_FUNC_GPIO; 
  
     gpioSetDir(RB_LED0, gpioDirection_Output);
-    gpioSetValue (RB_LED0, 1); 
+    gpioSetValue (RB_LED0, 0); 
 
     gpioSetDir(RB_LED1, gpioDirection_Output);
-    gpioSetValue (RB_LED1, 1); 
+    gpioSetValue (RB_LED1, 0); 
 
     gpioSetDir(RB_LED2, gpioDirection_Output);
-    gpioSetValue (RB_LED2, 1); 
+    gpioSetValue (RB_LED2, 0); 
 
     gpioSetDir(RB_LED3, gpioDirection_Output);
-    gpioSetValue (RB_LED3, 1); 
+    gpioSetValue (RB_LED3, 0); 
 
+    // Set LED3 to ?
     IOCON_PIO1_11 = 0x41;
-
-    // prepare IR
-    //gpioSetDir(RB_IROUT, gpioDirection_Output);
-    //gpioSetValue (RB_IROUT, 1); 
-
-    //gpioSetDir(RB_IRIN, gpioDirection_Input);
-    //gpioSetPullup (&RB_IRIN_IO, gpioPullupMode_PullUp);
-
 
     // prepare lcd
     // TODO FIXME more init needed ?
@@ -127,16 +120,13 @@ void rbInit() {
     gpioSetPullup (&RB_BUSINT_IO, gpioPullupMode_PullUp);
     gpioSetInterrupt(RB_BUSINT, gpioInterruptSense_Edge, gpioInterruptEdge_Single, gpioInterruptEvent_ActiveLow);
     gpioIntEnable(RB_BUSINT);
-    // add this to catch interrupt:
-    /*
-
-    */
 
     //nrf_init();
     backlightInit();
     font=&Font_7x8;
     ECIES_setup();
 }
+
 #define WEAK_ALIAS(f) __attribute__ ((weak, alias (#f)));
 void interrupt_undefined(void) {
 }

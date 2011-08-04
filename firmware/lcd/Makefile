@@ -9,6 +9,7 @@ OBJS += render.o
 OBJS += decoder.o
 OBJS += backlight.o
 OBJS += print.o
+OBJS += image.o
 
 FONTS = $(basename $(wildcard fonts/*.c))
 
