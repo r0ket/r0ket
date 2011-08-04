@@ -205,5 +205,12 @@ const char* IntToStr(int num, unsigned int mxlen, char flag);
 // global
 #define SYSTICKSPEED 10
 
+#ifdef __arm__
+#define WFI        __asm volatile ("WFI")
+#else
+#define WFI       delayms(SYSTICKSPEED)
+#endif
+
+
 
 #endif

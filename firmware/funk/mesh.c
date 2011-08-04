@@ -84,7 +84,7 @@ void mesh_sendloop(void){
     // Update [T]ime packet
     MO_TIME_set(meshbuffer[0].pkt,getSeconds());
     MO_GEN_set(meshbuffer[0].pkt,meshgen);
-    if(GLOBAL(provacy)==0)
+    if(GLOBAL(privacy)==0)
         uint32touint8p(GetUUID32(),MO_BODY(meshbuffer[0].pkt));
     else
         uint32touint8p(0,MO_BODY(meshbuffer[0].pkt));
@@ -152,12 +152,12 @@ uint8_t mesh_recvqloop_work(void){
 
         // Skip locked packet
         if(mpkt->flags&MF_LOCK)
-            return 1;
+            return 2;
 
         // only accept newer/better packets
         if(mpkt->flags==MF_USED)
             if(MO_TIME(buf)<=MO_TIME(mpkt->pkt))
-                return 1;
+                return 2;
 
         if((MO_TYPE(buf)>='A' && MO_TYPE(buf)<='C') ||
                 (MO_TYPE(buf)>='A' && MO_TYPE(buf)<='C'))
@@ -165,6 +165,7 @@ uint8_t mesh_recvqloop_work(void){
 
         memcpy(mpkt->pkt,buf,MESHPKTSIZE);
         mpkt->flags=MF_USED;
+        return 1;
 };
 
 void mesh_recvqloop_end(void){
@@ -187,12 +188,39 @@ void mesh_recvloop(void){
     mesh_recvqloop_end();
 };
 
+uint8_t mesh_recvloop_plus(uint8_t state){
+    static int recvend=0;
+    static int pktctr=0;
+
+    if (state==0){
+            recvend=M_RECVTIM/SYSTICKSPEED+getTimer();
+            pktctr=0;
+
+            mesh_recvqloop_setup();
+            state=1;
+    };
+    if(state==1){
+            if( mesh_recvqloop_work() ){
+                pktctr++;
+            }else{
+                delayms_power(10);
+            };
+            if(getTimer()>recvend || pktctr>MESHBUFSIZE)
+                state=0xff;
+    };
+    if(state==0xff){
+        return 0xff;
+    };
+
+    return state;
+};
+
 void mesh_systick(void){
     static int rcvctr=0;
     static int sendctr=0;
 
     if(rcvctr--<0){
-        push_queue(&mesh_recvloop);
+        push_queue_plus(&mesh_recvloop_plus);
         rcvctr=M_RECVINT/SYSTICKSPEED/2;
         rcvctr+=getRandom()%(rcvctr*2);
     };

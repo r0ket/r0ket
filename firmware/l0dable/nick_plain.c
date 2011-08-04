@@ -22,11 +22,12 @@ void ram(void) {
     dy=(RESY-getFontHeight())/2;
 
 	lcdClear();
+    lcdSetPixel(1,1,1);
 	DoString(dx,dy,GLOBAL(nickname));
 	lcdRefresh();
 
     while(getInputRaw()==BTN_NONE){
-        work_queue();
+        delayms_queue_plus(10,0);
     };
     return;
 }
