@@ -6,6 +6,7 @@
 #include "funk/nrf24l01p.h"
 #include "basic/byteorder.h"
 #include "basic/random.h"
+#include "basic/config.h"
 
 char meshgen=0; // Generation
 char meshincctr=0;
@@ -83,6 +84,10 @@ void mesh_sendloop(void){
     // Update [T]ime packet
     MO_TIME_set(meshbuffer[0].pkt,getSeconds());
     MO_GEN_set(meshbuffer[0].pkt,meshgen);
+    if(GLOBAL(provacy)==0)
+        uint32touint8p(GetUUID32(),MO_BODY(meshbuffer[0].pkt));
+    else
+        uint32touint8p(0,MO_BODY(meshbuffer[0].pkt));
 
     for (int i=0;i<MESHBUFSIZE;i++){
         if(!meshbuffer[i].flags&MF_USED)
