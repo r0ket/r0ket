@@ -5,6 +5,7 @@
 #include "lcd/lcd.h"
 #include "lcd/fonts/smallfonts.h"
 #include "lcd/print.h"
+#include "lcd/image.h"
 #include "filesystem/ff.h"
 #include "usb/usbmsc.h"
 #include "basic/random.h"
@@ -14,8 +15,13 @@
 
 void main_default(void) {
     systickInit(SYSTICKSPEED);
-
-    switch(getInputRaw()){
+    
+	//show bootscreen
+	lcdClear();
+	lcdLoadImage("r0ket.lcd");
+	lcdRefresh();
+    
+	switch(getInputRaw()){
         case BTN_ENTER:
             ISPandReset();
             break;

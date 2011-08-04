@@ -18,7 +18,8 @@ void init_nick();
 void fancyNickname();
 
 void main_final(void) {
-    if(GLOBAL(privacy)>2){ //firstboot
+    init_nick();
+	if(GLOBAL(privacy)>2){ //firstboot
         if(execute_file("1boot.int",0,0)){
             lcdPrintln("Badge SETUP");
             lcdPrintln("error.");
