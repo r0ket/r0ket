@@ -22,6 +22,9 @@ void main_default(void) {
         case BTN_UP: // Reset config
             f_unlink("r0ket.cfg");
             break;
+        case BTN_RIGHT: 
+            GLOBAL(develmode)=1;
+            break;
         case BTN_DOWN:
             usbMSCInit();
             while(1)
