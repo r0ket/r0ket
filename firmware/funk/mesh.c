@@ -71,76 +71,6 @@ void mesh_cleanup(void){
     };
 };
 
-void mesh_recvloop(void){
-    __attribute__ ((aligned (4))) uint8_t buf[32];
-    int len;
-    int recvend=M_RECVTIM/SYSTICKSPEED+getTimer();
-    int pktctr=0;
-
-    nrf_config_get(&oldconfig);
-
-    nrf_set_channel(MESH_CHANNEL);
-    nrf_set_rx_mac(0,MESHPKTSIZE,strlen(MESH_MAC),(uint8_t*)MESH_MAC);
-
-    mesh_cleanup();
-
-    nrf_rcv_pkt_start();
-    do{
-        len=nrf_rcv_pkt_poll_dec(sizeof(buf),buf,meshkey);
-
-        // Receive
-        if(len<=0){
-            delayms_power(10);
-            continue;
-        };
-        pktctr++;
-
-        if(MO_GEN(buf)>meshgen){
-            if(meshgen)
-                meshgen++;
-            else
-                meshgen=MO_GEN(buf);
-            _timet=0;
-            meshincctr=0;
-        };
-
-        if(MO_TYPE(buf)=='T'){
-            time_t toff=MO_TIME(buf)-((getTimer()+(600/SYSTICKSPEED))/(1000/SYSTICKSPEED));
-            if (toff>_timet){ // Do not live in the past.
-                _timet = toff;
-                meshincctr++;
-            };
-            continue;
-        };
-
-        // Safety: Truncate ascii packets by 0-ing the CRC
-        buf[MESHPKTSIZE-2]=0;
-
-        // Store packet in a same/free slot
-        MPKT* mpkt=meshGetMessage(MO_TYPE(buf));
-
-        // Skip locked packet
-        if(mpkt->flags&MF_LOCK)
-            continue;
-
-        // only accept newer/better packets
-        if(mpkt->flags==MF_USED)
-            if(MO_TIME(buf)<=MO_TIME(mpkt->pkt))
-                continue;
-
-        if((MO_TYPE(buf)>='A' && MO_TYPE(buf)<='C') ||
-                (MO_TYPE(buf)>='A' && MO_TYPE(buf)<='C'))
-                    meshmsg=1;
-
-        memcpy(mpkt->pkt,buf,MESHPKTSIZE);
-        mpkt->flags=MF_USED;
-
-    }while(getTimer()<recvend || pktctr>MESHBUFSIZE);
-
-    nrf_rcv_pkt_end();
-    nrf_config_set(&oldconfig);
-}
-
 void mesh_sendloop(void){
     int ctr=0;
     __attribute__ ((aligned (4))) uint8_t buf[32];
@@ -168,6 +98,90 @@ void mesh_sendloop(void){
     nrf_config_set(&oldconfig);
 };
 
+void mesh_recvqloop_setup(void){
+
+    nrf_config_get(&oldconfig);
+
+    nrf_set_channel(MESH_CHANNEL);
+    nrf_set_rx_mac(0,MESHPKTSIZE,strlen(MESH_MAC),(uint8_t*)MESH_MAC);
+
+    mesh_cleanup();
+
+    nrf_rcv_pkt_start();
+};
+
+uint8_t mesh_recvqloop_work(void){
+    __attribute__ ((aligned (4))) uint8_t buf[32];
+    int len;
+
+        len=nrf_rcv_pkt_poll_dec(sizeof(buf),buf,meshkey);
+
+        // Receive
+        if(len<=0){
+            return 0;
+        };
+
+        if(MO_GEN(buf)>meshgen){
+            if(meshgen)
+                meshgen++;
+            else
+                meshgen=MO_GEN(buf);
+            _timet=0;
+            meshincctr=0;
+        };
+
+        if(MO_TYPE(buf)=='T'){
+            time_t toff=MO_TIME(buf)-((getTimer()+(600/SYSTICKSPEED))/(1000/SYSTICKSPEED));
+            if (toff>_timet){ // Do not live in the past.
+                _timet = toff;
+                meshincctr++;
+            };
+            return 1;
+        };
+
+        // Safety: Truncate ascii packets by 0-ing the CRC
+        buf[MESHPKTSIZE-2]=0;
+
+        // Store packet in a same/free slot
+        MPKT* mpkt=meshGetMessage(MO_TYPE(buf));
+
+        // Skip locked packet
+        if(mpkt->flags&MF_LOCK)
+            return 1;
+
+        // only accept newer/better packets
+        if(mpkt->flags==MF_USED)
+            if(MO_TIME(buf)<=MO_TIME(mpkt->pkt))
+                return 1;
+
+        if((MO_TYPE(buf)>='A' && MO_TYPE(buf)<='C') ||
+                (MO_TYPE(buf)>='A' && MO_TYPE(buf)<='C'))
+                    meshmsg=1;
+
+        memcpy(mpkt->pkt,buf,MESHPKTSIZE);
+        mpkt->flags=MF_USED;
+};
+
+void mesh_recvqloop_end(void){
+    nrf_rcv_pkt_end();
+    nrf_config_set(&oldconfig);
+}
+
+void mesh_recvloop(void){
+    int recvend=M_RECVTIM/SYSTICKSPEED+getTimer();
+    int pktctr=0;
+
+    mesh_recvqloop_setup();
+    do{
+        if( mesh_recvqloop_work() ){
+            pktctr++;
+        }else{
+            delayms_power(10);
+        };
+    }while(getTimer()<recvend || pktctr>MESHBUFSIZE);
+    mesh_recvqloop_end();
+};
+
 void mesh_systick(void){
     static int rcvctr=0;
     static int sendctr=0;
@@ -184,3 +198,4 @@ void mesh_systick(void){
         sendctr+=getRandom()%(sendctr*2);
     };
 };
+
