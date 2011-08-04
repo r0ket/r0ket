@@ -77,3 +77,4 @@ lcdGetPixel
 nickfont
 setExtFont
 getFontHeight
+menuflags
