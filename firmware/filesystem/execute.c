@@ -20,7 +20,7 @@ extern void * sram_top;
 
 /**************************************************************************/
 
-void execute_file (const char * fname, uint8_t checksignature, uint8_t decode){
+uint8_t execute_file (const char * fname, uint8_t checksignature, uint8_t decode){
     FRESULT res;
     FIL file;
     UINT readbytes;
@@ -38,7 +38,7 @@ void execute_file (const char * fname, uint8_t checksignature, uint8_t decode){
     //lcdPrintln(f_get_rc_string(res));
     //lcdRefresh();
     if(res){
-        return;
+        return -1;
     };
     
     res = f_read(&file, (char *)dst, RAMCODE, &readbytes);
@@ -46,7 +46,7 @@ void execute_file (const char * fname, uint8_t checksignature, uint8_t decode){
     //lcdPrintln(f_get_rc_string(res));
     //lcdRefresh();
     if(res){
-        return;
+        return -1;
     };
     if( decode || checksignature )
         //only accept files with fixed length
@@ -55,7 +55,7 @@ void execute_file (const char * fname, uint8_t checksignature, uint8_t decode){
             lcdPrint("readbytes&3");
             lcdRefresh();
             while(1);
-            return;
+            return -1;
         }
     if( checksignature ){
         uint32_t mac[4];
@@ -72,7 +72,7 @@ void execute_file (const char * fname, uint8_t checksignature, uint8_t decode){
             lcdPrintIntHex(mac[3]); lcdNl();
             lcdRefresh();
             while(1); 
-            return;
+            return -1;
         }
         //lcdPrint("macok");
         //lcdRefresh();
@@ -90,6 +90,7 @@ void execute_file (const char * fname, uint8_t checksignature, uint8_t decode){
 
     dst=(void (*)(void)) ((uint32_t)(dst) | 1); // Enable Thumb mode!
     dst();
+    return 0;
 
 };
 
