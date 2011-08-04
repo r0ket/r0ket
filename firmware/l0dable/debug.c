@@ -65,9 +65,9 @@ void ChkBattery(void) {
         lcdNl();
         lcdPrintln("Chrg_stat:");
         if(gpioGetValue(RB_PWR_CHRG)){
-            lcdPrintln("1");
+            lcdPrintln("not charging");
         }else{
-            lcdPrintln("0");
+            lcdPrintln("    CHARGING");
         };
         lcdRefresh();
         delayms_queue(100);
