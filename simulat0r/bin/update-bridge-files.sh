@@ -22,7 +22,7 @@ fi
 done
 
 echo "Updating bridge files for C source"
-for i in `find firmware/ \! -path firmware/lcd/allfonts.h -type f -iname \*.[ch]`
+for i in `find firmware/ \! -path firmware/lcd/allfonts.h \! -path firmware/l0dable/usetable.h -type f -iname \*.[ch]`
 do 
     if test -f simulat0r/$i; 
     then
@@ -45,10 +45,13 @@ do
     fi
 done
 
-if cmp firmware/.gitignore simulat0r/firmware/.gitignore;
-then
-    echo OK .gitignore is the same in firmware/ and simulat0r/firmware
-else
-    echo WARNING: .gitignore mismatch in firmware/ and simulat0r/firmware
-    diff -y firmware/.gitignore simulat0r/firmware/.gitignore
-fi 
+
+for i in `find firmware -type f -name .gitignore`; do
+    if cmp $i simulat0r/$i
+    then
+	echo OK $i and simulat0r/$i are the same
+    else
+	echo WARNING: $i mismatches simulat0r/$i
+	diff -y $i simulat0r/$i
+    fi 
+done

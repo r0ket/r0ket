@@ -1,0 +1,4 @@
+*.elf
+*.bin
+usetable.h
+loadable.ld
