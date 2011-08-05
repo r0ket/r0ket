@@ -32,7 +32,6 @@ echo "###"
 echo "### Building initial"
 echo "###"
 
-export FINAL=y
 git checkout filesystem/ffconf.h
 make clean
 make APP=initial
@@ -41,10 +40,12 @@ cp firmware.bin $TARG/initial.bin
 echo "###"
 echo "### Building final"
 echo "###"
+export FINAL=y
 cp filesystem/ffconf.h-final ffconf.h
 make clean 
 ./l0dable/mktable.pl
 make APP=final
+make protect
 cp firmware.elf $TARG/final.elf
 cp firmware.bin $TARG/final.bin
 
