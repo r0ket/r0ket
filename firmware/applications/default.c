@@ -24,7 +24,7 @@ void main_default(void) {
     
 	switch(getInputRaw()){
         case BTN_ENTER:
-            lcdPrint("ISP activated");
+            lcdPrint("ISP active");
             lcdRefresh();
             ReinvokeISP();
             break;
@@ -33,8 +33,8 @@ void main_default(void) {
             break;
         case BTN_DOWN:
             usbMSCInit();
-            while(1)
-                delayms_power(100);
+            while(1);
+            //delayms_power(100);
             break;
     };
 
@@ -50,10 +50,10 @@ void main_default(void) {
 
 
 
-void queue_setinvert(void){
+static void queue_setinvert(void){
     lcdSetInvert(1);
 };
-void queue_unsetinvert(void){
+static void queue_unsetinvert(void){
     lcdSetInvert(0);
 };
 
@@ -75,7 +75,25 @@ void tick_default(void) {
     };
 
     static char night=0;
+    static char posleds = 0;
     EVERY(128,2){
+        if( isNight() ){
+            if( GLOBAL(positionleds) ){
+                gpioSetValue (RB_LED0, 1);
+                gpioSetValue (RB_LED2, 1);
+                posleds = 1;
+            }else if( posleds = 1 ){
+                gpioSetValue (RB_LED0, 0);
+                gpioSetValue (RB_LED2, 0);
+            }
+        }else{
+            if( posleds ){
+                posleds = 0;
+                gpioSetValue (RB_LED0, 0);
+                gpioSetValue (RB_LED2, 0);
+            }
+        }
+
         if(night!=isNight()){
             night=isNight();
             if(night){
@@ -84,7 +102,7 @@ void tick_default(void) {
             }else{
                 backlightSetBrightness(0);
                 push_queue(queue_setinvert);
-            };
+           };
         };
     };
 
