@@ -116,10 +116,10 @@ void rbInit() {
 
 
     // prepare BUSINT interrupt
-    gpioSetDir(RB_BUSINT, gpioDirection_Input);
-    gpioSetPullup (&RB_BUSINT_IO, gpioPullupMode_PullUp);
-    gpioSetInterrupt(RB_BUSINT, gpioInterruptSense_Edge, gpioInterruptEdge_Single, gpioInterruptEvent_ActiveLow);
-    gpioIntEnable(RB_BUSINT);
+    //gpioSetDir(RB_BUSINT, gpioDirection_Input);
+    //gpioSetPullup (&RB_BUSINT_IO, gpioPullupMode_PullUp);
+    //gpioSetInterrupt(RB_BUSINT, gpioInterruptSense_Edge, gpioInterruptEdge_Single, gpioInterruptEvent_ActiveLow);
+    //gpioIntEnable(RB_BUSINT);
 
     //nrf_init();
     backlightInit();
