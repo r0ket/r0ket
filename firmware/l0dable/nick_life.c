@@ -7,6 +7,8 @@
 
 #include "basic/config.h"
 
+// #include "lcd/allfonts.h"
+
 #include "usetable.h"
 
 #define BITSET_X (RESX+2)
@@ -28,7 +30,8 @@ typedef uint8_t uchar;
 int pattern=0;
 #define PATTERNCOUNT 3
 
-#define LCDSHIFT_EVERY_N 10
+#define LCDSHIFTX_EVERY_N 2
+#define LCDSHIFTY_EVERY_N 2
 
 uchar stepmode=0;
 uchar randdensity=0;
@@ -47,16 +50,35 @@ void ram(void) {
     reset_area();
     random_area(life,1,1,RESX,RESY,40);
 
+    static int nickx=2,nicky=10;
+    signed char movy=1;
+    static int nickwidth,nickheight;
+    static int nickoff=10;
     lcdClear();
     setExtFont(GLOBAL(nickfont));
-    DoString(20,20,GLOBAL(nickname));
+    // font = &Font_Ubuntu36pt;
+    
+    nickwidth=DoString(nickx,nicky,GLOBAL(nickname));
+    if(nickwidth<50)nickoff=30;
+    // nickwidth=DoString(nickx,nicky,"RAY");
+    nickheight=getFontHeight();
 
     char stepmode=0;
     while (1) {
         draw_area(); // xor life pattern over display content
         lcdDisplay();
-        draw_area(); // xor life pattern again to restore original display content
-        if(iter%LCDSHIFT_EVERY_N==0) lcdShift(1,-2,1);
+        lcdClear();
+        // draw_area(); // xor life pattern again to restore original display content
+        // if(iter%LCDSHIFT_EVERY_N==0) lcdShift(1,-2,1);
+        // if(iter%LCDSHIFT_EVERY_N==0) { nickx=(nickx+1)%100-nickwidth; nicky=(nicky+1)%50;}
+        if(iter%LCDSHIFTX_EVERY_N==0) { nickx--; 
+        if(nickx<(-1*nickwidth-nickoff))nickx=0; }
+        if(iter%LCDSHIFTY_EVERY_N==0) { nicky+=movy;
+        if(nicky<1 || nicky>RESY-nickheight) movy*=-1; }
+        // DoString(nickx,nicky,GLOBAL(nickname));
+        DoString(nickx,nicky,GLOBAL(nickname));
+        DoString(nickx+nickwidth+nickoff,nicky,GLOBAL(nickname));
+        if(nickwidth<RESX) DoString(nickx+2*(nickwidth+nickoff),nicky,GLOBAL(nickname));
 	char key=stepmode?getInputWait():getInputRaw();
 	stepmode=0;
 	switch(key) {
@@ -75,6 +97,9 @@ void ram(void) {
 	  break;
 	}
         delayms_queue_plus(10,0);
+#ifdef SIMULATOR
+  fprintf(stderr,"Iteration %d - x %d, y %d \n",iter,nickx,nicky);
+#endif
         calc_area();
     }
     return;
@@ -182,9 +207,6 @@ static void copy_col(uint8_t columnindex, uint8_t *columnbuffer) {
 
 static void calc_area() {
   ++iter;
-#ifdef SIMULATOR
-  fprintf(stderr,"Iteration %d \n",iter);
-#endif
   // sweeping mutation point
   static uint8_t xiter=0;
   static uint8_t yiter=0;
