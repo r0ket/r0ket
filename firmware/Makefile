@@ -60,7 +60,7 @@ LD_TEMP = $(LD_PATH)/memory.ld
 all: $(OUTFILE).bin
 
 protect: $(OUTFILE).bin
-	$(LPCFIX) -p 2 $(OUTFILE).bin
+	$(LPCFIX) -p 1 $(OUTFILE).bin
 
 loadables: $(OUTFILE).bin
 	@cd loadable && $(MAKE)
