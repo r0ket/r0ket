@@ -24,7 +24,9 @@ void main_default(void) {
     
 	switch(getInputRaw()){
         case BTN_ENTER:
-            ISPandReset();
+            lcdPrint("ISP activated");
+            lcdRefresh();
+            ReinvokeISP();
             break;
         case BTN_UP: // Reset config
             saveConfig();

@@ -87,7 +87,7 @@ void ISPandReset(void){
         delayms(500);
     };
 #endif
-    EnableWatchdog(1000*5);
+    EnableWatchdog(1000*15);
     ReinvokeISP();
 };
 
