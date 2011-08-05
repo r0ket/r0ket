@@ -188,7 +188,7 @@ uint8_t mesh_recvqloop_work(void){
             for(int i=6;i<MESHPKTSIZE;i++)
                 mpkt->pkt[i]|=buf[i];
 
-            int score=popcount(MO_BODY(mpkt->pkt),6);
+            int score=popcount((uint32_t*)MO_BODY(mpkt->pkt),6);
 
             MPKT* reply=meshGetMessage('z');
 

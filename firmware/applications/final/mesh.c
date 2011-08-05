@@ -234,7 +234,7 @@ void m_choose(){
             lcdPrintln(IntToStrX(uint8ptouint32(meshbuffer[j].pkt+18),8));
             lcdPrintln(IntToStrX(uint8ptouint32(meshbuffer[j].pkt+22),8));
             lcdPrintln(IntToStrX(uint8ptouint32(meshbuffer[j].pkt+26),8));
-            lcdPrint(IntToStr(popcount(meshbuffer[j].pkt+6,6),3,0));
+            lcdPrint(IntToStr(popcount((uint32_t*)(meshbuffer[j].pkt+6),6),3,0));
             lcdPrintln(" pts.");
             lcdRefresh();
             getInputWaitRelease();
