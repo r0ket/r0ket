@@ -30,20 +30,14 @@ int pattern=0;
 
 uchar stepmode=0;
 uchar randdensity=0;
-//uint8_t bl=0;
 
-struct bitset _buf1,*buf1=&_buf1;
-struct bitset _buf2,*buf2=&_buf2;
-
-struct bitset *life =&_buf1;
-struct bitset *new =&_buf2;
-
+struct bitset _life;
+#define life (&_life)
 
 static void draw_area();
 static void calc_area();
 static void random_area(struct bitset *area, uchar x0, uchar y0, uchar x1, uchar y1,uchar value);
 static void reset_area();
-static void nextledcycle();
 
 void ram(void) {
     getInputWaitRelease();
@@ -54,19 +48,29 @@ void ram(void) {
     setExtFont(GLOBAL(nickfont));
     DoString(20,20,GLOBAL(nickname));
 
-#if 0
-    gpioSetValue (RB_LED0, CFG_LED_ON);
-    gpioSetValue (RB_LED1, CFG_LED_ON);
-    gpioSetValue (RB_LED2, CFG_LED_ON);
-    gpioSetValue (RB_LED3, CFG_LED_ON);
-#endif
+    char stepmode=0;
     while (1) {
         draw_area(); // xor life pattern over display content
         lcdDisplay();
         draw_area(); // xor life pattern again to restore original display content
         lcdShift(1,-2,1);
-        if(getInputRaw())
-            return;
+	char key=stepmode?getInputWait():getInputRaw();
+	stepmode=0;
+	switch(key) {
+	case BTN_LEFT:
+	  return;
+	case BTN_DOWN:
+	  stepmode=1;
+	  getInputWaitRelease();
+	  break;
+	case BTN_ENTER:
+	  pattern=(pattern+1)%PATTERNCOUNT;
+	case BTN_UP:
+	  stepmode=1;
+	  reset_area();
+	  getInputWaitRelease();
+	  break;
+	}
         delayms_queue_plus(10,0);
         calc_area();
     }
@@ -132,13 +136,6 @@ static void fill_rect(char x0, char y0, char x1, char y1) {
   }
 } 
 
-#define STARTVALUE 10
-static void swap_areas() {
-  struct bitset *tmp=life;
-  life=new;
-  new=tmp;
-}
-
 static void fill_area(struct bitset *area, uchar x0, uchar y0, uchar x1, uchar y1,uchar value) {
   for(uchar x=x0; x<=x1; ++x) {
     for(uchar y=y0; y<=y1; ++y) {
@@ -174,50 +171,79 @@ static void draw_area() {
   }
 }
 
+static void copy_col(uint8_t columnindex, uint8_t *columnbuffer) {
+  for(uchar y=0; y<=RESY+1; ++y) {
+    columnbuffer[y]=bitset_get2(life,columnindex,y);
+  }
+}
+
 static void calc_area() {
 #ifdef SIMULATOR
   static unsigned long iter=0;
   fprintf(stderr,"Iteration %d \n",++iter);
 #endif
+  static uint8_t xiter=0;
+  static uint8_t yiter=0;
+  //  printf("Mutant %d %d => ",xiter,yiter);
+  xiter=(xiter+1)%RESX;
+  if(xiter==0) yiter=(yiter+1)%RESY;
+  bitset_set2(life,xiter+1,yiter+1,1);
+  //  printf("%d %d\n ",xiter,yiter);
+
+  static  uint8_t _a[RESY+2],*left=_a;
+  static  uint8_t _b[RESY+2],*middle=_b;
+  copy_col(0,left);
+  copy_col(1,middle);
   for(uchar x=1; x<=RESX; ++x) {
     for(uchar y=1; y<=RESY; ++y) {
-      uchar sum=sum_area(life,x-1,y-1,x+1,y+1)-bitset_get2(life,x,y);
-      bitset_set2(new,x,y,sum==3||(sum==2&&bitset_get2(life,x,y)));
+      uchar sum=bitset_get2(life,x+1,y-1)+bitset_get2(life,x+1,y)+bitset_get2(life,x+1,y+1)+
+	left[y-1]+left[y]+left[y+1]+middle[y-1]+middle[y+1];
+      bitset_set2(life,x,y,sum==3||(sum==2&&bitset_get2(life,x,y)));
     }
+    // temp-less swap of buffer pointers
+    left+=(uint32_t)middle;
+    middle=left-(uint32_t)middle;
+    left=left-(uint32_t)middle;
+    copy_col(x+1,middle);
   }
-  swap_areas();
 }
 
 static void reset_area() {
-    fill_area(life,0,0,RESX+1,RESY+1,0);
-    fill_area(new,0,0,RESX+1,RESY+1,0);
-
-    switch(pattern) {
-        case 0:
-            bitset_set2(life,41,40,1);
-            bitset_set2(life,42,40,1);
-            bitset_set2(life,41,41,1);
-            bitset_set2(life,40,41,1);
-            bitset_set2(life,41,42,1);
-            break;
+  fill_area(life,0,0,RESX+1,RESY+1,0);
+  
+  switch(pattern) {
+  case 0: // R pentomino
+    bitset_set2(life,41,40,1);
+    bitset_set2(life,42,40,1);
+    bitset_set2(life,41,41,1);
+    bitset_set2(life,40,41,1);
+    bitset_set2(life,41,42,1);
+    break;
+  case 1: // block in the center, continuous generators at the edges
+    for(int i=0; i<RESX/2+3; ++i) bitset_set2(life,i,0,1);
+    //    for(int i=0; i<RESY; ++i) bitset_set2(life,0,i,1);
+    //    for(int i=0; i<RESY/2-20; ++i) bitset_set2(life,RESX+1,RESY-i,1);
+    //    for(int i=0; i<RESX/2; ++i) bitset_set2(life,RESX-i,RESY+1,1);
+    bitset_set2(life,40,40,1);
+    bitset_set2(life,41,40,1);
+    bitset_set2(life,42,40,1);
+    bitset_set2(life,42,41,1);
+    bitset_set2(life,42,42,1);
+    bitset_set2(life,40,41,1);
+    bitset_set2(life,40,42,1);
+    break;
 #if 0
-        case 1:
-            for(int i=0; i<RESX/2; ++i) bitset_set2(life,i,0,1);
-            bitset_set2(life,40,40,1);
-            bitset_set2(life,41,40,1);
-            bitset_set2(life,41,41,1);
-            break;
-        case 2:
-            bitset_set2(life,40,40,1);
-            bitset_set2(life,41,40,1);
-            bitset_set2(life,42,40,1);
-            bitset_set2(life,42,41,1);
-            bitset_set2(life,42,42,1);
-            bitset_set2(life,40,41,1);
-            bitset_set2(life,40,42,1);
-            break;
+  case 2: // _|^|_
+    bitset_set2(life,40,40,1);
+    bitset_set2(life,41,40,1);
+    bitset_set2(life,42,40,1);
+    bitset_set2(life,42,41,1);
+    bitset_set2(life,42,42,1);
+    bitset_set2(life,40,41,1);
+    bitset_set2(life,40,42,1);
+    break;
 #endif
-    }
+  }
 }
 
 static void random_area(struct bitset *area, uchar x0, uchar y0, uchar x1, uchar y1,uchar value) {
@@ -226,21 +252,4 @@ static void random_area(struct bitset *area, uchar x0, uchar y0, uchar x1, uchar
       bitset_set2(area,x,y,(getRandom()>>24)<value);
     }
   }
-}
-
-#define LEDINTERVAL 1
-static void nextledcycle() {
-    static uint8_t ledcycle=3;
-    ledcycle=(ledcycle+1)%(8*LEDINTERVAL);
-    uint8_t a=ledcycle/LEDINTERVAL;
-    switch(a) {
-        case 0: gpioSetValue (RB_LED0, CFG_LED_ON); break;
-        case 4: gpioSetValue (RB_LED0, CFG_LED_OFF); break;
-        case 1: gpioSetValue (RB_LED1, CFG_LED_ON); break;
-        case 5: gpioSetValue (RB_LED1, CFG_LED_OFF); break;
-        case 2: gpioSetValue (RB_LED2, CFG_LED_ON); break;
-        case 6: gpioSetValue (RB_LED2, CFG_LED_OFF); break;
-        case 3: gpioSetValue (RB_LED3, CFG_LED_ON); break;
-        case 7: gpioSetValue (RB_LED3, CFG_LED_OFF); break;
-    }
 }
