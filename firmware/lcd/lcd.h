@@ -3,3 +3,4 @@
 #include "lcd/display.h"
 #include "lcd/render.h"
 #include "lcd/fonts/smallfonts.h"
+#include "lcd/o.h"
