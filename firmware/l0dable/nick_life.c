@@ -28,8 +28,11 @@ typedef uint8_t uchar;
 int pattern=0;
 #define PATTERNCOUNT 3
 
+#define LCDSHIFT_EVERY_N 10
+
 uchar stepmode=0;
 uchar randdensity=0;
+static unsigned long iter=0;
 
 struct bitset _life;
 #define life (&_life)
@@ -53,7 +56,7 @@ void ram(void) {
         draw_area(); // xor life pattern over display content
         lcdDisplay();
         draw_area(); // xor life pattern again to restore original display content
-        lcdShift(1,-2,1);
+        if(iter%LCDSHIFT_EVERY_N==0) lcdShift(1,-2,1);
 	char key=stepmode?getInputWait():getInputRaw();
 	stepmode=0;
 	switch(key) {
@@ -178,19 +181,20 @@ static void copy_col(uint8_t columnindex, uint8_t *columnbuffer) {
 }
 
 static void calc_area() {
+  ++iter;
 #ifdef SIMULATOR
-  static unsigned long iter=0;
-  fprintf(stderr,"Iteration %d \n",++iter);
+  fprintf(stderr,"Iteration %d \n",iter);
 #endif
+  // sweeping mutation point
   static uint8_t xiter=0;
   static uint8_t yiter=0;
-  //  printf("Mutant %d %d => ",xiter,yiter);
   xiter=(xiter+1)%RESX;
   if(xiter==0) yiter=(yiter+1)%RESY;
   bitset_set2(life,xiter+1,yiter+1,1);
-  //  printf("%d %d\n ",xiter,yiter);
 
-  static  uint8_t _a[RESY+2],*left=_a;
+  // remember just two columns
+  // these don´t have to be static, so if the stack is big enoguh put them there and save another 200 bytes?
+  static uint8_t _a[RESY+2],*left=_a;
   static  uint8_t _b[RESY+2],*middle=_b;
   copy_col(0,left);
   copy_col(1,middle);
