@@ -61,5 +61,8 @@ typedef unsigned char byte_t;
 #define NULL ((void *) 0)
 #endif
 
+// Save some space
+#define memcpy memmove
+
 #endif
 
