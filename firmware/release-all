@@ -15,6 +15,16 @@ if [ -d $TARG ] ; then
 	exit 1
 fi
 
+if [ ! -f SECRETS.release ] ; then
+	echo Please create a SECRETS.release file
+	echo containing the release keys.
+    echo
+    echo 'Do not commit them!'
+	exit 1
+fi
+
+cp SECRETS.release SECRETS
+
 mkdir $TARG
 mkdir $TARG/files
 
@@ -61,3 +71,5 @@ mv l0dable/*.nik $TARG/files/
 echo "###"
 echo "### Done. Yay!"
 echo "###"
+
+git checkout SECRETS
