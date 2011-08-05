@@ -72,7 +72,6 @@ void changer(void){
             };
         lcdRefresh();
         }
-        lcdRefresh();
 
         switch (getInputWaitRepeat()) {
             case BTN_UP:
