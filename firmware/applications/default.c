@@ -20,6 +20,7 @@ void main_default(void) {
 	lcdClear();
 	lcdLoadImage("r0ket.lcd");
 	lcdRefresh();
+	lcdClear();
     
 	switch(getInputRaw()){
         case BTN_ENTER:
