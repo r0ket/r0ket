@@ -77,6 +77,10 @@ void mesh_sendloop(void){
     int ctr=0;
     __attribute__ ((aligned (4))) uint8_t buf[32];
     int status;
+    uint32_t rnd=0xffffffff;
+
+    if(meshnice)
+        rnd=getRandom();
 
     nrf_config_get(&oldconfig);
     nrf_set_channel(MESH_CHANNEL);
@@ -98,7 +102,7 @@ void mesh_sendloop(void){
         if(meshbuffer[i].flags&MF_LOCK)
             continue;
         if(meshnice&0xf){
-            if(getSeconds()%0xf < (meshnice&0x0f)){
+            if((rnd++)%0xf < (meshnice&0x0f)){
                 meshincctr++;
                 continue;
             };
@@ -142,6 +146,7 @@ uint8_t mesh_recvqloop_work(void){
                 meshgen=MO_GEN(buf);
             _timet=0;
             meshincctr=0;
+            meshnice=0;
         };
 
         if(MO_TYPE(buf)=='T'){
@@ -150,7 +155,8 @@ uint8_t mesh_recvqloop_work(void){
                 _timet = toff;
                 meshincctr++;
             };
-            meshnice=MO_BODY(meshbuffer[0].pkt)[4];
+            if(MO_BODY(buf)[4] > meshnice)
+                meshnice=MO_BODY(buf)[4];
             return 1;
         };
 

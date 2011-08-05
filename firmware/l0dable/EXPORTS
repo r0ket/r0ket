@@ -88,3 +88,4 @@ lcdShowAnim
 lcdLoadImage
 meshnice
 _nrfresets
+f_lseek
