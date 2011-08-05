@@ -26,10 +26,9 @@ void ram(void) {
         lcdDisplay();
         mandelMove();
         mandelUpdate();
-
-        // Exit on enter+direction
+        // Exit on enter+left
         key=getInputRaw();
-        if(key&BTN_ENTER && key>BTN_ENTER)
+        if(key== BTN_ENTER + BTN_LEFT)
             return;
     }
     return;
@@ -51,10 +50,10 @@ void mandelInit() {
     mandel.imin = fixpt(-2);
     mandel.imax = fixpt(2);
     mandel.presscount = 0;
-    mandel.presslimitzin = 40;    
-    mandel.presslimitzout = 30;
+    mandel.presslimitzin = 15;    
+    mandel.presslimitzout = 5;
     mandel.zoomlevel = 0;
-    mandel.maxzoomin = 65;
+    mandel.maxzoomin = 42;
     mandel.maxzoomout = -12;
 
     mandel.dirty = true;
@@ -69,54 +68,55 @@ void mandelMove() {
     //long delta_r = (mandel.rmax - mandel.rmin)/10;
     //long delta_i = (mandel.imax - mandel.imin)/10;
  
-    long rs =(mandel.rmax-mandel.rmin)/RESY;
-    long is =(mandel.imax-mandel.imin)/RESX;
-    
-	char key = getInputRaw();
-    
-       if (key == BTN_LEFT) {
-        mandel.imax -=is;
-        mandel.imin -=is;
-        mandel.dleft = true;
-    } else if (key == BTN_RIGHT) {
-        mandel.imax += is;
-        mandel.imin += is;
-        mandel.dright = true;
-     } else if (key == BTN_DOWN) {
-        mandel.rmax += rs;
-        mandel.rmin += rs;
-        mandel.ddown = true;
-       } else if (key == BTN_UP) {
-	  mandel.rmax -= rs;
-	  mandel.rmin -= rs;
-	  mandel.dup = true;
-       } else if (key == BTN_ENTER) {
-	   if (mandel.presscount < mandel.presslimitzin) {
-	      mandel.presscount = mandel.presscount + 1;
-              }
-       } else if (key == BTN_NONE) {
-	   if(mandel.presscount > 0 ) {
-	      mandel.presscount = mandel.presscount - 1;
-              mandel.clickmark = true;
-	      }
-           if (mandel.presscount == 0 ) {
-              mandel.clickmark = false;
-              }
-       }
-       if (mandel.presscount > mandel.presslimitzout && mandel.clickmark && key == BTN_ENTER && mandel.zoomlevel >= mandel.maxzoomout) {
-	mandel.imin = mandel.imin - (mandel.imax-mandel.imin)/10;
-        mandel.imax = mandel.imax + (mandel.imax-mandel.imin)/10;
-        mandel.rmin = mandel.rmin -(mandel.rmax-mandel.rmin)/10;
-        mandel.rmax = mandel.rmax +(mandel.rmax-mandel.rmin)/10;
+	long rs =(mandel.rmax-mandel.rmin)/RESY;
+	long is =(mandel.imax-mandel.imin)/RESX;
+
+	char key = getInputWaitTimeout(10);
+
+	if (key == BTN_LEFT) {
+		mandel.imax -=is;
+		mandel.imin -=is;
+		mandel.dleft = true;
+	} else if (key == BTN_RIGHT) {
+		mandel.imax += is;
+		mandel.imin += is;
+		mandel.dright = true;
+	} else if (key == BTN_DOWN) {
+		mandel.rmax += rs;
+		mandel.rmin += rs;
+		mandel.ddown = true;
+	} else if (key == BTN_UP) {
+		mandel.rmax -= rs;
+		mandel.rmin -= rs;
+		mandel.dup = true;
+	} else if (key == BTN_ENTER) {
+		if (mandel.presscount < mandel.presslimitzin) {
+			mandel.presscount = mandel.presscount + 1;
+		}
+	} else if (key == BTN_NONE) {
+		//delayms_queue(15);
+		if(mandel.presscount > 0 ) {
+			mandel.presscount = mandel.presscount - 1;
+			mandel.clickmark = true;
+		}
+		if (mandel.presscount == 0 ) {
+			mandel.clickmark = false;
+		}
+	}
+	if (mandel.presscount > mandel.presslimitzout && mandel.clickmark && key == BTN_ENTER && mandel.zoomlevel >= mandel.maxzoomout) {
+		mandel.imin = mandel.imin - (mandel.imax-mandel.imin)/8;
+		mandel.imax = mandel.imax + (mandel.imax-mandel.imin)/8;
+		mandel.rmin = mandel.rmin -(mandel.rmax-mandel.rmin)/8;
+		mandel.rmax = mandel.rmax +(mandel.rmax-mandel.rmin)/8;
         mandel.dirty = true;
         delayms(10);
         mandel.zoomlevel = mandel.zoomlevel - 1 ;
 	 }
        else if (mandel.presscount == mandel.presslimitzin && key == BTN_ENTER && mandel.zoomlevel <= mandel.maxzoomin ) {
-        mandel.imin = mandel.imin + (mandel.imax-mandel.imin)/10;
-        mandel.imax = mandel.imax - (mandel.imax-mandel.imin)/10;
-        mandel.rmin = mandel.rmin +(mandel.rmax-mandel.rmin)/10;
-        mandel.rmax = mandel.rmax -(mandel.rmax-mandel.rmin)/10;
+        mandel.imin = mandel.imin + (mandel.imax-mandel.imin)/8;
+        mandel.imax = mandel.imax - (mandel.imax-mandel.imin)/8;
+        mandel.rmin = mandel.rmin +(mandel.rmax-mandel.rmin)/8;
+        mandel.rmax = mandel.rmax -(mandel.rmax-mandel.rmin)/8;
         mandel.dirty = true;
         delayms(10);
         mandel.zoomlevel = mandel.zoomlevel + 1 ;
