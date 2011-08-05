@@ -204,6 +204,9 @@ void m_time(void){
         lcdPrint("Inc:");
         lcdPrintInt(meshincctr);
         lcdNl();
+        lcdPrint("Nice:");
+        lcdPrintInt(meshnice);
+        lcdNl();
         lcdRefresh();
         delayms_queue(50);
     }while ((getInputRaw())==BTN_NONE);
@@ -217,7 +220,7 @@ void ChkFunk(){
     lcdPrint("cfg:");
     lcdPrintln(IntToStrX(nrf_read_reg(R_CONFIG),2));
     lcdPrintln("Resets:");
-    lcdPrintln(IntToStr(nrf_check_reset(),3,0));
+    lcdPrintln(IntToStr(_nrfresets,3,0));
     lcdRefresh();
     while(!getInputRaw())work_queue();
 };

@@ -6,15 +6,19 @@
 
 #include "lcd/render.h"
 #include "lcd/print.h"
+#include "lcd/image.h"
 
 #include "usb/usbmsc.h"
+
+#include "filesystem/ff.h"
+#include "filesystem/select.h"
 
 #include "core/iap/iap.h"
 
 /**************************************************************************/
 
 
-//# MENU msc
+//# MENU usb_storage
 void msc_menu(void){
     lcdClear();
     lcdPrintln("MSC Enabled.");
@@ -44,5 +48,22 @@ void tick_alive(void){
             blink_led0();
 	};
     return;
+};
+
+
+// //# MENU img img
+void t_img(void){
+    char fname[FILENAMELEN];
+    selectFile(fname, "LCD");
+    lcdLoadImage(fname);
+    lcdRefresh();
+    getInputWait();
+};
+
+// //# MENU img anim
+void t_ani(void){
+    char fname[FILENAMELEN];
+    selectFile(fname, "LCD");
+    lcdShowAnim(fname,1000);
 };
 

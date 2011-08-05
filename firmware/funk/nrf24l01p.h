@@ -166,6 +166,7 @@ int nrf_rcv_pkt_poll_dec(int maxsize, uint8_t * pkt, uint32_t const key[4]);
 // more utility.
 void nrf_rcv_pkt_end(void);
 void nrf_check_reset(void);
+extern uint8_t _nrfresets;
 
 /* END */
 

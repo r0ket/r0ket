@@ -11,6 +11,7 @@
 char meshgen=0; // Generation
 char meshincctr=0;
 char meshmsg=0;
+char meshnice=0;
 MPKT meshbuffer[MESHBUFSIZE];
 
 uint32_t const meshkey[4] = {
@@ -89,11 +90,19 @@ void mesh_sendloop(void){
     else
         uint32touint8p(0,MO_BODY(meshbuffer[0].pkt));
 
+    MO_BODY(meshbuffer[0].pkt)[4]=meshnice;
+
     for (int i=0;i<MESHBUFSIZE;i++){
         if(!meshbuffer[i].flags&MF_USED)
             continue;
         if(meshbuffer[i].flags&MF_LOCK)
             continue;
+        if(meshnice&0xf){
+            if(getSeconds()%0xf < (meshnice&0x0f)){
+                meshincctr++;
+                continue;
+            };
+        };
         ctr++;
         memcpy(buf,meshbuffer[i].pkt,MESHPKTSIZE);
         status=nrf_snd_pkt_crc_encr(MESHPKTSIZE,buf,meshkey);
@@ -141,6 +150,7 @@ uint8_t mesh_recvqloop_work(void){
                 _timet = toff;
                 meshincctr++;
             };
+            meshnice=MO_BODY(meshbuffer[0].pkt)[4];
             return 1;
         };
 

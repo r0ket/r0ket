@@ -5,6 +5,8 @@
 
 #define DEFAULT_SPEED R_RF_SETUP_DR_2M
 
+uint8_t _nrfresets=0;
+
 /*-----------------------------------------------------------------------*/
 /* Transmit a byte via SPI                                               */
 /*-----------------------------------------------------------------------*/
@@ -406,7 +408,6 @@ void nrf_off() {
 
 
 void nrf_check_reset(void){
-    static uint8_t _nrfresets=0;
     if(nrf_cmd_status(C_NOP) & R_STATUS_MAX_RT){
         _nrfresets++;
         nrf_init();
