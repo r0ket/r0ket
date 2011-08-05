@@ -27,7 +27,7 @@ void main_default(void) {
             ISPandReset();
             break;
         case BTN_UP: // Reset config
-            f_unlink("r0ket.cfg");
+            saveConfig();
             break;
         case BTN_DOWN:
             usbMSCInit();
