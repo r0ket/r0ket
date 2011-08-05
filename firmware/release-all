@@ -45,7 +45,6 @@ cp filesystem/ffconf.h-final ffconf.h
 make clean 
 ./l0dable/mktable.pl
 make APP=final
-make protect
 cp firmware.elf $TARG/final.elf
 cp firmware.bin $TARG/final.bin
 
@@ -59,6 +58,7 @@ echo "### Gathering files"
 echo "###"
 cp ../tools/font/binary/*.f0n $TARG/files/
 cp ../tools/image/lcd/*.lcd $TARG/files/
+cp ../tools/image/lcd/i42.lcd $TARG/files/nick.lcd
 
 echo "###"
 echo "### Gathering/crypting loadables"
