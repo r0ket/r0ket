@@ -41,7 +41,7 @@ echo "###"
 echo "### Building final"
 echo "###"
 export FINAL=y
-cp filesystem/ffconf.h-final ffconf.h
+cp filesystem/ffconf.h-final filesystem/ffconf.h
 make clean 
 ./l0dable/mktable.pl
 make APP=final
