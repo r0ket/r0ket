@@ -39,10 +39,9 @@ void main_final(void) {
     menuflags|=MENU_TIMEOUT;
 
     while(1){
-#ifndef FINAL
-        if(getInputRaw()==BTN_LEFT)
-            ISPandReset();
-#endif
+        if(GLOBAL(develmode))
+            if(getInputRaw()==BTN_LEFT)
+                ISPandReset();
         if(getInput()){
             handleMenu(&mainmenu);
             getInputWaitRelease();
