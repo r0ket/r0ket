@@ -1,0 +1,61 @@
+#!/bin/sh -e
+
+TARG=../release
+
+if [ ! -d ../firmware ] ; then
+	echo Running from wrong directory.
+	exit 1
+fi
+
+cd ../firmware
+
+if [ -d $TARG ] ; then
+	echo Release dir already exists
+	echo please remove/move away
+	exit 1
+fi
+
+mkdir $TARG
+mkdir $TARG/files
+
+echo "###"
+echo "### Building initial"
+echo "###"
+git checkout filesystem/ffconf.h
+make clean
+make APP=initial
+cp firmware.bin $TARG/initial.bin
+
+echo "###"
+echo "### Building final"
+echo "###"
+cp filesystem/ffconf.h-final ffconf.h
+make clean 
+./l0dable/mktable.pl
+make APP=final
+cp firmware.elf $TARG/final.elf
+cp firmware.bin $TARG/final.bin
+
+echo "###"
+echo "### Building crypto"
+echo "###"
+(cd ../tools/crypto && make)
+
+echo "###"
+echo "### Gathering files"
+echo "###"
+cp ../tools/font/binary/*.f0n $TARG/files/
+cp ../tools/image/lcd/*.lcd $TARG/files/
+
+echo "###"
+echo "### Gathering/crypting loadables"
+echo "###"
+# XXX: add crypto stuff
+(cd l0dable && make)
+mv l0dable/*.c0d $TARG/files/
+mv l0dable/*.int $TARG/files/
+mv l0dable/*.nik $TARG/files/
+
+echo "###"
+echo "### Done. Yay!"
+echo "###"
