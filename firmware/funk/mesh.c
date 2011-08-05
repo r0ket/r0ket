@@ -14,9 +14,7 @@ char meshmsg=0;
 char meshnice=0;
 MPKT meshbuffer[MESHBUFSIZE];
 
-uint32_t const meshkey[4] = {
-    0x00000042, 0x000005ec, 0x00000023, 0x00000005
-};
+#include "SECRETS"
 
 struct NRF_CFG oldconfig;
 
