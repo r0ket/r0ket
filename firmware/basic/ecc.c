@@ -19,7 +19,7 @@ exp_t base_order;
 elem_t poly;                                      /* the reduction polynomial */
 elem_t coeff_b, base_x, base_y;
 
-unsigned char rnd1()
+static unsigned char rnd1()
 {
     return getRandom() & 0xFF;
 }
@@ -27,7 +27,7 @@ unsigned char rnd1()
 
 //compiles to a quite reasonable assembly code
 //void INT2CHARS (unsigned char *ptr, uint32_t val) 
-void INT2CHARS (char *ptr, uint32_t val) 
+static void INT2CHARS (char *ptr, uint32_t val) 
 {
 *ptr++ =val; val>>=8;
 *ptr++ =val; val>>=8;
@@ -36,7 +36,7 @@ void INT2CHARS (char *ptr, uint32_t val)
 }
 
 //uint32_t CHARS2INT(const unsigned char *ptr)
-uint32_t CHARS2INT(const char *ptr)
+static uint32_t CHARS2INT(const char *ptr)
 {
 uint32_t r;
 ptr+=3;
@@ -47,7 +47,7 @@ r|=*ptr--;
 return r;
 }
 
-int bitstr_is_clear(const bitstr_t x)
+static int bitstr_is_clear(const bitstr_t x)
 {
   int i;
   for(i = 0; i < NUMWORDS && ! *x++; i++);
@@ -55,7 +55,7 @@ int bitstr_is_clear(const bitstr_t x)
 }
 
                               /* return the number of the highest one-bit + 1 */
-int bitstr_sizeinbits(const bitstr_t x)
+static int bitstr_sizeinbits(const bitstr_t x)
 {
   int i;
   uint32_t mask;
@@ -66,7 +66,7 @@ int bitstr_sizeinbits(const bitstr_t x)
 }
 
                                               /* left-shift by 'count' digits */
-void bitstr_lshift(bitstr_t A, const bitstr_t B, int count)
+static void bitstr_lshift(bitstr_t A, const bitstr_t B, int count)
 {
   int i, offs = 4 * (count / 32);
   memmove((void*)A + offs, B, sizeof(bitstr_t) - offs);
@@ -79,7 +79,7 @@ void bitstr_lshift(bitstr_t A, const bitstr_t B, int count)
 }
 
                                             /* (raw) import from a byte array */
-void bitstr_import(bitstr_t x, const char *s)
+static void bitstr_import(bitstr_t x, const char *s)
 {
   int i;
   for(x += NUMWORDS, i = 0; i < NUMWORDS; i++, s += 4)
@@ -87,7 +87,7 @@ void bitstr_import(bitstr_t x, const char *s)
 }
 
                                               /* (raw) export to a byte array */
-void bitstr_export(char *s, const bitstr_t x)
+static void bitstr_export(char *s, const bitstr_t x)
 {
   int i;
   for(x += NUMWORDS, i = 0; i < NUMWORDS; i++, s += 4)
@@ -95,7 +95,7 @@ void bitstr_export(char *s, const bitstr_t x)
 }
 
                                    /* export as hex string (null-terminated!) */
-void bitstr_to_hex(char *s, const bitstr_t x)
+static void bitstr_to_hex(char *s, const bitstr_t x)
 {
   int i;
   for(x += NUMWORDS, i = 0; i < NUMWORDS; i++, s += 8)
@@ -103,29 +103,29 @@ void bitstr_to_hex(char *s, const bitstr_t x)
 }
 
 
-uint8_t letter2bin (const char c)
+static uint8_t letter2bin (const char c)
 {
 return c>'9' ? c+10-(c>='a'?'a':'A') : c-'0';
 }
 
-uint8_t octet2bin(const char* octet)
+static uint8_t octet2bin(const char* octet)
 {
 return (letter2bin(octet[0])<<4) | letter2bin(octet[1]);
 }
 
-void bin2letter(char *c, uint8_t b)
+static void bin2letter(char *c, uint8_t b)
 {
 *c = b<10? '0'+b : 'A'+b-10;
 }
 
-void bin2octet(char *octet, uint8_t bin)
+static void bin2octet(char *octet, uint8_t bin)
 {
 bin2letter(octet,bin>>4);
 bin2letter(octet+1,bin&0x0f);
 }
 
 
-uint32_t getword32(const char *s)
+static uint32_t getword32(const char *s)
 {
 //little endian
 union {uint32_t i; uint8_t c[sizeof(uint32_t)];} r;
@@ -136,7 +136,7 @@ r.c[0]=octet2bin(s+6);
 return r.i;
 }
                                                   /* import from a hex string */
-int bitstr_parse(bitstr_t x, const char *s)
+static int bitstr_parse(bitstr_t x, const char *s)
 {
   int len = strlen(s);
   //if ((s[len = strspn(s, "0123456789abcdefABCDEF")]) ||
@@ -171,7 +171,7 @@ int bitstr_parse_export(char *exp, const char *s)
 
 
 
-int field_is1(const elem_t x)
+static int field_is1(const elem_t x)
 {
   int i;
   if (*x++ != 1) return 0;
@@ -179,7 +179,7 @@ int field_is1(const elem_t x)
   return i == NUMWORDS;
 }
 
-void field_add(elem_t z, const elem_t x, const elem_t y)    /* field addition */
+static void field_add(elem_t z, const elem_t x, const elem_t y)    /* field addition */
 {
   int i;
   for(i = 0; i < NUMWORDS; i++)
@@ -189,7 +189,7 @@ void field_add(elem_t z, const elem_t x, const elem_t y)    /* field addition */
 #define field_add1(A) MACRO( A[0] ^= 1 )
 
                                                       /* field multiplication */
-void field_mult(elem_t z, const elem_t x, const elem_t y)
+static void field_mult(elem_t z, const elem_t x, const elem_t y)
 {
   elem_t b;
   int i, j;
@@ -210,7 +210,7 @@ void field_mult(elem_t z, const elem_t x, const elem_t y)
   }
 }
 
-void field_invert(elem_t z, const elem_t x)                /* field inversion */
+static void field_invert(elem_t z, const elem_t x)                /* field inversion */
 {
   elem_t u, v, g, h;
   int i;
@@ -239,7 +239,7 @@ void field_invert(elem_t z, const elem_t x)                /* field inversion */
    is a point that generates a large prime order group.             */
 
                            /* check if y^2 + x*y = x^3 + *x^2 + coeff_b holds */
-int is_point_on_curve(const elem_t x, const elem_t y)
+static int is_point_on_curve(const elem_t x, const elem_t y)
 {
   elem_t a, b;
   if (point_is_zero(x, y))
@@ -254,7 +254,7 @@ int is_point_on_curve(const elem_t x, const elem_t y)
   return bitstr_is_equal(a, b);
 }
 
-void point_double(elem_t x, elem_t y)               /* double the point (x,y) */
+static void point_double(elem_t x, elem_t y)               /* double the point (x,y) */
 {
   if (! bitstr_is_clear(x)) {
     elem_t a;
@@ -273,7 +273,7 @@ void point_double(elem_t x, elem_t y)               /* double the point (x,y) */
 }
 
                    /* add two points together (x1, y1) := (x1, y1) + (x2, y2) */
-void point_add(elem_t x1, elem_t y1, const elem_t x2, const elem_t y2)
+static void point_add(elem_t x1, elem_t y1, const elem_t x2, const elem_t y2)
 {
   if (! point_is_zero(x2, y2)) {
     if (point_is_zero(x1, y1))
@@ -310,7 +310,7 @@ void point_add(elem_t x1, elem_t y1, const elem_t x2, const elem_t y2)
 
 
                          /* point multiplication via double-and-add algorithm */
-void point_mult(elem_t x, elem_t y, const exp_t exp)
+static void point_mult(elem_t x, elem_t y, const exp_t exp)
 {
   elem_t X, Y;
   int i;
@@ -325,7 +325,7 @@ void point_mult(elem_t x, elem_t y, const exp_t exp)
 
                                /* draw a random value 'exp' with 1 <= exp < n */
 //@@@ Make a HARDWARE randomness generator with ARM, at the moment just a simple pseudorandom replacement
-void get_random_exponent(exp_t exp)
+static void get_random_exponent(exp_t exp)
 {
   char buf[4 * NUMWORDS];
   int r ;
@@ -342,14 +342,14 @@ for(r=0; r<4 * NUMWORDS; ++r)
 
 /******************************************************************************/
 
-void XTEA_init_key(uint32_t *k, const char *key)
+static void XTEA_init_key(uint32_t *k, const char *key)
 {
   k[0] = CHARS2INT(key + 0); k[1] = CHARS2INT(key + 4);
   k[2] = CHARS2INT(key + 8); k[3] = CHARS2INT(key + 12);
 }
 
                                                      /* the XTEA block cipher */
-void XTEA_encipher_block(char *data, const uint32_t *k)
+static void XTEA_encipher_block(char *data, const uint32_t *k)
 {
   uint32_t sum = 0, delta = 0x9e3779b9, y, z;
   int i;
@@ -363,7 +363,7 @@ void XTEA_encipher_block(char *data, const uint32_t *k)
 }
                                                        /* encrypt in CTR mode */
 
-void XTEA_ctr_crypt(char *data, int size, const char *key) 
+static void XTEA_ctr_crypt(char *data, int size, const char *key) 
 {
   uint32_t k[4], ctr = 0;
   int len, i;
@@ -380,7 +380,7 @@ void XTEA_ctr_crypt(char *data, int size, const char *key)
 }
 
                                                      /* calculate the CBC MAC */
-void XTEA_cbcmac(char *mac, const char *data, int size, const char *key)
+static void XTEA_cbcmac(char *mac, const char *data, int size, const char *key)
 {
   uint32_t k[4];
   int len, i;
@@ -399,7 +399,7 @@ void XTEA_cbcmac(char *mac, const char *data, int size, const char *key)
 }
 
                                      /* modified(!) Davies-Meyer construction.*/
-void XTEA_davies_meyer(char *out, const char *in, int ilen)
+static void XTEA_davies_meyer(char *out, const char *in, int ilen)
 {
   uint32_t k[4];
   char buf[8];
@@ -435,14 +435,14 @@ void ECIES_generate_key_pair(void)      /* generate a public/private key pair */
 #endif
 
        /* check that a given elem_t-pair is a valid point on the curve != 'o' */
-int ECIES_embedded_public_key_validation(const elem_t Px, const elem_t Py)
+static int ECIES_embedded_public_key_validation(const elem_t Px, const elem_t Py)
 {
   return (bitstr_sizeinbits(Px) > DEGREE) || (bitstr_sizeinbits(Py) > DEGREE) ||
     point_is_zero(Px, Py) || ! is_point_on_curve(Px, Py) ? -1 : 1;
 }
 
       /* same thing, but check also that (Px,Py) generates a group of order n */
-int ECIES_public_key_validation(const char *Px, const char *Py)
+static int ECIES_public_key_validation(const char *Px, const char *Py)
 {
   elem_t x, y;
   if ((bitstr_parse(x, Px) < 0) || (bitstr_parse(y, Py) < 0))
@@ -453,7 +453,7 @@ int ECIES_public_key_validation(const char *Px, const char *Py)
   return point_is_zero(x, y) ? 1 : -1;
 }
 
-void ECIES_kdf(char *k1, char *k2, const elem_t Zx,     /* a non-standard KDF */
+static void ECIES_kdf(char *k1, char *k2, const elem_t Zx,     /* a non-standard KDF */
 	       const elem_t Rx, const elem_t Ry)
 {
   int bufsize = (3 * (4 * NUMWORDS) + 1 + 15) & ~15;
