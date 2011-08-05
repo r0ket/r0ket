@@ -97,5 +97,6 @@ void doAnim(void){
     };
 	writeFile("l0nick.cfg",GLOBAL(nickl0),strlen(GLOBAL(nickl0)));
     GLOBAL(l0nick)=1;
+    saveConfig();
     getInputWaitRelease();
 };
