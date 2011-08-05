@@ -28,7 +28,7 @@ uint8_t execute_file (const char * fname){
     dst=(void (*)(void)) (sram_top); 
     lcdPrint("T:"); lcdPrintIntHex(dst); lcdNl();
     */
-    dst=(void (*)(void)) 0x1000160C;
+    dst=(void (*)(void)) (0x10002000 - RAMCODE);
 
     res=f_open(&file, fname, FA_OPEN_EXISTING|FA_READ);
 
