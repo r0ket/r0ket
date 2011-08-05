@@ -6,8 +6,9 @@ OBJS = main.o xxtea.o
 
 TESTFILE= test.out
 
-all: $(FILES)
+all: $(FILES) generate-keys.c 
 	$(CC) $(CFLAGS) $(FILES) -o $(EXE)
+	$(CC) $(CFLAGS) generate-keys.c -o generate-keys
 
 clean: 
 	rm -f $(EXE) $(OBJS)

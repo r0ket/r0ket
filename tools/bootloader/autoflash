@@ -16,9 +16,9 @@ while True:
     flashed = []
     for x in oldflashed:
         if x in filelist:
-            flashed.append(file)
+            flashed.append(x)
         else:
-            print "removed %s" % file
+            print "removed %s" % x
     filelist = [x for x in filelist if x not in flashed]
     for file in filelist:
         try:
