@@ -61,13 +61,19 @@ cp ../tools/image/lcd/*.lcd $TARG/files/
 cp ../tools/image/lcd/i42.lcd $TARG/files/nick.lcd
 
 echo "###"
-echo "### Gathering/crypting loadables"
+echo "### Gathering loadables"
 echo "###"
 # XXX: add crypto stuff
 (cd l0dable && make)
 mv l0dable/*.c0d $TARG/files/
 mv l0dable/*.int $TARG/files/
 mv l0dable/*.nik $TARG/files/
+
+if grep -q 'define ENCRYPT_L0DABLE' SECRETS ; then
+
+echo "###"
+echo "### Crypting loadables"
+echo "###"
 
 skey=`./getkey.pl l0dable_sign`
 ekey=`./getkey.pl l0dable_crypt`
@@ -88,6 +94,7 @@ for a in $TARG/files/*.c0d $TARG/files/*.int $TARG/files/*.nik ; do
     ../tools/crypto/xxtea -s -k $skey $a
 done
 
+fi
 
 echo "###"
 echo "### Done. Yay!"
