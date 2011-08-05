@@ -7,7 +7,5 @@
 #include "usetable.h"
 
 void ram(void) {
-    lcdLoadImage("nick.lcd");
-    lcdRefresh();
-    getInputWait();
+    lcdShowAnim("nick.lcd",500);
 };
