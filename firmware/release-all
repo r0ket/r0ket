@@ -84,7 +84,8 @@ fi
 
 for a in $TARG/files/*.c0d $TARG/files/*.int $TARG/files/*.nik ; do
     echo Crypting $a
-    ../tools/crypto/xxtea -e -k $ekey -s -k $skey $a
+    ../tools/crypto/xxtea -e -k $ekey $a
+    ../tools/crypto/xxtea -s -k $skey $a
 done
 
 
