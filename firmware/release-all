@@ -21,6 +21,8 @@ mkdir $TARG/files
 echo "###"
 echo "### Building initial"
 echo "###"
+
+export FINAL=y
 git checkout filesystem/ffconf.h
 make clean
 make APP=initial

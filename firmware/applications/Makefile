@@ -50,6 +50,10 @@ WRAPOBJ=$(WRAP).o
 WRAPSRC=$(WRAP).c
 LIBFILE=lib$(LIBNAME).a
 
+ifeq "$(FINAL)" "y"
+CFLAGS+=-DFINAL
+endif
+
 ##########################################################################
 # Compiler settings, parameters and flags
 ##########################################################################
