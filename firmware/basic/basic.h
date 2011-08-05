@@ -136,6 +136,7 @@ void delayms(uint32_t ms);
 // voltage.c
 void VoltageCheck(void);
 uint32_t GetVoltage(void);
+uint8_t GetChrgStat(void);
 
 // night.c
 void LightCheck(void);

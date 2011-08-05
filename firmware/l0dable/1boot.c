@@ -32,7 +32,7 @@ void ram(void){
 		while (!privacy_set) {	
 			handleMenu(&submenu_privacy);
 		}
-    	input("Nickname:", GLOBAL(nickname), 32, 127, MAXNICK-1);
+    	input("Nickname?", GLOBAL(nickname), 32, 127, MAXNICK-1);
 		getInputWaitRelease();
 		again = screen_overview();
 	}
@@ -60,8 +60,13 @@ static void set_privacy(int level) {
 
 static void screen_intro() {
 	lcdClear();
-	lcdPrintln("Welcome to");
-	lcdPrintln("r0ket");
+	lcdPrintln("");
+	lcdPrintln("    r0ket");
+	lcdPrintln("");
+	lcdPrintln("launch config");
+	lcdPrintln("");
+	lcdPrintln("press any key");
+	lcdPrintln("to continue");
 	lcdRefresh();
 	getInputWait();
 	getInputWaitRelease();

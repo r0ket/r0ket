@@ -19,7 +19,7 @@ struct CDESC {
 #define CFG_TYPE_DEVEL 1
 #define CFG_TYPE_FLAME 2
 
-#define MAXNICK 20
+#define MAXNICK 17
 extern struct CDESC the_config[];
 extern char nickname[];
 extern char nickfont[];
@@ -42,9 +42,10 @@ extern char nickl0[];
 #define GLOBALflamemaxw    (the_config[14].value)
 #define GLOBALflameminw    (the_config[15].value)
 #define GLOBALl0nick       (the_config[16].value)
+#define GLOBALchargeled    (the_config[17].value)
 #define GLOBALnickname     (nickname)
 #define GLOBALnickfont     (nickfont)
-#define GLOBALnickl0     (nickl0)
+#define GLOBALnickl0       (nickl0)
 
 #define GLOBAL(x) GLOBAL ## x
 

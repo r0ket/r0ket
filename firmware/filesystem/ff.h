@@ -334,6 +334,7 @@ const char* f_get_rc_string (FRESULT rc);
 void fsInit();
 int readFile(char * filename, char * data, int len);
 int writeFile(char * filename, char * data, int len);
+void fsReInit();
 
 #ifdef __cplusplus
 }

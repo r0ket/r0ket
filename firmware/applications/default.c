@@ -20,6 +20,7 @@ void main_default(void) {
 	lcdClear();
 	lcdLoadImage("r0ket.lcd");
 	lcdRefresh();
+	lcdClear();
     
 	switch(getInputRaw()){
         case BTN_ENTER:
@@ -27,6 +28,10 @@ void main_default(void) {
             break;
         case BTN_UP: // Reset config
             f_unlink("r0ket.cfg");
+            break;
+        case BTN_RIGHT: 
+            GLOBAL(develmode)=1;
+            applyConfig();
             break;
         case BTN_DOWN:
             usbMSCInit();
@@ -83,6 +88,15 @@ void tick_default(void) {
 
 
     EVERY(50,0){
+        if(GLOBAL(chargeled)){
+            IOCON_PIO1_11 = 0x0;
+            gpioSetDir(RB_LED3, gpioDirection_Output);
+            if(GetChrgStat())
+                gpioSetValue (RB_LED3, 1);
+            else
+                gpioSetValue (RB_LED3, 0);
+        };
+
         if(GetVoltage()<3600){
             IOCON_PIO1_11 = 0x0;
             gpioSetDir(RB_LED3, gpioDirection_Output);

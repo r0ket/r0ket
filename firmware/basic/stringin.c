@@ -80,6 +80,7 @@ static void inputMove() {
 
 static void inputDraw() {
     char tmp[2]= {0,0};
+	int pos = 0;	
 	lcdClear();
 	DoString(0,0,s_input.prompt);
 	for (int dx = 0; dx<= RESX/CHARWIDTH && s_input.pos+dx<s_input.maxlength; dx++){
@@ -87,6 +88,12 @@ static void inputDraw() {
 		DoString(dx*CHARWIDTH, 30,tmp);
 	}
 	DoString(s_input.dcursor * CHARWIDTH, 40, "-");
+	
+	pos = DoString(0,60,"[");
+	pos = DoInt(pos,60,s_input.pos+s_input.dcursor+1);
+	pos = DoString(pos,60,"/");
+	pos = DoInt(pos,60,s_input.maxlength);
+	DoString(pos,60,"]");
 }
 
 static void inputClean() {

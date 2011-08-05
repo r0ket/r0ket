@@ -123,7 +123,7 @@ char *meshmsgs(void){
 
 
 extern MPKT meshbuffer[MESHBUFSIZE];
-//# MENU Messages
+//# MENU messages
 void m_choose(){
     char list[99];
     int i=0;

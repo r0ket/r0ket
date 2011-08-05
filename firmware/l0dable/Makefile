@@ -27,7 +27,7 @@ CFLAGS+=-mlong-calls -fno-toplevel-reorder
 CRYPT=cp
 CRYPTFLAGS=-p
 
-all: $(OBJS) $(ELFS) $(BINS) $(CODS) $(NIKS) 1boot.int
+all: $(OBJS) $(ELFS) $(BINS) $(CODS) $(NIKS) 1boot.int debug.int
 
 $(LDFILE):
 	-@echo "MEMORY" > $(LDFILE)
@@ -53,6 +53,9 @@ $(LDFILE):
 	@a=$@;a=nick_$${a%.nik}.c0d;echo mv $$a $@;mv $$a $@
 
 1boot.int: 1boot.c0d .PHONY
+	mv $< $@
+
+debug.int: debug.c0d .PHONY
 	mv $< $@
 
 clean:

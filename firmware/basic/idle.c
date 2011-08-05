@@ -42,10 +42,11 @@ uint8_t work_queue_minimal(void){
             return 1;
         };
     };
+    /* NOTREACHED */
+    return 0;
 };
 
 void work_queue(void){
-	int start;
 
 	if (the_queue.qstart == the_queue.qend){
         WFI;
@@ -57,7 +58,7 @@ void work_queue(void){
 
 
 uint8_t delayms_queue_plus(uint32_t ms, uint8_t final){
-    int ret;
+    int ret=0;
     int end=_timectr+ms/SYSTICKSPEED;
     do {
         if (the_queue.qstart == the_queue.qend){
