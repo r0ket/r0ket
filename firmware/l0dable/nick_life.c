@@ -2,12 +2,11 @@
 
 #include "basic/basic.h"
 
+#include "lcd/print.h"
 #include "lcd/render.h"
 #include "lcd/display.h"
 
 #include "basic/config.h"
-
-// #include "lcd/allfonts.h"
 
 #include "usetable.h"
 
@@ -30,8 +29,6 @@ typedef uint8_t uchar;
 int pattern=0;
 #define PATTERNCOUNT 3
 
-#define LCDSHIFTX_EVERY_N 2
-#define LCDSHIFTY_EVERY_N 2
 
 uchar stepmode=0;
 uchar randdensity=0;
@@ -54,13 +51,17 @@ void ram(void) {
     signed char movy=1;
     static int nickwidth,nickheight;
     static int nickoff=10;
+    static char delay=10;
+    static char speedmode=0;
+    static char LCDSHIFTX_EVERY_N=2;
+    static char LCDSHIFTY_EVERY_N=2;
+    static char ITER_EVERY_N=1;
+
     lcdClear();
     setExtFont(GLOBAL(nickfont));
-    // font = &Font_Ubuntu36pt;
     
     nickwidth=DoString(nickx,nicky,GLOBAL(nickname));
     if(nickwidth<50)nickoff=30;
-    // nickwidth=DoString(nickx,nicky,"RAY");
     nickheight=getFontHeight();
 
     char stepmode=0;
@@ -69,13 +70,13 @@ void ram(void) {
         lcdDisplay();
         lcdClear();
         // draw_area(); // xor life pattern again to restore original display content
+        // Old shift code. Can't handle longer Nicks...
         // if(iter%LCDSHIFT_EVERY_N==0) lcdShift(1,-2,1);
         // if(iter%LCDSHIFT_EVERY_N==0) { nickx=(nickx+1)%100-nickwidth; nicky=(nicky+1)%50;}
         if(iter%LCDSHIFTX_EVERY_N==0) { nickx--; 
         if(nickx<(-1*nickwidth-nickoff))nickx=0; }
         if(iter%LCDSHIFTY_EVERY_N==0) { nicky+=movy;
         if(nicky<1 || nicky>RESY-nickheight) movy*=-1; }
-        // DoString(nickx,nicky,GLOBAL(nickname));
         DoString(nickx,nicky,GLOBAL(nickname));
         DoString(nickx+nickwidth+nickoff,nicky,GLOBAL(nickname));
         if(nickwidth<RESX) DoString(nickx+2*(nickwidth+nickoff),nicky,GLOBAL(nickname));
@@ -84,6 +85,22 @@ void ram(void) {
 	switch(key) {
 	case BTN_LEFT:
 	  return;
+	case BTN_RIGHT:
+	  getInputWaitRelease();
+          speedmode=(speedmode+1)%5;
+          switch(speedmode) {
+            case 0:
+              delay=10; ITER_EVERY_N=1; LCDSHIFTX_EVERY_N=2; LCDSHIFTY_EVERY_N=2; break;
+            case 1:
+              delay=20; ITER_EVERY_N=1; LCDSHIFTX_EVERY_N=2; LCDSHIFTY_EVERY_N=2; break;
+            case 2:
+              delay=40; ITER_EVERY_N=1; LCDSHIFTX_EVERY_N=1; LCDSHIFTY_EVERY_N=1; break;
+            case 3:
+              delay=40; ITER_EVERY_N=2; LCDSHIFTX_EVERY_N=1; LCDSHIFTY_EVERY_N=1; break;
+            case 4:
+              delay=40; ITER_EVERY_N=4; LCDSHIFTX_EVERY_N=1; LCDSHIFTY_EVERY_N=1; break;
+          }
+	  break; 
 	case BTN_DOWN:
 	  stepmode=1;
 	  getInputWaitRelease();
@@ -96,11 +113,11 @@ void ram(void) {
 	  getInputWaitRelease();
 	  break;
 	}
-        delayms_queue_plus(10,0);
+        delayms_queue_plus(delay,0);
 #ifdef SIMULATOR
   fprintf(stderr,"Iteration %d - x %d, y %d \n",iter,nickx,nicky);
 #endif
-        calc_area();
+        if(iter%ITER_EVERY_N==0) calc_area(); else ++iter;
     }
     return;
 }
@@ -145,50 +162,12 @@ static inline uint8_t bitset_get2(struct bitset *bs,uint8_t x,uint8_t y) {
   return bitset_get(bs,bitset_offset2(x,y));
 }
 
-static void draw_rect(char x0, char y0, char x1, char y1) {
-  for(char x=x0; x<=x1; ++x) {
-    lcdSetPixel(x,y0,true);
-    lcdSetPixel(x,y1,true);
-  }
-  for(char y=y0+1; y<y1; ++y) {
-    lcdSetPixel(x0,y,true);
-    lcdSetPixel(x1,y,true);
-  }
-} 
-
-static void fill_rect(char x0, char y0, char x1, char y1) {
-  for(char x=x0; x<=x1; ++x) {
-    for(char y=y0; y<=y1; ++y) {
-      lcdSetPixel(x,y,true);
-    }
-  }
-} 
-
 static void fill_area(struct bitset *area, uchar x0, uchar y0, uchar x1, uchar y1,uchar value) {
   for(uchar x=x0; x<=x1; ++x) {
     for(uchar y=y0; y<=y1; ++y) {
       bitset_set2(area,x,y,value);
     }
   }
-} 
-
-static bool find_area(struct bitset *area, uchar x0, uchar y0, uchar x1, uchar y1,uchar value) {
-  for(uchar x=x0; x<=x1; ++x) {
-    for(uchar y=y0; y<=y1; ++y) {
-      if(bitset_get2(area,x,y)==value) return true;
-    }
-  }
-  return false;
-} 
-
-static uint32_t sum_area(struct bitset *area, uchar x0, uchar y0, uchar x1, uchar y1) {
-  uint32_t sum=0; 
-  for(uchar x=x0; x<=x1; ++x) {
-    for(uchar y=y0; y<=y1; ++y) {
-      sum+=bitset_get2(area,x,y);
-    }
-  }
-  return sum;
 } 
 
 static void draw_area() {
