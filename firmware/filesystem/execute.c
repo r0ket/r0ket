@@ -52,7 +52,8 @@ uint8_t execute_file (const char * fname){
     if( readbytes & 0x3 ){
         lcdPrint("readbytes&3");
         lcdRefresh();
-        while(1);
+        getInputWait();
+        getInputRelease();
         return -1;
     }
     uint32_t mac[4];
@@ -68,7 +69,8 @@ uint8_t execute_file (const char * fname){
         lcdPrintIntHex(mac[2]); lcdNl();
         lcdPrintIntHex(mac[3]); lcdNl();
         lcdRefresh();
-        while(1); 
+        getInputWait();
+        getInputRelease();
         return -1;
     }
     data = (uint32_t*)dst;
