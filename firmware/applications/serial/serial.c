@@ -23,13 +23,7 @@
 #define BEACON_CHANNEL 81
 #define BEACON_MAC     "\x1\x2\x3\x2\1"
 
-uint32_t const beaconkey[4] = {
-        0xB4595344,0xD3E119B6,0xA814D0EC,0xEFF5A24E
-};
-uint32_t remotekey[4] = {
-    0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff
-};
-extern uint32_t const meshkey[4];
+#include "SECRETS"
 
 char funkencrypt=0;
 
@@ -167,7 +161,7 @@ int process(char * input){
             config.maclen[0]=0x10;
             config.nrmacs=1;
             nrf_config_set(&config);
-            memcpy(thekey,beaconkey,sizeof(thekey));
+            memcpy(thekey,openbeaconkey,sizeof(thekey));
             funkencrypt=1;
         }else if(input[1]=='?'){
             nrf_config_get(&config);
