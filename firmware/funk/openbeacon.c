@@ -33,7 +33,7 @@ static void openbeaconSave(uint32_t s)
     BYTE buf[4];
     UINT readbytes;
 
-    if( f_open(&file, "ob.cfg", FA_OPEN_ALWAYS|FA_WRITE) )
+    if( f_open(&file, "beacon.cfg", FA_OPEN_ALWAYS|FA_WRITE) )
         return;
 
     uint32touint8p(s, buf);
@@ -50,7 +50,7 @@ static void openbeaconRead()
     BYTE buf[4];
     UINT readbytes;
 
-    if( f_open(&file, "ob.cfg", FA_OPEN_EXISTING|FA_READ) )
+    if( f_open(&file, "beacon.cfg", FA_OPEN_EXISTING|FA_READ) )
         return;
 
     if( f_read(&file, buf, 4, &readbytes) )
