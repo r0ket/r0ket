@@ -7,6 +7,8 @@
 #include "lcd/render.h"
 #include "filesystem/ff.h"
 
+__attribute__ ((used, section("crp"))) const uint32_t the_crp=0x87654321;
+
 /**************************************************************************/
 
 void wrapper(void);

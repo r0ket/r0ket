@@ -37,6 +37,10 @@ SECTIONS
   {
     KEEP(*(.irq_vectors))
     KEEP(*(table))
+    *(.text.boot_entry)
+    *(.text.main)
+. = 0x000002FC ; /* or 1FC for LPC2000 */
+    KEEP(*(crp))
     *(.text*)
     *(.rodata*)
   } > flash
