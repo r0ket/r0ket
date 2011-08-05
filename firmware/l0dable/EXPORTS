@@ -58,7 +58,7 @@ lcdFill
 memcpy
 DoChar
 font
-Font_Invaders
+Font_Invadersnouse
 Font_7x8
 lcdBuffer
 meshGetMessage

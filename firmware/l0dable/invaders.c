@@ -7,7 +7,9 @@
 
 #include "lcd/render.h"
 #include "lcd/display.h"
-#include "lcd/allfonts.h"
+
+#include "lcd/fonts.h"
+#include "lcd/fonts/invaders.h"
 
 #include "funk/mesh.h"
 
@@ -496,3 +498,5 @@ static void check_end() {
 		screen_level();
     }
 }
+
+#include "lcd/fonts/invaders.c"
