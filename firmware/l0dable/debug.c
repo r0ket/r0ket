@@ -32,7 +32,7 @@ static const struct MENU submenu_debug={ "debug", {
 	{ "MeshInfo", &m_time},
 	{ "ChkFunk", &ChkFunk},
 	{ "Qstatus", &Qstatus},
-	{ "ShowSP", &getsp},
+//	{ "ShowSP", &getsp},
 	{ "Uptime", &uptime},
 	{ "Uuid", &uuid},
 	{NULL,NULL}
@@ -127,6 +127,7 @@ void uuid(void) {
     lcdPrintln("Beacon ID:");
     lcdPrintln(IntToStrX(GetUUID32(),8));
     lcdRefresh();
+    while(!getInputRaw())work_queue();
 }
 
 //# MENU debug Qstatus
