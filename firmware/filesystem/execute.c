@@ -66,7 +66,7 @@ uint8_t execute_file (const char * fname){
     if( data[len-4] != mac[0] || data[len-3] != mac[1]
         || data[len-2] != mac[2] || data[len-1] != mac[3] ){
         lcdClear();
-        lcdPrint("!mac");lcdNl();
+        lcdPrint("!mac");
         //lcdPrintIntHex(mac[0]); lcdNl();
         //lcdPrintIntHex(mac[1]); lcdNl();
         //lcdPrintIntHex(mac[2]); lcdNl();
