@@ -197,7 +197,10 @@ uint8_t mesh_recvqloop_work(void){
 
             MO_TIME_set(reply->pkt,score);
             strcpy((char*)MO_BODY(reply->pkt),GLOBAL(nickname));
-
+            if(GLOBAL(privacy)==0){
+                    uint32touint8p(GetUUID32(),meshbuffer[0].pkt+26);
+                    meshbuffer[0].pkt[25]=0;
+            };
             return 1;
         };
 
