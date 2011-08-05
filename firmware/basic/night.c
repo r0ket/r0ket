@@ -16,7 +16,8 @@ void LightCheck(void){
 
     iocon=IOCON_PIO1_11;
 //    iodir=gpioGetDir(RB_LED3);
-    iodir= (GPIO_GPIO1DIR & (1 << (RB_LED3) ))?1:0;
+    //LED3 is on pin 11
+    iodir= (GPIO_GPIO1DIR & (1 << (11) ))?1:0;
 
     gpioSetDir(RB_LED3, gpioDirection_Input);
     IOCON_PIO1_11 = IOCON_PIO1_11_FUNC_AD7|IOCON_PIO1_11_ADMODE_ANALOG;

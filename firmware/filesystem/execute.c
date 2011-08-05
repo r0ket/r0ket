@@ -12,15 +12,13 @@
 
 #include "basic/xxtea.h"
 
-const uint32_t signature_key[4] = {0x123456,0,0,0x234567};
-const uint32_t decode_key[4] = {0x123456,0,0,0x234567};
-//const uint32_t decode_key[4] = {0,0,0,0};
+#include "SECRETS"
 
-extern void * sram_top;
+//extern void * sram_top;
 
 /**************************************************************************/
 
-uint8_t execute_file (const char * fname, uint8_t checksignature, uint8_t decode){
+uint8_t execute_file (const char * fname){
     FRESULT res;
     FIL file;
     UINT readbytes;
@@ -48,45 +46,35 @@ uint8_t execute_file (const char * fname, uint8_t checksignature, uint8_t decode
     if(res){
         return -1;
     };
-    if( decode || checksignature )
-        //only accept files with fixed length
-        //if( readbytes != 2048 )
-        if( readbytes & 0x3 ){
-            lcdPrint("readbytes&3");
-            lcdRefresh();
-            while(1);
-            return -1;
-        }
-    if( checksignature ){
-        uint32_t mac[4];
-        uint32_t *data = (uint32_t*)dst;
-        uint32_t len = readbytes/4;
-        xxtea_cbcmac(mac, (uint32_t*)dst, len-4, signature_key);
-        if( data[len-4] != mac[0] || data[len-3] != mac[1]
-            || data[len-2] != mac[2] || data[len-1] != mac[3] ){
-            lcdClear();
-            lcdPrint("mac wrong");lcdNl();
-            lcdPrintIntHex(mac[0]); lcdNl();
-            lcdPrintIntHex(mac[1]); lcdNl();
-            lcdPrintIntHex(mac[2]); lcdNl();
-            lcdPrintIntHex(mac[3]); lcdNl();
-            lcdRefresh();
-            while(1); 
-            return -1;
-        }
-        //lcdPrint("macok");
-        //lcdRefresh();
-        //while(1);
+#ifdef ENCRYPT_L0DABLE
+    uint32_t *data;
+    uint32_t len;
+    if( readbytes & 0x3 ){
+        lcdPrint("readbytes&3");
+        lcdRefresh();
+        while(1);
+        return -1;
     }
-
-    if( decode ){
-        uint32_t *data = (uint32_t*)dst;
-        uint32_t len = readbytes/4;
-        xxtea_decode_words(data, len-4, decode_key);
+    uint32_t mac[4];
+    data = (uint32_t*)dst;
+    len = readbytes/4;
+    xxtea_cbcmac(mac, (uint32_t*)dst, len-4, l0dable_sign_key);
+    if( data[len-4] != mac[0] || data[len-3] != mac[1]
+        || data[len-2] != mac[2] || data[len-1] != mac[3] ){
+        lcdClear();
+        lcdPrint("mac wrong");lcdNl();
+        lcdPrintIntHex(mac[0]); lcdNl();
+        lcdPrintIntHex(mac[1]); lcdNl();
+        lcdPrintIntHex(mac[2]); lcdNl();
+        lcdPrintIntHex(mac[3]); lcdNl();
+        lcdRefresh();
+        while(1); 
+        return -1;
     }
-    //lcdPrintInt(readbytes);
-    //lcdPrintln(" bytes");
-    //lcdRefresh();
+    data = (uint32_t*)dst;
+    len = readbytes/4;
+    xxtea_decode_words(data, len-4, l0dable_crypt_key);
+#endif
 
     dst=(void (*)(void)) ((uint32_t)(dst) | 1); // Enable Thumb mode!
     dst();
@@ -103,6 +91,6 @@ void executeSelect(char *ext){
     filename[2]=0;
 
     if( selectFile(filename+2,ext) == 0)
-        execute_file(filename,0,0);
+        execute_file(filename);
 };
 

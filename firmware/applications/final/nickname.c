@@ -21,7 +21,7 @@ void simpleNickname(void);
 
 void fancyNickname(void) {
     if(GLOBAL(l0nick)){
-        if(execute_file(GLOBAL(nickl0),0,0))
+        if(execute_file(GLOBAL(nickl0)))
             GLOBAL(l0nick)=0;
     }
 
