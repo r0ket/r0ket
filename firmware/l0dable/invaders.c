@@ -79,7 +79,6 @@ void ram(void) {
 	while(1) {
 		if (!screen_intro())
 			return;
-		screen_intro();
 		game.rokets = 3; 
 		game.level = 1;
 		game.score = 0;
@@ -114,7 +113,9 @@ static bool screen_intro() {
 	char highnick[20];
 	char key=0;
 	bool step = false;
+	//getInputWaitRelease();
 	while(key==0) {
+		getInputWaitRelease();
 		lcdFill(0);
 		font = &Font_Invaders;
         DoString(28,25,step?"ABC":"abc");
@@ -129,6 +130,7 @@ static bool screen_intro() {
 		step = !step;
 		key=getInputWaitTimeout(1000);
 	}
+	//getInputWaitRelease();
 	return !(key==BTN_LEFT);
 }
 
@@ -144,6 +146,7 @@ static bool screen_gameover() {
 		lcdDisplay();
 		key=getInputWaitTimeout(5000);
 	}
+	//getInputWaitRelease();
 	return !(key==BTN_LEFT);
 }	
 
