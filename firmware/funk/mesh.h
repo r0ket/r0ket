@@ -30,6 +30,7 @@ typedef struct {
 
 extern char meshgen; // Generation
 extern char meshincctr; // Time checker
+extern char meshnice; // Time checker
 extern char meshmsg; // Is there something interesting?
 extern MPKT meshbuffer[MESHBUFSIZE];
 

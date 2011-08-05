@@ -55,6 +55,9 @@ $(LDFILE):
 1boot.int: 1boot.c0d .PHONY
 	mv $< $@
 
+debug.int: debug.c0d .PHONY
+	mv $< $@
+
 clean:
 	rm -f *.o *.elf *.bin usetable.h
 
