@@ -13,7 +13,7 @@ void VoltageCheck(void){
 	results = adcRead(1);
 	results *= 10560;
 	results /= 1024;
-
+    results += 50;
 	if( results < 3500 ){
         nrf_off();
 	    gpioSetValue (RB_PWR_GOOD, 0); 
