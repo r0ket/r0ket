@@ -7,7 +7,7 @@
 #include "basic/uuid.h"
 
 //const uint32_t key[4] = {0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF};
-const uint32_t openbeaconkey[4] = { 0xB4595344,0xD3E119B6,0xA814D0EC,0xEFF5A24E };
+#include "SECRETS"
 const uint8_t useencryption = 1;
 const uint8_t mac[5] = {1,2,3,2,1};
 

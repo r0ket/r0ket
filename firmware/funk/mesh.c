@@ -14,9 +14,7 @@ char meshmsg=0;
 char meshnice=0;
 MPKT meshbuffer[MESHBUFSIZE];
 
-uint32_t const meshkey[4] = {
-    0x00000042, 0x000005ec, 0x00000023, 0x00000005
-};
+#include "SECRETS"
 
 struct NRF_CFG oldconfig;
 
@@ -57,6 +55,8 @@ MPKT * meshGetMessage(uint8_t type){
 void mesh_cleanup(void){
     time_t now=getSeconds();
     for(int i=1;i<MESHBUFSIZE;i++){
+        if(meshbuffer[i].flags&MF_LOCK)
+            continue;
         if(meshbuffer[i].flags&MF_USED){
             if (MO_GEN(meshbuffer[i].pkt)<meshgen)
                 meshbuffer[i].flags=MF_FREE;
@@ -128,6 +128,20 @@ void mesh_recvqloop_setup(void){
     nrf_rcv_pkt_start();
 };
 
+static inline uint32_t popcount(uint32_t *buf, uint8_t n){
+    int cnt=0;
+    do {
+        unsigned m = *buf++;
+        m = (m & 0x55555555) + ((m & 0xaaaaaaaa) >> 1);
+        m = (m & 0x33333333) + ((m & 0xcccccccc) >> 2);
+        m = (m & 0x0f0f0f0f) + ((m & 0xf0f0f0f0) >> 4);
+        m = (m & 0x00ff00ff) + ((m & 0xff00ff00) >> 8);
+        m = (m & 0x0000ffff) + ((m & 0xffff0000) >> 16);
+        cnt += m;
+    } while(--n);
+    return cnt;
+}
+
 uint8_t mesh_recvqloop_work(void){
     __attribute__ ((aligned (4))) uint8_t buf[32];
     int len;
@@ -166,9 +180,29 @@ uint8_t mesh_recvqloop_work(void){
         // Store packet in a same/free slot
         MPKT* mpkt=meshGetMessage(MO_TYPE(buf));
 
-        // Skip locked packet
-        if(mpkt->flags&MF_LOCK)
-            return 2;
+        // Schnitzel
+        if(MO_TYPE(buf)=='Z'){
+            mpkt->flags=MF_USED|MF_LOCK;
+            MO_TIME_set(mpkt->pkt,getSeconds());
+            MO_GEN_set(mpkt->pkt,0x70);
+            for(int i=6;i<MESHPKTSIZE;i++)
+                mpkt->pkt[i]|=buf[i];
+
+            int score=popcount(MO_BODY(mpkt->pkt),6);
+
+            MPKT* reply=meshGetMessage('z');
+
+            if(MO_TIME(reply->pkt)>=score)
+                return 1;
+
+            MO_TIME_set(reply->pkt,score);
+            strcpy((char*)MO_BODY(reply->pkt),GLOBAL(nickname));
+            if(GLOBAL(privacy)==0){
+                    uint32touint8p(GetUUID32(),meshbuffer[0].pkt+26);
+                    meshbuffer[0].pkt[25]=0;
+            };
+            return 1;
+        };
 
         // only accept newer/better packets
         if(mpkt->flags==MF_USED)
@@ -181,6 +215,7 @@ uint8_t mesh_recvqloop_work(void){
 
         memcpy(mpkt->pkt,buf,MESHPKTSIZE);
         mpkt->flags=MF_USED;
+
         return 1;
 };
 

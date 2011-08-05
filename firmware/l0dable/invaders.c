@@ -167,6 +167,10 @@ static bool highscore_set(uint32_t score, char nick[]) {
 
     MO_TIME_set(mpkt->pkt,score);
     strcpy((char*)MO_BODY(mpkt->pkt),nick);
+    if(GLOBAL(privacy)==0){
+        uint32touint8p(GetUUID32(),mpkt->pkt+26);
+        mpkt->pkt[25]=0;
+    };
 	return true;
 }
 
