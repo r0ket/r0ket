@@ -6,3 +6,4 @@ lcd/allfonts.h
 Makefile.dep
 table.c
 table.h
+SECRETS.release

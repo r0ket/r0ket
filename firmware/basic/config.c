@@ -44,7 +44,10 @@ char nickl0[FILENAMELEN];
 void applyConfig(){
     if(GLOBAL(lcdcontrast)>0)
         lcdSetContrast(GLOBAL(lcdcontrast));
-    enableConfig(CFG_TYPE_DEVEL,GLOBAL(develmode));
+    if(GLOBAL(develmode))
+        enableConfig(CFG_TYPE_DEVEL,1);
+    if(isNight())
+        backlightSetBrightness(GLOBAL(lcdbacklight));
 };
 
 int saveConfig(void){

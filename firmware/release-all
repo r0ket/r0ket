@@ -69,8 +69,28 @@ mv l0dable/*.c0d $TARG/files/
 mv l0dable/*.int $TARG/files/
 mv l0dable/*.nik $TARG/files/
 
+skey=`./getkey.pl l0dable_sign`
+ekey=`./getkey.pl l0dable_crypt`
+
+if [ -z "$ekey" ] ; then 
+    echo E-Key fail
+    exit 1
+fi
+
+if [ -z "$skey" ] ; then 
+    echo S-Key fail
+    exit 1
+fi
+
+for a in $TARG/files/*.c0d $TARG/files/*.int $TARG/files/*.nik ; do
+    echo Crypting $a
+    ../tools/crypto/xxtea -e -k $ekey -s -k $skey $a
+done
+
+
 echo "###"
 echo "### Done. Yay!"
 echo "###"
 
 git checkout SECRETS
+git checkout filesystem/ffconf.h
