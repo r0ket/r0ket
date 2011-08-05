@@ -78,6 +78,8 @@ void handleMenu(const struct MENU *the_menu) {
             case BTN_RIGHT:
                 if (the_menu->entries[menuselection].callback!=NULL)
                     the_menu->entries[menuselection].callback();
+
+                setSystemFont();
 				
 				if (menuflags&MENU_JUSTONCE)
 					return;
@@ -91,6 +93,7 @@ void handleMenu(const struct MENU *the_menu) {
                 if (the_menu->entries[menuselection].callback!=NULL)
                     the_menu->entries[menuselection].callback();
                 lcdRefresh();
+                setSystemFont();
 				
 				if (menuflags&MENU_JUSTONCE)
 					return;
