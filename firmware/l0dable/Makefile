@@ -27,7 +27,7 @@ CFLAGS+=-mlong-calls -fno-toplevel-reorder
 CRYPT=cp
 CRYPTFLAGS=-p
 
-all: $(OBJS) $(ELFS) $(BINS) $(CODS) $(NIKS) 1boot.int
+all: $(OBJS) $(ELFS) $(BINS) $(CODS) $(NIKS) 1boot.int debug.int
 
 $(LDFILE):
 	-@echo "MEMORY" > $(LDFILE)
