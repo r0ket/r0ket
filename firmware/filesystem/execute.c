@@ -49,28 +49,31 @@ uint8_t execute_file (const char * fname){
 #ifdef ENCRYPT_L0DABLE
     uint32_t *data;
     uint32_t len;
-    if( readbytes & 0x3 ){
-        lcdPrint("readbytes&3");
-        lcdRefresh();
-        getInputWait();
-        getInputRelease();
-        return -1;
-    }
     uint32_t mac[4];
     data = (uint32_t*)dst;
     len = readbytes/4;
+
+    if( readbytes & 0xF ){
+        lcdClear();
+        lcdPrint("!size");
+        lcdRefresh();
+        getInputWait();
+        getInputWaitRelease();
+        return -1;
+    }
+
     xxtea_cbcmac(mac, (uint32_t*)dst, len-4, l0dable_sign_key);
     if( data[len-4] != mac[0] || data[len-3] != mac[1]
         || data[len-2] != mac[2] || data[len-1] != mac[3] ){
         lcdClear();
-        lcdPrint("mac wrong");lcdNl();
-        lcdPrintIntHex(mac[0]); lcdNl();
-        lcdPrintIntHex(mac[1]); lcdNl();
-        lcdPrintIntHex(mac[2]); lcdNl();
-        lcdPrintIntHex(mac[3]); lcdNl();
+        lcdPrint("!mac");lcdNl();
+        //lcdPrintIntHex(mac[0]); lcdNl();
+        //lcdPrintIntHex(mac[1]); lcdNl();
+        //lcdPrintIntHex(mac[2]); lcdNl();
+        //lcdPrintIntHex(mac[3]); lcdNl();
         lcdRefresh();
         getInputWait();
-        getInputRelease();
+        getInputWaitRelease();
         return -1;
     }
     data = (uint32_t*)dst;
