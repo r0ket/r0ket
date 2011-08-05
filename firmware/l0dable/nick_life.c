@@ -83,29 +83,34 @@ void ram(void) {
 	char key=stepmode?getInputWait():getInputRaw();
 	stepmode=0;
 	switch(key) {
-	case BTN_LEFT:
+	case BTN_ENTER:
 	  return;
 	case BTN_RIGHT:
 	  getInputWaitRelease();
-          speedmode=(speedmode+1)%5;
+          speedmode=(speedmode+1)%7;
+          delay=15;
           switch(speedmode) {
             case 0:
-              delay=10; ITER_EVERY_N=1; LCDSHIFTX_EVERY_N=2; LCDSHIFTY_EVERY_N=2; break;
+              ITER_EVERY_N=1; LCDSHIFTX_EVERY_N=1; LCDSHIFTY_EVERY_N=1; break;
             case 1:
-              delay=20; ITER_EVERY_N=1; LCDSHIFTX_EVERY_N=2; LCDSHIFTY_EVERY_N=2; break;
+              ITER_EVERY_N=1; LCDSHIFTX_EVERY_N=2; LCDSHIFTY_EVERY_N=2; break;
             case 2:
-              delay=40; ITER_EVERY_N=1; LCDSHIFTX_EVERY_N=1; LCDSHIFTY_EVERY_N=1; break;
+              ITER_EVERY_N=1; LCDSHIFTX_EVERY_N=4; LCDSHIFTY_EVERY_N=4; break;
             case 3:
-              delay=40; ITER_EVERY_N=2; LCDSHIFTX_EVERY_N=1; LCDSHIFTY_EVERY_N=1; break;
+              ITER_EVERY_N=2; LCDSHIFTX_EVERY_N=1; LCDSHIFTY_EVERY_N=1; break;
             case 4:
-              delay=40; ITER_EVERY_N=4; LCDSHIFTX_EVERY_N=1; LCDSHIFTY_EVERY_N=1; break;
+              ITER_EVERY_N=4; LCDSHIFTX_EVERY_N=1; LCDSHIFTY_EVERY_N=1; break;
+            case 5:
+              ITER_EVERY_N=8; LCDSHIFTX_EVERY_N=1; LCDSHIFTY_EVERY_N=1; break;
+            case 6:
+              delay=5; ITER_EVERY_N=8; LCDSHIFTX_EVERY_N=1; LCDSHIFTY_EVERY_N=1; break;
           }
 	  break; 
 	case BTN_DOWN:
 	  stepmode=1;
 	  getInputWaitRelease();
 	  break;
-	case BTN_ENTER:
+	case BTN_LEFT:
 	  pattern=(pattern+1)%PATTERNCOUNT;
 	case BTN_UP:
 	  stepmode=1;
