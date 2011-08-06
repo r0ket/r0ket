@@ -3,39 +3,121 @@
 #include "lcd/lcd.h"
 #include "usetable.h"
 
-static void draw_rakett (int x, int y, int scale, int angle);
-static int my_gray (int x, int y, void *data);
+#define O_FIXED 1023
+#define SPP 10
 
-void ram (void) {
-    char test[512]; /* scratch space */
-    o_init (test, sizeof(test));
-    int frame_no = 0;
-    int frame_dir = 1;
-    o_set_shader (my_gray, NULL);
-    while (getInputRaw() != BTN_ENTER){
-      o_identity ();
-      o_rectangle (0,0,RESX, RESY);
-      o_set_gray (250);
+static void draw_rakett (int x, int y, int scale, int angle);
+static int  my_gray (int x, int y, void *data);
+static int  o_sin(int x);
+static int  o_cos(int x);
+static int frame_no = 0;
+
+#define ANIM(start_val, end_val) \
+       (((start_val) * (1000-(t))) / 1000 + ((end_val) * ((t))) /1000)
+
+void ram (void)
+{
+  char test[512]; /* scratch space */
+  o_init (test, sizeof(test));
+  int frame_dir = 1;
+  int inpt;
+  o_set_shader (my_gray, NULL);
+  int x;
+  int y;
+  int angle;
+  int scale;
+  int velocity = 0;
+
+  while ((inpt = getInputRaw()) != BTN_ENTER)
+    {
+      int t;
+
+      o_identity (); /* reset tranforms */
+      o_set_gray (0);
+      o_rectangle (0,0,RESX, RESY); /* fill background with black */
       o_fill ();     /* fill with 50% gray */
 
-      draw_rakett (40, 20, 400,  300);
-      draw_rakett (20, 20, 250,  10*frame_no);
-      draw_rakett (80, 30, 350,  450+14*frame_no);
+      if (frame_no < 800)
+        {
+          o_set_gray (250);
+          o_rectangle (0,RESY-7,RESX, 10); /* fill background with black */
+          o_fill ();     /* fill with 50% gray */
+        }
 
-      frame_no += frame_dir;
-      lcdDisplay();
-      delayms(2);
+      if (frame_no < 100)
+        {
+          t = frame_no * 1000 / 100;
+          x = ANIM(-60 * 10, 100 * 10);
+          y = RESY/2 * 10;
+          angle = ANIM(500, 300);
+          scale = ANIM(1200, 700);
+        }
+      else if (frame_no < 300)
+        {
+          t = (frame_no - 100) * 1000 / 200;
+          x = ANIM(100 * 10, 10 * RESX/2);
+          y = ANIM((RESY/2) * 10, (RESY/2 - 10) * 10);
+          angle = ANIM(300, 0);
+          scale = ANIM(700, 300);
+        }
+      else if (frame_no < 600)
+        {
+          t = (frame_no - 300) * 1000 / 300;
+          x = RESX/2 * 10;
+          y = ANIM((RESY/2-10) * 10, (RESY-14) * 10);
+          angle = 0;
+          scale = 300;
+        }
+      else
+        {
+          /* flying time */
 
-      if (frame_no > 1000 || frame_no < 0)
-        frame_dir *= -1;
-    }
+          if (inpt == BTN_UP)
+            {
+              velocity ++;
+            }
+          else if (inpt == BTN_DOWN)
+            {
+              velocity --;
+            }
+          else if (inpt == BTN_LEFT)
+            {
+              angle -= 5;
+            }
+          else if (inpt == BTN_RIGHT)
+            {
+              angle += 5;
+            }
+
+          if (velocity > 10)
+            velocity = 10;
+          if (velocity < -10)
+            velocity = -10;
+
+          {
+            int c = o_cos ((angle - 900) * 4 * 8192 / 3600) / 4;
+            int s = o_sin ((angle - 900) * 4 * 8192 / 3600) / 4;
+            x += (c / 100) * velocity / 10;
+            y += (s / 100) * velocity / 10;
+          }
+
+          y++;
+
+          if (y > (RESY-14) * 10)
+            y = (RESY-14) * 10;
+      }
+
+    draw_rakett (x, y, scale,  angle);
+    frame_no += frame_dir;
+    lcdDisplay();
+  }
 }
 
 static int my_gray (int x, int y, void *data)
 {
-  int value = (int)(data); /* stored gray value as 8bit value */
-  switch (value)           /* the dither patterns are can be seen */
-    {                      /* at the end of the lines */
+  int value = (int)(data);
+  switch (value)
+    {
       case 0:  /* 0.0  */
         return                    0;
       case 1:  /* 0.16 */
@@ -43,15 +125,31 @@ static int my_gray (int x, int y, void *data)
                (x%3==1) ? (y %2)? 0:0:
                           (y %2)? 0:1;
       case 2: /* 0.25 */
-        return (x%2)    ? (y %2)? 1:0:
-                          (y %2)? 0:0;
+        switch (frame_no % 4) {
+          case 0:
+            return (x%2)    ? (y %2)? 1:0:
+                              (y %2)? 0:0;
+          case 1:
+            return (x%2)    ? (y %2)? 0:1:
+                              (y %2)? 0:0;
+          case 2:
+            return (x%2)    ? (y %2)? 0:0:
+                              (y %2)? 0:1;
+          case 3:
+            return (x%2)    ? (y %2)? 0:0:
+                              (y %2)? 1:0;
+        }
       case 3: /* 0.33 */
         return (x%3==0) ? (y %2)? 1:0:
                (x%3==1) ? (y %2)? 0:0:
                           (y %2)? 0:1;
       case 4: /* 0.50 */
-        return (x%2==0) ? (y %2)? 1:0:
-                          (y %2)? 0:1;
+        if (frame_no %2)
+          return (x%2==0) ? (y %2)? 1:0:
+                            (y %2)? 0:1;
+        else
+          return (x%2==0) ? (y %2)? 0:1:
+                            (y %2)? 1:0;
       case 5: /* 0.66 */
         return (x%3==0) ? (y %2)? 0:1:
                (x%3==1) ? (y %2)? 1:1:
@@ -73,12 +171,18 @@ static int my_gray (int x, int y, void *data)
   return 0;
 }
 
-
+/* This is a very simple vector drawing of heart of gold encoded in a
+ * string (search and replace regexp-fu on an SVG made in inkscape was
+ * used to create the strings)
+ *
+ * to reduce size, all coordinates are encoded as bytes, 'g'ray values
+ * are in the range 0-100.
+ */
 static signed char rakett[] = {
   ' ',
   'm',38,6,
   'c',38,6,36,13,36,15,
-  'c',24,22,23,26,21,32,'c',19,41,23,61,23,61,'c',15,73,14,95,17,110,'l',26,109,'c',26,102,26,87,30,83,'c',30,83,30,88,30,95,'c',31,103,31,108,31,108,'l',36,108,'c',36,108,35,98,36,91,'c',37,83,38,80,38,80,'c',41,79,43,80,47,79,'c',56,85,56,89,58,99,'c',58,103,58,108,58,108,'l',68,108,'c',67,89,69,73,54,58,'c',54,58,56,41,53,31,'c',50,21,40,15,40,15,'l',38,6,'z','g',0,'f','g',100,'s',
+  'c',24,22,23,26,21,32,'c',19,41,23,61,23,61,'c',15,73,14,95,17,110,'l',26,109,'c',26,102,26,87,30,83,'c',30,83,30,88,30,95,'c',31,103,31,108,31,108,'l',36,108,'c',36,108,35,98,36,91,'c',37,83,38,80,38,80,'c',41,79,43,80,47,79,'c',56,85,56,89,58,99,'c',58,103,58,108,58,108,'l',68,108,'c',67,89,69,73,54,58,'c',54,58,56,41,53,31,'c',50,21,40,15,40,15,'l',38,6,'z','g',100,'f','g',100,'s',
   ' ',
   'm',33,20,'c',31,20,29,21,27,22,'c',25,24,23,27,22,29,'c',20,35,21,38,21,38,'c',26,38,29,36,34,33,'c',38,31,42,24,34,21,'c',34,21,33,20,33,20,'z','g', 50,'f','.'
 };
@@ -135,15 +239,50 @@ void o_rectangle (int x0, int y0, int width, int height)
   o_close ();
 }
 
-void draw_rakett (int x, int y, int scale, int angle)
+static int o_sin(int x)
 {
-  OMatrix m={{{scale,0},{0,scale},{x * 6000,y * 6000}}};
-  o_identity (); /* reset transform stack */
-  /*
-  o_translate(x * 1000 , y * 1000 );
-  o_rotate (angle);
-  o_scale (scale, scale);
-  o_translate (-37000, -60000);*/
-  o_transform (&m, 0);
-  orender (rakett);  /* render a rocket */
+#define qN 13
+#define qA 12
+#define qP 15
+#define qR (2*qN-qP)
+#define qS (qN+qP+1-qA)
+
+    x= x<<(30-qN);          // shift to full s32 range (Q13->Q30)
+
+    if( (x^(x<<1)) < 0)     // test for quadrant 1 or 2
+        x= (1<<31) - x;
+
+    x= x>>(30-qN);
+
+    return (x * ( (3<<qP) - (x*x>>qR) ) >> qS );
+}
+
+static inline int o_cos(int x)
+{
+  return o_sin(x + 8192);
+}
+
+static void draw_rakett (int x, int y, int scale, int angle)
+{
+  /* directly including the matrices used to build up the transform, the fudging factors
+     depend on internal values of o to add up properly  */
+  OMatrix mtranslate = {{{O_FIXED,0},
+                         {0,O_FIXED},
+                         {x * 100 * SPP * O_FIXED / 1000, y * 100 * SPP * O_FIXED / 1000}}};
+  int c = o_cos (angle * 4 * 8192 / 3600) / 4;
+  int s = o_sin (angle * 4 * 8192 / 3600) / 4;
+  OMatrix mrotate   = {{{c,s},
+                        {-s,c},
+                        {0, 0}}};
+  OMatrix mscale    = {{{scale * O_FIXED / 1000, 0},
+                        {0,scale * O_FIXED / 1000},
+                        {0,0}}};
+  OMatrix mtranslate2 = {{{O_FIXED,0},
+                          {0,O_FIXED},
+                          {-37000 * SPP * O_FIXED / 1000, -60000 * SPP * O_FIXED / 1000}}};
+  o_transform (&mtranslate,  1); /* passing 1 as second arg sets the transform to this */
+  o_transform (&mrotate,     0); /* passing 0 adds this transformaiton */
+  o_transform (&mscale,      0); /* again (it is multiplying the matrices internally) */
+  o_transform (&mtranslate2, 0); /* the final translate (first actually) sets the local origin. */
+  orender (rakett);  /* render the rocket data */
 }
