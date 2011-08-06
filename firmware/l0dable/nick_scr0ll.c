@@ -39,6 +39,7 @@ void ram(void) {
 
     char stepmode=0;
     while (1) {
+        ++iter;
         lcdDisplay();
         lcdClear();
         // draw_area(); // xor life pattern again to restore original display content
@@ -59,7 +60,7 @@ void ram(void) {
 	  return;
 	case BTN_RIGHT:
 	  getInputWaitRelease();
-          speedmode=(speedmode+1)%7;
+          speedmode=(speedmode+1)%4;
           delay=15;
           switch(speedmode) {
             case 0:
@@ -67,9 +68,9 @@ void ram(void) {
             case 1:
               LCDSHIFTX_EVERY_N=2; LCDSHIFTY_EVERY_N=2; break;
             case 2:
-              LCDSHIFTX_EVERY_N=4; LCDSHIFTY_EVERY_N=4; break;
+              LCDSHIFTX_EVERY_N=3; LCDSHIFTY_EVERY_N=4; break;
             case 3:
-              LCDSHIFTX_EVERY_N=1; LCDSHIFTY_EVERY_N=1; break;
+              LCDSHIFTX_EVERY_N=4; LCDSHIFTY_EVERY_N=1; break;
             case 4:
               LCDSHIFTX_EVERY_N=1; LCDSHIFTY_EVERY_N=1; break;
             case 5:
@@ -83,11 +84,9 @@ void ram(void) {
 	  getInputWaitRelease();
 	  break;
 	case BTN_LEFT:
-          break;
+          return;
 	case BTN_UP:
-	  stepmode=1;
-	  getInputWaitRelease();
-	  break;
+	  return;
 	}
         delayms_queue_plus(delay,0);
     }
