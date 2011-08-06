@@ -34,9 +34,7 @@ uint8_t mac[5] = {1,2,3,2,1};
 
 void ram(void)
 {
-    memset(0,0,0);
     nrf_config_set(&config);
-
 
     if( sendKeys() )
         return;
@@ -103,9 +101,15 @@ void sendPublicKey(void)
     FIL file;
 
     if( f_open(&file, "pubx.key", FA_OPEN_EXISTING|FA_READ) ){
+        lcdPrint("pubx.key");
+        lcdRefresh();
+        while(1);
         return;
     }
     if( f_read(&file, buf, 41, &readbytes) || readbytes != 41 ){
+        lcdPrint("read x");
+        lcdRefresh();
+        while(1);
         return;
     }
     f_close(&file);
@@ -114,13 +118,22 @@ void sendPublicKey(void)
     exp[0] = 'P';
     bitstr_parse_export((char*)exp+2, buf);
     exp[1] = 'X';
+    nrf_config_set(&config);
     nrf_snd_pkt_crc(32, exp);
     delayms(10);
 
     if( f_open(&file, "puby.key", FA_OPEN_EXISTING|FA_READ) ){
+        lcdPrint("puby.key");
+        lcdRefresh();
+        while(1);
+ 
         return;
     }
     if( f_read(&file, buf, 41, &readbytes) || readbytes != 41 ){
+        lcdPrint("read x");
+        lcdRefresh();
+        while(1);
+ 
         return;
     }
     f_close(&file);
@@ -128,6 +141,7 @@ void sendPublicKey(void)
 
     exp[1] = 'Y';
     bitstr_parse_export((char*)exp+2, buf);
+    nrf_config_set(&config);
     nrf_snd_pkt_crc(32, exp);
     delayms(10);
 }
@@ -138,10 +152,12 @@ int receiveKey(uint8_t type, uint8_t *x, uint8_t *y)
     uint8_t buf[32];
     uint8_t n;
     
+    nrf_config_set(&config);
     n = nrf_rcv_pkt_time(1000, 32, buf);
     if( n == 32 && buf[0] == type && buf[1] == 'X' ){
         for(int i=0; i<NUMWORDS*4; i++)
             x[i] = buf[i+2];
+    nrf_config_set(&config);
         n = nrf_rcv_pkt_time(100, 32, buf);
         if( n == 32 && buf[0] ==type && buf[1] == 'Y' ){
             for(int i=0; i<NUMWORDS*4; i++)
@@ -167,6 +183,7 @@ void sendMac(void)
     buf[4] = mac[2];
     buf[5] = mac[3];
     buf[6] = mac[4];
+    nrf_config_set(&config);
     nrf_snd_pkt_crc(32, buf);
     delayms(10);
 }
@@ -177,7 +194,7 @@ int sendKeys(void)
     char key;
     while( !done ){
         lcdClear();
-        lcdPrintln("Sending PUBKEY");lcdRefresh();
+        lcdPrintln("Sending PUBKEX");lcdRefresh();
         sendPublicKey();
         sendMac();
         lcdPrintln("Done");
@@ -217,6 +234,7 @@ int filetransfer_receive(uint8_t *mac, uint32_t const k[4])
     uint8_t metadata[32];
 
     //nrf_set_rx_mac(0, 32, 5, mac);
+    nrf_config_set(&config);
     n = nrf_rcv_pkt_time_encr(3000, 32, metadata, k);
     if( n != 32 )
         return 1;       //timeout
@@ -279,6 +297,7 @@ int16_t rftransfer_receive(uint8_t *buffer, uint16_t maxlen, uint16_t timeout)
     unsigned int startTick = currentTick;
     
     while(systickGetTicks() < (startTick+timeout) ){//this fails if either overflows
+    nrf_config_set(&config);
         n = nrf_rcv_pkt_time(1000, MAXPACKET, buf);
         switch(state){
             case 0:

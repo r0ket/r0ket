@@ -43,12 +43,9 @@ uint8_t mac[5] = {1,2,3,2,1};
 
 void ram(void)
 {
-
-    nrf_config_set(&config);
-
-
     char file[13];
-    selectFile(file,"TXT");
+    selectFile(file,"CRD");
+    nrf_config_set(&config);
     sendFile(file); 
 }
 
@@ -60,11 +57,13 @@ void sendR(uint8_t *rx, uint8_t *ry)
     for(int i=0; i<4*NUMWORDS; i++)
         exp[2+i] = rx[i];
     exp[1] = 'X';
+    nrf_config_set(&config);
     nrf_snd_pkt_crc(32, exp);
     delayms(10);
     exp[1] = 'Y';
     for(int i=0; i<4*NUMWORDS; i++)
         exp[2+i] = ry[i]; 
+    nrf_config_set(&config);
     nrf_snd_pkt_crc(32, exp);
  
     delayms(10);
@@ -74,17 +73,47 @@ int receiveKey(uint8_t type, uint8_t *x, uint8_t *y)
 {
     uint8_t buf[32];
     uint8_t n;
-    
+    //static int count = 0;
+    //for(n=0; n<32;n++)
+    //    buf[n] = 0;
+    //lcdPrintln("get packet");
+    //lcdPrintInt(count++);
+    //lcdRefresh();
+    //int reg5 = nrf_read_reg(5);
+    //int reg11 = nrf_read_reg(0x11);
+    //lcdPrint("reg5=");
+    //lcdPrintInt(reg5);
+    //lcdPrintln("");
+    //lcdPrint("regx11=");
+    //lcdPrintInt(reg11);
+    //lcdPrintln("");
+    //lcdRefresh();
+    //delayms(1000);
+
+    nrf_config_set(&config);
     n = nrf_rcv_pkt_time(1000, 32, buf);
-    if( n == 32 && buf[0] == type && buf[1] == 'X' ){
+    //lcdPrintInt(n);
+    //lcdPrintln(IntToStrX(*(uint32_t*)buf,8));
+    //lcdPrintln(IntToStrX(*(uint32_t*)(buf+4),8));
+    //lcdPrintln(IntToStrX(*(uint32_t*)(buf+8),8));
+    //lcdPrintln(IntToStrX(*(uint32_t*)(buf+12),8));
+
+    //lcdRefresh();
+    //delayms(1000);
+    if( n == 32 &&  buf[0] == type && buf[1] == 'X' ){
+        //lcdPrint("got packet");
+        //lcdRefresh();
+        //while(1);
         for(int i=0; i<NUMWORDS*4; i++)
             x[i] = buf[i+2];
+    nrf_config_set(&config);
         n = nrf_rcv_pkt_time(100, 32, buf);
         if( n == 32 && buf[0] ==type && buf[1] == 'Y' ){
             for(int i=0; i<NUMWORDS*4; i++)
                 y[i] = buf[i+2];
             return 0;
         }
+    }else{
     }
     return -1;
 }
@@ -104,6 +133,7 @@ void sendMac(void)
     buf[4] = mac[2];
     buf[5] = mac[3];
     buf[6] = mac[4];
+    nrf_config_set(&config);
     nrf_snd_pkt_crc(32, buf);
     delayms(10);
 }
@@ -113,6 +143,7 @@ int receiveMac(uint8_t *mac)
     uint8_t buf[32]; 
     uint8_t n;
 
+    nrf_config_set(&config);
     n = nrf_rcv_pkt_time(100, 32, buf);
     if( n == 32 && buf[0] == 'M' && buf[1] == 'C' ){
         for(int i=0; i<5; i++)
@@ -246,6 +277,7 @@ int filetransfer_send(uint8_t *filename, uint16_t size,
     //nrf_get_tx_max(5,macbuf);
 
     //nrf_set_tx_mac(5, mac); 
+    nrf_config_set(&config);
     nrf_snd_pkt_crc_encr(32, metadata, k); 
     delayms(20);
     xxtea_encode_words((uint32_t *)buf, wordcount, k);
@@ -266,6 +298,7 @@ void rftransfer_send(uint16_t size, uint8_t *data)
     buf[3] = rand >> 8;
     buf[4] = rand & 0xFF;
 
+    nrf_config_set(&config);
     nrf_snd_pkt_crc(32,buf);     //setup packet
     delayms(20);
     uint16_t index = 0;
@@ -282,6 +315,7 @@ void rftransfer_send(uint16_t size, uint8_t *data)
             buf[i] = *data++;
         }
         index++;
+    nrf_config_set(&config);
         nrf_snd_pkt_crc(32,buf);     //data packet
         delayms(20);
     }
@@ -291,6 +325,7 @@ void rftransfer_send(uint16_t size, uint8_t *data)
     buf[2] = crc & 0xFF;
     buf[3] = rand >> 8;
     buf[4] = rand & 0xFF;
+    nrf_config_set(&config);
     nrf_snd_pkt_crc(32,buf);     //setup packet
     delayms(20);
 }
