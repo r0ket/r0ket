@@ -35,7 +35,7 @@
  */
 
 #define O_ENABLE_FILL
-//#define O_ENABLE_STROKE
+#define O_ENABLE_STROKE
 #define O_ENABLE_USER_SHADER
 #define O_ENABLE_BW   /* pick one ,. */
 //#define O_ENABLE_GRAY
@@ -43,7 +43,7 @@
 //#define O_ENABLE_RECTANGLE
 //#define O_ENABLE_STACK
 //#define O_ENABLE_CLIP
-//#define O_ENABLE_TRANSFORM
+#define O_ENABLE_TRANSFORM
 //#define O_ENABLE_TRANSFORM_FUNCS
 //#define O_ENABLE_RENDER
 //#define O_ENABLE_TEXT
@@ -256,8 +256,8 @@ o_translate (int tx, int ty)
   OMatrix *m = &context()->transform;
   o_matrix_identity (&t);
 
-  t.m[2][0] = tx * FIXED_ONE / 1000;
-  t.m[2][1] = ty * FIXED_ONE / 1000;
+  t.m[2][0] = tx * SPP * FIXED_ONE / 1000;
+  t.m[2][1] = ty * SPP * FIXED_ONE / 1000;
   o_matrix_multiply (m, &t, m);
 }
 
@@ -272,29 +272,6 @@ o_scale (int sx, int sy)
   o_matrix_multiply (m, &t, m);
 }
 
-
-static int o_sin(int x)
-{
-#define qN 13
-#define qA 12
-#define qP 15
-#define qR (2*qN-qP)
-#define qS (qN+qP+1-qA)
-
-    x= x<<(30-qN);          // shift to full s32 range (Q13->Q30)
-
-    if( (x^(x<<1)) < 0)     // test for quadrant 1 or 2
-        x= (1<<31) - x;
-
-    x= x>>(30-qN);
-
-    return (x * ( (3<<qP) - (x*x>>qR) ) >> qS );
-}
-
-static inline int o_cos(int x)
-{
-  return o_sin(x + 8192);
-}
 
 void
 o_rotate (int angle)
@@ -370,8 +347,8 @@ bezier (Node **curve,
 
 void o_current_point (int *x, int *y)
 {
-  if (x) *x = path->x;
-  if (y) *y = path->y;
+  if (x) *x = path->x / SPP;
+  if (y) *y = path->y / SPP;
 }
 
 #ifdef O_ENABLE_STACK
@@ -411,7 +388,7 @@ o_add (unsigned char type,
 {
   Node *iter = NULL;
 
-#if 0
+#if 1
   if (type != 'A')
     {
       x *= SPP;
@@ -479,8 +456,8 @@ static int shader_gray (int x, int y, void *data)
 }
 #endif
 
-#ifdef O_ENABLE_GRAY_EXTRA
-#define GRAY_PRECISION     8
+#ifdef O_ENABLE_GRAY
+#define GRAY_PRECISION     4
 /* Default color generator shader */
 static int shader_gray (int x, int y, void *data)
 {
@@ -493,8 +470,8 @@ static int shader_gray (int x, int y, void *data)
 }
 #endif
 
-#ifdef O_ENABLE_GRAY
-#define GRAY_PRECISION     4
+#ifdef O_ENABLE_GRAY_EXTRA
+#define GRAY_PRECISION     8
 /* Default color generator shader */
 static int shader_gray (int x, int y, void *data)
 {

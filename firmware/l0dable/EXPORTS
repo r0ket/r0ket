@@ -113,3 +113,5 @@ o_close
 o_set_gray
 o_fill
 o_set_shader
+o_identity
+o_transform

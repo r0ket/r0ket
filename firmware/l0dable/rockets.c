@@ -3,23 +3,25 @@
 #include "lcd/lcd.h"
 #include "usetable.h"
 
-#define SPP 10
-
 static void draw_rakett (int x, int y, int scale, int angle);
+static int my_gray (int x, int y, void *data);
 
 void ram (void) {
-    char test[384]; /* scratch space */
+    char test[512]; /* scratch space */
     o_init (test, sizeof(test));
     int frame_no = 0;
     int frame_dir = 1;
-    while (1) {
+    o_set_shader (my_gray, NULL);
+    while (getInputRaw() != BTN_ENTER){
+      o_identity ();
       o_rectangle (0,0,RESX, RESY);
-      o_set_gray (1000);
+      o_set_gray (250);
       o_fill ();     /* fill with 50% gray */
 
-      draw_rakett (40, 20, frame_no / 3,  150*frame_no);
-      draw_rakett (20, 20, frame_no,  10*frame_no);
-      draw_rakett (80, 30, 1000-frame_no,  450+14*frame_no);
+      draw_rakett (40, 20, 400,  300);
+      draw_rakett (20, 20, 250,  10*frame_no);
+      draw_rakett (80, 30, 350,  450+14*frame_no);
+
       frame_no += frame_dir;
       lcdDisplay();
       delayms(2);
@@ -29,18 +31,7 @@ void ram (void) {
     }
 }
 
-static signed char rakett[] = {
-  ' ',
-  'm',38,6,
-  'c',38,6,36,13,36,15,
-  'c',24,22,23,26,21,32,'c',19,41,23,61,23,61,'c',15,73,14,95,17,110,'l',26,109,'c',26,102,26,87,30,83,'c',30,83,30,88,30,95,'c',31,103,31,108,31,108,'l',36,108,'c',36,108,35,98,36,91,'c',37,83,38,80,38,80,'c',41,79,43,80,47,79,'c',56,85,56,89,58,99,'c',58,103,58,108,58,108,'l',68,108,'c',67,89,69,73,54,58,'c',54,58,56,41,53,31,'c',50,21,40,15,40,15,'l',38,6,'z','g',0,'f',
-  ' ',
-  'm',33,20,'c',31,20,29,21,27,22,'c',25,24,23,27,22,29,'c',20,35,21,38,21,38,'c',26,38,29,36,34,33,'c',38,31,42,24,34,21,'c',34,21,33,20,33,20,'z','g', 50,'f','.'
-};
-
-#define GRAY_PRECISION     4
-/* Default color generator shader */
-static int shader_gray (int x, int y, void *data)
+static int my_gray (int x, int y, void *data)
 {
   int value = (int)(data); /* stored gray value as 8bit value */
   switch (value)           /* the dither patterns are can be seen */
@@ -82,26 +73,34 @@ static int shader_gray (int x, int y, void *data)
   return 0;
 }
 
-static const signed char * o_process_op (const signed char *g,
-                                         int scale,
-                                         int x,
-                                         int y)
+
+static signed char rakett[] = {
+  ' ',
+  'm',38,6,
+  'c',38,6,36,13,36,15,
+  'c',24,22,23,26,21,32,'c',19,41,23,61,23,61,'c',15,73,14,95,17,110,'l',26,109,'c',26,102,26,87,30,83,'c',30,83,30,88,30,95,'c',31,103,31,108,31,108,'l',36,108,'c',36,108,35,98,36,91,'c',37,83,38,80,38,80,'c',41,79,43,80,47,79,'c',56,85,56,89,58,99,'c',58,103,58,108,58,108,'l',68,108,'c',67,89,69,73,54,58,'c',54,58,56,41,53,31,'c',50,21,40,15,40,15,'l',38,6,'z','g',0,'f','g',100,'s',
+  ' ',
+  'm',33,20,'c',31,20,29,21,27,22,'c',25,24,23,27,22,29,'c',20,35,21,38,21,38,'c',26,38,29,36,34,33,'c',38,31,42,24,34,21,'c',34,21,33,20,33,20,'z','g', 50,'f','.'
+};
+
+static const signed char * o_process_op (const signed char *g)
 {
-  scale *= SPP;
   switch (*g++) {
 
     case ' ': o_path_new (); break;
     /* all of these path commands are directly in integer coordinates */
     case 'm':
-      o_move_to  (g[0]*scale/1000+x, g[1]*scale/1000+y); g += 2;
+      o_move_to  (g[0], g[1]); g += 2;
 break;
-    case 'l': o_line_to  (g[0]*scale/1000+x, g[1]*scale/1000+y); g += 2; break;
-    case 'c': o_curve_to (g[0]*scale/1000+x, g[1]*scale/1000+y, g[2]*scale/1000+x, g[3]*scale/1000+y, g[4]*scale/1000+x, g[5]*scale/1000+y); g += 6; break;
+    case 'l': o_line_to  (g[0], g[1]); g += 2; break;
+    case 'c': o_curve_to (g[0], g[1], g[2], g[3], g[4], g[5]); g += 6; break;
     case 'z': o_close (); break;
 
     case 'g': o_set_gray (g[0]*10); g ++; break;
 
     case 'f': o_fill (); break;
+    case 's': break;
+    //case 's': o_stroke (); break;
               /* 1 = 1 10 = 10 100 = 100 */
 #if 0
     case '!': o_identity (); break;
@@ -121,20 +120,14 @@ break;
 }
 
 static void
-orender (const signed char *g, int scale, int x, int y)
+orender (const signed char *g)
 {
-  o_set_shader (shader_gray, NULL);
-  for (; g; g = o_process_op (g, scale, x, y));
+  for (; g; g = o_process_op (g));
 }
-
 
 void o_rectangle (int x0, int y0, int width, int height)
 {
   o_path_new ();
-  x0*=SPP;
-  y0*=SPP;
-  width*=SPP;
-  height*=SPP;
   o_move_to (x0, y0);
   o_line_to (x0 + width, y0);
   o_line_to (x0 + width, y0+height);
@@ -144,12 +137,13 @@ void o_rectangle (int x0, int y0, int width, int height)
 
 void draw_rakett (int x, int y, int scale, int angle)
 {
-  //o_save ();
-  //o_identity (); /* reset transform stack */
-  //o_translate(x * 1000, y * 1000);
-  //o_rotate (angle);
-  //o_scale (scale, scale);
-  //o_translate (-37000, -60000);
-  orender (rakett, scale, x, y);  /* render a rocket */
-  //o_restore ();
+  OMatrix m={{{scale,0},{0,scale},{x * 6000,y * 6000}}};
+  o_identity (); /* reset transform stack */
+  /*
+  o_translate(x * 1000 , y * 1000 );
+  o_rotate (angle);
+  o_scale (scale, scale);
+  o_translate (-37000, -60000);*/
+  o_transform (&m, 0);
+  orender (rakett);  /* render a rocket */
 }
