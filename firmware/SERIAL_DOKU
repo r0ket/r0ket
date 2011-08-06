@@ -4,7 +4,8 @@ pm: preset funk for mesh
 pM: preset funk for pubMesh
 pr: preset funk for rem0te
 
-t<char>: set packet dump type (b/m/0)
+t<char>: set packet dump type (b/B/m/M/0)
+f<char><hex>: set filter stuff
 
 ck<hex>: set encryptionkey
 cm<hex>: set rxmac(0)
@@ -19,4 +20,4 @@ sd <hex>: send packet with debugoutput
 
 r: recv packets
 r+<hex>: recv packets for <hex> seconds
-r-<hex>: recv <hex> packets (5 seconds max)
+r-<hex>: recv <hex> packets

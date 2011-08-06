@@ -48,6 +48,9 @@ struct NRF_CFG config = {
 };
 
 char type=0;
+char filter=0;
+uint8_t filterdata[10];
+char outc[2]= {0,0};
 
 static int process(char * input);
 
@@ -314,6 +317,26 @@ static int process(char * input){
             ;
         };
         puts_plus("\r\n");
+    }else if (input[0]=='f'){
+        int len;
+        filter=input[1];
+        uint8_t *hex=hextobyte(input+2,&len);
+        if(len>9)
+            len=9;
+        memcpy(filterdata,hex,len);
+        puts_plus("F ");
+        if(filter){
+        puts_plus("[");
+        outc[0]=filter;
+        puts_plus(outc);
+        puts_plus("]");
+        for(int i=0;i<len;i++){
+            puts_plus(IntToStrX(filterdata[i],2 ));
+        };
+        }else{
+            puts_plus("off");
+        };
+        puts_plus("\r\n");
     }else if (input[0]=='r'){
         __attribute__ ((aligned (4))) uint8_t buf[32];
         int len;
@@ -335,7 +358,13 @@ static int process(char * input){
         puts_plus(IntToStr(pctr,8,0));
         puts_plus("pkts, ");
         puts_plus(IntToStr(t,8,0));
-        puts_plus("secs ...\r\n");
+        puts_plus("secs ");
+        if(filter){
+            puts_plus("FILTER=");
+            outc[0]=filter;
+            puts_plus(outc);
+        };
+        puts_plus(" ...\r\n");
         if(t>0)
             t=getTimer()+t*1000/SYSTICKSPEED;
         nrf_rcv_pkt_start();
@@ -346,12 +375,16 @@ static int process(char * input){
                 delayms(10);
                 continue;
             };
-            puts_plus("R ");
-            if(len==-3){
-                puts_plus("[!crc] ");
-                len=32;
+            if (!filter){
+                if(len==-3){
+                    puts_plus("[!crc] ");
+                    len=32;
+                };
             };
-            if(type=='m'){
+            if(type=='m' || type=='M'){
+                if(filter && filter!=buf[0])
+                    continue;
+                puts_plus("R ");
                 puts_plus(IntToStrX( buf[0],2 ));
                 puts_plus(" ");
                 puts_plus(IntToStrX( buf[1],2 ));
@@ -373,7 +406,19 @@ static int process(char * input){
                 puts_plus(IntToStrX( buf[30],2 ));
                 puts_plus(IntToStrX( buf[31],2 ));
                 puts_plus(" ");
+            }else if(type=='B'){
+                if(filter)
+                    if(uint8ptouint32(buf+8)!=uint8ptouint32(filterdata))
+                        continue;
+                puts_plus("RF ");
+                puts_plus(IntToStrX( buf[2],2 ));
+                puts_plus(" ");
+                puts_plus(IntToStrX( uint8ptouint32(buf+8),8 ));
             }else if(type=='b'){
+                if(filter)
+                    if(uint8ptouint32(buf+8)!=uint8ptouint32(filterdata))
+                        continue;
+                puts_plus("R ");
                 puts_plus(IntToStrX( buf[0],2 ));
                 puts_plus(" ");
                 puts_plus(IntToStrX( buf[1],2 ));
@@ -391,15 +436,15 @@ static int process(char * input){
                 puts_plus(" ");
                 puts_plus(IntToStrX( buf[14],2 ));
                 puts_plus(IntToStrX( buf[15],2 ));
-                puts_plus(" ");
             }else{
+                puts_plus("R ");
                 puts_plus("[");puts_plus(IntToStrX(len,2));puts_plus("] ");
                 for(int i=0;i<len;i++){
                     puts_plus(IntToStrX( buf[i],2 ));
                     puts_plus(" ");
                 };
             };
-            if(pctr<0){
+            if(1){
                 int l=0;
                 CDC_OutBufAvailChar (&l);
                 if(l>0){
@@ -410,7 +455,7 @@ static int process(char * input){
             puts("\r\n");
             if(--pctr==0)
                 break;
-        }while(t>((t==-1)?getTimer():0));
+        }while((t>0)?(t>getTimer()):1);
 
         nrf_rcv_pkt_end();
     }else{
