@@ -53,6 +53,7 @@ void gpioIntDisable (uint32_t portNum, uint32_t bitPos) {
 
 uint32_t  gpioIntStatus (uint32_t portNum, uint32_t bitPos) {
   printf("uint32_t  gpioIntStatus (uint32_t portNum, uint32_t bitPos)\n");
+  return 0;
 }
 
 void gpioIntClear (uint32_t portNum, uint32_t bitPos) {
