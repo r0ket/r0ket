@@ -12,12 +12,6 @@ The following symbols were found to be defined within glibc.
 Use different names within simulat0r to keep the firmware and simulat0r-host universes collision-free.
  */
 #define buf __r0ket_buf
-#define deselect __r0ket_deselect
-#define ECIES_embedded_public_key_validation __r0ket_ECIES_embedded_public_key_validation
-#define ECIES_generate_key_pair __r0ket_ECIES_generate_key_pair
-#define ECIES_public_key_validation __r0ket_ECIES_public_key_validation
-#define f_sync __r0ket_f_sync
-#define getInput __r0ket_getInput
 #define isalnum __r0ket_isalnum
 #define isalpha __r0ket_isalpha
 #define isascii __r0ket_isascii
@@ -55,4 +49,3 @@ Use different names within simulat0r to keep the firmware and simulat0r-host uni
 #define vprintf __r0ket_vprintf
 #define vsnprintf __r0ket_vsnprintf
 #define vsprintf __r0ket_vsprintf
-#define XTEA_init_key __r0ket_XTEA_init_key
