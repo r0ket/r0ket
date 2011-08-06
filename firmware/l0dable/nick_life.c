@@ -256,6 +256,10 @@ static void reset_area() {
   }
 }
 
+#ifdef SIMULATOR
+extern uint32_t getRandom(void);
+#endif
+
 static void random_area(struct bitset *area, uchar x0, uchar y0, uchar x1, uchar y1,uchar value) {
   for(uchar x=x0; x<=x1; ++x) {
     for(uchar y=y0; y<=y1; ++y) {

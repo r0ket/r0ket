@@ -392,7 +392,7 @@ void ECIES_generate_key_pair(void)      /* generate a public/private key pair */
   //printf("Here is your new public/private key pair:\n");
   bitstr_to_hex(buf, x);
   //printf("Public key: %s:", bufptr); 
-  FILE* f = fopen("pubx.key", "w");
+  FILE* f = fopen("files/pubx.key", "w");
   if( f == NULL ){
     printf("error opening pubx.key\n");
     while(1);
@@ -402,7 +402,7 @@ void ECIES_generate_key_pair(void)      /* generate a public/private key pair */
 
   bitstr_to_hex(buf, y);
   //printf("%s\n", bufptr);
-  f = fopen("puby.key", "w");
+  f = fopen("files/puby.key", "w");
   if( f == NULL ){
     printf("error opening puby.key\n");
     while(1);
@@ -413,7 +413,7 @@ void ECIES_generate_key_pair(void)      /* generate a public/private key pair */
 
   bitstr_to_hex(buf, k);
   //printf("Private key: %s\n", bufptr);
-  f = fopen("priv.key", "w");
+  f = fopen("files/priv.key", "w");
   if( f == NULL ){
     printf("error opening priv.key\n");
     while(1);

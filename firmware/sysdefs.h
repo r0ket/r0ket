@@ -62,7 +62,9 @@ typedef unsigned char byte_t;
 #endif
 
 // Save some space
+#ifndef SIMULATOR
 #define memcpy memmove
+#endif
 
 #endif
 
