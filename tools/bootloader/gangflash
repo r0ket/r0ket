@@ -44,7 +44,7 @@ def flash(count, target, firmware):
 
 def copy(count, target, dir):
     flashed = []
-    filestocopy = os.listdir(dir)
+    #filestocopy = os.listdir(dir)
     os.mkdir("/tmp/r0ket")
 
     while len(flashed) != count:
@@ -68,10 +68,11 @@ def copy(count, target, dir):
                 print "mkdir", "/tmp/r0ket/"+device
                 os.mkdir("/tmp/r0ket/"+device)
                 print "mount "+target+device+" "+"/tmp/r0ket/"+device
-                os.system("mount "+target+device+" "+"/tmp/r0ket/"+device)
-                for file in filestocopy:
-                    print "cp "+dir+file+" /tmp/r0ket/"+device
-                    os.system("cp "+dir+file+" /tmp/r0ket/"+device)
+                os.system("mount -t vfat "+target+device+" "+"/tmp/r0ket/"+device)
+                os.system("../tools/crypto/generate-keys")
+                #for file in filestocopy:
+                print     "cp "+dir+"/* /tmp/r0ket/"+device
+                os.system("cp "+dir+"/* /tmp/r0ket/"+device)
                 print "flashed %s" % device
             except Exception, ex:
                 print "error!"
@@ -84,6 +85,8 @@ def copy(count, target, dir):
         for mount in mounted:
             print "touch /tmp/r0ket/"+mount+"/flashed.cfg"
             os.system("touch /tmp/r0ket/"+mount+"/flashed.cfg")
+            print "sync"
+            os.system("sync")
             print "umount /tmp/r0ket/"+mount
             os.system("umount /tmp/r0ket/"+mount)
             print "rm /tmp/r0ket/"+mount
@@ -94,10 +97,10 @@ def copy(count, target, dir):
 
 
 while True:
-    flash(6, "/dev/lpcflash/", "bootstrap.bin")
-    raw_input("Flashed bootstrap firmware.\nNow cycle power and press enter.")
-    copy(6, "/dev/r0ketflash/","../default-files/")
-    flash(6, "/dev/lpcflash/", "firmware.bin")
     raw_input("Flashed firmware.\nNow cycle power and press enter.")
+    flash(8, "/dev/lpcflash/", "initial.bin")
+    raw_input("Flashed bootstrap firmware.\nNow cycle power and press enter.")
+    copy(8, "/dev/r0ketflash/","files")
+    flash(8, "/dev/lpcflash/", "final.bin")
 
 

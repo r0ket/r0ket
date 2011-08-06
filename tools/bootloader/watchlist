@@ -1,0 +1,5 @@
+echo lpcflash:
+ls /dev/lpcflash
+
+echo r0ketflash
+ls /dev/r0ketflash
