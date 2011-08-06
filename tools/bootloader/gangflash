@@ -49,10 +49,11 @@ def copy(count, target, dir):
 
     while len(flashed) != count:
         filelist = []
-        try:
-            filelist = os.listdir(target)
-        except:
-            pass
+        while len(filelist) != count:
+            try:
+                filelist = os.listdir(target)
+            except:
+                pass
         oldflashed = flashed
         flashed = []
         for x in oldflashed:
@@ -67,8 +68,13 @@ def copy(count, target, dir):
                 time.sleep(0.3)
                 print "mkdir", "/tmp/r0ket/"+device
                 os.mkdir("/tmp/r0ket/"+device)
-                print "mount "+target+device+" "+"/tmp/r0ket/"+device
-                os.system("mount -t vfat "+target+device+" "+"/tmp/r0ket/"+device)
+                print "mount -t vfat "+target+device+" "+"/tmp/r0ket/"+device
+                x = 1
+                while x != 0:
+                    x = os.system("mount -t vfat "+target+device+" "+"/tmp/r0ket/"+device)
+                    print "returned", x
+                    if x != 0:
+                        time.sleep(5)
                 os.system("../tools/crypto/generate-keys")
                 #for file in filestocopy:
                 print     "cp "+dir+"/* /tmp/r0ket/"+device
@@ -87,6 +93,7 @@ def copy(count, target, dir):
             os.system("touch /tmp/r0ket/"+mount+"/flashed.cfg")
             print "sync"
             os.system("sync")
+            time.sleep(1)
             print "umount /tmp/r0ket/"+mount
             os.system("umount /tmp/r0ket/"+mount)
             print "rm /tmp/r0ket/"+mount
@@ -95,12 +102,14 @@ def copy(count, target, dir):
     print "rm /tmp/r0ket"
     os.rmdir("/tmp/r0ket")
 
-
+os.system("umount /tmp/r0ket/*")
+os.system("rm /tmp/r0ket -rf")
+os.system("rm /dev/r0ketflash/*")
 while True:
     raw_input("Flashed firmware.\nNow cycle power and press enter.")
-    flash(8, "/dev/lpcflash/", "initial.bin")
+    flash(9, "/dev/lpcflash/", "initial.bin")
     raw_input("Flashed bootstrap firmware.\nNow cycle power and press enter.")
-    copy(8, "/dev/r0ketflash/","files")
-    flash(8, "/dev/lpcflash/", "final.bin")
+    copy(9, "/dev/r0ketflash/","files")
+    flash(9, "/dev/lpcflash/", "final.bin")
 
 
