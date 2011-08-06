@@ -79,12 +79,34 @@ void mount(void)
 void format(void)
 {
     int res;
-    delayms(500);
-    lcdPrintln("Format DF:");
-    res=f_mount(0, &FatFs);
-    res=f_mkfs(0,1,0);
-    lcdPrintln(f_get_rc_string(res));
-    lcdRefresh();
+    FIL file;
+    uint8_t ok = 0;
+    uint8_t count = 0;
+    while(!ok){
+        delayms(500);
+        lcdPrintln("Format DF:");
+        res=f_mount(0, &FatFs);
+        res=f_mkfs(0,1,0);
+        lcdPrintln(f_get_rc_string(res));
+        lcdRefresh();
+        lcdPrintln("open file:");
+        res=f_open(&file, "test.cfg", FA_CREATE_ALWAYS|FA_WRITE);
+        lcdPrintln(f_get_rc_string(res));
+        lcdRefresh();
+        count++;
+        if( res ){
+            if( count >= 10 ){
+                while(1){
+                    delayms(50);
+                    gpioSetValue (RB_LED3, 0); 
+                    delayms(50);
+                    gpioSetValue (RB_LED3, 1); 
+                }
+            }
+        }else{
+            ok = 1;
+        }
+    }
 }
 
 int check(void)
