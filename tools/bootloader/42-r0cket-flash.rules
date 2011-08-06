@@ -1,0 +1,3 @@
+# rule for NXP LPC134X-Flash
+
+SUBSYSTEM=="block", ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="08ac", SYMLINK+="r0ketflash/%k", MODE="0666"
