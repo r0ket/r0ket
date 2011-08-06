@@ -4,10 +4,21 @@
 
 time_t _timet=0;
 
-int _ytab[2][12] = {
-    { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 },
-    { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 }
-};
+static int days_per_month (int year, int month)
+{
+  if (month == 1)
+    {
+      if (LEAPYEAR(year))
+        return 29;
+      return 28;
+    }
+  else if (month > 6)
+    month--;
+  if ((month % 2))
+    return 30;
+  else
+    return 31;
+}
 
 struct tm * mygmtime(register const time_t time) {
         static struct tm br_time;
@@ -21,7 +32,7 @@ struct tm * mygmtime(register const time_t time) {
         timep->tm_sec = dayclock % 60;
         timep->tm_min = (dayclock % 3600) / 60;
         timep->tm_hour = dayclock / 3600;
-        timep->tm_wday = (dayno + 4) % 7;       /* day 0 was a thursday */
+        timep->tm_wday = (dayno + 4) % 7;  /* day 0 was a thursday */
         while (dayno >= YEARSIZE(year)) {
                 dayno -= YEARSIZE(year);
                 year++;
@@ -29,8 +40,8 @@ struct tm * mygmtime(register const time_t time) {
         timep->tm_year = year - YEAR0;
         timep->tm_yday = dayno;
         timep->tm_mon = 0;
-        while (dayno >= _ytab[LEAPYEAR(year)][timep->tm_mon]) {
-                dayno -= _ytab[LEAPYEAR(year)][timep->tm_mon];
+        while (dayno >= days_per_month (year, timep->tm_mon)) {
+                dayno -= days_per_month (year, timep->tm_mon);
                 timep->tm_mon++;
         }
         timep->tm_mday = dayno + 1;
