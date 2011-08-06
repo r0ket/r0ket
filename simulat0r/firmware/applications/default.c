@@ -6,6 +6,7 @@
 #undef main_default
 
 int lcdInitConfig() {
+  return 0;
 }
 
 void main_default() {
