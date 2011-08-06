@@ -12,16 +12,19 @@
 
 /**************************************************************************/
 
+static void execute_it (const char *type)
+{
+  while(getInput()!=BTN_NONE);
+  executeSelect(type);
+  lcdRefresh();
+}
+
 //# MENU execute
 void execute_menu(void){
-    while(getInput()!=BTN_NONE);
-    executeSelect("C0D");
-    lcdRefresh();
+  execute_it ("C0D");
 };
 
 //# MENU |devel
 void execute_devel(void){
-    while(getInput()!=BTN_NONE);
-    executeSelect("INT");
-    lcdRefresh();
+  execute_it ("INT");
 };
