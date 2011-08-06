@@ -1,4 +1,8 @@
 drive=/cygdrive/f
+if [ ! -z "$1" ] ; then 
+  dirve=/cygdrive/$a
+fi
+
 file=$drive/firmware.bin
 
 while : ; do

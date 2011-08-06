@@ -23,7 +23,7 @@
 #define BEACON_CHANNEL 81
 #define BEACON_MAC     "\x1\x2\x3\x2\1"
 
-#include "SECRETS"
+#include "SECRETS.release"
 
 char funkencrypt=0;
 
@@ -47,9 +47,12 @@ struct NRF_CFG config = {
     .maclen ="\x10",
 };
 
-int process(char * input);
+char type=0;
+
+static int process(char * input);
 
 #define INPUTLEN 99
+//# MENU serial
 void dwim(void){
     char input[INPUTLEN+1];
     int inputptr=0;
@@ -58,6 +61,8 @@ void dwim(void){
     usbCDCInit();
     delayms(500);
     getInputWaitRelease();
+    nrf_init();
+    gpioSetValue (RB_LED1, 0); 
     puts("D start\r\n");
 
     while(!getInputRaw()){
@@ -97,13 +102,13 @@ void dwim(void){
         };
         inputptr+=l;
     };
-
+    gpioSetValue (RB_LED1, 0); 
     puts("D exit\r\n");
 }
 
 #define BUFLEN 32
 #define NYB(x) ((x>'9')?(x|0x20)-'a'+10:x-'0')
-uint8_t * hextobyte(char * input, int *len){
+static uint8_t * hextobyte(char * input, int *len){
     static uint8_t buf[BUFLEN];
 
     int p=0;
@@ -123,7 +128,16 @@ uint8_t * hextobyte(char * input, int *len){
     return buf;
 };
 
-int process(char * input){
+static uint32_t gethexval(char * input){
+    int len;
+    uint8_t *hex=hextobyte(input,&len);
+    uint32_t v=hex[0];
+    while(--len>0)
+        v=v*256+(*++hex);
+    return v;
+};
+
+static int process(char * input){
     if(input == NULL || input[0]==0)
         return -1;
 
@@ -135,7 +149,8 @@ int process(char * input){
     if(input[0]=='i'){
         nrf_init();
         nrf_config_set(&config);
-    }else if(input[0]=='c'){
+    }else if(input[0]=='p'){
+        type=input[1];
         if(input[1]=='m'){
             config.channel=MESH_CHANNEL;
             memcpy(config.txmac,MESH_MAC,5);
@@ -144,6 +159,18 @@ int process(char * input){
             config.nrmacs=1;
             nrf_config_set(&config);
             memcpy(thekey,meshkey,sizeof(thekey));
+            funkencrypt=1;
+        }else if(input[1]=='M'){
+            config.channel=83;
+            memcpy(config.txmac,MESH_MAC,5);
+            memcpy(config.mac0,MESH_MAC,5);
+            config.maclen[0]=0x20;
+            config.nrmacs=1;
+            nrf_config_set(&config);
+            static const uint32_t const pubmesh[4] = {
+                0x00000042, 0x000005ec, 0x00000023, 0x00000005
+            };
+            memcpy(thekey,pubmesh,sizeof(thekey));
             funkencrypt=1;
         }else if(input[1]=='r'){
             config.channel=REMOTE_CHANNEL;
@@ -163,6 +190,43 @@ int process(char * input){
             nrf_config_set(&config);
             memcpy(thekey,openbeaconkey,sizeof(thekey));
             funkencrypt=1;
+        }else if(input[1]=='B'){
+            config.channel=BEACON_CHANNEL;
+            memcpy(config.txmac,BEACON_MAC,5);
+            memcpy(config.mac0,BEACON_MAC,5);
+            config.maclen[0]=0x10;
+            config.nrmacs=1;
+            nrf_config_set(&config);
+            static const uint32_t pubbeaconkey[4] = {
+                        0xB4595344, 0xD3E119B6, 0xA814D0EC, 0xEFF5A24E 
+            };
+            memcpy(thekey,pubbeaconkey,sizeof(thekey));
+            funkencrypt=1;
+        };
+    }else if(input[0]=='t'){
+        type=input[1];
+    }else if(input[0]=='c'){
+        int len;
+        uint8_t *hex=hextobyte(&input[2],&len);
+        if(input[1]=='k'){
+            thekey[0]=uint8ptouint32(hex);
+            thekey[1]=uint8ptouint32(hex+4);
+            thekey[2]=uint8ptouint32(hex+8);
+            thekey[3]=uint8ptouint32(hex+12);
+        }else if(input[1]=='m'){
+            memcpy(config.mac0,hex,5);
+            nrf_config_set(&config);
+        }else if(input[1]=='t'){
+            memcpy(config.txmac,hex,5);
+            nrf_config_set(&config);
+        }else if(input[1]=='c'){
+            config.channel=hex[0];
+            nrf_config_set(&config);
+        }else if(input[1]=='l'){
+            config.maclen[0]=hex[0];
+            nrf_config_set(&config);
+        }else if(input[1]=='e'){
+            funkencrypt= hex[0];
         }else if(input[1]=='?'){
             nrf_config_get(&config);
             puts_plus("Ch: ");puts_plus(IntToStrX( config.channel,2 )); puts_plus("\r\n");
@@ -203,41 +267,6 @@ int process(char * input){
                 puts_plus(IntToStrX( funkencrypt,2 ));
             puts_plus("\r\n");
         };
-    }else if(input[0]=='C'){
-        int len;
-        uint8_t *hex=hextobyte(&input[2],&len);
-        if(input[1]=='k'){
-            thekey[0]=uint8ptouint32(hex);
-            thekey[1]=uint8ptouint32(hex+4);
-            thekey[2]=uint8ptouint32(hex+8);
-            thekey[3]=uint8ptouint32(hex+12);
-        }else if(input[1]=='m'){
-            config.mac0[0]=uint8ptouint32(hex);
-            config.mac0[1]=uint8ptouint32(hex+4);
-            config.mac0[2]=uint8ptouint32(hex+8);
-            config.mac0[3]=uint8ptouint32(hex+12);
-            config.mac0[4]=uint8ptouint32(hex+16);
-            nrf_config_set(&config);
-        }else if(input[1]=='t'){
-            config.txmac[0]=uint8ptouint32(hex);
-            config.txmac[1]=uint8ptouint32(hex+4);
-            config.txmac[2]=uint8ptouint32(hex+8);
-            config.txmac[3]=uint8ptouint32(hex+12);
-            config.txmac[4]=uint8ptouint32(hex+16);
-            nrf_config_set(&config);
-        }else if(input[1]=='c'){
-            config.channel=*hex;
-            nrf_config_set(&config);
-        }else if(input[1]=='l'){
-            config.maclen[0]=uint8ptouint32(hex);
-            config.maclen[1]=uint8ptouint32(hex+4);
-            config.maclen[2]=uint8ptouint32(hex+8);
-            config.maclen[3]=uint8ptouint32(hex+12);
-            config.maclen[4]=uint8ptouint32(hex+16);
-            nrf_config_set(&config);
-        }else if(input[1]=='e'){
-            funkencrypt= uint8ptouint32(hex);
-        };
     }else if (input[0]=='s'){
         __attribute__ ((aligned (4))) uint8_t buf[32];
         int status=0;
@@ -262,14 +291,18 @@ int process(char * input){
             memcpy(buf,hex,len);
             status=nrf_snd_pkt_crc_encr(len,buf,funkencrypt?thekey:NULL);
 
-            puts_plus("P ");
-            puts_plus("[");puts_plus(IntToStrX(len,2));puts_plus("] ");
             if(debug){
+                puts_plus("P ");
+                puts_plus("[");puts_plus(IntToStrX(len,2));puts_plus("] ");
                 for(int i=0;i<len;i++){
                     puts_plus(IntToStrX( buf[i],2 ));
                     puts_plus(" ");
                 };
             };
+            puts_plus("S ");
+            puts_plus("[");puts_plus(IntToStrX(len,2));puts_plus("] ");
+            puts_plus("state=");
+            puts_plus(IntToStrX( status,2 ));
             puts("\r\n");
 
             while(--ctr>0){
@@ -277,46 +310,34 @@ int process(char * input){
                 memcpy(buf,hex,len);
                 status=nrf_snd_pkt_crc_encr(len,buf,funkencrypt?thekey:NULL);
             };
-        }else if (input[1]=='t'){
-            static int ctr=1;
-            int status;
-
-            buf[0]=0x10; // Length: 16 bytes
-            buf[1]='1'; // Proto
-            buf[2]=0x00;
-            buf[3]=0x00; // Unused
-
-            uint32touint8p(ctr++,buf+4);
-
-            uint32touint8p(0x5ec,buf+8);
-
-            buf[12]=0xff; // salt (0xffff always?)
-            buf[13]=0xff;
-            status=nrf_snd_pkt_crc_encr(16,buf,funkencrypt?thekey:NULL);
         }else{
+            ;
         };
-        puts_plus("S state=");
-        puts_plus(IntToStrX( status,2 ));
         puts_plus("\r\n");
     }else if (input[0]=='r'){
         __attribute__ ((aligned (4))) uint8_t buf[32];
         int len;
         int pctr=5;
-        int t=getTimer()+5000/SYSTICKSPEED;
+        int t=5;
 
         if(input[1]=='+'){
             if(input[2]!=0){
-                uint8_t *hex=hextobyte(&input[2],&len);
-                t=getTimer()+hex[0]*1000/SYSTICKSPEED;
+                t=gethexval(&input[2]);
             };
             pctr=-1;
         }
         if(input[1]=='-'){
-            uint8_t *hex=hextobyte(&input[2],&len);
-            pctr=hex[0];
+            pctr=gethexval(&input[2]);
+            t=-1;
         }
 
-        puts_plus("D receive ...\r\n");
+        puts_plus("D rcv: ");
+        puts_plus(IntToStr(pctr,8,0));
+        puts_plus("pkts, ");
+        puts_plus(IntToStr(t,8,0));
+        puts_plus("secs ...\r\n");
+        if(t>0)
+            t=getTimer()+t*1000/SYSTICKSPEED;
         nrf_rcv_pkt_start();
         do{
             len=nrf_rcv_pkt_poll_dec(sizeof(buf),buf,funkencrypt?thekey:NULL);
@@ -326,14 +347,57 @@ int process(char * input){
                 continue;
             };
             puts_plus("R ");
-            puts_plus("[");puts_plus(IntToStrX(len,2));puts_plus("] ");
             if(len==-3){
                 puts_plus("[!crc] ");
-                len=16;
+                len=32;
             };
-            for(int i=0;i<len;i++){
-                puts_plus(IntToStrX( buf[i],2 ));
+            if(type=='m'){
+                puts_plus(IntToStrX( buf[0],2 ));
                 puts_plus(" ");
+                puts_plus(IntToStrX( buf[1],2 ));
+                puts_plus(" ");
+                puts_plus(IntToStrX( uint8ptouint32(buf+2),8 ));
+                puts_plus(" ");
+                puts_plus(IntToStrX( uint8ptouint32(buf+6),8 ));
+                puts_plus(" ");
+                puts_plus(IntToStrX( uint8ptouint32(buf+10),8 ));
+                puts_plus(" ");
+                puts_plus(IntToStrX( uint8ptouint32(buf+14),8 ));
+                puts_plus(" ");
+                puts_plus(IntToStrX( uint8ptouint32(buf+18),8 ));
+                puts_plus(" ");
+                puts_plus(IntToStrX( uint8ptouint32(buf+22),8 ));
+                puts_plus(" ");
+                puts_plus(IntToStrX( uint8ptouint32(buf+26),8 ));
+                puts_plus(" ");
+                puts_plus(IntToStrX( buf[30],2 ));
+                puts_plus(IntToStrX( buf[31],2 ));
+                puts_plus(" ");
+            }else if(type=='b'){
+                puts_plus(IntToStrX( buf[0],2 ));
+                puts_plus(" ");
+                puts_plus(IntToStrX( buf[1],2 ));
+                puts_plus(" ");
+                puts_plus(IntToStrX( buf[2],2 ));
+                puts_plus(" ");
+                puts_plus(IntToStrX( buf[3],2 ));
+                puts_plus(" ");
+                puts_plus(IntToStrX( uint8ptouint32(buf+4),8 ));
+                puts_plus(" ");
+                puts_plus(IntToStrX( uint8ptouint32(buf+8),8 ));
+                puts_plus(" ");
+                puts_plus(IntToStrX( buf[12],2 ));
+                puts_plus(IntToStrX( buf[13],2 ));
+                puts_plus(" ");
+                puts_plus(IntToStrX( buf[14],2 ));
+                puts_plus(IntToStrX( buf[15],2 ));
+                puts_plus(" ");
+            }else{
+                puts_plus("[");puts_plus(IntToStrX(len,2));puts_plus("] ");
+                for(int i=0;i<len;i++){
+                    puts_plus(IntToStrX( buf[i],2 ));
+                    puts_plus(" ");
+                };
             };
             if(pctr<0){
                 int l=0;
@@ -344,9 +408,9 @@ int process(char * input){
                 };
             };
             puts("\r\n");
-            if(pctr--==0)
+            if(--pctr==0)
                 break;
-        }while(t>getTimer());
+        }while(t>((t==-1)?getTimer():0));
 
         nrf_rcv_pkt_end();
     }else{
