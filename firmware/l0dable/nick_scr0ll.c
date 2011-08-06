@@ -37,7 +37,7 @@ void ram(void) {
     nickheight=getFontHeight();
     nicky=(RESY-getFontHeight())/2;
 
-
+    lcdClear();
     char stepmode=0;
     while (1) {
         ++iter;
