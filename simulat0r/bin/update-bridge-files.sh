@@ -52,6 +52,8 @@ for i in `find firmware -type f -name .gitignore`; do
 	echo OK $i and simulat0r/$i are the same
     else
 	echo WARNING: $i mismatches simulat0r/$i
+	echo "   give this command a try if the following diff looks reasonable:"
+	echo "   cp $i simulat0r/$i"
 	diff -y $i simulat0r/$i
     fi 
 done
