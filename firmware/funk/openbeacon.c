@@ -16,6 +16,8 @@ volatile uint32_t seq = 0;
 volatile uint8_t strength = 0;
 static void openbeaconSave(uint32_t s);
 
+static struct NRF_CFG oldconfig;
+
 static void openbeaconShutdown(void)
 {    
     openbeaconSave(seq);
@@ -91,6 +93,9 @@ static uint8_t openbeaconSendPacket(uint32_t id, uint32_t seq,
 uint8_t openbeaconSend(void)
 {
     uint8_t status;
+
+    nrf_config_get(&oldconfig);
+
     nrf_set_channel(OPENBEACON_CHANNEL);
     nrf_set_strength(strength);
     nrf_set_tx_mac(sizeof(mac), mac);
@@ -100,6 +105,7 @@ uint8_t openbeaconSend(void)
         strength = 0;
     if( (seq++ & OPENBEACON_SAVE) == OPENBEACON_SAVE )
         openbeaconSaveBlock();
+    nrf_config_set(&oldconfig);
     return status;
 }
 
