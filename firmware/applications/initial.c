@@ -79,6 +79,7 @@ void mount(void)
 void format(void)
 {
     int res;
+    delayms(500);
     lcdPrintln("Format DF:");
     res=f_mount(0, &FatFs);
     res=f_mkfs(0,1,0);
