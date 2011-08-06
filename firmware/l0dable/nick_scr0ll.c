@@ -25,17 +25,18 @@ void ram(void) {
     static int nickoff=10;
     static char delay=10;
     static char speedmode=0;
+    static char movx=1;
     static char LCDSHIFTX_EVERY_N=2;
     static char LCDSHIFTY_EVERY_N=2;
 
     lcdClear();
     setExtFont(GLOBAL(nickfont));
-    
+    nicky=1; 
+    nickwidth=DoString(nickx,nicky,GLOBAL(nickname));
+    if(nickwidth<50)nickoff=30;
     nickheight=getFontHeight();
     nicky=(RESY-getFontHeight())/2;
 
-    nickwidth=DoString(nickx,nicky,GLOBAL(nickname));
-    if(nickwidth<50)nickoff=30;
 
     char stepmode=0;
     while (1) {
@@ -46,7 +47,7 @@ void ram(void) {
         // Old shift code. Can't handle longer Nicks...
         // if(iter%LCDSHIFT_EVERY_N==0) lcdShift(1,-2,1);
         // if(iter%LCDSHIFT_EVERY_N==0) { nickx=(nickx+1)%100-nickwidth; nicky=(nicky+1)%50;}
-        if(iter%LCDSHIFTX_EVERY_N==0) { nickx--; 
+        if(iter%LCDSHIFTX_EVERY_N==0) { nickx-=movx; 
         if(nickx<(-1*nickwidth-nickoff))nickx=0; }
         // if(iter%LCDSHIFTY_EVERY_N==0) { nicky+=movy;
         // if(nicky<1 || nicky>RESY-nickheight) movy*=-1; }
@@ -60,23 +61,19 @@ void ram(void) {
 	  return;
 	case BTN_RIGHT:
 	  getInputWaitRelease();
-          speedmode=(speedmode+1)%4;
+          speedmode=(speedmode+1)%6;
           delay=15;
           switch(speedmode) {
             case 0:
-              LCDSHIFTX_EVERY_N=1; LCDSHIFTY_EVERY_N=1; break;
+              movx=1; LCDSHIFTX_EVERY_N=1; LCDSHIFTY_EVERY_N=1; break;
             case 1:
-              LCDSHIFTX_EVERY_N=2; LCDSHIFTY_EVERY_N=2; break;
+              movx=1; LCDSHIFTX_EVERY_N=2; LCDSHIFTY_EVERY_N=2; break;
             case 2:
-              LCDSHIFTX_EVERY_N=3; LCDSHIFTY_EVERY_N=4; break;
-            case 3:
-              LCDSHIFTX_EVERY_N=4; LCDSHIFTY_EVERY_N=1; break;
+              movx=1; LCDSHIFTX_EVERY_N=3; LCDSHIFTY_EVERY_N=4; break;
             case 4:
-              LCDSHIFTX_EVERY_N=1; LCDSHIFTY_EVERY_N=1; break;
+              movx=2; LCDSHIFTX_EVERY_N=1; LCDSHIFTY_EVERY_N=1; break;
             case 5:
-              LCDSHIFTX_EVERY_N=1; LCDSHIFTY_EVERY_N=1; break;
-            case 6:
-              delay=5; LCDSHIFTX_EVERY_N=1; LCDSHIFTY_EVERY_N=1; break;
+              movx=3; LCDSHIFTX_EVERY_N=1; LCDSHIFTY_EVERY_N=1; break;
           }
 	  break; 
 	case BTN_DOWN:
