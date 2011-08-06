@@ -90,9 +90,9 @@ void mesh_sendloop(void){
     MO_TIME_set(meshbuffer[0].pkt,getSeconds());
     MO_GEN_set(meshbuffer[0].pkt,meshgen);
     if(GLOBAL(privacy)==0)
-        uint32touint8p(GetUUID32(),MO_BODY(meshbuffer[0].pkt));
+        uint32touint8p(GetUUID32(),meshbuffer[0].pkt+26);
     else
-        uint32touint8p(0,MO_BODY(meshbuffer[0].pkt));
+        uint32touint8p(0,meshbuffer[0].pkt+26);
 
     MO_BODY(meshbuffer[0].pkt)[4]=meshnice;
 
