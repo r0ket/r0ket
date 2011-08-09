@@ -10,7 +10,11 @@ VPATH +=
 OBJS += main.o
 
 ifeq "$(wildcard table.c)" "table.c"
+ifeq "$(APP)" "serial"
+OBJS +=
+else
 OBJS += table.o
+endif
 endif
 
 LIBS += lcd/liblcd.a

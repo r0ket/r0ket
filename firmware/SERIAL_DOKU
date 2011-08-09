@@ -1,11 +1,18 @@
 i: initialize
-cb / cm / cr: config funk for beacon/mesh/remote
-Ck<hex>: set encryptionkey
-Ct<hex>: set txmac
-Cc<hex>: set channel
-Ct<hex>: set rxmac(0)
-Cl<hex>: set rxlens
-Ce<hex>: sec encrpytion on/off
+pb: preset funk for beacon
+pm: preset funk for mesh
+pM: preset funk for pubMesh
+pr: preset funk for rem0te
+
+t<char>: set packet dump type (b/B/m/M/0)
+f<char><hex>: set filter stuff
+
+ck<hex>: set encryptionkey
+cm<hex>: set rxmac(0)
+ct<hex>: set txmac
+cc<hex>: set channel
+cl<hex>: set rxlen
+ce<hex>: sec encrpytion on/off
 
 s <hex>: send packet
 s+ <hex>: send packet 10 times
@@ -13,4 +20,4 @@ sd <hex>: send packet with debugoutput
 
 r: recv packets
 r+<hex>: recv packets for <hex> seconds
-r-<hex>: recv <hex> packets (5 seconds max)
+r-<hex>: recv <hex> packets
