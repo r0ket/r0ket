@@ -8,7 +8,7 @@
 #define M_RECVINT 1000
 #define M_RECVTIM 100
 
-#define MESH_CHANNEL 85
+#define MESH_CHANNEL 83
 #define MESH_MAC     "MESHB"
 
 #define MO_TYPE(x)       (x[0])

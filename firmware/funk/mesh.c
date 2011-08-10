@@ -7,6 +7,7 @@
 #include "basic/byteorder.h"
 #include "basic/random.h"
 #include "basic/config.h"
+#include "lcd/print.h"
 
 char meshgen=0; // Generation
 char meshincctr=0;
@@ -26,6 +27,23 @@ void initMesh(void){
     meshbuffer[0].pkt[0]='T';
     MO_TIME_set(meshbuffer[0].pkt,getSeconds());
     meshbuffer[0].flags=MF_USED;
+};
+
+int mesh_sanity(uint8_t * pkt){
+    if(MO_TYPE(pkt)>='A' && MO_TYPE(pkt)<='Z'){
+        if(MO_TIME(pkt)>1313803870)
+            return 1;
+        if(MO_TIME(pkt)<1312075898)
+            return 1;
+    }else if(MO_TYPE(pkt)>='a' && MO_TYPE(pkt)<='z'){
+        if(MO_TIME(pkt)>16777216)
+            return 1;
+        if(MO_TIME(pkt)<0)
+            return 1;
+    };
+    if(MO_TYPE(pkt)>0x7f || MO_TYPE(pkt)<0x20)
+        return 1;
+    return 0;
 };
 
 MPKT * meshGetMessage(uint8_t type){
@@ -68,6 +86,24 @@ void mesh_cleanup(void){
                     meshbuffer[i].flags=MF_FREE;
                 if (MO_TIME(meshbuffer[i].pkt)-now>SECS_DAY)
                     meshbuffer[i].flags=MF_FREE;
+            };
+            if(mesh_sanity(meshbuffer[i].pkt)){
+                meshbuffer[i].flags=MF_FREE;
+#if 1
+                setSystemFont();
+                lcdClear();
+                lcdPrintln("MESH PANIC!");
+                lcdPrint(IntToStr(i,2,0));
+                lcdPrintln(":");
+                lcdPrint(IntToStrX(meshbuffer[i].pkt[0],2));
+                lcdPrint(" ");
+                lcdPrintln(IntToStrX(meshbuffer[i].pkt[1],2));
+                lcdPrintln(IntToStrX(uint8ptouint32(meshbuffer[i].pkt+2),8));
+                lcdPrintln(IntToStrX(uint8ptouint32(meshbuffer[i].pkt+6),8));
+                lcdPrintln(IntToStrX(uint8ptouint32(meshbuffer[i].pkt+10),8));
+                lcdRefresh();
+                while ((getInputRaw())==BTN_NONE);
+#endif
             };
         };
     };
@@ -150,6 +186,11 @@ uint8_t mesh_recvqloop_work(void){
 
         // Receive
         if(len<=0){
+            return 0;
+        };
+
+        if(mesh_sanity(buf)){
+            meshincctr++;
             return 0;
         };
 
