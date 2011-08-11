@@ -108,6 +108,7 @@ void tick_default(void) {
 
 
     EVERY(50,0){
+        /*
         if(GLOBAL(chargeled)){
             IOCON_PIO1_11 = 0x0;
             gpioSetDir(RB_LED3, gpioDirection_Output);
@@ -116,6 +117,7 @@ void tick_default(void) {
             else
                 gpioSetValue (RB_LED3, 0);
         };
+        */
 
         if(GetVoltage()<3600){
             IOCON_PIO1_11 = 0x0;

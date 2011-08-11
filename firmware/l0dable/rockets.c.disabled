@@ -27,6 +27,7 @@ void ram (void)
   int angle;
   int scale;
   int velocity = 0;
+  frame_no=0;
 
   while ((inpt = getInputRaw()) != BTN_ENTER)
     {

@@ -24,8 +24,12 @@ LDSRCFILE=ram.ld
 LDFILE=loadable.ld
 CFLAGS+=-mlong-calls -fno-toplevel-reorder
 
-CRYPT=cp
+DOCRYPT=0
+CRYPT=../../tools/crypto/xxtea
 CRYPTFLAGS=-p
+
+skey=`cd .. && ./getkey.pl l0dable_sign`
+ekey=`cd .. && ./getkey.pl l0dable_crypt`
 
 all: $(OBJS) $(ELFS) $(BINS) $(CODS) $(NIKS) 1boot.int debug.int
 
@@ -47,7 +51,13 @@ $(LDFILE):
 	$(OBJCOPY) $(OCFLAGS) -O binary $< $@
 
 %.c0d: %.bin
-	$(CRYPT) $(CRYPTFLAGS) $< $@
+ifeq "$(DOCRYPT)" "1"
+	$(CRYPT) -e -k $(ekey) -o $<.tmp $<
+	$(CRYPT) -s -k $(skey) -o $@ $<.tmp
+	rm -f $<.tmp
+else
+	cp $< $@
+endif
 
 %.nik: .PHONY
 	@a=$@;a=nick_$${a%.nik}.c0d;echo mv $$a $@;mv $$a $@
