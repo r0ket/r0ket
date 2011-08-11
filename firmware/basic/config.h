@@ -18,6 +18,7 @@ struct CDESC {
 #define CFG_TYPE_BASIC 0
 #define CFG_TYPE_DEVEL 1
 #define CFG_TYPE_FLAME 2
+#define CFG_TYPE_GONE 3
 
 #define MAXNICK 17
 extern struct CDESC the_config[];
