@@ -178,9 +178,11 @@ static bool highscore_set(uint32_t score, char nick[]) {
 
 static uint32_t highscore_get(char nick[]){
     MPKT * mpkt= meshGetMessage('i');
-
-    strcpy(nick,(char*)MO_BODY(mpkt->pkt));
-
+    char * packet_nick = (char*)MO_BODY(mpkt->pkt);
+    // the packet crc end is already zeroed
+    if(MAXNICK<MESHPKTSIZE-2-6-1)
+        packet_nick[MAXNICK-1] = 0;
+    strcpy(nick, packet_nick);
 	return MO_TIME(mpkt->pkt);
 }
 
