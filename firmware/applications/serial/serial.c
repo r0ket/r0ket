@@ -415,9 +415,21 @@ static int process(char * input){
                 puts_plus(" ");
                 puts_plus(IntToStrX( uint8ptouint32(buf+8),8 ));
             }else if(type=='b'){
-                if(filter)
+                if(filter=='.' || filter=='u')
                     if(uint8ptouint32(buf+8)!=uint8ptouint32(filterdata))
                         continue;
+                if(filter=='0' && buf[3] != 0x00)
+                    continue;
+                if(filter=='5' && buf[3] != 0x55)
+                    continue;
+                if(filter=='a' && buf[3] != 0xaa)
+                    continue;
+                if(filter=='A' && buf[3] != 0xaa)
+                    continue;
+                if(filter=='f' && buf[3] != 0xff)
+                    continue;
+                if(filter=='F' && buf[3] != 0xff)
+                    continue;
                 puts_plus("R ");
                 puts_plus(IntToStrX( buf[0],2 ));
                 puts_plus(" ");
