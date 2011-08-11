@@ -35,7 +35,7 @@
  */
 
 #define O_ENABLE_FILL
-#define O_ENABLE_STROKE
+//#define O_ENABLE_STROKE
 #define O_ENABLE_USER_SHADER
 #define O_ENABLE_BW   /* pick one ,. */
 //#define O_ENABLE_GRAY
