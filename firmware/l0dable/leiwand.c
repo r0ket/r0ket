@@ -10,10 +10,10 @@
 
 #include "usetable.h"
 
+//void backlightInit(void);
 void incBacklight(void);
 void decBacklight(void);
 void paintLogo(bool);
-void leiwandInit(void);
 void leiwandDisplay(void);
 
 /**************************************************************************/
@@ -22,7 +22,6 @@ void leiwandDisplay(void);
 
 void ram(void) {
     int key;
-    leiwandInit();
     while (1) {
         leiwandDisplay();
         // Exit on enter+left
@@ -31,6 +30,14 @@ void ram(void) {
             return;
     }
     return;
+}
+
+void leiwandInit(void) {
+    paintLogo(false);
+    delayms(200);
+    DoString(0,0,"Boot...");
+    lcdDisplay();
+    delayms(1000);
 }
 
 void leiwandDisplay(void) {
@@ -107,8 +114,6 @@ void leiwandDisplay(void) {
         round++;
         if(round > 200) {
             round = 0;
-            gpioSetValue (RB_LED0, CFG_LED_OFF); 
-            gpioSetValue (RB_LED2, CFG_LED_OFF); 
             if(demoround == 1) {
                 paintLogo(true);
             } else {
@@ -168,55 +173,41 @@ void leiwandDisplay(void) {
         } else {
             dx=DoString(0, 60, " phone booth ");
             if((round % 6) < 3) {
-                gpioSetValue (RB_LED0, CFG_LED_ON); 
-                gpioSetValue (RB_LED2, CFG_LED_ON); 
                 for(i = 0; i < 96; i++) {
                     for(j = 0; j < 8; j++) {
                         lcdSetPixel(i, j+60, !lcdGetPixel(i, j+60));
                     }
                 }
-            } else {
-                gpioSetValue (RB_LED0, CFG_LED_OFF); 
-                gpioSetValue (RB_LED2, CFG_LED_OFF); 
             }
         }
+        /*
+        if(key&BTN_ENTER){
+            lcdPrintInt(ctr++);
+            lcdPrintln(".");
+            while(getInputRaw())delayms(10);
+        };
+		if(key&BTN_RIGHT){
+			lcdShift(1,0,wrap);
+		}
+		if(key&BTN_LEFT){
+			lcdShift(-1,0,wrap);
+		}
+		if(key&BTN_UP){
+			lcdShift(0,1,wrap);
+		}
+		if(key&BTN_DOWN){
+			lcdShift(0,-1,wrap);
+		}
+        */
+
+        //font = &Font_Ubuntu36pt;
     }
     return;
 }
 
-#define cfg_size (2 << 14)
 void tick_scroll(void){
     return;
 };
-
-void leiwandInit(void) {
-    char *delimeter = (char *)0;
-    char readbuffer[15];
-    char cfgfile[] = "leiwand.cfg";
-    gpioSetValue (RB_LED0, CFG_LED_ON); 
-    gpioSetValue (RB_LED2, CFG_LED_OFF); 
-    gpioSetValue (RB_LED3, CFG_LED_OFF); 
-    paintLogo(false);
-    delayms(200);
-    gpioSetValue (RB_LED0, CFG_LED_OFF); 
-    gpioSetValue (RB_LED2, CFG_LED_ON); 
-    DoString(0,0,"Loading");
-    lcdDisplay();
-    delayms(1000);
-    gpioSetValue (RB_LED2, CFG_LED_OFF); 
-    gpioSetValue (RB_LED3, CFG_LED_ON); 
-    paintLogo(false);
-    DoString(0,0,"Decrunching");
-    lcdDisplay();
-    // Init config file
-    if (readFile(cfgfile, readbuffer, 15) == -1) {
-      writeFile(cfgfile, delimeter, cfg_size);
-    }
-    delayms(1000);
-    gpioSetValue (RB_LED0, CFG_LED_OFF); 
-    gpioSetValue (RB_LED2, CFG_LED_OFF); 
-    gpioSetValue (RB_LED3, CFG_LED_OFF); 
-}
 
 void incBacklight(void) {
     /*
