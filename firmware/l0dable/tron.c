@@ -74,7 +74,11 @@ void ram() {
 			randomizeCoin(&q, &r);
 		} else if(lcdGetPixel(x, y)) {
 			lcdClear();
-			lcdPrintln("You lost!");
+			lcdPrint("You failed,");
+			lcdNl();
+			lcdPrint(nickname);
+			lcdPrint("!");
+			lcdNl();
 			lcdNl();
 			lcdPrintInt(p);
 			lcdPrintln(" points");
