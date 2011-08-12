@@ -164,14 +164,14 @@ void m_choose(){
             case('T'):
                 strcpy(p,"Time");
                 break;
-            case('Z'):
-                strcpy(p,"Schnitzel");
-                break;
-            case('z'):
-                strcpy(p,"S-Score");
-                break;
             case('i'):
                 strcpy(p,"Invaders");
+                break;
+            case('j'):
+                strcpy(p,"Jump");
+                break;
+            case('r'):
+                strcpy(p,"r0type");
                 break;
             default:
                 p[0]=*mm;
@@ -206,14 +206,14 @@ void m_choose(){
         case('T'):
             lcdPrintln("Time");
             break;
-        case('Z'):
-            strcpy(p,"Schnitzel");
-            break;
-        case('z'):
-            strcpy(p,"S-Score");
-            break;
         case('i'):
             lcdPrintln("Invaders");
+            break;
+        case('j'):
+            strcpy(p,"Jump");
+            break;
+        case('r'):
+            strcpy(p,"r0type");
             break;
     };
     if(tmm[i]>='a' && tmm[i]<='z'){
