@@ -9,6 +9,9 @@
 #include "basic/config.h"
 #include "usb/usbmsc.h"
 
+
+#define N1600
+
 /**************************************************************************/
 /* Utility routines to manage nokia display */
 /**************************************************************************/
@@ -143,7 +146,7 @@ void lcdInit(void) {
  *  0xd0+x black lines from top? (-0xdf?)
  *
  */
-
+#ifndef N1600
     lcdWrite(TYPE_CMD,0xE2);
     delayms(5);
     lcdWrite(TYPE_CMD,0xAF); // Display ON
@@ -152,12 +155,53 @@ void lcdInit(void) {
     lcdWrite(TYPE_CMD,0x2F);
     lcdWrite(TYPE_CMD,0xB0);
     lcdWrite(TYPE_CMD,0x10);
-    lcdWrite(TYPE_CMD,0x00);
+    // lcdWrite(TYPE_CMD,0x00);
+#else
+    delayms(10);
+    lcdWrite(TYPE_CMD,0x01); //sw reset
+    delayms(10);
+    lcdWrite(TYPE_CMD,0x11); //sleepout
+    delayms(10);
+    
+    lcdWrite(TYPE_CMD,0x36); //MADCTL MY MX V LAO RGB X X X  
+    lcdWrite(TYPE_DATA,0x00);
 
+    lcdWrite(TYPE_CMD,0x25); // contrast...
+    lcdWrite(TYPE_DATA,0x3F);
+    delayms(10);
+    
+    lcdWrite(TYPE_CMD,0x29);  //display on
+    
+    lcdWrite(TYPE_CMD,0xBA); //data order
+    lcdWrite(TYPE_DATA,0x07);
+    lcdWrite(TYPE_DATA,0x15);
+
+    lcdWrite(TYPE_CMD,0x25); //contrast... again?
+    lcdWrite(TYPE_DATA,0x3f);
+    
+    lcdWrite(TYPE_CMD,0x11); //Sleepout
+    lcdWrite(TYPE_CMD,0x13); //display mode normal
+
+    lcdWrite(TYPE_CMD,0X37); //vscroll addr
+    lcdWrite(TYPE_DATA,0x00);
+
+    lcdWrite(TYPE_CMD,0x3A); // COLMOD pixel format 4=12, 5=16, 6=18
+    lcdWrite(TYPE_DATA,0x05);
+    
+    lcdWrite(TYPE_CMD,0x2A); //no clue... I think it's setting up the size of the display?
+    lcdWrite(TYPE_DATA,0);   
+    lcdWrite(TYPE_DATA,98-1); //98 = width
+    
+    lcdWrite(TYPE_CMD,0x2B);
+    lcdWrite(TYPE_DATA,0);
+    lcdWrite(TYPE_DATA,70-1); //70 = height
+    
+#endif
+    /*
     uint16_t i;
     for(i=0; i<100; i++)
         lcdWrite(TYPE_DATA,0x00);
-
+    */
     lcd_deselect();
 }
 
@@ -194,13 +238,25 @@ bool lcdGetPixel(char x, char y){
     return byte & (1 << y_off);
 }
 
+#define THECOLOR_R 0x0
+#define THECOLOR_G 0x80
+#define THECOLOR_B 0x0
+
 void lcdDisplay(void) {
     char byte;
     lcd_select();
 
+#ifndef N1600
     lcdWrite(TYPE_CMD,0xB0);
     lcdWrite(TYPE_CMD,0x10);
     lcdWrite(TYPE_CMD,0x00);
+#else
+    lcdWrite(TYPE_CMD,0x2C);
+    
+#endif
+    
+
+#ifndef N1600
     uint16_t i,page;
     for(page=0; page<RESY_B;page++) {
         for(i=0; i<RESX; i++) {
@@ -211,10 +267,56 @@ void lcdDisplay(void) {
 
             if (GLOBAL(lcdinvert))
                 byte=~byte;
-
+    
             lcdWrite(TYPE_DATA,byte);
         }
     }
+#else
+    unsigned char r=THECOLOR_R,g=THECOLOR_G,b=THECOLOR_B;
+    unsigned char br=0xFF, bg=0xFF, bb=0xFF;
+    unsigned char frame_r=0x00, frame_g=0x00, frame_b=0x80;
+    uint16_t color,framecolor,backcolor;
+    uint16_t x,y,i;
+    bool px;
+    uint16_t actualcolor;
+    color = ((r&0xF8) << 8) | ((g&0xFC)<<3) | ((b&0xF8) >> 3);
+    framecolor= ((frame_r&0xF8) << 8) | ((frame_g&0xFC)<<3) | ((frame_b&0xF8) >> 3);
+    backcolor= ((br&0xF8) << 8) | ((bg&0xFC)<<3) | ((bb&0xF8) >> 3);
+
+    //top line of the frame...
+    for(i=0;i<98;i++){
+        lcdWrite(TYPE_DATA,framecolor>>8);
+        lcdWrite(TYPE_DATA,framecolor&0xFF);
+    }
+
+    for(y=RESY;y>0;y--){
+        //left line of the frame
+        lcdWrite(TYPE_DATA,framecolor>>8);
+        lcdWrite(TYPE_DATA,framecolor&0xFF);
+
+        for(x=RESX;x>0;x--){
+            if(GLOBAL(lcdmirror))
+                px=lcdGetPixel(RESX-x+1,y-1);
+            else
+                px=lcdGetPixel(x-1,y-1);
+                
+            if((!px)^(!GLOBAL(lcdinvert))) actualcolor=color;
+            else actualcolor=backcolor; /* white */
+
+            lcdWrite(TYPE_DATA,actualcolor>>8);
+            lcdWrite(TYPE_DATA,actualcolor&0xFF);
+        }
+        //right line of the frame
+        lcdWrite(TYPE_DATA,framecolor>>8);
+        lcdWrite(TYPE_DATA,framecolor&0xFF);
+    }
+    
+    //bottom line of the frame
+    for(i=0;i<98;i++){
+        lcdWrite(TYPE_DATA,framecolor>>8);
+        lcdWrite(TYPE_DATA,framecolor&0xFF);
+    }
+#endif
 
     lcd_deselect();
 }
@@ -225,12 +327,21 @@ inline void lcdInvert(void) {
 }
 
 void lcdSetContrast(int c) {
+    #ifndef N1600
     c+=0x80;
     if(c>0x9F)
         return;
     lcd_select();
     lcdWrite(TYPE_CMD,c);
     lcd_deselect();
+    #else
+    if(c>=0x40)
+        return;
+    lcd_select();
+    lcdWrite(TYPE_CMD,0x25);
+    lcdWrite(TYPE_DATA,4*c);
+    lcd_deselect();
+    #endif
 };
 
 void lcdSetInvert(int c) {
