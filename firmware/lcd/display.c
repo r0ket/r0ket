@@ -10,7 +10,7 @@
 #include "usb/usbmsc.h"
 
 
-#define N1600
+#undef N1600
 
 /**************************************************************************/
 /* Utility routines to manage nokia display */
