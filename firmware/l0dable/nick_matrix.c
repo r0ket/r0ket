@@ -93,6 +93,9 @@ void ram(void){
 			case NICKNAME_ACTION_SHOW:
 				nickname_action = NICKNAME_ACTION_HIDE;
 				ticks_until_next_nickname_action = TICKS_HIDE_NICKNAME;
+				// new nickname_pos
+				nickname_posx = getRandom() % (SCREEN_WIDTH - nickname_len);
+				nickname_posy = getRandom() % SCREEN_HEIGHT;
 				break;
 			case NICKNAME_ACTION_HIDE:
 				nickname_action = NICKNAME_ACTION_SHOW;
