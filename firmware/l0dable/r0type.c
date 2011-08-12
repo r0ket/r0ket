@@ -42,8 +42,8 @@
 #define SHOT_DELAY 12 
 #define ASTEROID_FREQ 25
 #define SCROLL_SPEED 20
-#define ASTEROID_MIN_SPEED 6
-#define ASTEROID_MAX_SPEED 5
+#define ASTEROID_MIN_SPEED 5
+#define ASTEROID_MAX_SPEED 4
 #define SHIP_SAVE_TICKS 240
 #define INCREASE_GAME_SPEED 50
 
@@ -180,9 +180,11 @@ static void draw_splash(void){
 	bool step = false;
 	while(key==0) {
     lcdFill(0);
-    DoString (16,15, "GAME OVER");
-    if (highscore_set(game.score, GLOBAL(nickname)))
-			DoString (16,25,"HIGHSCORE!");
+    if (highscore_set(game.score, GLOBAL(nickname))){
+			DoString (16,15,"HIGHSCORE!");
+    } else {
+      DoString (16,15, "GAME OVER");
+    }
 		DoString (24,40, "GAME BY");
 		DoString (10,50, "@RANZWERTIG");
     lcdDisplay();
@@ -214,6 +216,8 @@ static uint32_t highscore_get(char nick[]){
 }
 
 static void init_game(void) {
+
+  randomInit();
  
   game.ticks = 0;
   game.ships = 3;
@@ -485,5 +489,3 @@ static void conrtols(void){
     shoot();
 	}
 }
-
-
