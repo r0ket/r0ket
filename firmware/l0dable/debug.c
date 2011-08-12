@@ -168,7 +168,7 @@ void getsp(void) {
 void m_time_details(int select) {
     getInputWaitRelease();
 
-    while(getInputWaitTimeout(50) != BTN_LEFT){
+    while(getInputWaitTimeout(50) == BTN_NONE){
         lcdClear();
         MPKT *mpkt = &meshbuffer[select];
         uint8_t *pkt = mpkt->pkt;
@@ -193,7 +193,7 @@ void m_time_details(int select) {
             lcdNl();
 
             int x = 0;
-            for(uint8_t *body = MO_BODY(pkt); body < pkt + 32; body++) {
+            for(uint8_t *body = MO_BODY(pkt); body < (pkt + 30); body++) {
                 if (*body >= ' ' && *body < 128) {
                     if (x > 12) {
                         lcdNl();
@@ -276,23 +276,23 @@ void m_time(void){
         lcdNl();
         lcdRefresh();
 
-        uint8_t key = getInputWaitTimeout(50);
+        uint8_t key = getInputWaitTimeout(100);
         switch(key) {
-        case BTN_UP:
+        case BTN_LEFT:
             select--;
             if (select < 0)
                 select = MESHBUFSIZE - 1;
             break;
-        case BTN_DOWN:
+        case BTN_RIGHT:
             select++;
             if (select >= MESHBUFSIZE)
                 select = 0;
             break;
-        case BTN_RIGHT:
         case BTN_ENTER:
             m_time_details(select);
             break;
-        case BTN_LEFT:
+        case BTN_UP:
+        case BTN_DOWN:
             // Exit
             return;
         }
