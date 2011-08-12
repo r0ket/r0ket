@@ -78,9 +78,9 @@ File::Find::find({wanted => \&wanted}, '.');
 
 print C "";
 print C <<EOF;
-#ifndef __APPLE__
+#ifndef SIMULATOR
 __attribute__ ((used, section("table")))
-#endif /* __APPLE__ */
+#endif /* SIMULATOR */
 const void * TheTable[]={
 EOF
 
