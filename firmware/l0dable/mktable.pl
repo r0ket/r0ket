@@ -77,7 +77,12 @@ sub wanted {
 File::Find::find({wanted => \&wanted}, '.');
 
 print C "";
-print C qq!__attribute__ ((used, section("table"))) const void * TheTable[]={!;
+print C <<EOF;
+#ifndef SIMULATOR
+__attribute__ ((used, section("table")))
+#endif /* SIMULATOR */
+const void * TheTable[]={
+EOF
 
 my %defs;
 

@@ -108,16 +108,24 @@ void tick_default(void) {
 
 
     EVERY(50,0){
-        /*
         if(GLOBAL(chargeled)){
-            IOCON_PIO1_11 = 0x0;
-            gpioSetDir(RB_LED3, gpioDirection_Output);
-            if(GetChrgStat())
-                gpioSetValue (RB_LED3, 1);
-            else
-                gpioSetValue (RB_LED3, 0);
+            char iodir= (GPIO_GPIO1DIR & (1 << (11) ))?1:0;
+            if(GetChrgStat()) {
+                if (iodir == gpioDirection_Input){
+                    IOCON_PIO1_11 = 0x0;
+                    gpioSetDir(RB_LED3, gpioDirection_Output);
+                    gpioSetValue (RB_LED3, 1);
+                    LightCheck();
+                }
+            } else {
+                if (iodir != gpioDirection_Input){
+                    gpioSetValue (RB_LED3, 0);
+                    gpioSetDir(RB_LED3, gpioDirection_Input);
+                    IOCON_PIO1_11 = 0x41;
+                    LightCheck();
+                }
+            }
         };
-        */
 
         if(GetVoltage()<3600){
             IOCON_PIO1_11 = 0x0;

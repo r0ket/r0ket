@@ -223,7 +223,9 @@ int DoChar(int sx, int sy, int c){
                 _getFontData(SEEK_DATA,toff);
                 UINT res;
                 UINT readbytes;
-                res = f_read(&file, charBuf, width*height, &readbytes);
+                UINT size = width * height;
+                if(size > MAXCHR) size = MAXCHR;
+                res = f_read(&file, charBuf, size, &readbytes);
                 if(res != FR_OK || readbytes<width*height)
                     return sx;
                 data=charBuf;
@@ -252,7 +254,9 @@ int DoChar(int sx, int sy, int c){
                     postblank = read_byte ();
                     width-=3;
                     width/=height;
-                    res = f_read(&file, charBuf, width*height, &readbytes);
+                    UINT size = width * height;
+                    if(size > MAXCHR) size = MAXCHR;
+                    res = f_read(&file, charBuf, size, &readbytes);
                     if(res != FR_OK || readbytes<width*height)
                         return sx;
                     data=charBuf;
