@@ -107,14 +107,14 @@ systickGetTicks
 uint32touint8p
 uint8ptouint32
 #Add stuff here
-#o_init
-#o_path_new
-#o_move_to
-#o_line_to
-#o_curve_to
-#o_close
-#o_set_gray
-#o_fill
-#o_set_shader
-#o_identity
-#o_transform
+o_init
+o_path_new
+o_move_to
+o_line_to
+o_curve_to
+o_close
+o_set_gray
+o_fill
+o_set_shader
+o_identity
+o_transform

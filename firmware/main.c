@@ -30,7 +30,7 @@ int main(void) {
   
     lcdInit(); // display
 
-    lcdFill(0);
+    //lcdFill(0);
     lcdDisplay();
 
 	wrapper(); // see module/ subdirectory
