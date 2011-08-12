@@ -1,5 +1,5 @@
 /*
- *  coded by Thammi from Pentaville
+ *  coded by Thammi from Pentagon Village
  */
 
 #include <sysinit.h>
