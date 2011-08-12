@@ -91,7 +91,6 @@ GetVoltage
 isNight
 _timectr
 crc16
-randomInit
 getRandom
 getSeconds
 iapReadSerialNumber

@@ -41,6 +41,9 @@ int mesh_sanity(uint8_t * pkt){
         if(MO_TIME(pkt)<0)
             return 1;
     };
+    if(MO_TYPE(pkt)=='t'){
+        return 1;
+    };
     if(MO_TYPE(pkt)>0x7f || MO_TYPE(pkt)<0x20)
         return 1;
     return 0;
