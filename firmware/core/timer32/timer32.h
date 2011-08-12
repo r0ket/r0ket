@@ -54,6 +54,7 @@
 #define TIMER32_DELAY_1MS       (10)           // 1mS delay = 10 ticks
 #define TIMER32_DELAY_1S        (10000)        // 1S delay = 10000 ticks
 
+extern uint32_t timer32Callback0;
 void TIMER32_0_IRQHandler(void);
 void TIMER32_1_IRQHandler(void);
 

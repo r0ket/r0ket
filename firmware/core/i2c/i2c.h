@@ -71,11 +71,12 @@
 
 extern volatile uint8_t I2CMasterBuffer[I2C_BUFSIZE];
 extern volatile uint8_t I2CSlaveBuffer[I2C_BUFSIZE];
-extern volatile uint32_t I2CReadLength, I2CWriteLength;
+extern volatile uint32_t I2CReadLength;
+extern volatile uint32_t I2CWriteLength;
 
 extern void I2C_IRQHandler( void );
-extern uint32_t i2cInit( uint32_t I2cMode );
-extern uint32_t i2cEngine( void );
+uint32_t i2cInit( uint32_t I2cMode );
+uint32_t i2cEngine( void );
 
 #endif /* end __I2C_H */
 /****************************************************************************

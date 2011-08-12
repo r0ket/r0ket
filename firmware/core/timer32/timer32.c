@@ -124,22 +124,26 @@ void timer32Delay(uint8_t timerNum, uint32_t delay)
 }
 
 
-//we do this in applications
-#if 0
 /**************************************************************************/
 /*! 
     @brief Interrupt handler for 32-bit timer 0
 */
 /**************************************************************************/
+uint32_t timer32Callback0;
+
 void TIMER32_0_IRQHandler(void)
 {  
+
+void (*callback)(void);
+
   /* Clear the interrupt flag */
   TMR_TMR32B0IR = TMR_TMR32B0IR_MR0;
 
   /* If you wish to perform some action after each timer 'tick' (such as 
      incrementing a counter variable) you can do so here */
   timer32_0_counter++;
-
+  callback=(void (*)(void)) ((uint32_t)(timer32Callback0) | 1); // Enable Thumb mode!
+  callback();
   return;
 }
 
@@ -159,7 +163,6 @@ void TIMER32_1_IRQHandler(void)
 
   return;
 }
-#endif
 
 /**************************************************************************/
 /*! 
