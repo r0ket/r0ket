@@ -70,63 +70,51 @@ uint8_t lkGetI2C(uint8_t cr) {
     return I2CSlaveBuffer[0];
 }
 
-void lkUpdatePWM() {
+void lkUpdateI2C() {
     lkSetI2C(LK_I2C_CR_LS0, lk_ls0);
     lkSetI2C(LK_I2C_CR_LS1, lk_ls1);
     lkSetI2C(LK_I2C_CR_LS2, lk_ls2);
     lkSetI2C(LK_I2C_CR_LS3, lk_ls3);
 }
+
+void lkReadI2C() {
+    lk_in0 = lkGetI2C(LK_I2C_CR_INPUT0);
+    lk_in1 = lkGetI2C(LK_I2C_CR_INPUT1);
+}
     
 void tick_lilakit(void) { // every 10ms
-
-    char key = getInput();
-    if (key == BTN_ENTER) {
-	DoString(0,50,"ISP!");
-	lcdDisplay();
-	ISPandReset();
-    }
 
     if (lkEnabled == 0) {
 	return;
     }
-
-    lk_in0 = lkGetI2C(LK_I2C_CR_INPUT0);
-    lk_in1 = lkGetI2C(LK_I2C_CR_INPUT1);
-
-    DoString(0,20,"             ");
-    DoString(0,30,"             ");
-    DoString(0,40,"             ");
-    lcdDisplay();
-
-    DoInt(0,20,lk_in0);
-    DoInt(0,30,lk_in1);
-    DoInt(0,40,lk_button_mode);
-    DoInt(0,50,lk_in0 & 0x02);
-    lcdDisplay();
-
+    
     lk_ticks++;
 
+    if (lk_ticks % 10 == 0) {
+	push_queue(&lkReadI2C);
+    }
+    
     if ((lk_in0 & 0x02) == 0 && lk_button_mode == 0) {
 	lk_ticks = 0;
 	lk_button_mode = 1;
-
-	lk_ls1 |= LK_I2C_LS_PWM0 << 4;
-	lk_ls1 |= LK_I2C_LS_PWM1 << 6;
-	push_queue(&lkUpdatePWM);
+	
+	lk_ls1 = 0;
+	lk_ls1 |= LK_I2C_LS_ON << 4;
+	lk_ls1 |= LK_I2C_LS_ON << 6;
+	push_queue(&lkUpdateI2C);
     }
 
     if (lk_button_mode == 1 && lk_ticks > 0xFF) {
 	lk_button_mode = 0;
-	lk_ls1 |= LK_I2C_LS_ON << 4;
-	lk_ls1 |= LK_I2C_LS_ON << 6;
-	push_queue(&lkUpdatePWM);
+	lk_ls1 = 0;
+	lk_ls1 |= LK_I2C_LS_PWM0 << 4;
+	lk_ls1 |= LK_I2C_LS_PWM1 << 6;
+	push_queue(&lkUpdateI2C);
     }
 
     if (lk_button_mode == 1) {
-	if (lk_ticks % 100 == 0) {
-	    lk_piezo_toggle = lk_piezo_toggle ^ 1;
-//	    gpioSetValue(LK_PIEZO, lk_piezo_toggle);	
-	}
+	lk_piezo_toggle = lk_piezo_toggle ^ 1;
+	gpioSetValue(LK_PIEZO, lk_piezo_toggle);	
     }
     
 }
@@ -166,17 +154,18 @@ void init_lilakit(void) {
     lkSetI2C(LK_I2C_CR_PWM1, 0x00);
 
     // Prepare SS
-//    gpioSetDir(LK_PIEZO, gpioDirection_Output);
-//    gpioSetValue(LK_PIEZO, 1);
+    gpioSetDir(LK_PIEZO, gpioDirection_Output);
+    gpioSetValue(LK_PIEZO, 1);
 
-    // Enable both LEDs
-    lk_ls1 |= LK_I2C_LS_ON << 4;
-    lk_ls1 |= LK_I2C_LS_ON << 6;
-    lkSetI2C(LK_I2C_CR_LS1, lk_ls1);
 
     // Prepare blinking
     lkSetI2C(LK_I2C_CR_PSC0, 0x23);
     lkSetI2C(LK_I2C_CR_PWM0, 0x66);
     lkSetI2C(LK_I2C_CR_PSC1, 0x75);
     lkSetI2C(LK_I2C_CR_PWM1, 0x12);
+
+    // Enable both LEDs
+    lk_ls1 |= LK_I2C_LS_PWM0 << 4;
+    lk_ls1 |= LK_I2C_LS_PWM1 << 6;
+    lkSetI2C(LK_I2C_CR_LS1, lk_ls1);
 }
