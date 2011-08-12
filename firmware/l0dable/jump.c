@@ -92,7 +92,6 @@ void ram(void) {
 
 	long frame_count = 0;
 	init_game();
-	randomInit();
 
 	while(1) {
 		frame_count++;
@@ -107,12 +106,13 @@ void ram(void) {
 		lcdDisplay();
 
 		if(!game.running) {
-			if(!gameover_scene())
+			if(!gameover_scene()){
+                delayms_queue_plus(10,1);
 				return;
+            }
 			init_game();
 		}
-
-		delayms(12);
+        delayms_queue_plus(12,0);
 	}
 }
 
