@@ -15,23 +15,27 @@ void LightCheck(void){
     char iodir;
 
     iocon=IOCON_PIO1_11;
-//    iodir=gpioGetDir(RB_LED3);
     //LED3 is on pin 11
     iodir= (GPIO_GPIO1DIR & (1 << (11) ))?1:0;
 
-    gpioSetDir(RB_LED3, gpioDirection_Input);
-    IOCON_PIO1_11 = IOCON_PIO1_11_FUNC_AD7|IOCON_PIO1_11_ADMODE_ANALOG;
-    light-=light/SAMPCT;
-	light += (adcRead(7)/2);
-    
-    gpioSetDir(RB_LED3, iodir);
-    IOCON_PIO1_11=iocon;
+    //gpioSetDir(RB_LED3, gpioDirection_Input);
+    if (iodir == gpioDirection_Input) {
+        IOCON_PIO1_11 = IOCON_PIO1_11_FUNC_AD7|IOCON_PIO1_11_ADMODE_ANALOG;
+        light-=light/SAMPCT;
+        light += (adcRead(7)/2);
 
-    if(_isnight && light/SAMPCT>(threshold+RANGE))
-        _isnight=0;
+        gpioSetDir(RB_LED3, iodir);
+        IOCON_PIO1_11=iocon;
 
-    if(!_isnight && light/SAMPCT<threshold)
+        if(_isnight && light/SAMPCT>(threshold+RANGE))
+            _isnight=0;
+
+        if(!_isnight && light/SAMPCT<threshold)
+            _isnight=1;
+    } else {
         _isnight=1;
+
+    }
 };
 
 uint32_t GetLight(void){
