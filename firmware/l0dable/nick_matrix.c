@@ -55,8 +55,8 @@ void ram(void){
 		lcdDisplay();
 		// Exit on enter+left
 		int key = getInputRaw();
-		if(key== BTN_ENTER || key == BTN_LEFT)
+		if(key!= BTN_NONE)
 			return;
-		delayms(60);
+        delayms_queue_plus(90,0);
 	};
 };
