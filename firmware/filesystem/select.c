@@ -8,6 +8,7 @@
 
 #define FLEN 13
 
+/* if count is 0xff (-1) do not fill files and return the count instead */
 int getFiles(char files[][FLEN], uint8_t count, uint16_t skip, const char *ext)
 {
     DIR dir;                /* Directory object */
@@ -37,7 +38,9 @@ int getFiles(char files[][FLEN], uint8_t count, uint16_t skip, const char *ext)
             continue;
         };
 
-        strcpy(files[pos++],Finfo.fname);
+        if(count != 0xff)
+            strcpy(files[pos],Finfo.fname);
+        pos++;
         if( pos == count )
             break;
     }
@@ -50,17 +53,19 @@ int selectFile(char *filename, const char *extension)
     int skip = 0;
     char key;
     int selected = 0;
+    int file_count = getFiles(NULL, 0xff, 0, extension);
+
     font=&Font_7x8;
+    if(!file_count){
+        lcdPrintln("No Files?");
+        lcdRefresh();
+        getInputWait();
+        getInputWaitRelease();
+        return -1;
+    };
     while(1){
         char files[PERPAGE][FLEN];
         int count = getFiles(files, PERPAGE, skip, extension);
-        if(!count){
-            lcdPrintln("No Files?");
-            lcdRefresh();
-            getInputWait();
-            getInputWaitRelease();
-            return -1;
-        };
 
         if(count<PERPAGE && selected==count){
             skip--;
@@ -96,7 +101,11 @@ int selectFile(char *filename, const char *extension)
                     selected++;
                     goto redraw;
                 }else{
-                    skip++;
+                    if(skip == file_count - PERPAGE) { // wrap to top
+                        selected = 0;
+                        skip = 0;
+                    } else 
+                        skip++;
                 }
                 break;
             case BTN_UP:
@@ -106,6 +115,10 @@ int selectFile(char *filename, const char *extension)
                 }else{
                     if( skip > 0 ){
                         skip--;
+                    } else { // wrap to bottom
+                        skip = file_count - PERPAGE;
+                        if(skip < 0) skip = 0;
+                        selected = file_count - skip - 1;
                     }
                 }
                 break;
