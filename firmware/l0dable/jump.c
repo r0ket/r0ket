@@ -112,7 +112,7 @@ void ram(void) {
             }
 			init_game();
 		}
-        delayms_queue_plus(12,0);
+        delayms_queue_plus(24,0);
 	}
 }
 
