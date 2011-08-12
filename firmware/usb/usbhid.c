@@ -44,9 +44,9 @@
 #include "usbconfig.h"
 #include "usbhid.h"
 
-USB_DEV_INFO DeviceInfo;
-HID_DEVICE_INFO HidDevInfo;
-ROM ** rom = (ROM **)0x1fff1ff8;
+static USB_DEV_INFO DeviceInfo;
+static HID_DEVICE_INFO HidDevInfo;
+static ROM ** rom = (ROM **)0x1fff1ff8;
 
 typedef struct usbhid_out_s
 {

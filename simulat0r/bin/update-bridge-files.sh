@@ -13,7 +13,7 @@ exit
 fi
 
 echo "Updating directories"
-for i in `find firmware/ -type d `
+for i in `find firmware -type d `
 do 
 if test -d simulat0r/$i
 then verbmsg "OK Directory already exists: $i"
@@ -22,7 +22,7 @@ fi
 done
 
 echo "Updating bridge files for C source"
-for i in `find firmware/ \! -path firmware/lcd/allfonts.h \! -path firmware/l0dable/usetable.h -type f -iname \*.[ch]`
+for i in `find firmware \! -path firmware/lcd/allfonts.h \! -path firmware/l0dable/usetable.h -type f -iname \*.[ch]`
 do 
     if test -f simulat0r/$i; 
     then
@@ -34,7 +34,7 @@ do
 done
 
 echo "Updating bridge files for Makefiles"
-for i in `find firmware/ -type f -iname Makefile`
+for i in `find firmware -type f -iname Makefile`
 do 
     if test -f simulat0r/$i; 
     then
