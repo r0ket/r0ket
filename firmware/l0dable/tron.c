@@ -1,5 +1,5 @@
 /*
- *  Pizzaware by Thammi from Pentaville
+ *  coded by Thammi from Pentaville
  */
 
 #include <sysinit.h>
