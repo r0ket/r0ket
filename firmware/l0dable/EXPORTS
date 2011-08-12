@@ -21,6 +21,7 @@ lcdPrintInt
 lcdPrintIntHex
 lcdPrintln
 lcdRefresh
+lcdSetCrsrX
 lcdSetPixel
 lcdShift
 lcdShowAnim
@@ -30,6 +31,7 @@ getInputRaw
 getInputWait
 getInputWaitRelease
 getInputWaitTimeout
+getInputWaitRepeat
 #crypto
 xxtea_decode_words
 xxtea_encode_words
@@ -64,6 +66,7 @@ work_queue
 readFile
 selectFile
 writeFile
+applyConfig
 saveConfig
 the_config
 #gpio
