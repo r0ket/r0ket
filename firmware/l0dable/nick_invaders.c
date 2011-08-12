@@ -28,11 +28,18 @@ void ram(void)
   const int maxY = 30;
   const int space = 15;
   const int delaytime = 150;
-  const int defaultfont = font;
   int x = minX;
   int y = minY;
   int u = 0;
   int dir = 0;
+  int dx,dy;
+
+
+  dx=DoString(0,0,nickname);
+  dx=(RESX-dx)/2;
+  if(dx<0)
+      dx=0;
+  dy=40;
   
   while(1){
     lcdFill(0);
@@ -70,8 +77,8 @@ void ram(void)
       break;
     }
     dir %= 4;
-    font = defaultfont;
-    DoString(10,40,nickname);
+    font = NULL;
+    DoString(dx,dy,nickname);
     lcdDisplay();
     if(getInputRaw()!=BTN_NONE) return;
     step = !step;
