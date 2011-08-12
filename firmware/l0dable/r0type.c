@@ -140,7 +140,7 @@ void ram(void){
       conrtols();
       draw_game();
       lcdDisplay();
-      delayms(6);
+      delayms_queue_plus(12,0);
       if(game.shot_delay > 0){
         game.shot_delay--;
       }
@@ -217,8 +217,6 @@ static uint32_t highscore_get(char nick[]){
 
 static void init_game(void) {
 
-  randomInit();
- 
   game.ticks = 0;
   game.ships = 3;
   game.score = 0;
