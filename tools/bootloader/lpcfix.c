@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
   }
 
   /* The big getopt loop */
-  while ((c = getopt(argc, argv, "vcp:nh")) != EOF)
+  while ((c = getopt(argc, argv, "vcp:nh")) != (char)EOF)
 	  switch (c) {
 		  case 'c':
 			  do_crc = 1;
