@@ -1,5 +1,5 @@
 #!/bin/sh
-function verbmsg()
+verbmsg()
 {
 true
 # echo $1
