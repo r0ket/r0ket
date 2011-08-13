@@ -215,27 +215,27 @@ static void tick_lilakit(void)
  
     if (lk_ticks % 10 == 0) {
 	    lkReadI2C();
-    }
     
-    if ((lk_in0 & 0x02) == 0 && lk_button_mode == 0) {
-        melody_index = 0;
-        melody_timeout = 0;
+        if ((lk_in0 & 0x02) == 0 && lk_button_mode == 0) {
+            melody_index = 0;
+            melody_timeout = 0;
 
-	    lk_ticks = 0;
-	    lk_button_mode = 1;
-	
-	    lk_ls1 = 0;
-	    lk_ls1 |= LK_I2C_LS_ON << 4;
-	    lk_ls1 |= LK_I2C_LS_ON << 6;
-	    lkUpdateI2C();
-    }
+            lk_ticks = 0;
+            lk_button_mode = 1;
+        
+            lk_ls1 = 0;
+            lk_ls1 |= LK_I2C_LS_ON << 4;
+            lk_ls1 |= LK_I2C_LS_ON << 6;
+            lkUpdateI2C();
+        }
 
-    if (lk_button_mode == 1 && lk_ticks > 0xFF) {
-	    lk_button_mode = 0;
-	    lk_ls1 = 0;
-	    lk_ls1 |= LK_I2C_LS_PWM0 << 4;
-	    lk_ls1 |= LK_I2C_LS_PWM1 << 6;
-	    lkUpdateI2C();
+        if (lk_button_mode == 1 && lk_ticks > 0xFF) {
+            lk_button_mode = 0;
+            lk_ls1 = 0;
+            lk_ls1 |= LK_I2C_LS_PWM0 << 4;
+            lk_ls1 |= LK_I2C_LS_PWM1 << 6;
+            lkUpdateI2C();
+        }
     }
 
 }
