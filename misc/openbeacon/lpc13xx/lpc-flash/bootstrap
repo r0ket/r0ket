@@ -1,5 +1,0 @@
-#!/bin/bash
-
-git pull openbeacon master
-git log . > ChangeLog
-autoreconf --install
