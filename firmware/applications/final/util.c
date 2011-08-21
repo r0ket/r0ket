@@ -17,7 +17,6 @@
 
 /**************************************************************************/
 
-
 //# MENU usb_storage
 void msc_menu(void){
     lcdClear();
@@ -28,6 +27,22 @@ void msc_menu(void){
     DoString(0,16,"MSC Disabled.");
     usbMSCOff();
     fsReInit();
+};
+
+//# MENU lcdread
+void lcdrtest(void){
+    lcdClear();
+    lcdPrint("ID1:"); lcdPrintInt(lcdRead(128+64+16+8  +2  )); lcdNl();
+    lcdPrint("ID2:"); lcdPrintInt(lcdRead(128+64+16+8  +2+1)); lcdNl();
+    lcdPrint("ID3:"); lcdPrintInt(lcdRead(128+64+16+8+4    )); lcdNl();
+    lcdPrint("ID4:"); lcdPrintInt(lcdRead(128+64+16+8+4  +1)); lcdNl();
+    lcdPrint("Tmp:"); lcdPrintInt(lcdRead(128+64+16+8+4+2  )); lcdNl(); 
+    lcdPrint("VM:"); lcdPrintInt(lcdRead(128+64+16+8+4+2+1)); lcdNl(); 
+//    lcd_select(); mylcdWrite(0,128+32+8+4+1); lcd_deselect();
+    delayms(10);
+    lcdInit();
+    lcdRefresh();
+    while(!getInputRaw())delayms(10);
 };
 
 void blink_led0(void){
@@ -66,4 +81,3 @@ void t_ani(void){
     selectFile(fname, "LCD");
     lcdShowAnim(fname,1000);
 };
-
