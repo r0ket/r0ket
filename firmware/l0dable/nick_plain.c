@@ -22,7 +22,6 @@ void ram(void) {
     dy=(RESY-getFontHeight())/2;
 
 	lcdClear();
-    lcdSetPixel(1,1,1);
 	DoString(dx,dy,GLOBAL(nickname));
 	lcdRefresh();
 
