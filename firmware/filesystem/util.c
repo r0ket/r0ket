@@ -39,16 +39,25 @@ int readFile(char * filename, char * data, int len){
         return -1;
     };
 
-    res = f_read(&file, data, len-1, &readbytes);
+    res = f_read(&file, data, len, &readbytes);
     if(res){
         return -1;
     };
 
     f_close(&file);
 
-    data[readbytes]=0;
 	return readbytes;
 };
+
+int readTextFile(char * filename, char * data, int len){
+    UINT readbytes;
+
+    readbytes=readFile(filename,data,len-1);
+    if(len>=0)
+        data[readbytes]=0;
+    return readbytes;
+};
+
 
 int writeFile(char * filename, char * data, int len){
     FIL file;
