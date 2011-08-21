@@ -12,15 +12,18 @@
 /**************************************************************************/
 
 void ram(void) {
-    int v,mv;
+    int v,mv,c;
     do{
         lcdClear();
         lcdPrintln("Battery status:");
+        c=gpioGetValue(RB_PWR_CHRG);
         mv=GetVoltage();
         v=mv/1000;
 
         lcdNl();
-        if (mv<3550){
+        if(!c){
+            lcdPrintln("CHARGING");
+        }else if (mv<3550){
             lcdPrintln("  Charge NOW!");
         }else if (mv<3650){
             lcdPrintln("  Charge soon");
@@ -40,10 +43,8 @@ void ram(void) {
         lcdPrintln("V");
 
         lcdNl();
-        if(gpioGetValue(RB_PWR_CHRG)){
+        if(c){
             lcdPrintln("(not charging)");
-        }else{
-            lcdPrintln("CHARGING");
         };
         lcdRefresh();
     } while ((getInputWaitTimeout(242))==BTN_NONE);
