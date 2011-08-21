@@ -70,19 +70,23 @@ static void lcdWrite(uint8_t cd, uint8_t data) {
 #define SDA 0,9
 #define RST 2,2
 
-#ifdef NOTYET
 uint8_t lcdRead(uint8_t data)
 {
+    uint32_t op211cache=IOCON_PIO2_11;
+    uint32_t op09cache=IOCON_PIO0_9;
+    uint32_t dircache=GPIO_GPIO2DIR;
+    IOCON_PIO2_11=IOCON_PIO2_11_FUNC_GPIO|IOCON_PIO2_11_MODE_PULLUP;
+    IOCON_PIO0_9=IOCON_PIO0_9_FUNC_GPIO|IOCON_PIO0_9_MODE_PULLUP;
+    gpioSetDir(SCK, 1);
+
     uint8_t i;
 
     gpioSetDir(SDA, 1);
     gpioSetValue(SCK, 0);
-    delayms(1);
     gpioSetValue(CS, 0);
     delayms(1);
 
     gpioSetValue(SDA, 0);
-    delayms(1);
     gpioSetValue(SCK, 1);
     delayms(1);
     
@@ -108,12 +112,16 @@ uint8_t lcdRead(uint8_t data)
         gpioSetValue(SCK, 1);
         delayms(1);
     }
+    gpioSetValue(SCK, 0);
 
-    gpioSetValue(CS, 0);
+    gpioSetValue(CS, 1);
     gpioSetDir(SDA, 1);
+    IOCON_PIO2_11=op211cache;
+    IOCON_PIO0_9=op09cache;
+    GPIO_GPIO2DIR=dircache;
     delayms(1);
+    return ret;
 }
-#endif
 
 
 void lcdInit(void) {
