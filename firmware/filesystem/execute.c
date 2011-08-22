@@ -53,7 +53,7 @@ uint8_t execute_file (const char * fname){
     data = (uint32_t*)dst;
     len = readbytes/4;
 
-    if( readbytes & 0xF ){
+    if( readbytes & 0xF || readbytes <= 0x10){
         lcdClear();
         lcdPrint("!size");
         lcdRefresh();
