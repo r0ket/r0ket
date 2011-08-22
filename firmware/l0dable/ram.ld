@@ -30,19 +30,12 @@ SECTIONS
     *(vtable)
     *(.data*)
     _edata = .;
-  } > sram
-
-  /* zero initialized data */
-  .bss :
-  {
-    _bss = .;
+                    /* force zero initialized data to be present*/
     *(.bss*)
     *(COMMON)
     _ebss = .;
   } > sram
-  
+
   end = .;
 
-  /* For GDB compatibility we decrease the top with 16 bytes */
-  stack_entry = sram_top - 16;
 }
