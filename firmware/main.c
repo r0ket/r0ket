@@ -7,7 +7,28 @@
 #include "lcd/render.h"
 #include "filesystem/ff.h"
 
-__attribute__ ((used, section("crp"))) const uint32_t the_crp=0x87654321;
+
+#ifdef CRP1
+#define CRP_VALUE 0x12345678  // CRP1
+#endif
+
+#ifdef CRP2
+#define CRP_VALUE 0x87654321  // CRP2
+#endif
+
+#ifdef CRP3
+#define CRP_VALUE 0x43218765  // CRP3
+#endif
+
+#ifdef NO_ISP
+#define CRP_VALUE 0x4e697370  // NO_ISP
+#endif
+
+#ifndef CRP_VALUE
+#define CRP_VALUE 0x0  // ANY non-magic value disables CRP
+#endif
+
+__attribute__ ((used, section("crp"))) const uint32_t the_crp=CRP_VALUE;
 
 /**************************************************************************/
 
