@@ -18,11 +18,12 @@
 #include "lcd/display.h"
 #include "funk/mesh.h"
 #include "usetable.h"
-#include "core/adc/adc.c"
+#include "core/adc/adc.h"
 
 void ram(void) {
   int alive=0;
   int ys[96];
+  lcdClear();
       DoString(5,1,"Oscilliscope");
     lcdDisplay();
     
@@ -123,3 +124,4 @@ void ram(void) {
       lcdDisplay();
     }
 }
+#include "core/adc/adc.c"
