@@ -152,7 +152,7 @@ int CDC_WrInBuf (const char *buffer, int *length)
   bytesWritten = bytesToWrite;
   
   // Just block if we can't write all at once
-  // These ringbuffers smell buggy, so +1
+  // +1 to prevent an overflow of the ring buffer
   while( CDC_BUF_SIZE - CDC_BUF_COUNT(CDC_InBuf) < bytesToWrite+1 );
 
   //uint8_t flush = CDC_DepInEmpty;
