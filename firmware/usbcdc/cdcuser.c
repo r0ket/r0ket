@@ -25,6 +25,8 @@
 #include "usbcore.h"
 #include "cdc.h"
 #include "cdcuser.h"
+#include "usbreg.h"
+
 
 unsigned char BulkBufIn  [64];            // Buffer to store USB IN  packet
 unsigned char BulkBufOut [64];            // Buffer to store USB OUT packet
@@ -149,19 +151,23 @@ int CDC_WrInBuf (const char *buffer, int *length)
   bytesToWrite = *length;
   bytesWritten = bytesToWrite;
   
-  //Just block if we can't write all at once
-  while( CDC_BUF_SIZE - CDC_BUF_COUNT(CDC_InBuf) < bytesToWrite );
+  // Just block if we can't write all at once
+  // These ringbuffers smell buggy, so +1
+  while( CDC_BUF_SIZE - CDC_BUF_COUNT(CDC_InBuf) < bytesToWrite+1 );
 
   //uint8_t flush = CDC_DepInEmpty;
+
+  USB_DEVINTEN = 0;
   while (bytesToWrite--) {
       CDC_BUF_WR(CDC_InBuf, *buffer++);           // Copy Data to buffer  
   }
   //if( flush == 1 ){
-  if( CDC_DepInEmpty && CDC_BUF_COUNT(CDC_InBuf) ){
+  //if( CDC_DepInEmpty && CDC_BUF_COUNT(CDC_InBuf) ){
+  if( CDC_DepInEmpty ){
     CDC_DepInEmpty = 0;
-    gpioSetValue (RB_LED2, 0); 
-    CDC_BulkIn();
+    CDC_BulkIn(); 
   }
+  USB_DEVINTEN  = DEV_STAT_INT | (0xFF<<1) | (USB_SOF_EVENT   ? FRAME_INT : 0);
 
   return (bytesWritten); 
 }
@@ -326,7 +332,6 @@ uint32_t CDC_SendBreak (unsigned short wDurationOfBreak) {
   /* ... add code to handle request */
   return (TRUE);
 }
-
 
 /*----------------------------------------------------------------------------
   CDC_BulkIn call on DataIn Request
