@@ -30,10 +30,10 @@
 #define CHANNEL 81
 #define MAC     "\x1\x2\x3\x2\x1"
 
-#define UB_NONE 0
-#define UB_ESCAPE   '\\'
-#define UB_STOP     '0'
-#define UB_PACKETLEN    128
+#define SERIAL_NONE 0
+#define SERIAL_ESCAPE   '\\'
+#define SERIAL_STOP     '0'
+#define SERIAL_PACKETLEN    128
 
 struct NRF_CFG config = {
     .channel= CHANNEL,
@@ -43,12 +43,13 @@ struct NRF_CFG config = {
     .maclen ="\x10",
 };
 
-uint8_t serialmsg_message[UB_PACKETLEN];
+uint8_t serialmsg_message[SERIAL_PACKETLEN];
 uint8_t serialmsg_len = 0;
 
 void serialmsg_init(void);
 uint8_t serialmsg_put(uint8_t data);
 char snd_pkt_no_crc(int size, uint8_t * pkt);
+void dump_encoded(int len, uint8_t *data);
 
 #define INPUTLEN 99
 /**************************************************************************/
@@ -57,7 +58,7 @@ void main_schneider(void)
 {
     GLOBAL(daytrig)=10;
     GLOBAL(lcdbacklight)=10;
-    char input[INPUTLEN+1];
+    char input[64];
 
     usbCDCInit();
     delayms(500);
@@ -66,13 +67,13 @@ void main_schneider(void)
     
     nrf_rcv_pkt_start();
     while(1){
-        int l=INPUTLEN, i, status;
+        int l, i, status;
         CDC_OutBufAvailChar (&l);
         if(l>0){
             CDC_RdOutBuf (input, &l);
             for(i=0; i<l; i++){
                 uint8_t cmd = serialmsg_put(input[i]);
-                if( cmd != UB_NONE ){
+                if( cmd != SERIAL_NONE ){
                     switch( cmd ){
                         case '1':
                             // can we loose packets here?
@@ -106,10 +107,23 @@ void main_schneider(void)
         len=nrf_rcv_pkt_poll(sizeof(buf),buf);
         if( len > 0 ){
             puts("\\1");
-            CDC_WrInBuf(buf, &len);
+            dump_encoded(len, buf);
             puts("\\0");
         }
     }
+}
+
+void dump_encoded(int len, uint8_t *data)
+{
+    int i=0,j=0;
+    uint8_t buf[SERIAL_PACKETLEN*2];
+    for(i=0; i<len; i++){
+        if( data[i] == SERIAL_ESCAPE ){
+            buf[j++] = SERIAL_ESCAPE;
+        }
+        buf[j++] = data[i];
+    }
+    CDC_WrInBuf(buf, j);
 }
 
 void tick_schneider(void){
@@ -156,36 +170,36 @@ void serialmsg_init(void)
     serialmsg_len = 0;
 }
 
-//returns the message type or UB_NONE
+//returns the message type or SERIAL_NONE
 uint8_t serialmsg_put(uint8_t data)
 {
     static uint8_t escaped = 0;
-    static uint8_t msgtype = UB_NONE;
+    static uint8_t msgtype = SERIAL_NONE;
 
-    if( data == UB_ESCAPE && escaped == 0 ){
+    if( data == SERIAL_ESCAPE && escaped == 0 ){
         //a control code will follow
         escaped = 1;
-        return UB_NONE;
+        return SERIAL_NONE;
     }else if( escaped ){
         escaped = 0;
-        if( data != UB_ESCAPE ){
-            if( data == UB_STOP ){
+        if( data != SERIAL_ESCAPE ){
+            if( data == SERIAL_STOP ){
                 uint8_t tmp = msgtype;
-                msgtype = UB_NONE;
+                msgtype = SERIAL_NONE;
                 return tmp;
             }
             msgtype = data;
             serialmsg_len=0;
-            return UB_NONE;
+            return SERIAL_NONE;
         }
     }
     serialmsg_message[serialmsg_len++] = data;
 
     //prevent a buffer overflow
-    if( serialmsg_len == UB_PACKETLEN )
+    if( serialmsg_len == SERIAL_PACKETLEN )
         serialmsg_len--;
 
-    return UB_NONE;
+    return SERIAL_NONE;
 }
 
 
