@@ -123,7 +123,7 @@ void dump_encoded(int len, uint8_t *data)
         }
         buf[j++] = data[i];
     }
-    CDC_WrInBuf(buf, j);
+    CDC_WrInBuf((char*)buf, &j);
 }
 
 void tick_schneider(void){
