@@ -42,40 +42,60 @@ struct NRF_CFG config = {        //for some reason this has to be global
         .txmac= GAME_MAC,
         .nrmacs=1,
         .mac0=  PLAYER_MAC,
-        .maclen ="\x10",
+        .maclen ="\x20",
     };
 
 struct packet{
     uint8_t len;
     uint8_t protocol;
     uint8_t command;
+    uint32_t id;
+    uint32_t ctr;
     
-    //union with 11 bytes data
+    //union with 19 bytes data
     union content{
         struct button{
             uint8_t button;
-            uint32_t id;
-            uint32_t cnt;
-            uint8_t reserved[2];
+            uint8_t reserved[18];
         }button;
 
         struct text{
             uint8_t x;
             uint8_t y;
             uint8_t flags;
-            uint8_t text[8];
+            uint8_t text[16];
         }text;
         struct nick{
             uint8_t flags;
-            uint8_t text[10];
+            uint8_t text[18];
         }nick;
         struct nickrequest{
-           uint8_t reserved[11];
+           uint8_t reserved[19];
         }nickrequest;
+        struct ack{
+           uint8_t flags;
+           uint8_t reserved[19];
+        }ack;
+        struct announce{
+           uint8_t gameMac[5];
+           uint8_t gameChannel;
+           //uint8_t playerMac[5]; playerMac = gameMac+1;
+           uint32_t gameId;
+           uint8_t gameFlags;
+           uint8_t gameTitle[8];
+        }announce;
+        struct join{
+           uint32_t gameId;
+        }join;
     }c;
     uint16_t crc;
 };
 
+#define FLAGS_MASS_GAME 1
+
+#define FLAGS_ACK_JOINOK    1
+
+#define MASS_ID 1
 
 /**************************************************************************/
 /* l0dable for playing games which are announced by other r0kets with the l0dabel r_game */
@@ -84,23 +104,42 @@ struct packet{
  * T: packet sent by game, contain text for display
  * N: packet sent by game, requesting nick
  * n: packet sent player, containing nick
+ * A: packet sent by game, announcing game
+ * J: packet sent by player, requesting to join game
+ * a: ack, packet with $ctr was received
  */
+
 
 uint32_t ctr;
 uint32_t id;
+uint32_t gameId;
 
 void sendButton(uint8_t button);
-void sendJoin(uint8_t game);
+void sendJoin(uint32_t game);
 void processPacket(struct packet *p);
+void processAnnounce(struct announce *a);
+
+uint8_t selectGame();
+void playGame();
+
+struct announce games[10];
+uint8_t gamecount;
 
 void ram(void)
 {
-    nrf_config_set(&config);
     id = getRandom();
     ctr = 1;
+   
+    while( selectGame() ){
+        playGame();
+    }
+};
+
+void playGame(void)
+{
     int len;
     struct packet p;
-
+ 
     while(1){
         uint8_t button = getInputRaw();
         sendButton(button);
@@ -115,57 +154,167 @@ void ram(void)
         }
         delayms(20);
     };
-};
-//getInputRaw();
+}
+
+void showGames(uint8_t selected)
+{
+    int i;
+    lcdClear();
+    lcdPrintln("Games:");
+    if( gamecount ){
+        for(i=0;i<gamecount;i++){
+            if( i==selected )
+                lcdPrint("*");
+            else
+                lcdPrint(" ");
+            char buf[9];
+            memcpy(buf, games[i].gameTitle, 8);
+            buf[8] = 0;
+            lcdPrintln(buf);
+        }
+    }else{
+        lcdPrint("*No Games");
+    }
+    lcdRefresh();
+}
+
+uint8_t joinGame()
+{
+    int i;
+    for(i=0; i<10; i++){
+        struct packet p;
+        p.len=sizeof(p); 
+        p.protocol='G';
+        p.command='J';
+        p.id= id;
+        p.ctr= ++ctr;
+        p.c.join.gameId=gameId;
+        nrf_snd_pkt_crc(sizeof(p),(uint8_t*)&p);
+        
+        int len;
+        len = nrf_rcv_pkt_time(30,sizeof(p),(uint8_t*)&p);
+        if( len==sizeof(p) ){
+            if( (p.len==32) && (p.protocol=='G') && p.command=='a' ){   //check sanity, protocol
+                if( p.id == id && p.ctr == ctr ){
+                    if( p.c.ack.flags & FLAGS_ACK_JOINOK )
+                        return 1;
+                    else
+                        return 0;
+                }
+            }
+        }
+        delayms(70);
+    }
+    return 0;
+}
+
+uint8_t selectGame()
+{  
+    int len, i, selected;
+    struct packet p;
+
+    config.channel = REMOTE_CHANNEL;
+    memcpy(config.txmac, GAME_MAC, 5);
+    memcpy(config.mac0, PLAYER_MAC, 5);
+    nrf_config_set(&config);
+
+    gamecount = 0;
+    for(i=0;i<30;i++){
+        len= nrf_rcv_pkt_time(30, sizeof(p), (uint8_t*)&p);
+        if (len==sizeof(p)){
+            processPacket(&p);
+        }
+    }
+    selected = 0;
+    while(1){
+        showGames(selected);
+        int key=getInputWait();
+        getInputWaitRelease();
+        switch(key){
+            case BTN_DOWN:
+                if( selected < gamecount-1 ){
+                    selected++;
+                }
+                break;
+            case BTN_UP:
+                if( selected > 0 ){
+                    selected--;
+                }
+                break;
+            case BTN_LEFT:
+                return 0;
+            case BTN_ENTER:
+            case BTN_RIGHT:
+                if( gamecount == 0 )
+                    return 0;
+                gameId = games[selected].gameId;
+                memcpy(config.txmac, games[selected].gameMac, 5);
+                memcpy(config.mac0, games[selected].gameMac, 5);
+                config.mac0[4]++;
+                config.channel = games[selected].gameChannel;
+                nrf_config_set(&config);
+                if( games[selected].gameFlags & FLAGS_MASS_GAME )
+                    return 1;
+                else
+                    return joinGame();
+        }
+    }
+}
+   
+
 
 void processPacket(struct packet *p)
 {
-   if ((p->len==16) && (p->protocol=='G')){   //check sanity, protocol
+   if ((p->len==32) && (p->protocol=='G') && p->id == id){   //check sanity, protocol, id
      if (p->command=='T'){
      //processText(&(p->c.text));
      } 
      else if (p->command=='N'){
      //processNick(&(p->c.nickrequest));
      }
+     else if (p->command=='A'){
+        processAnnounce(&(p->c.announce));
+     }
    }     
 }
 
+void processAnnounce(struct announce *a)
+{
+    if( gamecount < sizeof(games)/sizeof(games[0]) ){
+        games[gamecount] = *a;
+        gamecount++;
+    }
+}
 
 //increment ctr and send button state, id and ctr
 void sendButton(uint8_t button)
 {
-    uint8_t buf[16];
-    buf[0]=0x10; // Length: 16 bytes
-    buf[1]='G'; // Proto
-    buf[2]='B';
-    buf[3]=button;
-
-    ctr++;
-    *(int*)(buf+4)=ctr;
-    ctr+=4;
-    *(int*)(buf+4)=id;
+    struct packet p;
+    p.len=sizeof(p); 
+    p.protocol='G'; // Proto
+    p.command='B';
+    p.id= id;
+    p.ctr= ++ctr;
+    p.c.button.button=button;
 
     //lcdClear();
     //lcdPrint("Key:"); lcdPrintInt(buf[2]); lcdNl();
 
-    nrf_snd_pkt_crc(16,buf);
+    nrf_snd_pkt_crc(sizeof(p),(uint8_t*)&p);
 }
 
 //send join request for game
-void sendJoin(uint8_t game)
+void sendJoin(uint32_t game)
 {
-    uint8_t buf[16];
-    buf[0]=0x10; // Length: 16 bytes
-    buf[1]='G'; // Proto
-    buf[2]='J';
-    buf[3]=game;
+    struct packet p;
+    p.len=sizeof(p);
+    p.protocol='G';
+    p.command='J';
+    p.ctr= ++ctr;
+    p.id=id;
+    p.c.join.gameId=game;
 
-    ctr++;
-    *(int*)(buf+4)=ctr;
-    ctr+=4;
-    *(int*)(buf+4)=id;
-
-    nrf_snd_pkt_crc(16,buf);
+    nrf_snd_pkt_crc(sizeof(p),(uint8_t*)&p);
 }
     
 
