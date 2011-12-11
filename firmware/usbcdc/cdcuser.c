@@ -342,7 +342,7 @@ void CDC_BulkIn(void)
 {
     int numBytesRead, numBytesAvail;
     CDC_InBufAvailChar(&numBytesAvail);
-    numBytesRead = CDC_RdInBuf(&BulkBufIn[0], &numBytesAvail);
+    numBytesRead = CDC_RdInBuf((char*)&BulkBufIn[0], &numBytesAvail);
     // send over USB
     if (numBytesRead > 0) {
         //gpioSetValue (RB_LED0, 1);

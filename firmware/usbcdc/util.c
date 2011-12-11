@@ -1,4 +1,5 @@
 #include <sysinit.h>
+#include <string.h>
 
 #include "usbcdc/usb.h"
 #include "usbcdc/usbcore.h"
@@ -6,13 +7,6 @@
 #include "usbcdc/usbhw.h"
 #include "usbcdc/cdcuser.h"
 
-#include "basic/basic.h"
-
-volatile unsigned int lastTick;
-
-// There must be at least 1ms between USB frames (of up to 64 bytes)
-// This buffers all data and writes it out from the buffer one frame
-// and one millisecond at a time
 int puts(const char * str){
     if(!USB_Configuration)
         return -1;
@@ -23,16 +17,10 @@ int puts(const char * str){
 }
 
 int puts_plus(const char * str){
-    if(!USB_Configuration)
-        return -1;
-
-    int len = strlen(str);
-    CDC_WrInBuf(str, &len);
-    return 0;
+    return puts(str);
 }
 
 void usbCDCInit(){
-    lastTick = systickGetTicks();   // Used to control output/printf timing
     CDC_Init();                     // Initialise VCOM
     USB_Init();                     // USB Initialization
     USB_Connect(TRUE);              // USB Connect

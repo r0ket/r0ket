@@ -24,6 +24,7 @@ extern int CDC_RdOutBuf        (char *buffer, const int *length);
 extern int CDC_WrOutBuf        (const char *buffer, int *length);
 extern int CDC_OutBufAvailChar (int *availChar);
 
+extern int CDC_WrInBuf (const char *buffer, int *length); 
 
 /* CDC Data In/Out Endpoint Address */
 #define CDC_DEP_IN       0x83
