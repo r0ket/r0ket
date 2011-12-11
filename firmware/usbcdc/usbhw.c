@@ -26,6 +26,7 @@
 #include "usbhw.h"
 #include "usbcore.h"
 #include "usbuser.h"
+#include "basic/basic.h"
 
 #include "usb/usbmsc.h"
 
@@ -470,6 +471,10 @@ uint32_t USB_ReadEP (uint32_t EPNum, uint8_t *pData)
 uint32_t USB_WriteEP (uint32_t EPNum, uint8_t *pData, uint32_t cnt) 
 {
   uint32_t n;
+  
+  //this seems rather brutal...
+  //disable all usb related interrupts or WrCmd might block 
+  USB_DEVINTEN = 0;
 
   USB_CTRL = ((EPNum & 0x0F) << 2) | CTRL_WR_EN;
   /* 3 clock cycles to fetch the packet length from RAM. */ 
@@ -485,6 +490,9 @@ uint32_t USB_WriteEP (uint32_t EPNum, uint8_t *pData, uint32_t cnt)
   USB_CTRL = 0;
 
   WrCmdEP(EPNum, CMD_VALID_BUF);
+
+  //enable interrupts again
+  USB_DEVINTEN  = DEV_STAT_INT | (0xFF<<1) | (USB_SOF_EVENT   ? FRAME_INT : 0);
 
   return (cnt);
 }

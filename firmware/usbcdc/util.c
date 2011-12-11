@@ -16,30 +16,9 @@ volatile unsigned int lastTick;
 int puts(const char * str){
     if(!USB_Configuration)
         return -1;
-
-    while(*str)
-        cdcBufferWrite(*str++);
-
-    //XXX: This assumes systick is 1ms, which it isn't for us.
-    // this makes usbserial unnecessary slow. Ah well....
-
-    // Check if we can flush the buffer now or if we need to wait
-    unsigned int currentTick = systickGetTicks();
-    if (currentTick != lastTick){
-        uint8_t frame[64];
-        uint32_t bytesRead = 0;
-        char repeat=0;
-        while (cdcBufferDataPending()){
-            // Read up to 64 bytes as long as possible
-            bytesRead = cdcBufferReadLen(frame, 64);
-            USB_WriteEP (CDC_DEP_IN, frame, bytesRead);
-            if(repeat)
-                systickDelay(1);
-            else
-                repeat=1;
-        }
-        lastTick = currentTick;
-    }
+ 
+    int len = strlen(str);
+    CDC_WrInBuf(str, &len);
     return 0;
 }
 
@@ -47,8 +26,8 @@ int puts_plus(const char * str){
     if(!USB_Configuration)
         return -1;
 
-    while(*str)
-        cdcBufferWrite(*str++);
+    int len = strlen(str);
+    CDC_WrInBuf(str, &len);
     return 0;
 }
 

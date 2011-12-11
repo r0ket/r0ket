@@ -4,7 +4,6 @@
 
 OBJS =
 OBJS += cdcuser.o
-OBJS += cdc_buf.o
 OBJS += usbcore.o
 OBJS += usbdesc.o
 OBJS += usbhw.o
