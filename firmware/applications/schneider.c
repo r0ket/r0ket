@@ -40,7 +40,7 @@ struct NRF_CFG config = {
     .txmac= MAC,
     .nrmacs=1,
     .mac0=  MAC,
-    .maclen ="\x10",
+    .maclen ="\x20",
 };
 
 uint8_t serialmsg_message[SERIAL_PACKETLEN];
@@ -79,6 +79,7 @@ void main_schneider(void)
                             // can we loose packets here?
                             nrf_rcv_pkt_end();
                             status=snd_pkt_no_crc(serialmsg_len, serialmsg_message);
+                            //status=nrf_snd_pkt_crc(serialmsg_len, serialmsg_message);
                             nrf_rcv_pkt_start();
                         break;
                         case '3':
