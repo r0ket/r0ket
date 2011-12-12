@@ -37,13 +37,7 @@
 //#error "CDC is not defined"
 //#endif
 
-struct NRF_CFG config = {        //for some reason this has to be global
-        .channel= REMOTE_CHANNEL,
-        .txmac= GAME_MAC,
-        .nrmacs=1,
-        .mac0=  PLAYER_MAC,
-        .maclen ="\x20",
-    };
+struct NRF_CFG config;
 
 struct packet{
     uint8_t len;
@@ -57,25 +51,24 @@ struct packet{
         struct button{
             uint8_t button;
             uint8_t reserved[18];
-        }button;
-
+        }__attribute__((packed)) button;
         struct text{
             uint8_t x;
             uint8_t y;
             uint8_t flags;
             uint8_t text[16];
-        }text;
+        }__attribute__((packed)) text;
         struct nick{
             uint8_t flags;
             uint8_t text[18];
-        }nick;
+        }__attribute__((packed)) nick;
         struct nickrequest{
            uint8_t reserved[19];
-        }nickrequest;
+        }__attribute__((packed)) nickrequest;
         struct ack{
            uint8_t flags;
-           uint8_t reserved[19];
-        }ack;
+           uint8_t reserved[18];
+        }__attribute__((packed)) ack;
         struct announce{
            uint8_t gameMac[5];
            uint8_t gameChannel;
@@ -83,13 +76,16 @@ struct packet{
            uint32_t gameId;
            uint8_t gameFlags;
            uint8_t gameTitle[8];
-        }announce;
+        }__attribute__((packed)) announce;
         struct join{
            uint32_t gameId;
-        }join;
+           uint8_t reserved[15];
+        }__attribute__((packed)) join;
     }c;
     uint16_t crc;
-};
+}__attribute__((packed));
+
+#define sizeof(p) (sizeof(struct packet))
 
 #define FLAGS_MASS_GAME 1
 
@@ -122,11 +118,14 @@ void processAnnounce(struct announce *a);
 uint8_t selectGame();
 void playGame();
 
-struct announce games[10];
+struct announce games[7];
 uint8_t gamecount;
 
 void ram(void)
 {
+    config.nrmacs=1;
+    config.maclen[0] = 32;
+
     id = getRandom();
     ctr = 1;
    
@@ -147,7 +146,7 @@ void playGame(void)
         while(1){
             len = nrf_rcv_pkt_time(30,sizeof(p),(uint8_t*)&p);
             if(len==sizeof(p)){
-            processPacket(&p);
+                processPacket(&p);
             }else{
                 break;
             }
@@ -181,6 +180,7 @@ void showGames(uint8_t selected)
 uint8_t joinGame()
 {
     int i;
+    lcdClear();
     for(i=0; i<10; i++){
         struct packet p;
         p.len=sizeof(p); 
@@ -189,8 +189,9 @@ uint8_t joinGame()
         p.id= id;
         p.ctr= ++ctr;
         p.c.join.gameId=gameId;
-        nrf_snd_pkt_crc(sizeof(p),(uint8_t*)&p);
-        
+        int r = nrf_snd_pkt_crc(sizeof(p),(uint8_t*)&p);
+        lcdPrint("send: "); lcdPrintInt(r);lcdPrintln("");
+        lcdRefresh();
         int len;
         len = nrf_rcv_pkt_time(30,sizeof(p),(uint8_t*)&p);
         if( len==sizeof(p) ){
@@ -212,16 +213,18 @@ uint8_t selectGame()
 {  
     int len, i, selected;
     struct packet p;
-
+    int a = 0;
     config.channel = REMOTE_CHANNEL;
     memcpy(config.txmac, GAME_MAC, 5);
     memcpy(config.mac0, PLAYER_MAC, 5);
     nrf_config_set(&config);
 
     gamecount = 0;
-    for(i=0;i<30;i++){
+    for(i=0;i<60;i++){
         len= nrf_rcv_pkt_time(30, sizeof(p), (uint8_t*)&p);
         if (len==sizeof(p)){
+            if( a ) a = 0; else a = 1;
+            gpioSetValue (RB_LED2, a);
             processPacket(&p);
         }
     }
@@ -265,7 +268,7 @@ uint8_t selectGame()
 
 void processPacket(struct packet *p)
 {
-   if ((p->len==32) && (p->protocol=='G') && p->id == id){   //check sanity, protocol, id
+   if ((p->len==32) && (p->protocol=='G') && (p->id == id || p->id == 0) ){   //check sanity, protocol, id
      if (p->command=='T'){
      //processText(&(p->c.text));
      } 
