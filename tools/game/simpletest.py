@@ -1,27 +1,23 @@
-import r0ketrem0te.rem0te
+import r0ketrem0te.game
+import r0ketrem0te.bridge
 import r0ketrem0te.packets
 import time
 import Queue
 
-announcequeue = Queue.Queue()
-r = r0ketrem0te.rem0te.Bridge('/dev/ttyACM0')
+def receivedPacket(packet):
+    if isinstance(packet, r0ketrem0te.packets.Join):
+        # flags = 1: join ok
+        # flags = 0: join not ok
+        ack = r0ketrem0te.packets.Ack(packet.id, packet.ctr, 1)
+        qp = r0ketrem0te.bridge.QueuePacket(game.channel, game.playermac, False, ack)
+        game.bridge.putInQueue(queue, qp) 
 
-r.registerQueue(announcequeue)
+game = r0ketrem0te.game.Game('/dev/ttyACM0', "testgame", 83, 81, (1,2,3,2,1))
 
-a = r0ketrem0te.packets.Announce(0,2,(1,2,3,2,1), 81, 1, 0, "testgame")
-aq = r0ketrem0te.rem0te.QueuePacket(81, (1,2,3,2,1), False, a)
-aq.priority = 4
+queue = Queue.Queue()
+game.bridge.registerQueue(queue)
+game.bridge.registerCallback(receivedPacket)
 
 while True:
-    r.putInQueue(announcequeue, aq)
-    for i in range(1,1000):
-        if r.gotPacket():
-            packet = r.getPacket()
-            if isinstance(packet, r0ketrem0te.packets.Join):
-                r.sendPacket(r0ketrem0te.packets.Ack(packet.id, packet.ctr, 1))
-        time.sleep(.001)
-
-
-
-
+    time.sleep(1)
 

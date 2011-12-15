@@ -5,17 +5,18 @@ def uint32toint(v):
     return (ord(v[3])<< 24) + (ord(v[2])<<16) + (ord(v[1])<<8) + (ord(v[0]))
 
 class Packet:
-    def __init__(self, command, id=None, ctr=None):
-        if id == None and ctr == None:
+    def __init__(self, command, id=None):
+        self.ctr = 0
+        if id == None:
             message = command
             command = message[2]
             id = uint32toint(message[3:7])
-            ctr = uint32toint(message[7:11])
+            self.ctr = uint32toint(message[7:11])
         self.length = 32
         self.protocol = 'G'
         self.command = command
         self.id = id
-        self.ctr = ctr
+        self.priority = 5
 
     def toMessage(self):
         message = chr(self.length)
@@ -35,9 +36,9 @@ class Packet:
         return s
 
 class Button(Packet):
-    def __init__(self, id, ctr=None, button=None):
-        if ctr != None and button!= None:
-            Packet.__init__(self, 'B', id, ctr)
+    def __init__(self, id, button=None):
+        if button!= None:
+            Packet.__init__(self, 'B', id)
         else:
             message = id
             Packet.__init__(self, message)
@@ -54,13 +55,15 @@ class Button(Packet):
         return s
 
 class Announce(Packet):
-    def __init__(self, id, ctr, gameMac, gameChannel, gameId, gameFlags, gameTitle):
-        Packet.__init__(self, 'A', id, ctr)
+    def __init__(self, gameMac, gameChannel, gameId, gameFlags, gameTitle):
+        #always a broadcast
+        Packet.__init__(self, 'A', 0)
         self.gameMac = gameMac
         self.gameChannel = gameChannel
         self.gameId = gameId
         self.gameFlags = gameFlags
         self.gameTitle = gameTitle[0:8]
+        self.priority = 3
 
     def toMessage(self):
         message = Packet.toMessage(self)
@@ -83,9 +86,9 @@ class Announce(Packet):
         return s
    
 class Join(Packet):
-    def __init__(self, id, ctr=None, gameId=None):
-        if ctr != None and gameId != None:
-            Packet.__init__(self, 'J', id, ctr)
+    def __init__(self, id, gameId=None):
+        if gameId != None:
+            Packet.__init__(self, 'J', id)
         else:
             message = id
             Packet.__init__(self, message)
@@ -104,14 +107,16 @@ class Join(Packet):
         return s
  
 class Ack(Packet):
-    def __init__(self, id, ctr=None, flags=None):
+    def __init__(self, id, ctr, flags=None):
         if ctr != None and flags != None:
-            Packet.__init__(self, 'a', id, ctr)
+            Packet.__init__(self, 'a', id)
+            self.ctr = ctr
         else:
             message = id
             Packet.__init__(self, message)
             flags = ord(message[11])
         self.flags = flags
+        self.priority = 3
 
     def toMessage(self):
         message = Packet.toMessage(self)
@@ -125,17 +130,17 @@ class Ack(Packet):
         return s
  
 class Nickrequest(Packet):
-    def __init__(self, id, ctr):
-        Packet.__init__(self, 'N', id, ctr)
+    def __init__(self, id):
+        Packet.__init__(self, 'N', id)
 
     def __str__(self):
         s = "Nickrequest packet with " + self.headerString()
         return s
 
 class Nick(Packet):
-    def __init__(self, id, ctr=None, flags=None, nick=None):
-        if ctr != None and flags != None and nick != None:
-            Packet.__init__(self, 'n', id, ctr)
+    def __init__(self, id, flags=None, nick=None):
+        if flags != None and nick != None:
+            Packet.__init__(self, 'n', id)
         else:
             message = id
             Packet.__init__(self, message)
@@ -159,8 +164,8 @@ class Nick(Packet):
         return s
  
 class Text(Packet):
-    def __init__(self, id, ctr, x, y, flags, text):
-        Packet.__init__(self, 'T', id, ctr)
+    def __init__(self, id, x, y, flags, text):
+        Packet.__init__(self, 'T', id)
         self.x = x
         self.y = y
         self. flags = flags
