@@ -2,23 +2,12 @@
 
 #include "basic/basic.h"
 #include "basic/byteorder.h"
-
 #include "lcd/lcd.h"
 #include "lcd/print.h"
-
 #include "funk/nrf24l01p.h"
-
-//includes useful for r_game:
-//#include "usbcdc/usb.h"
-//#include "usbcdc/usbcore.h"
-//#include "usbcdc/usbhw.h"
-//#include "usbcdc/cdcuser.h"
-//#include "usbcdc/cdc_buf.h"
-//#include "usbcdc/util.h"
-
 #include <string.h>
 #include "basic/random.h"
-
+#include "basic/config.h"
 #include "usetable.h"
 
 #define REMOTE_CHANNEL 81
@@ -28,14 +17,6 @@
 
 //mac that the game receives
 #define GAME_MAC     "\x1\x2\x3\x2\x1"
-
-//#if CFG_USBMSC
-//#error "MSC is defined"
-//#endif
-
-//#if !CFG_USBCDC
-//#error "CDC is not defined"
-//#endif
 
 struct NRF_CFG config;
 
@@ -123,22 +104,29 @@ uint8_t gamecount;
 
 void ram(void)
 {
+    int priv = GLOBAL(privacy);
+    GLOBAL(privacy) = 3;
     config.nrmacs=1;
     config.maclen[0] = 32;
+    config.channel = REMOTE_CHANNEL;
+    memcpy(config.txmac, GAME_MAC, 5);
+    memcpy(config.mac0, PLAYER_MAC, 5);
+    nrf_config_set(&config);
 
     id = getRandom();
     ctr = 1;
-   
+ 
     while( selectGame() ){
         playGame();
     }
+    GLOBAL(privacy) = priv;
 };
 
 void playGame(void)
 {
     int len;
     struct packet p;
- 
+
     while(1){
         uint8_t button = getInputRaw();
         sendButton(button);
@@ -180,9 +168,17 @@ void showGames(uint8_t selected)
 uint8_t joinGame()
 {
     int i;
+    struct packet p;
+
+    //config.nrmacs=1;
+    //config.maclen[0] = 32;
+    //config.channel = REMOTE_CHANNEL;
+    //memcpy(config.txmac, GAME_MAC, 5);
+    //memcpy(config.mac0, PLAYER_MAC, 5);
+    //nrf_config_set(&config);
+
     lcdClear();
     for(i=0; i<10; i++){
-        struct packet p;
         p.len=sizeof(p); 
         p.protocol='G';
         p.command='J';
@@ -190,8 +186,10 @@ uint8_t joinGame()
         p.ctr= ++ctr;
         p.c.join.gameId=gameId;
         int r = nrf_snd_pkt_crc(sizeof(p),(uint8_t*)&p);
-        lcdPrint("send: "); lcdPrintInt(r);lcdPrintln("");
-        lcdRefresh();
+        //lcdPrint("send: "); lcdPrintInt(r);lcdPrintln("");
+        //lcdRefresh();
+
+
         int len;
         len = nrf_rcv_pkt_time(30,sizeof(p),(uint8_t*)&p);
         if( len==sizeof(p) ){
@@ -204,6 +202,7 @@ uint8_t joinGame()
                 }
             }
         }
+        
         delayms(70);
     }
     return 0;
@@ -320,122 +319,3 @@ void sendJoin(uint32_t game)
     nrf_snd_pkt_crc(sizeof(p),(uint8_t*)&p);
 }
     
-
-/*
-void s_init(void){
-    usbCDCInit();
-    nrf_init();
-
-    struct NRF_CFG config = {
-        .channel= REMOTE_CHANNEL,
-        .txmac= REMOTE_MAC,
-        .nrmacs=1,
-        .mac0=  REMOTE_MAC,
-        .maclen ="\x10",
-    };
-
-    nrf_config_set(&config);
-};
-*/
-
-/* void process(uint8_t * input){
-    __attribute__ ((aligned (4))) uint8_t buf[32];
-    puts("process: ");
-    puts(input);
-    puts("\r\n");
-    if(input[0]=='M'){
-        buf[0]=0x10; // Length: 16 bytes
-        buf[1]='M'; // Proto
-        buf[2]=0x01;
-        buf[3]=0x01; // Unused
-
-        uint32touint8p(0,buf+4);
-
-        uint32touint8p(0x41424344,buf+8);
-
-        buf[12]=0xff; // salt (0xffff always?)
-        buf[13]=0xff;
-        nrf_snd_pkt_crc_encr(16,buf,remotekey);
-        nrf_rcv_pkt_start();
-    };
-
-};
-*/
-
-/*
-#define INPUTLEN 99
-void r_recv(void){
-    __attribute__ ((aligned (4))) uint8_t buf[32];
-    int len;
-
-    uint8_t input[INPUTLEN+1];
-    int inputptr=0;
-
-    nrf_rcv_pkt_start();
-    puts("D start");
-
-    getInputWaitRelease();
-
-    while(!getInputRaw()){
-        delayms(100);
-
-        // Input
-        int l=INPUTLEN-inputptr;
-        CDC_OutBufAvailChar (&l);
-
-        if(l>0){
-            CDC_RdOutBuf (input+inputptr, &l);
-            input[inputptr+l+1]=0;
-            for(int i=0;i<l;i++){
-                if(input[inputptr+i] =='\r'){
-                    input[inputptr+i]=0;
-                    process(input);
-                    if(i<l)
-                        memmove(input,input+inputptr+i+1,l-i);
-                    inputptr=-i-1;
-                    break;
-                };
-            };
-        };
-        inputptr+=l;
-        len=nrf_rcv_pkt_poll_dec(sizeof(buf),buf,remotekey);
-
-        // Receive
-        if(len<=0){
-            delayms(10);
-            continue;
-        };
-
-        if(buf[1]=='C'){ // Cursor
-            puts("C ");
-            puts(IntToStrX( buf[2],2 ));
-            puts(" ");
-            puts(IntToStrX( uint8ptouint32(buf+4), 8 ));
-            puts(" ");
-            puts(IntToStrX( uint8ptouint32(buf+8), 8 ));
-        }else{
-            puts("U ");
-//          puts("[");puts(IntToStrX(len,2));puts("] ");
-            puts(IntToStrX( *(int*)(buf+  0),2 ));
-            puts(" ");
-            puts(IntToStrX( *(int*)(buf+  1),2 ));
-            puts(" ");
-            puts(IntToStrX( *(int*)(buf+  2),2 ));
-            puts(" ");
-            puts(IntToStrX( *(int*)(buf+  3),2 ));
-            puts(" ");
-            puts(IntToStrX( uint8ptouint32(buf+4),8 ));
-            puts(".");
-            puts(IntToStrX( uint8ptouint32(buf+8),8 ));
-            puts(" ");
-            puts(IntToStrX( uint8ptouint32(buf+10),4 ));
-        };
-        puts("\r\n");
-
-    };
-
-    nrf_rcv_pkt_end();
-    puts("D exit");
-}
-};
-*/
