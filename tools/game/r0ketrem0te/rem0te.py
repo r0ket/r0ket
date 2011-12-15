@@ -5,7 +5,7 @@ import crcmod
 import packets
 
 class QueuePacket:
-    def __init__(self, channel, mac, acked, packet):
+    def __init__(self, channel, mac, acked, packet, callback=None):
         self.channel = channel
         self.mac = mac
         self.acked = acked
@@ -17,6 +17,7 @@ class QueuePacket:
         self.timedout = False
         self.lock = threading.RLock()
         self.isdone = False
+        self.callback = callback
 
     def __cmp__(self, other):
         if not isinstance(other,QueuePacket):
@@ -34,10 +35,14 @@ class QueuePacket:
     def sent(self, timeoutcallback):
         with self.lock:
             self.timedout = False
+            if self.retrieslef > 0:
+                self.retriesleft-=1
             if self.acked:
                 self.timeoutcallback = timeoutcallback
                 self.timer = threading.Timer(self.timeout, self.timercallback)
                 self.timer.start()
+            elif self.callback:
+                self.callback('done')
 
     def done(self):
         with self.lock:
@@ -45,11 +50,15 @@ class QueuePacket:
                 self.timer.cancel()
                 self.timer = None
             self.isdone = True
+            if self.callback:
+                self.callback('done')
 
     def timercallback(self):
         with self.lock:
             self.timedout = True
             self.timeoutcallback(self)
+            if retriesleft == 0:
+                self.callback('timeout')
 
 class Bridge:
     def __init__(self, path2device):
@@ -69,6 +78,11 @@ class Bridge:
         
         self.writer.start()
         self.reader.start()
+        
+        self.packetlength = None
+        self.txmac = None
+        self.rxmac = None
+        self.channel = None
 
         self.setPacketLength(0x20)
         self.setTxMAC((1,2,3,2,1))
@@ -127,7 +141,10 @@ class Bridge:
                 qp = self.outpackets.get()
                 #send it and notify the queuepacket
                 self.sendPacket(qp.packet)
+                self.setTxMac(qp.mac)
+                self.setChannel(qp.channel)
                 qp.sent(self.packetTimeout)
+                self.setChannel(self.gameChannel)
             except Exception as e:
                 print e
 
@@ -173,18 +190,30 @@ class Bridge:
         self.ser.writeMessage('1',data);
 
     def setPacketLength(self, length):
+        if length == self.packetlength:
+            return
         self.free.acquire()
         self.ser.writeMessage('6', '%c'%length)
+        self.packetLength = length
     
     def setTxMAC(self, mac):
+        if mac == self.txmax:
+            return
         self.free.acquire()
         self.ser.writeMessage('3', ''.join([chr(x) for x in mac]))
+        self.txmac = mac
     
     def setRxMAC(self, mac):
+        if mac == self.rxmac:
+            return
         self.free.acquire()
         self.ser.writeMessage('4', ''.join([chr(x) for x in mac]))
+        self.rxmac = mac
 
     def setChannel(self, channel):
+        if channel == self.channel:
+            return
         self.free.acquire()
         self.ser.writeMessage('5', '%c'%channel)
+        self.channel = channel
 
