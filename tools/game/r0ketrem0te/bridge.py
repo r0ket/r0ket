@@ -70,7 +70,8 @@ class Bridge:
         self.crc = crcmod.predefined.mkCrcFun('crc-ccitt-false')
         self.queues = {}
         self.callbacks = []
-        
+        self.ctrs = {}
+
         self.reader = threading.Thread(target = self.readerThread)
         self.reader.daemon = True
         
@@ -91,6 +92,7 @@ class Bridge:
         self.setChannel(channel)
 
         self.ctr = 0
+
     def registerCallback(self, callback):
         if callback not in self.callbacks:
             self.callbacks.append(callback)
@@ -177,6 +179,8 @@ class Bridge:
         if data[-2:] == chr(crc>>8) + chr(crc&0xFF):
             packet = packets.fromMessage(data)
             print "received:", packet
+            if packet.id in self.ctrs and self.ctrs[packet.id] == packet.ctr:
+                return
             if isinstance(packet,packets.Ack):
                 self.ProcessAck(packet)
             else:
