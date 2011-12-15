@@ -1,5 +1,69 @@
 import pygame, random
+import r0ketrem0te.game
+import r0ketrem0te.bridge
+import r0ketrem0te.packets
+import time
+import Queue
+import threading
 
+class Rem0te(object):
+    def __init__(self):
+        self.maxplayer = 1
+        self.players = {}
+        self.game = r0ketrem0te.game.Game('/dev/ttyACM0', "pong", 83, 81, (1,2,3,2,1))
+
+        self.queue = Queue.Queue()
+        self.game.bridge.registerQueue(self.queue)
+        self.game.bridge.registerCallback(self.receivedPacket)
+        self.state = 0
+        self.checkPlayers()
+
+    def checkPlayers(self):
+        toremove = []
+        for player in self.players:
+            self.players[player]-=1
+            if self.players[player] == 0:
+                toremove.append(player)
+        for player in toremove:
+            print "removing player", player
+            del self.players[player]
+        self.timer = threading.Timer(1, self.checkPlayers)
+        self.timer.start()
+
+    def receivedPacket(self, packet):
+        if isinstance(packet, r0ketrem0te.packets.Join):
+            # flags = 1: join ok
+            # flags = 0: join not ok
+            flags = 0
+            if len(self.players) < self.maxplayer:
+                flags = 1
+                self.players[packet.id] = 10
+            ack = r0ketrem0te.packets.Ack(packet.id, packet.ctr, flags)
+            qp = r0ketrem0te.bridge.QueuePacket(
+                        self.game.channel, self.game.playermac, False, ack)
+            self.game.bridge.putInQueue(self.queue, qp) 
+        elif packet.id in self.players:
+            self.players[packet.id] = 10
+            if isinstance(packet, r0ketrem0te.packets.Button):
+                self.state = packet.button
+ 
+    def update(self, paddle, game):
+        if self.state == 1:
+            paddle.direction = -1
+        elif self.state == 2:
+            paddle.direction = 1
+        else:
+            paddle.direction = 0
+
+    def hit(self):
+        pass
+
+    def lost(self):
+        pass
+        
+    def won(self):
+        pass
+        
 class BasicAIPlayer(object):
     def __init__(self):
         self.bias = random.random() - 0.5

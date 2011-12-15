@@ -1,5 +1,5 @@
 import pygame, pypong
-from pypong.player import BasicAIPlayer, KeyboardPlayer, MousePlayer
+from pypong.player import BasicAIPlayer, KeyboardPlayer, MousePlayer, Rem0te
     
 def run():
     configuration = {
@@ -34,11 +34,12 @@ def run():
     input_state = {'key': None, 'mouse': None}
     
     # Prepare game
-    player_left = KeyboardPlayer(input_state, pygame.K_w, pygame.K_s)
+    #player_left = KeyboardPlayer(input_state, pygame.K_w, pygame.K_s)
     #~ player_right = MousePlayer(input_state)
     
-    #player_left = BasicAIPlayer()
-    player_right = BasicAIPlayer()
+    player_left = BasicAIPlayer()
+    #player_right = BasicAIPlayer()
+    player_right = Rem0te()
     game = pypong.Game(player_left, player_right, configuration)
     
     # Main game loop
