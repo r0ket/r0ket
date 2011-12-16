@@ -12,6 +12,7 @@
 #include "filesystem/ff.h"
 #include "filesystem/select.h"
 #include "filesystem/execute.h"
+#include "filesystem/util.h"
 
 #include <string.h>
 
