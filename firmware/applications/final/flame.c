@@ -8,8 +8,8 @@
 #include "core/i2c/i2c.h"
 #include "basic/config.h"
 
-#define FLAME_I2C_WRITE         0xC4
-#define FLAME_I2C_READ          0xC5
+#define FLAME_I2C_WRITE         0xC6
+#define FLAME_I2C_READ          0xC7
 
 #define FLAME_I2C_CR_INPUT      0x00
 #define FLAME_I2C_CR_PSC0       0x01
@@ -135,21 +135,36 @@ void tick_flame(void) { // every 10ms
 void init_flame(void) {
     i2cInit(I2CMASTER); // Init I2C
 
-    flameEnabled = (flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_OFF << FLAME_I2C_LS0_LED0) == I2CSTATE_ACK); // probe i2c
+    //flameEnabled = (flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_OFF << FLAME_I2C_LS0_LED0) == I2CSTATE_ACK); // probe i2c
 
-    if (!flameEnabled)
-        return;
+    //if (!flameEnabled)
+    //    return;
 
-    flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_OFF << FLAME_I2C_LS0_LED0); // set led0 off
-    flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_OFF << FLAME_I2C_LS0_LED1); // set led1 off
-    flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_OFF << FLAME_I2C_LS0_LED2); // set led2 off
-    flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_OFF << FLAME_I2C_LS0_LED3); // set led3 off
+    //flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_OFF << FLAME_I2C_LS0_LED0); // set led0 off
+    //flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_OFF << FLAME_I2C_LS0_LED1); // set led1 off
+    //flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_OFF << FLAME_I2C_LS0_LED2); // set led2 off
+    //flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_OFF << FLAME_I2C_LS0_LED3); // set led3 off
 
-    flameSetI2C(FLAME_I2C_CR_PSC0, 0x00); // set prescaler
-    flameSetI2C(FLAME_I2C_CR_PWM0, 0x00); // set pwm
-    flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_PWM0 << FLAME_I2C_LS0_LED0); // set led0 to pwm
+    //flameSetI2C(FLAME_I2C_CR_PSC0, 0x00); // set prescaler
+    //flameSetI2C(FLAME_I2C_CR_PWM0, 0x00); // set pwm
+    //flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_PWM0 << FLAME_I2C_LS0_LED0); // set led0 to pwm
+    
+    flameSetI2C(0, 0x00);
+    flameSetI2C(8, 0xAA);
+    
+    uint8_t i;
+    while(1){
+        i++;
+        flameSetI2C(2, i);
+        flameSetI2C(3, i);
+        flameSetI2C(4, i);
+        flameSetI2C(5, i);
+        delayms(10);
+    }
+    //flameSetI2C(8, 0x55);
 
     enableConfig(CFG_TYPE_FLAME,1);
+    flameEnabled = 0;
 }
 
 #include "lcd/print.h"
