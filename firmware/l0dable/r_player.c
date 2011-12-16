@@ -161,25 +161,20 @@ uint8_t joinGame()
 {
     int i;
     struct packet p;
+    p.len=sizeof(p); 
+    p.protocol='G';
+    p.command='J';
+    p.id= id;
+    p.ctr= ++ctr;
+    p.c.join.gameId=gameId;
+    lcdClear();
+    lcdPrintln("Joining game");
+    lcdRefresh();
 
     for(i=0; i<10; i++){
-        lcdClear();
-        lcdPrintln("Joining game");
-        lcdRefresh();
+        nrf_snd_pkt_crc(sizeof(p),(uint8_t*)&p);
 
-        p.len=sizeof(p); 
-        p.protocol='G';
-        p.command='J';
-        p.id= id;
-        p.ctr= ++ctr;
-        p.c.join.gameId=gameId;
-        int r = nrf_snd_pkt_crc(sizeof(p),(uint8_t*)&p);
-        //lcdPrint("send: "); lcdPrintInt(r);lcdPrintln("");
-        //lcdRefresh();
-
-
-        int len;
-        len = nrf_rcv_pkt_time(30,sizeof(p),(uint8_t*)&p);
+        int len = nrf_rcv_pkt_time(30,sizeof(p),(uint8_t*)&p);
         if( len==sizeof(p) ){
             if( (p.len==32) && (p.protocol=='G') && p.command=='a' ){   //check sanity, protocol
                 if( p.id == id && p.ctr == ctr ){
@@ -197,7 +192,6 @@ uint8_t joinGame()
                 }
             }
         }
-        
         delayms(70);
     }
     lcdPrintln("timeout :(");
