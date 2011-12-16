@@ -137,6 +137,11 @@ class Nickrequest(Packet):
         s = "Nickrequest packet with " + self.headerString()
         return s
 
+    def toMessage(self):
+        message = Packet.toMessage(self)
+        message += '\x00'*19
+        return message
+
 class Nick(Packet):
     def __init__(self, id, flags=None, nick=None):
         if flags != None and nick != None:

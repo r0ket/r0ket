@@ -11,10 +11,12 @@ class Rem0tePlayer(object):
         self.rem0te = rem0te
         self.rem0te.bridge.registerCallback(self.receivedPacket)
         self.state = 0
-        self.player = 0
+        self.player = None
 
     def receivedPacket(self, packet):
-        if packet.id == self.player:
+        if self.player == None:
+            return
+        if packet.id == self.player.id:
             if isinstance(packet, r0ketrem0te.packets.Button):
                 self.state = packet.button
  

@@ -3,6 +3,7 @@ import threading
 import Queue
 import crcmod
 import packets
+import traceback
 
 class QueuePacket:
     def __init__(self, channel, mac, acked, packet, callback=None):
@@ -158,6 +159,7 @@ class Bridge:
                 self.setChannel(self.gameChannel)
             except Exception as e:
                 print e
+                traceback.print_stack()
 
     def readerThread(self):
         while True:
@@ -167,20 +169,21 @@ class Bridge:
                     self.newPacket(data)
                 elif command == '2':
                     self.free.release()
-                elif command:
-                    while True:
-                        pass
             except Exception as e:
                 print e
+                traceback.print_stack()
 
     def newPacket(self, data):
-        #print "received:", list(data)
+        print "received:", list(data)
         crc = self.crc(data[:-2])
         if data[-2:] == chr(crc>>8) + chr(crc&0xFF):
             packet = packets.fromMessage(data)
             print "received:", packet
-            if packet.id in self.ctrs and self.ctrs[packet.id] == packet.ctr:
+            if packet == None:
                 return
+            #if packet.id in self.ctrs and self.ctrs[packet.id] == packet.ctr:
+            #    print 'ignoring duplicate'
+            #    return
             if isinstance(packet,packets.Ack):
                 self.ProcessAck(packet)
             else:

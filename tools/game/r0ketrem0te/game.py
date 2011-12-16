@@ -5,8 +5,15 @@ import Queue
 import random
 import threading
 
+class Player():
+    def __init__(self, id):
+        self.id = id
+        self.nick = 'anonymous'
+        self.timeout = 10
+        self.active = False
+
 class Game:
-    def __init__(self, device, gameName, gameChannel, announcechannel, announcemac, maxplayer=0):
+    def __init__(self, device, gameName, gameChannel, announcechannel, announcemac, maxplayer=0, askname=False):
         self.gameName = gameName
         self.channel = gameChannel
         self.gamemac = [int(random.random()*254) for x in range(1,6)]
@@ -22,6 +29,7 @@ class Game:
         self.bridge.registerQueue(self.announcequeue)
         self.announcechannel = announcechannel
         self.announcemac = announcemac
+        self.askname = askname
 
         self.sendAnnounce()
 
@@ -36,15 +44,23 @@ class Game:
     def checkPlayers(self):
         if self.maxplayer > 0:
             toremove = []
-            for player in self.players:
-                self.players[player]-=1
-                if self.players[player] == 0:
-                    toremove.append(player)
-            for player in toremove:
-                print "removing player", player
-                del self.players[player]
-                for callback in self.callbacks:
-                    callback("removed", player)
+            for id in self.players:
+                player = self.players[id]
+                player.timeout-=1
+                if player.timeout == 0:
+                    toremove.append(id)
+            for id in toremove:
+                player = self.players[id]
+                if self.askname:
+                    print "removing player", player.nick
+                else:
+                    print "removing player", id
+
+                del self.players[id]
+                if player.active:
+                    player.active = False
+                    for callback in self.callbacks:
+                        callback("removed", player)
         self.timer = threading.Timer(1, self.checkPlayers)
         self.timer.start()
 
@@ -57,16 +73,34 @@ class Game:
             flags = 0
             if len(self.players) < self.maxplayer:
                 flags = 1
-                self.players[packet.id] = 10
-                for callback in self.callbacks:
-                    callback("added", packet.id)
+                self.players[packet.id] = Player(packet.id)
 
             ack = packets.Ack(packet.id, packet.ctr, flags)
             qp = bridge.QueuePacket(
                         self.channel, self.playermac, False, ack)
             self.bridge.putInQueue(self.queue, qp) 
         elif packet.id in self.players:
-            self.players[packet.id] = 10
+            print "player known:", packet.id
+            player = self.players[packet.id]
+            player.timeout = 10
+            if not player.active and isinstance(packet, packets.Button):
+                if self.askname:
+                    nickrequest = packets.Nickrequest(packet.id)
+                    qp = bridge.QueuePacket(self.channel,
+                        self.playermac, False, nickrequest)
+                    self.bridge.putInQueue(self.queue, qp) 
+                else:
+                    player.active = True
+                    for callback in self.callbacks:
+                        callback("added", player)
+            elif not player.active and isinstance(packet, packets.Nick):
+                if self.askname:
+                    player.nick = packet.nick
+                    player.active = True
+                    for callback in self.callbacks:
+                        callback("added", player)
+        else:
+            print "player unknown"
 
     def sendAnnounce(self):
         aq = bridge.QueuePacket(self.announcechannel,

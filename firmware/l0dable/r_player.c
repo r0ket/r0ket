@@ -38,7 +38,7 @@ struct packet{
         }__attribute__((packed)) text;
         struct nick{
             uint8_t flags;
-            uint8_t text[18];
+            uint8_t nick[18];
         }__attribute__((packed)) nick;
         struct nickrequest{
            uint8_t reserved[19];
@@ -124,7 +124,7 @@ void playGame(void)
         sendButton(button);
         
         while(1){
-            len = nrf_rcv_pkt_time(30,sizeof(p),(uint8_t*)&p);
+            len = nrf_rcv_pkt_time(32,sizeof(p),(uint8_t*)&p);
             if(len==sizeof(p)){
                 processPacket(&p);
             }else{
@@ -255,8 +255,22 @@ uint8_t selectGame()
         }
     }
 }
-   
 
+void processNickRequest( struct nickrequest *nq)
+{
+    struct packet p;
+    p.len=sizeof(p); 
+    p.protocol='G'; // Proto
+    p.command='n';
+    p.id= id;
+    p.ctr= ++ctr;
+    p.c.nick.flags = 0;
+    uint8_t *nick = GLOBAL(nickname);
+    strcpy(p.c.nick.nick, nick);
+    //p.c.nick.nick[0] = 'S';
+    //p.c.nick.nick[1] = 0;
+    nrf_snd_pkt_crc(sizeof(p),(uint8_t*)&p);
+}
 
 void processPacket(struct packet *p)
 {
@@ -265,7 +279,7 @@ void processPacket(struct packet *p)
      //processText(&(p->c.text));
      } 
      else if (p->command=='N'){
-     //processNickRequest(&(p->c.nickrequest));
+        processNickRequest(&(p->c.nickrequest));
      }
      else if (p->command=='A'){
         processAnnounce(&(p->c.announce));
@@ -298,17 +312,3 @@ void sendButton(uint8_t button)
     nrf_snd_pkt_crc(sizeof(p),(uint8_t*)&p);
 }
 
-//send join request for game
-void sendJoin(uint32_t game)
-{
-    struct packet p;
-    p.len=sizeof(p);
-    p.protocol='G';
-    p.command='J';
-    p.ctr= ++ctr;
-    p.id=id;
-    p.c.join.gameId=game;
-
-    nrf_snd_pkt_crc(sizeof(p),(uint8_t*)&p);
-}
-    

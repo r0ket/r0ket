@@ -27,8 +27,9 @@ class Pong:
         }
         pygame.mixer.pre_init(22050, -16, 2, 1024)
         pygame.init()
-
-        self.rem0te = r0ketrem0te.game.Game('/dev/ttyACM0', "pong", 83, 81, (1,2,3,2,1), 2)
+        
+        self.rem0te = r0ketrem0te.game.Game('/dev/ttyACM0', "pong", 83,
+                           81, [ord(x) for x in 'REM0T'], 2, True)
         self.rem0te.registerPlayerCallback(self.playercallback)
 
         self.player_right = Rem0tePlayer(self.rem0te)
@@ -38,21 +39,24 @@ class Pong:
         self.start = False
         self.restart()
 
-
     def playercallback(self, action, player):
         if action == 'added':
-            if self.player_left.player == 0:
+            if self.player_left.player == None:
                 self.player_left.player = player
-            elif self.player_right.player == 0:
+            elif self.player_right.player == None:
                 self.player_right.player = player
             if self.player_left.player and self.player_right.player:
                 self.start = True
         elif action == 'removed':
+            print 'got remove for', player.nick
             if self.player_left.player == player:
-                self.player_left.player = 0
+                print 'removing left player'
+                self.player_left.player = None
             elif self.player_right.player == player:
-                self.player_right.player = 0
-            if self.player_left.player == 0 or self.player_right.player == 0:
+                print 'removing right player'
+                self.player_right.player = None
+            if self.player_left.player == None or self.player_right.player == None:
+                print 'halting game'
                 self.stop = True
     
     def restart(self):
@@ -77,9 +81,6 @@ class Pong:
                 self.restart()
                 self.start = False
                 self.stop = False
-            if self.stop:
-                time.sleep(0.1)
-                continue
 
             self.clock.tick(60)
             now = pygame.time.get_ticks()
@@ -88,10 +89,25 @@ class Pong:
                 print self.clock.get_fps()
             self.input_state['key'] = pygame.key.get_pressed()
             self.input_state['mouse'] = pygame.mouse.get_pos()
-            self.game.update()
+            if not self.stop:
+                self.game.update()
             self.game.draw(self.output_surface)
+
+
             #~ pygame.surfarray.pixels_alpha(output_surface)[:,::2] = 12
             self.display_surface.blit(self.output_surface, (0,0))
+
+            font = pygame.font.Font(None, 36)
+            if self.player_left.player:
+                text = font.render(self.player_left.player.nick, 1, (0, 255, 0))
+                textpos = text.get_rect(centerx=self.output_surface.get_width()/4)
+                self.display_surface.blit(text, textpos)
+
+            if self.player_right.player:
+                text = font.render(self.player_right.player.nick, 1, (0, 255, 0))
+                textpos = text.get_rect(centerx=self.output_surface.get_width()/4*3)
+                self.display_surface.blit(text, textpos)
+
             if self.debug_surface:
                 self.display_surface.blit(self.debug_surface, (0,0))
             pygame.display.flip()
