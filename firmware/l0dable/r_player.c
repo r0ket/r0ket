@@ -10,13 +10,10 @@
 #include "basic/config.h"
 #include "usetable.h"
 
-#define REMOTE_CHANNEL 81
 
-//mac that the player receives
-#define PLAYER_MAC     "\x1\x2\x3\x2\x1"
-
-//mac that the game receives
-#define GAME_MAC     "\x1\x2\x3\x2\x1"
+//channel and mac used to transmit game announcements
+#define ANNOUNCE_CHANNEL 81
+#define ANNOUNCE_MAC     "REM0T"
 
 struct NRF_CFG config;
 
@@ -66,12 +63,8 @@ struct packet{
     uint16_t crc;
 }__attribute__((packed));
 
-#define sizeof(p) (sizeof(struct packet))
-
 #define FLAGS_MASS_GAME 1
-
 #define FLAGS_ACK_JOINOK    1
-
 #define MASS_ID 1
 
 /**************************************************************************/
@@ -108,9 +101,8 @@ void ram(void)
     GLOBAL(privacy) = 3;
     config.nrmacs=1;
     config.maclen[0] = 32;
-    config.channel = REMOTE_CHANNEL;
-    memcpy(config.txmac, GAME_MAC, 5);
-    memcpy(config.mac0, PLAYER_MAC, 5);
+    config.channel = ANNOUNCE_CHANNEL;
+    memcpy(config.mac0, ANNOUNCE_MAC, 5);
     nrf_config_set(&config);
 
     id = getRandom();
@@ -170,15 +162,11 @@ uint8_t joinGame()
     int i;
     struct packet p;
 
-    //config.nrmacs=1;
-    //config.maclen[0] = 32;
-    //config.channel = REMOTE_CHANNEL;
-    //memcpy(config.txmac, GAME_MAC, 5);
-    //memcpy(config.mac0, PLAYER_MAC, 5);
-    //nrf_config_set(&config);
-
-    lcdClear();
     for(i=0; i<10; i++){
+        lcdClear();
+        lcdPrintln("Joining game");
+        lcdRefresh();
+
         p.len=sizeof(p); 
         p.protocol='G';
         p.command='J';
@@ -195,16 +183,28 @@ uint8_t joinGame()
         if( len==sizeof(p) ){
             if( (p.len==32) && (p.protocol=='G') && p.command=='a' ){   //check sanity, protocol
                 if( p.id == id && p.ctr == ctr ){
-                    if( p.c.ack.flags & FLAGS_ACK_JOINOK )
+                    if( p.c.ack.flags & FLAGS_ACK_JOINOK ){
+                        lcdPrintln("Join OK");
+                        lcdRefresh();
                         return 1;
-                    else
+                    }else{
+                        lcdPrintln("Join rejected");
+                        lcdRefresh();
+                        getInputWait();
+                        getInputWaitRelease();
                         return 0;
+                    }
                 }
             }
         }
         
         delayms(70);
     }
+    lcdPrintln("timeout :(");
+    lcdRefresh();
+    getInputWait();
+    getInputWaitRelease();
+
     return 0;
 }
 
@@ -213,9 +213,8 @@ uint8_t selectGame()
     int len, i, selected;
     struct packet p;
     int a = 0;
-    config.channel = REMOTE_CHANNEL;
-    memcpy(config.txmac, GAME_MAC, 5);
-    memcpy(config.mac0, PLAYER_MAC, 5);
+    config.channel = ANNOUNCE_CHANNEL;
+    memcpy(config.mac0, ANNOUNCE_MAC, 5);
     nrf_config_set(&config);
 
     gamecount = 0;
@@ -272,7 +271,7 @@ void processPacket(struct packet *p)
      //processText(&(p->c.text));
      } 
      else if (p->command=='N'){
-     //processNick(&(p->c.nickrequest));
+     //processNickRequest(&(p->c.nickrequest));
      }
      else if (p->command=='A'){
         processAnnounce(&(p->c.announce));
