@@ -37,9 +37,11 @@ SECTIONS
   {
     KEEP(*(.irq_vectors))
     KEEP(*(table))
-    *(.text.main)
-. = 0x000002FC ; /* or 1FC for LPC2000 */
+/* or 1FC for LPC2000*/
+/*    *(.text.main)
+. = 0x000002FC ; 
     KEEP(*(crp))
+*/
     *(.text*)
     *(.rodata*)
   } > flash

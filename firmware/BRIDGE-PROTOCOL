@@ -1,0 +1,18 @@
+Receiving:
+r->h: \1<packet data>\0
+
+Sending:
+h->r: \1<packet data>\0
+r->h: \2\0
+
+Settings:
+h->r:\3<TXMAC>\0
+r->h: \2\0
+h->r:\4<RXMAX>\0
+r->h: \2\0
+h->r:\5<CHANNEL>\0
+r->h: \2\0
+h->r:\6<MACLEN>\0
+r->h: \2\0
+
+

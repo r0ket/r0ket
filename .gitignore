@@ -3,3 +3,4 @@
 *.a
 *.swp
 release
+*.pyc

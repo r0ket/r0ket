@@ -28,7 +28,7 @@
 #define CRP_VALUE 0x0  // ANY non-magic value disables CRP
 #endif
 
-__attribute__ ((used, section("crp"))) const uint32_t the_crp=CRP_VALUE;
+//__attribute__ ((used, section("crp"))) const uint32_t the_crp=CRP_VALUE;
 
 /**************************************************************************/
 
