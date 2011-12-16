@@ -267,8 +267,6 @@ void processNickRequest( struct nickrequest *nq)
     p.c.nick.flags = 0;
     uint8_t *nick = GLOBAL(nickname);
     strcpy(p.c.nick.nick, nick);
-    //p.c.nick.nick[0] = 'S';
-    //p.c.nick.nick[1] = 0;
     nrf_snd_pkt_crc(sizeof(p),(uint8_t*)&p);
 }
 
