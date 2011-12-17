@@ -21,7 +21,23 @@ const char* f_get_rc_string (FRESULT rc) {
 
 
 void fsInit(){
+    FRESULT i;
+    DIR dir;                /* Directory object */
     f_mount(0, &FatFs);
+    
+    i = f_opendir(&dir, "0:");
+ 
+    if( i == FR_NO_FILESYSTEM ){
+        lcdPrintln("Could not mount");
+        lcdPrintln("filesystem.");
+        lcdPrintln("Formating...");
+        lcdRefresh(); 
+        format_formatDF();
+        lcdPrintln("done");
+        lcdPrintln("Please reboot");
+        lcdRefresh();
+        while(1);
+    }
 };
 
 void fsReInit(){
