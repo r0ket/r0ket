@@ -9,6 +9,8 @@
 #include "basic/config.h"
 #include "basic/xxtea.h"
 
+#include "filesystem/util.h"
+
 #define FLAME_I2C_WRITE         0xC6
 #define FLAME_I2C_READ          0xC7
 
@@ -70,20 +72,35 @@ uint8_t flameRGBMode = FLAME_OFF;
 uint8_t flameRGBI2Cpwm = 0;
 uint8_t flameRGBTicks = 0;
 
+uint8_t rgbData[24];
+uint8_t rgbDataSize = 0;
+uint8_t rgbDataOffset = 0;
+
 void setFlameRGBPWM() {
     flameRGBSetI2C(FLAME_I2C_CR_GRPPWM, flameRGBI2Cpwm); // set pwm
 }
 
 void setFlameRGBColor() {
-    // generate a hash from the nickname
-    uint32_t hash[4];
-    uint32_t const key[4] = {0xcfd97ebc, 0x21117b45, 0x7193727, 0xa336f4d6};
-    xxtea_cbcmac(hash, (uint32_t *)nick, 4, key);
-    // set color, LED0 = red, LED1 = unused, LED2 = blue, LED3 = green
-    flameRGBSetI2C(FLAME_I2C_CR_PWM0, hash[0] % 255);
-    flameRGBSetI2C(FLAME_I2C_CR_PWM1, hash[1] % 255);
-    flameRGBSetI2C(FLAME_I2C_CR_PWM2, hash[2] % 255);
-    flameRGBSetI2C(FLAME_I2C_CR_PWM3, hash[3] % 255);
+    if (rgbDataSize > 2) {
+        flameRGBSetI2C(FLAME_I2C_CR_PWM0, rgbData[rgbDataOffset]);
+        flameRGBSetI2C(FLAME_I2C_CR_PWM3, rgbData[rgbDataOffset + 1]);
+        flameRGBSetI2C(FLAME_I2C_CR_PWM2, rgbData[rgbDataOffset + 2]);
+        if (rgbDataSize >= rgbDataOffset + 5) {
+            rgbDataOffset += 3;
+        } else {
+            rgbDataOffset = 0;
+        }
+    } else {
+        // generate a hash from the nickname
+        uint32_t hash[4];
+        uint32_t const key[4] = {0xcfd97ebc, 0x21117b45, 0x7193727, 0xa336f4d6};
+        xxtea_cbcmac(hash, (uint32_t *)nick, 4, key);
+        // set color, LED0 = red, LED1 = unused, LED2 = blue, LED3 = green
+        flameRGBSetI2C(FLAME_I2C_CR_PWM0, hash[0] % 255);
+        flameRGBSetI2C(FLAME_I2C_CR_PWM1, hash[1] % 255);
+        flameRGBSetI2C(FLAME_I2C_CR_PWM2, hash[2] % 255);
+        flameRGBSetI2C(FLAME_I2C_CR_PWM3, hash[3] % 255);
+    }
 }
 
 void tick_flame_rgb(void) { // every 10ms
@@ -115,6 +132,7 @@ void tick_flame_rgb(void) { // every 10ms
         if (isNight()) {
             flameRGBTicks = 0;
             flameRGBMode = FLAME_UP;
+            push_queue(&setFlameRGBColor);
         }
     }
 
@@ -170,7 +188,7 @@ void init_flame_rgb(void) {
 
     flameRGBSetI2C(FLAME_I2C_CR_GRPPWM, 0x00); // overall dimming
 
-    push_queue(&setFlameRGBColor);
+    rgbDataSize = readTextFile("FLAME.RGB", rgbData, 24);
 
     enableConfig(CFG_TYPE_FLAME,1);
 }
