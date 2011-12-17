@@ -1,0 +1,73 @@
+#!/usr/bin/python
+import time
+import os
+import sys
+
+def getMounts():
+    d = {}
+    f = open('/proc/mounts')
+    for l in f:
+        if l[0] == '/':
+            l = l.split()
+            d[l[0]] = l[1].replace("\\040"," ")
+    return d
+
+def check(path):
+    filename = path + '/firmware.bin'
+    try:
+        f = open(filename,'r')
+        size = os.path.getsize(filename)
+        if f and size == 32*1024:
+            f.close()
+            return filename
+    except:
+        pass
+    return None
+
+flashed = []
+
+if len(sys.argv) < 2:
+    print "Please specify a file to flash."
+    exit(1)
+
+if len(sys.argv) < 3:
+    loop = False
+else:
+    loop = True
+
+firmwarefile = sys.argv[1]
+
+print "Firmware to flash:", firmwarefile
+print "Searching for a mounted r0ket flash file system."
+print "Please connect a r0ket in ISP mode and mount it or have it mounted by your system."
+while True:
+    mounts = getMounts()
+
+    unflashed = []
+    for device in mounts:
+        if not device in flashed:
+            unflashed.append(device)
+    
+    tmp = list(flashed)
+    flashed = []
+    for device in tmp:
+        if device in mounts:
+            flashed.append(device)
+
+    for device in unflashed:
+        filename = check(mounts[device])
+        if filename:
+            print "writing firmware to", filename
+            ff = open(filename, "r+")
+            firmware = open(firmwarefile)
+            ff.write(firmware.read())
+            ff.flush()
+            os.fsync(ff.fileno())
+            ff.close()
+            firmware.close()
+            print 'done'
+            flashed.append(device)
+            if not loop:
+                exit(0)
+    #print mounts
+    time.sleep(1)
