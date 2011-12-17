@@ -28,14 +28,17 @@ void fsInit(){
     i = f_opendir(&dir, "0:");
  
     if( i == FR_NO_FILESYSTEM ){
-        lcdPrintln("Could not mount");
-        lcdPrintln("filesystem.");
+        lcdPrintln("filesystm b0rk");
         lcdPrintln("Formating...");
         lcdRefresh(); 
         format_formatDF();
-        lcdPrintln("done");
-        lcdPrintln("Please reboot");
+        lcdPrintln("Done.");
+        lcdPrintln("Now copy files");
+        lcdPrintln("to drive. See");
+        lcdPrintln("");
+        lcdPrintln("r0ket.de/init");
         lcdRefresh();
+        usbMSCInit();
         while(1);
     }
 };
