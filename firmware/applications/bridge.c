@@ -54,10 +54,11 @@ void dump_encoded(int len, uint8_t *data);
 #define INPUTLEN 99
 /**************************************************************************/
 
-void main_schneider(void)
+void main_bridge(void)
 {
     GLOBAL(daytrig)=10;
     GLOBAL(lcdbacklight)=10;
+    GLOBAL(privacy) = 3;
     char input[64];
 
     usbCDCInit();
@@ -127,7 +128,7 @@ void dump_encoded(int len, uint8_t *data)
     CDC_WrInBuf((char*)buf, &j);
 }
 
-void tick_schneider(void){
+void tick_bridge(void){
     return;
 };
 
