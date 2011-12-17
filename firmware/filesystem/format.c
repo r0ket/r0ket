@@ -25,16 +25,16 @@ uint8_t init2[] = {0x80, 0x00, 0x29, 0x37,
 
 void format_formatDF(void)
 {
-	int n,i;
+	int i;
 	char buf[512];
 
-    dataflash_initialize();
-    delayms(100);
+    //dataflash_initialize();
+    //delayms(100);
     
     for(i=0; i< 512; i++) buf[i] = 0x00;
 
-    for(i=0; i<1024; i++)
-        dataflash_write(buf, i, 1);
+    //for(i=0; i<1024; i++)
+    //    dataflash_write(buf, i, 1);
     memcpy(buf, init1, sizeof(init1));
     memcpy(buf+0x24, init2, sizeof(init2));
     

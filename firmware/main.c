@@ -47,12 +47,13 @@ int main(void) {
     // initialise basic badge functions
     rbInit();
 
-    fsInit();
   
     lcdInit(); // display
 
     lcdFill(0);
     lcdDisplay();
+    
+    fsInit();
 
 	wrapper(); // see module/ subdirectory
 }
