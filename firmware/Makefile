@@ -80,7 +80,7 @@ clean:
 	$(MAKE) $(CONFIG_MAKE_PRINTDIRECTORY) -C l0dable clean
 
 flash: all
-	../tools/bootloader/autoflash
+	../tools/bootloader/simpleflash firmware.bin
 
 ### Internal targets
 
