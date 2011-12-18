@@ -180,7 +180,8 @@ void lcdInit(void) {
         delayms(5); // this is only needed after the first command (0xE2), but doing like this saves space and it still works --the_nihilant
         }
       // lcdWrite(TYPE_CMD,0x00);
-    }else if(displayType==DISPLAY_N1600){
+        goto end;
+    }/*else if(displayType==DISPLAY_N1600)*/{
       uint8_t initseq_d[] = {  
                            0x36,
                            0x29, 0xBA, 0x07,
@@ -209,6 +210,7 @@ void lcdInit(void) {
         initseq_c = initseq_c >> 1;
       }
     }
+    end:
     lcd_deselect();
 }
 
@@ -284,7 +286,8 @@ void lcdDisplay(void) {
               lcdWrite(TYPE_DATA,byte);
           }
       }
-    }else if(displayType==DISPLAY_N1600){
+      goto end;
+    }/*else if(displayType==DISPLAY_N1600)*/{
       unsigned char r=THECOLOR_R,g=THECOLOR_G,b=THECOLOR_B;
       unsigned char br=0xFF, bg=0xFF, bb=0xFF;
       unsigned char frame_r=0x00, frame_g=0x00, frame_b=0x80;
@@ -323,6 +326,7 @@ void lcdDisplay(void) {
       //bottom line of the frame
       _helper_hline(framecolor);
       }
+    end:
     lcd_deselect();
 }
 void lcdRefresh() __attribute__ ((weak, alias ("lcdDisplay")));
@@ -337,7 +341,8 @@ void lcdSetContrast(int c) {
       c+=0x80;
       if(c>0x9F) goto end;
       lcdWrite(TYPE_CMD,c);
-    }else if(displayType==DISPLAY_N1600){
+      goto end;
+    }/*else if(displayType==DISPLAY_N1600)*/{
       if(c>=0x40) goto end;
       lcdWrite(TYPE_CMD,0x25);
       lcdWrite(TYPE_DATA,4*c);
