@@ -148,7 +148,7 @@ void mesh_sendloop(void){
         };
         ctr++;
         memcpy(buf,meshbuffer[i].pkt,MESHPKTSIZE);
-        status=nrf_snd_pkt_crc_encr(MESHPKTSIZE,buf,meshkey);
+        status=nrf_snd_pkt_crc_encr(MESHPKTSIZE,buf,NULL);
         //Check status? But what would we do...
     };
 
@@ -185,7 +185,7 @@ uint8_t mesh_recvqloop_work(void){
     __attribute__ ((aligned (4))) uint8_t buf[32];
     int len;
 
-        len=nrf_rcv_pkt_poll_dec(sizeof(buf),buf,meshkey);
+        len=nrf_rcv_pkt_poll_dec(sizeof(buf),buf,NULL);
 
         // Receive
         if(len<=0){
