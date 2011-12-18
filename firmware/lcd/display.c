@@ -10,7 +10,9 @@
 #include "usb/usbmsc.h"
 
 
-#undef N1600
+#define DISPLAY_UNKNOWN 0
+#define DISPLAY_N1200 1
+#define DISPLAY_N1600 2
 
 /**************************************************************************/
 /* Utility routines to manage nokia display */
@@ -19,6 +21,7 @@
 uint8_t lcdBuffer[RESX*RESY_B];
 uint32_t intstatus; // Caches USB interrupt state
                     // (need to disable MSC while displaying)
+uint8_t displayType;
 
 #define TYPE_CMD    0
 #define TYPE_DATA   1
@@ -125,6 +128,8 @@ uint8_t lcdRead(uint8_t data)
 
 
 void lcdInit(void) {
+    int id1,id2,id3,id4;
+
     sspInit(0, sspClockPolarity_Low, sspClockPhase_RisingEdge);
 
     gpioSetValue(RB_LCD_CS, 1);
@@ -139,8 +144,17 @@ void lcdInit(void) {
     gpioSetValue(RB_LCD_RST, 1);
     delayms(100);
 
-    lcd_select();
+    id1=lcdRead(128+64+16+8  +2  ); // it will screw up everything.. better do it before anything else --the_nihilant
+    id2=lcdRead(128+64+16+8  +2+1); // .. but after the code above! --the_nihilant
+    // id3=lcdRead(128+64+16+8+4    ); // id1 and id2 are enough for most screens
+    // id4=lcdRead(128+64+16+8+4  +1); // id3 and id4 would only use up PRECIOUS SPACE --the_nihilant
 
+    lcd_select();
+    
+    if((id1==69)&&(id2==214))displayType=DISPLAY_N1600;
+    //if((id1==254)&&(id2==2))displayType=DISPLAY_N1200; 
+    else displayType=DISPLAY_N1200; // unknown displays are treated like N1200s anyway, this saves an if (PRECIOUS SPACE) --the_nihilant
+    
 /* Small Nokia 1200 LCD docs:
  *           clear/ set
  *  on       0xae / 0xaf
@@ -154,93 +168,64 @@ void lcdInit(void) {
  *  0xd0+x black lines from top? (-0xdf?)
  *
  */
-#ifndef N1600
-    lcdWrite(TYPE_CMD,0xE2);
-    delayms(5);
-    uint8_t initseq[] = {0xAF, // Display ON
-                         0xA1, // Mirror-X
-                         0xA4, 0x2F, 0xB0, 0x10};
-    int i = 0;
-    while(i<sizeof(initseq))
+    if(displayType<=DISPLAY_N1200){
+//      lcdWrite(TYPE_CMD,0xE2);
+//      delayms(5);
+      uint8_t initseq[] = {0xE2,0xAF, // Display ON
+                           0xA1, // Mirror-X
+                           0xA4, 0x2F, 0xB0, 0x10};
+      int i = 0;
+      while(i<sizeof(initseq)){
         lcdWrite(TYPE_CMD,initseq[i++]);
-    // lcdWrite(TYPE_CMD,0x00);
-#else
-#if 0
-    uint8_t initseq[] = {  
-                           //TYPE_CMD,0x01, TYPE_CMD,0x11, TYPE_CMD,0x36,
-                           //TYPE_DATA,0x00,TYPE_CMD,0x25, TYPE_DATA,0x3F,
-                           TYPE_CMD,0x29, TYPE_CMD,0xBA, TYPE_DATA,0x07,
-                           TYPE_DATA,0x15,TYPE_CMD,0x25, TYPE_DATA,0x3f,
-                           TYPE_CMD,0x11, TYPE_CMD,0x13, TYPE_CMD,0X37,
-                           TYPE_DATA,0x00, TYPE_CMD,0x3A, TYPE_DATA,0x05,
-                           TYPE_CMD,0x2A, TYPE_DATA,0, TYPE_DATA,98-1,
-                           TYPE_CMD,0x2B, TYPE_DATA,0, TYPE_DATA,70-1};
-    int i = 0
-#endif
-    delayms(10);
-    lcdWrite(TYPE_CMD,0x01); //sw reset
-    delayms(10);
-    lcdWrite(TYPE_CMD,0x11); //sleepout
-    delayms(10);
+        delayms(5); // this is only needed after the first command (0xE2), but doing like this saves space and it still works --the_nihilant
+        }
+      // lcdWrite(TYPE_CMD,0x00);
+    }else if(displayType==DISPLAY_N1600){
+      uint8_t initseq_d[] = {  
+                           0x36,
+                           0x29, 0xBA, 0x07,
+                           0x15,0x25, 0x3f,
+                           0x11, 0x13, 0X37,
+                           0x00, 0x3A, 0x05,
+                           0x2A, 0, 98-1,
+                           0x2B, 0, 70-1};
+      uint32_t initseq_c = ~/*0x95a7;*/0x12BA7; // this saves 12 bytes overall --the_nihilant
+      int i = 0;
+////      delayms(10); // useless --the_nihilant
+      lcdWrite(TYPE_CMD,0x01); //sw reset
+////      delayms(10);  // useless
+////      lcdWrite(TYPE_CMD,0x11); //sleepout (useless --the_nihilant)
+      delayms(10);  // NOT useless! --the_nihilant
     
-    lcdWrite(TYPE_CMD,0x36); //MADCTL MY MX V LAO RGB X X X  
-    lcdWrite(TYPE_DATA,0x00);
+//      lcdWrite(TYPE_CMD,0x36); //MADCTL MY MX V LAO RGB X X X  
+////      lcdWrite(TYPE_DATA,0x00); // useless
 
-    lcdWrite(TYPE_CMD,0x25); // contrast...
-    lcdWrite(TYPE_DATA,0x3F);
-    delayms(10);
+////    lcdWrite(TYPE_CMD,0x25); // contrast... useless (set below anyway)
+////    lcdWrite(TYPE_DATA,0x3F);
+////      delayms(10); // useless --the_nihilant
 
-#if 0
-    while(i<sizeof(initseq)){
-        lcdWrite(initseq[i++], initseq[i++]);
+      while(i<sizeof(initseq_d)){
+        lcdWrite(initseq_c&1, initseq_d[i++]);
+        initseq_c = initseq_c >> 1;
+      }
     }
-#else 
-    lcdWrite(TYPE_CMD,0x29);  //display on
-    
-    lcdWrite(TYPE_CMD,0xBA); //data order
-    lcdWrite(TYPE_DATA,0x07);
-    lcdWrite(TYPE_DATA,0x15);
-
-    lcdWrite(TYPE_CMD,0x25); //contrast... again?
-    lcdWrite(TYPE_DATA,0x3f);
-    
-    lcdWrite(TYPE_CMD,0x11); //Sleepout
-    lcdWrite(TYPE_CMD,0x13); //display mode normal
-
-    lcdWrite(TYPE_CMD,0X37); //vscroll addr
-    lcdWrite(TYPE_DATA,0x00);
-
-    lcdWrite(TYPE_CMD,0x3A); // COLMOD pixel format 4=12, 5=16, 6=18
-    lcdWrite(TYPE_DATA,0x05);
-    
-    lcdWrite(TYPE_CMD,0x2A); //no clue... I think it's setting up the size of the display?
-    lcdWrite(TYPE_DATA,0);   
-    lcdWrite(TYPE_DATA,98-1); //98 = width
-    
-    lcdWrite(TYPE_CMD,0x2B);
-    lcdWrite(TYPE_DATA,0);
-    lcdWrite(TYPE_DATA,70-1); //70 = height
-#endif
-#endif
-    /*
-    uint16_t i;
-    for(i=0; i<100; i++)
-        lcdWrite(TYPE_DATA,0x00);
-    */
     lcd_deselect();
 }
 
 void lcdFill(char f){
-    int x;
+    // using memset saves 4 bytes compared with the loop!
+    memset(lcdBuffer,f,RESX*RESY_B);
+/*    int x;
     for(x=0;x<RESX*RESY_B;x++) {
         lcdBuffer[x]=f;
-    }
+    }*/
 };
 
+/* it's not used... it would have no footprint anyway as it's apparently removed anyway at some point (yes I tried, same size) --the_nihilant
 void lcdSafeSetPixel(char x, char y, bool f){
     if (x>=0 && x<RESX && y>=0 && y < RESY)
         lcdSetPixel(x, y, f);
-}
+}*/
 
 void lcdSetPixel(char x, char y, bool f){
     if (x<0 || x> RESX || y<0 || y > RESY)
@@ -263,86 +248,81 @@ bool lcdGetPixel(char x, char y){
     return byte & (1 << y_off);
 }
 
+
+static void _helper_pixel16(uint16_t color){ // putting this here saves a few bytes overall --the_nihilant
+ lcdWrite(TYPE_DATA,color>>8);
+ lcdWrite(TYPE_DATA,color&0xFF);
+}
+
+static void _helper_hline(uint16_t color){ // same for this --the_nihilant
+ for(int cx=0;cx<98;cx++) _helper_pixel16(color);
+}
+
 #define THECOLOR_R 0x0
-#define THECOLOR_G 0x80
+#define THECOLOR_G 0x60
 #define THECOLOR_B 0x0
 
 void lcdDisplay(void) {
     char byte;
     lcd_select();
 
-#ifndef N1600
-    lcdWrite(TYPE_CMD,0xB0);
-    lcdWrite(TYPE_CMD,0x10);
-    lcdWrite(TYPE_CMD,0x00);
-#else
-    lcdWrite(TYPE_CMD,0x2C);
-    
-#endif
-    
-
-#ifndef N1600
-    uint16_t i,page;
-    for(page=0; page<RESY_B;page++) {
-        for(i=0; i<RESX; i++) {
-            if (GLOBAL(lcdmirror))
-                byte=lcdBuffer[page*RESX+RESX-1-(i)];
-            else
-                byte=lcdBuffer[page*RESX+(i)];
-
-            if (GLOBAL(lcdinvert))
-                byte=~byte;
-    
-            lcdWrite(TYPE_DATA,byte);
-        }
-    }
-#else
-    unsigned char r=THECOLOR_R,g=THECOLOR_G,b=THECOLOR_B;
-    unsigned char br=0xFF, bg=0xFF, bb=0xFF;
-    unsigned char frame_r=0x00, frame_g=0x00, frame_b=0x80;
-    uint16_t color,framecolor,backcolor;
-    uint16_t x,y,i;
-    bool px;
-    uint16_t actualcolor;
-    color = ((r&0xF8) << 8) | ((g&0xFC)<<3) | ((b&0xF8) >> 3);
-    framecolor= ((frame_r&0xF8) << 8) | ((frame_g&0xFC)<<3) | ((frame_b&0xF8) >> 3);
-    backcolor= ((br&0xF8) << 8) | ((bg&0xFC)<<3) | ((bb&0xF8) >> 3);
-
-    //top line of the frame...
-    for(i=0;i<98;i++){
-        lcdWrite(TYPE_DATA,framecolor>>8);
-        lcdWrite(TYPE_DATA,framecolor&0xFF);
-    }
-
-    for(y=RESY;y>0;y--){
-        //left line of the frame
-        lcdWrite(TYPE_DATA,framecolor>>8);
-        lcdWrite(TYPE_DATA,framecolor&0xFF);
-
-        for(x=RESX;x>0;x--){
-            if(GLOBAL(lcdmirror))
-                px=lcdGetPixel(RESX-x+1,y-1);
-            else
-                px=lcdGetPixel(x-1,y-1);
-                
-            if((!px)^(!GLOBAL(lcdinvert))) actualcolor=color;
-            else actualcolor=backcolor; /* white */
-
-            lcdWrite(TYPE_DATA,actualcolor>>8);
-            lcdWrite(TYPE_DATA,actualcolor&0xFF);
-        }
-        //right line of the frame
-        lcdWrite(TYPE_DATA,framecolor>>8);
-        lcdWrite(TYPE_DATA,framecolor&0xFF);
-    }
-    
-    //bottom line of the frame
-    for(i=0;i<98;i++){
-        lcdWrite(TYPE_DATA,framecolor>>8);
-        lcdWrite(TYPE_DATA,framecolor&0xFF);
-    }
-#endif
-
+    if(displayType<=DISPLAY_N1200){
+      lcdWrite(TYPE_CMD,0xB0);
+      lcdWrite(TYPE_CMD,0x10);
+      lcdWrite(TYPE_CMD,0x00);
+      uint16_t i,page;
+      for(page=0; page<RESY_B;page++) {
+          for(i=0; i<RESX; i++) {
+              if (GLOBAL(lcdmirror))
+                  byte=lcdBuffer[page*RESX+RESX-1-(i)];
+              else
+                  byte=lcdBuffer[page*RESX+(i)];
+  
+              if (GLOBAL(lcdinvert))
+                  byte=~byte;
+      
+              lcdWrite(TYPE_DATA,byte);
+          }
+      }
+    }else if(displayType==DISPLAY_N1600){
+      unsigned char r=THECOLOR_R,g=THECOLOR_G,b=THECOLOR_B;
+      unsigned char br=0xFF, bg=0xFF, bb=0xFF;
+      unsigned char frame_r=0x00, frame_g=0x00, frame_b=0x80;
+      uint16_t color,framecolor,backcolor;
+      uint16_t x,y,i;
+      bool px;
+      uint16_t actualcolor;
+      color = ((r&0xF8) << 8) | ((g&0xFC)<<3) | ((b&0xF8) >> 3);
+      framecolor= ((frame_r&0xF8) << 8) | ((frame_g&0xFC)<<3) | ((frame_b&0xF8) >> 3);
+      backcolor= ((br&0xF8) << 8) | ((bg&0xFC)<<3) | ((bb&0xF8) >> 3);
+ 
+      lcdWrite(TYPE_CMD,0x2C);
+  
+      //top line of the frame...
+      _helper_hline(framecolor);
+  
+      for(y=RESY;y>0;y--){
+          //left line of the frame
+          _helper_pixel16(framecolor);
+  
+          for(x=RESX;x>0;x--){
+              if(GLOBAL(lcdmirror))
+                  px=lcdGetPixel(RESX-x+1,y-1);
+              else
+                  px=lcdGetPixel(x-1,y-1);
+                  
+              if((!px)^(!GLOBAL(lcdinvert))) actualcolor=color;
+              else actualcolor=backcolor; /* white */
+  
+              _helper_pixel16(actualcolor);
+          }
+          //right line of the frame
+          _helper_pixel16(framecolor);
+      }
+      
+      //bottom line of the frame
+      _helper_hline(framecolor);
+      }
     lcd_deselect();
 }
 void lcdRefresh() __attribute__ ((weak, alias ("lcdDisplay")));
@@ -352,32 +332,32 @@ inline void lcdInvert(void) {
 }
 
 void lcdSetContrast(int c) {
-    #ifndef N1600
-    c+=0x80;
-    if(c>0x9F)
-        return;
     lcd_select();
-    lcdWrite(TYPE_CMD,c);
+    if(displayType<=DISPLAY_N1200){
+      c+=0x80;
+      if(c>0x9F) goto end;
+      lcdWrite(TYPE_CMD,c);
+    }else if(displayType==DISPLAY_N1600){
+      if(c>=0x40) goto end;
+      lcdWrite(TYPE_CMD,0x25);
+      lcdWrite(TYPE_DATA,4*c);
+    }
+end:
     lcd_deselect();
-    #else
-    if(c>=0x40)
-        return;
-    lcd_select();
-    lcdWrite(TYPE_CMD,0x25);
-    lcdWrite(TYPE_DATA,4*c);
-    lcd_deselect();
-    #endif
 };
 
 void lcdSetInvert(int c) {
+    /* if it's just to force c to be either 0 or 1, it can be done more efficiently --the_nihilant
     if(c>1)
         c=1;
     if(c<0)
         c=1;
-
-    c+=0xa6;
+    */
+    c=(c&1)+0xa6; // like this --the_nihilant
     lcd_select();
-    lcdWrite(TYPE_CMD,c);
+//    if(displayType<=DISPLAY_N1200){  // it doesn't harm N1600 displays, does nothing. The if, on the other hand, uses PRECIOUS SPACE --the_nihilant
+      lcdWrite(TYPE_CMD,c);
+//    }
     lcd_deselect();
 };
 

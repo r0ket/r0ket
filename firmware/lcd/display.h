@@ -27,7 +27,7 @@ void lcdDisplay(void);
 void lcdInvert(void);
 void lcdToggleFlag(int flag);
 void lcdSetPixel(char x, char y, bool f);
-void lcdSafeSetPixel(char x, char y, bool f);
+//void lcdSafeSetPixel(char x, char y, bool f);  //useless. see in display.c to learn why --the_nihilant
 bool lcdGetPixel(char x, char y);
 void lcdShift(int x, int y, bool wrap);
 void lcdSetContrast(int c);
