@@ -99,12 +99,8 @@ void setFlameRGBColor() {
         int i;
         uint8_t regs[] = {FLAME_I2C_CR_PWM0, FLAME_I2C_CR_PWM1,
                           FLAME_I2C_CR_PWM2, FLAME_I2C_CR_PWM3 };
-        for(i=0; i<3; i++)
+        for(i=0; i<4; i++)
             flameRGBSetI2C(regs[i], hash[i] & 0xFF);
-        //flameRGBSetI2C(FLAME_I2C_CR_PWM0, hash[0] % 255);
-        //flameRGBSetI2C(FLAME_I2C_CR_PWM1, hash[1] % 255);
-        //flameRGBSetI2C(FLAME_I2C_CR_PWM2, hash[2] % 255);
-        //flameRGBSetI2C(FLAME_I2C_CR_PWM3, hash[3] % 255);
     }
 }
 
