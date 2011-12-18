@@ -58,7 +58,7 @@
 
 #define nick               GLOBAL(nickname)
 
-uint32_t flameRGBSetI2C(uint8_t cr, uint8_t value) {
+static uint32_t flameRGBSetI2C(uint8_t cr, uint8_t value) {
     I2CMasterBuffer[0] = FLAME_I2C_WRITE;
     I2CMasterBuffer[1] = cr;
     I2CMasterBuffer[2] = value;
@@ -93,13 +93,18 @@ void setFlameRGBColor() {
     } else {
         // generate a hash from the nickname
         uint32_t hash[4];
-        uint32_t const key[4] = {0xcfd97ebc, 0x21117b45, 0x7193727, 0xa336f4d6};
+        uint32_t const key[4] = {0, 0, 0, 0};
         xxtea_cbcmac(hash, (uint32_t *)nick, 4, key);
         // set color, LED0 = red, LED1 = unused, LED2 = blue, LED3 = green
-        flameRGBSetI2C(FLAME_I2C_CR_PWM0, hash[0] % 255);
-        flameRGBSetI2C(FLAME_I2C_CR_PWM1, hash[1] % 255);
-        flameRGBSetI2C(FLAME_I2C_CR_PWM2, hash[2] % 255);
-        flameRGBSetI2C(FLAME_I2C_CR_PWM3, hash[3] % 255);
+        int i;
+        uint8_t regs[] = {FLAME_I2C_CR_PWM0, FLAME_I2C_CR_PWM1,
+                          FLAME_I2C_CR_PWM2, FLAME_I2C_CR_PWM3 };
+        for(i=0; i<3; i++)
+            flameRGBSetI2C(regs[i], hash[i] & 0xFF);
+        //flameRGBSetI2C(FLAME_I2C_CR_PWM0, hash[0] % 255);
+        //flameRGBSetI2C(FLAME_I2C_CR_PWM1, hash[1] % 255);
+        //flameRGBSetI2C(FLAME_I2C_CR_PWM2, hash[2] % 255);
+        //flameRGBSetI2C(FLAME_I2C_CR_PWM3, hash[3] % 255);
     }
 }
 
