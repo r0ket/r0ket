@@ -12,7 +12,6 @@ OBJS += at45db041d.o
 OBJS += util.o
 OBJS += select.o
 OBJS += execute.o
-OBJS += format.o
 
 LIBNAME=fat
 
