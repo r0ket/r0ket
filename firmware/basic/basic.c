@@ -41,18 +41,18 @@ void rbInit() {
     // prepare LEDs
     IOCON_JTAG_TDI_PIO0_11 &= ~IOCON_JTAG_TDI_PIO0_11_FUNC_MASK;
     IOCON_JTAG_TDI_PIO0_11 |= IOCON_JTAG_TDI_PIO0_11_FUNC_GPIO; 
- 
-    gpioSetDir(RB_LED0, gpioDirection_Output);
-    gpioSetValue (RB_LED0, 0); 
 
-    gpioSetDir(RB_LED1, gpioDirection_Output);
-    gpioSetValue (RB_LED1, 0); 
+    uint8_t ports[] = { RB_LED0, RB_LED1, RB_LED2, RB_LED3, 
+                        RB_SPI_SS0, RB_SPI_SS1, RB_SPI_SS2,
+                        RB_SPI_SS3, RB_SPI_SS4, RB_SPI_SS5,
+                        RB_HB0, RB_HB1, RB_HB2,
+                        RB_HB3, RB_HB4, RB_HB5};
 
-    gpioSetDir(RB_LED2, gpioDirection_Output);
-    gpioSetValue (RB_LED2, 0); 
-
-    gpioSetDir(RB_LED3, gpioDirection_Output);
-    gpioSetValue (RB_LED3, 0); 
+    int i = 0;
+    while( i<8 ){
+        gpioSetDir(ports[i],ports[i+1], gpioDirection_Output);
+        gpioSetValue (ports[i++], ports[i++], 0);
+    }
 
     // Set LED3 to ?
     IOCON_PIO1_11 = 0x41;
@@ -73,47 +73,13 @@ void rbInit() {
 	i2cInit(I2CMASTER); // TODO FIXME via define ?
     #endif
 
-
     // prepare SPI/SS
-    // TODO FIXME init miso/mosi/sck somehow ?
-    gpioSetDir(RB_SPI_SS0, gpioDirection_Output);
-    gpioSetValue (RB_SPI_SS0, 1); 
-
-    gpioSetDir(RB_SPI_SS1, gpioDirection_Output);
-    gpioSetValue (RB_SPI_SS1, 1); 
-
-    gpioSetDir(RB_SPI_SS2, gpioDirection_Output);
-    gpioSetValue (RB_SPI_SS2, 1); 
-
-    gpioSetDir(RB_SPI_SS3, gpioDirection_Output);
-    gpioSetValue (RB_SPI_SS3, 1); 
-
-    gpioSetDir(RB_SPI_SS4, gpioDirection_Output);
-    gpioSetValue (RB_SPI_SS4, 1); 
-
-    gpioSetDir(RB_SPI_SS5, gpioDirection_Output);
-    gpioSetValue (RB_SPI_SS5, 1); 
-
-
+    // TODO FIXME init miso/mosi/sck somehow ? 
     // prepare hackerbus
-    gpioSetDir(RB_HB0, gpioDirection_Output);
-    gpioSetValue (RB_HB0, 1); 
-
-    gpioSetDir(RB_HB1, gpioDirection_Output);
-    gpioSetValue (RB_HB1, 1); 
-
-    gpioSetDir(RB_HB2, gpioDirection_Output);
-    gpioSetValue (RB_HB2, 1); 
-
-    gpioSetDir(RB_HB3, gpioDirection_Output);
-    gpioSetValue (RB_HB3, 1); 
-
-    gpioSetDir(RB_HB4, gpioDirection_Output);
-    gpioSetValue (RB_HB4, 1); 
-
-    gpioSetDir(RB_HB5, gpioDirection_Output);
-    gpioSetValue (RB_HB5, 1); 
-
+    while(i<sizeof(ports)){
+        gpioSetDir(ports[i],ports[i+1], gpioDirection_Output);
+        gpioSetValue (ports[i++], ports[i++], 1);
+    }
 
     // prepare BUSINT interrupt
     //gpioSetDir(RB_BUSINT, gpioDirection_Input);
