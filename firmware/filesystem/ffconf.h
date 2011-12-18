@@ -186,7 +186,7 @@
    defines how many files can be opened simultaneously. */
 
 /* While playing with the filesystem */
-#define FS_DEVEL
+//#define FS_DEVEL
 #ifdef FS_DEVEL
 #undef _FS_MINIMIZE
 #define _FS_MINIMIZE	0
