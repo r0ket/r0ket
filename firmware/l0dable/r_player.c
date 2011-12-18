@@ -288,8 +288,17 @@ void processPacket(struct packet *p)
 void processAnnounce(struct announce *a)
 {
     if( gamecount < sizeof(games)/sizeof(games[0]) ){
-        games[gamecount] = *a;
-        gamecount++;
+        int repeat=0;
+        int i;
+        for (i=0; i<gamecount; i++){
+          if (a->gameId == games[i].gameId){
+            repeat=1;
+          }
+        }
+        if (repeat!=1){
+          games[gamecount] = *a;
+          gamecount++;
+        }
     }
 }
 
