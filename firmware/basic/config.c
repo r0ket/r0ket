@@ -56,12 +56,15 @@ int saveConfig(void){
     UINT writebytes;
     UINT allwrite=0;
     int res;
-
+#if DEBUG
     lcdClear();
+#endif
 
 	res=f_open(&file, CONFFILE, FA_OPEN_ALWAYS|FA_WRITE);
+#if DEBUG
 	lcdPrint("create:");
 	lcdPrintln(f_get_rc_string(res));
+#endif
 	if(res){
 		return 1;
 	};
@@ -70,20 +73,26 @@ int saveConfig(void){
         res = f_write(&file, &the_config[i].value, sizeof(uint8_t), &writebytes);
         allwrite+=writebytes;
         if(res){
+#if DEBUG
             lcdPrint("write:");
             lcdPrintln(f_get_rc_string(res));
+#endif
             return 1;
         };
     };
+#if DEBUG
 	lcdPrint("write:");
 	lcdPrintln(f_get_rc_string(res));
 	lcdPrint(" (");
 	lcdPrintInt(allwrite);
 	lcdPrintln("b)");
+#endif
 
 	res=f_close(&file);
+#if DEBUG
 	lcdPrint("close:");
 	lcdPrintln(f_get_rc_string(res));
+#endif
 	if(res){
 		return 1;
 	};
