@@ -29,7 +29,8 @@ void msc_menu(void){
     fsReInit();
 };
 
-//# MENU lcdread
+#if 0
+// //# MENU lcdread
 void lcdrtest(void){
     lcdClear();
     lcdPrint("ID1:"); lcdPrintInt(lcdRead(128+64+16+8  +2  )); lcdNl();
@@ -44,6 +45,7 @@ void lcdrtest(void){
     lcdRefresh();
     while(!getInputRaw())delayms(10);
 };
+#endif
 
 void blink_led0(void){
     gpioSetValue (RB_LED0, 1-gpioGetValue(RB_LED0));
