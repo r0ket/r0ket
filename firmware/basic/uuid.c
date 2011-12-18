@@ -10,11 +10,10 @@ uint32_t GetUUID32(void){
     iap_return = iapReadSerialNumber();
     if (iap_return.ReturnCode == 0){
         uint32_t block[4];
-        uint32_t k[4] = {1,2,3,4};
-        block[0] = iap_return.Result[0];
-        block[1] = iap_return.Result[1];
-        block[2] = iap_return.Result[2];
-        block[3] = iap_return.Result[3];
+        uint32_t k[4] = {0,0,0,0};
+        int i;
+        for(i=0; i<4; i++)
+            block[i] = iap_return.Result[i];
         xxtea_encode_words(block, 4, k);
         return block[0];
     }
