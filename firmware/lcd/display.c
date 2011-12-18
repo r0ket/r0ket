@@ -157,14 +157,26 @@ void lcdInit(void) {
 #ifndef N1600
     lcdWrite(TYPE_CMD,0xE2);
     delayms(5);
-    lcdWrite(TYPE_CMD,0xAF); // Display ON
-    lcdWrite(TYPE_CMD,0xA1); // Mirror-X
-    lcdWrite(TYPE_CMD,0xA4);
-    lcdWrite(TYPE_CMD,0x2F);
-    lcdWrite(TYPE_CMD,0xB0);
-    lcdWrite(TYPE_CMD,0x10);
+    uint8_t initseq[] = {0xAF, // Display ON
+                         0xA1, // Mirror-X
+                         0xA4, 0x2F, 0xB0, 0x10};
+    int i = 0;
+    while(i<sizeof(initseq))
+        lcdWrite(TYPE_CMD,initseq[i++]);
     // lcdWrite(TYPE_CMD,0x00);
 #else
+#if 0
+    uint8_t initseq[] = {  
+                           //TYPE_CMD,0x01, TYPE_CMD,0x11, TYPE_CMD,0x36,
+                           //TYPE_DATA,0x00,TYPE_CMD,0x25, TYPE_DATA,0x3F,
+                           TYPE_CMD,0x29, TYPE_CMD,0xBA, TYPE_DATA,0x07,
+                           TYPE_DATA,0x15,TYPE_CMD,0x25, TYPE_DATA,0x3f,
+                           TYPE_CMD,0x11, TYPE_CMD,0x13, TYPE_CMD,0X37,
+                           TYPE_DATA,0x00, TYPE_CMD,0x3A, TYPE_DATA,0x05,
+                           TYPE_CMD,0x2A, TYPE_DATA,0, TYPE_DATA,98-1,
+                           TYPE_CMD,0x2B, TYPE_DATA,0, TYPE_DATA,70-1};
+    int i = 0
+#endif
     delayms(10);
     lcdWrite(TYPE_CMD,0x01); //sw reset
     delayms(10);
@@ -177,7 +189,12 @@ void lcdInit(void) {
     lcdWrite(TYPE_CMD,0x25); // contrast...
     lcdWrite(TYPE_DATA,0x3F);
     delayms(10);
-    
+
+#if 0
+    while(i<sizeof(initseq)){
+        lcdWrite(initseq[i++], initseq[i++]);
+    }
+#else 
     lcdWrite(TYPE_CMD,0x29);  //display on
     
     lcdWrite(TYPE_CMD,0xBA); //data order
@@ -203,7 +220,7 @@ void lcdInit(void) {
     lcdWrite(TYPE_CMD,0x2B);
     lcdWrite(TYPE_DATA,0);
     lcdWrite(TYPE_DATA,70-1); //70 = height
-    
+#endif
 #endif
     /*
     uint16_t i;
