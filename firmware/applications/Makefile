@@ -50,21 +50,6 @@ endif
 
 all: $(LIBFILE)
 
-ifeq "$(APP)" "loadable"
-ifndef LAPP
-LAPP=blinktest
-endif
-LSRC=../loadable/$(LAPP).c
-LOBJ=loadable_$(LAPP).o
-
-.PHONY: $(LOBJ)
-
-$(LOBJ):
-	$(CC) $(CFLAGS) -o $@ $(LSRC)
-
-OBJS += $(LOBJ)
-endif
-
 ifeq "$(APP)" "l0dable"
 ifndef LAPP
 LAPP=blinktest
