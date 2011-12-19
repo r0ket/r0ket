@@ -18,21 +18,22 @@ void rbInit() {
     gpioSetDir(USB_CONNECT, gpioDirection_Output);
     gpioSetValue(USB_CONNECT, 1);
 
-    // prepare buttons
-    gpioSetDir(RB_BTN0, gpioDirection_Input);
-    gpioSetPullup (&RB_BTN0_IO, gpioPullupMode_PullUp);
+    uint8_t ports[] = { RB_BTN0, RB_BTN1, RB_BTN2, RB_BTN3, RB_BTN4,
+                        RB_LED0, RB_LED1, RB_LED2, 
+                        RB_SPI_SS0, RB_SPI_SS1, RB_SPI_SS2,
+                        RB_SPI_SS3, RB_SPI_SS4, RB_SPI_SS5,
+                        RB_HB0, RB_HB1, RB_HB2,
+                        RB_HB3, RB_HB4, RB_HB5};
 
-    gpioSetDir(RB_BTN1, gpioDirection_Input);
-    gpioSetPullup (&RB_BTN1_IO, gpioPullupMode_PullUp);
+    volatile uint32_t * regs[] = {&RB_BTN0_IO, &RB_BTN1_IO, &RB_BTN2_IO,
+                                  &RB_BTN3_IO, &RB_BTN4_IO};
 
-    gpioSetDir(RB_BTN2, gpioDirection_Input);
-    gpioSetPullup (&RB_BTN2_IO, gpioPullupMode_PullUp);
-
-    gpioSetDir(RB_BTN3, gpioDirection_Input);
-    gpioSetPullup (&RB_BTN3_IO, gpioPullupMode_PullUp);
-
-    gpioSetDir(RB_BTN4, gpioDirection_Input);
-    gpioSetPullup (&RB_BTN4_IO, gpioPullupMode_PullUp);
+    int i = 0;
+    while( i<10 ){
+        gpioSetDir(ports[i], ports[i+1], gpioDirection_Input);
+        gpioSetPullup(regs[i/2], gpioPullupMode_PullUp);
+        i+=2;
+    }
 
     // prepate chrg_stat
     gpioSetDir(RB_PWR_CHRG, gpioDirection_Input);
@@ -41,19 +42,11 @@ void rbInit() {
     gpioSetDir(RB_LED3, gpioDirection_Input);
     IOCON_PIO1_11 = 0x41;
 
-
     // prepare LEDs
     IOCON_JTAG_TDI_PIO0_11 &= ~IOCON_JTAG_TDI_PIO0_11_FUNC_MASK;
     IOCON_JTAG_TDI_PIO0_11 |= IOCON_JTAG_TDI_PIO0_11_FUNC_GPIO; 
 
-    uint8_t ports[] = { RB_LED0, RB_LED1, RB_LED2, 
-                        RB_SPI_SS0, RB_SPI_SS1, RB_SPI_SS2,
-                        RB_SPI_SS3, RB_SPI_SS4, RB_SPI_SS5,
-                        RB_HB0, RB_HB1, RB_HB2,
-                        RB_HB3, RB_HB4, RB_HB5};
-
-    int i = 0;
-    while( i<8 ){
+    while( i<16 ){
         gpioSetDir(ports[i],ports[i+1], gpioDirection_Output);
         gpioSetValue (ports[i], ports[i+1], 0);
         i+=2;
