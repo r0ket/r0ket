@@ -51,7 +51,8 @@ void rbInit() {
     int i = 0;
     while( i<8 ){
         gpioSetDir(ports[i],ports[i+1], gpioDirection_Output);
-        gpioSetValue (ports[i++], ports[i++], 0);
+        gpioSetValue (ports[i], ports[i+1], 0);
+        i+=2;
     }
 
     // Set LED3 to ?
@@ -78,7 +79,8 @@ void rbInit() {
     // prepare hackerbus
     while(i<sizeof(ports)){
         gpioSetDir(ports[i],ports[i+1], gpioDirection_Output);
-        gpioSetValue (ports[i++], ports[i++], 1);
+        gpioSetValue (ports[i], ports[i+1], 1);
+        i+=2;
     }
 
     // prepare BUSINT interrupt
