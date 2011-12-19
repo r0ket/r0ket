@@ -1,0 +1,50 @@
+<html>
+  <head><title>B-Pong</title></head>
+  <script type="text/javascript" src="jquery.js"></script>
+  <script type="text/javascript" src="bong.js"></script>
+  <style>
+#playfield
+{ 
+  color: black; 
+  background-color: black;
+  border: 0px none black;
+  margin: 0px; 
+  padding: 0px;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
+
+div 
+{
+  font-size: 1px;
+  color: white;
+  background-color: #33FF33;
+  margin: 0px;
+  margin: 0px;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
+
+div.score
+{
+  color: #33FF33;
+  background-color: transparent;
+  width: 640px;
+  font-size: 20px;
+  font-family: courier new;
+}
+  </style>
+  <body>
+    <input id="playfield">
+    <div id="paddle_left"></div>
+    <div id="paddle_right"></div>
+    <div class="score" style="text-align:left" id="score_left">0</div>
+    <div class="score" style="text-align:right" id="score_right">0</div>
+    <div id="ball"></div>
+	</input>
+	<div style="font-size:14;color:black;background-color:white;" id="socket">s_data...</div>
+	<div style="font-size:14;color:black;background-color:white;" id="debug">debug</div>
+  </body>
+</html>
