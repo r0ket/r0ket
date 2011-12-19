@@ -4,6 +4,10 @@
 
 OBJS =
 
+ifndef APP
+APP=final
+endif
+
 ifeq "$(APP)" "initial"
 NODEFAULT = y
 endif
@@ -19,20 +23,6 @@ endif
 OBJS += $(foreach mod,$(APP),$(mod).o)
 
 SRCS = $(foreach mod,$(APP),$(mod).c)
-
-ifndef APP
-ME_OBJ=final
-
-ifeq "$(ME_OBJ)" ""
-ME_OBJ=$(USER)
-endif
-
-ifeq "$(ME_OBJ)" ""
-ME_OBJ=nouser
-endif
-
-OBJS += $(ME_OBJ).o
-endif
 
 WRAP=wrapper
 LIBNAME=app
@@ -59,21 +49,6 @@ endif
 ##########################################################################
 
 all: $(LIBFILE)
-
-ifeq "$(APP)" "loadable"
-ifndef LAPP
-LAPP=blinktest
-endif
-LSRC=../loadable/$(LAPP).c
-LOBJ=loadable_$(LAPP).o
-
-.PHONY: $(LOBJ)
-
-$(LOBJ):
-	$(CC) $(CFLAGS) -o $@ $(LSRC)
-
-OBJS += $(LOBJ)
-endif
 
 ifeq "$(APP)" "l0dable"
 ifndef LAPP
