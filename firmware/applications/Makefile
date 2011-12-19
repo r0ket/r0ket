@@ -21,7 +21,7 @@ OBJS += $(foreach mod,$(APP),$(mod).o)
 SRCS = $(foreach mod,$(APP),$(mod).c)
 
 ifndef APP
-ME_OBJ=final
+ME_OBJ=$(USERNAME)
 
 ifeq "$(ME_OBJ)" ""
 ME_OBJ=$(USER)
