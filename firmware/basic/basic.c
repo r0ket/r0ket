@@ -38,11 +38,15 @@ void rbInit() {
     gpioSetDir(RB_PWR_CHRG, gpioDirection_Input);
     gpioSetPullup (&RB_PWR_CHRG_IO, gpioPullupMode_PullUp);
 
+    gpioSetDir(RB_LED3, gpioDirection_Input);
+    IOCON_PIO1_11 = 0x41;
+
+
     // prepare LEDs
     IOCON_JTAG_TDI_PIO0_11 &= ~IOCON_JTAG_TDI_PIO0_11_FUNC_MASK;
     IOCON_JTAG_TDI_PIO0_11 |= IOCON_JTAG_TDI_PIO0_11_FUNC_GPIO; 
 
-    uint8_t ports[] = { RB_LED0, RB_LED1, RB_LED2, RB_LED3, 
+    uint8_t ports[] = { RB_LED0, RB_LED1, RB_LED2, 
                         RB_SPI_SS0, RB_SPI_SS1, RB_SPI_SS2,
                         RB_SPI_SS3, RB_SPI_SS4, RB_SPI_SS5,
                         RB_HB0, RB_HB1, RB_HB2,
