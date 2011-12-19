@@ -35,6 +35,8 @@ inline void format_formatDF(void)
 	char buf[512];
 
     memset(buf, 0, 512);
+    for(i=0; i<20; i++) dataflash_write(buf, i, 1);
+
     memcpy(buf, init1, sizeof(init1));
     memcpy(buf+0x24, init2, sizeof(init2)); 
     buf[510] = 0x55;
