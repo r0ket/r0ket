@@ -64,7 +64,7 @@ all: $(OUTFILE).bin
 protect: $(OUTFILE).bin
 	$(LPCFIX) -p 2 $(OUTFILE).bin
 
-l0dables:
+l0dables: table.c
 	@cd l0dable && $(MAKE)
 
 clean:
