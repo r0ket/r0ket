@@ -51,21 +51,28 @@ struct packet{
            uint8_t gameMac[5];
            uint8_t gameChannel;
            //uint8_t playerMac[5]; playerMac = gameMac+1;
-           uint32_t gameId;
+           uint16_t gameId;
            uint8_t gameFlags;
+           uint8_t interval;
+           uint8_t jitter;
            uint8_t gameTitle[8];
         }__attribute__((packed)) announce;
         struct join{
-           uint32_t gameId;
-           uint8_t reserved[15];
+           uint16_t gameId;
+           uint8_t reserved[17];
         }__attribute__((packed)) join;
     }c;
     uint16_t crc;
 }__attribute__((packed));
 
-#define FLAGS_MASS_GAME 1
+#define FLAGS_MASS_GAME         1
+#define FLAGS_SHORT_PACKET      2
+#define FLAGS_LONG_RECV         4
+
 #define FLAGS_ACK_JOINOK    1
 #define MASS_ID 1
+
+#define FLAGS_CLS               1
 
 /**************************************************************************/
 /* l0dable for playing games which are announced by other r0kets with the l0dabel r_game */
@@ -82,12 +89,16 @@ struct packet{
 
 uint32_t ctr;
 uint32_t id;
-uint32_t gameId;
+uint16_t gameId;
+uint8_t interval;
+uint8_t jitter;
+uint8_t flags;
 
 void sendButton(uint8_t button);
 void sendJoin(uint32_t game);
 void processPacket(struct packet *p);
 void processAnnounce(struct announce *a);
+void processText(struct text *t);
 
 uint8_t selectGame();
 void playGame();
@@ -124,14 +135,19 @@ void playGame(void)
         sendButton(button);
         
         while(1){
-            len = nrf_rcv_pkt_time(32,sizeof(p),(uint8_t*)&p);
+            if( flags & FLAGS_LONG_RECV )
+                len = nrf_rcv_pkt_time(64,sizeof(p),(uint8_t*)&p);
+            else
+                len = nrf_rcv_pkt_time(32,sizeof(p),(uint8_t*)&p);
+                
             if(len==sizeof(p)){
                 processPacket(&p);
             }else{
                 break;
             }
         }
-        delayms(20);
+        int rnd = getRandom() % jitter;
+        delayms(interval+rnd);
     };
 }
 
@@ -247,6 +263,9 @@ uint8_t selectGame()
                 memcpy(config.mac0, games[selected].gameMac, 5);
                 config.mac0[4]++;
                 config.channel = games[selected].gameChannel;
+                interval = games[selected].interval;
+                jitter = games[selected].jitter;
+                flags = games[selected].gameFlags;
                 nrf_config_set(&config);
                 if( games[selected].gameFlags & FLAGS_MASS_GAME )
                     return 1;
@@ -274,7 +293,15 @@ void processPacket(struct packet *p)
 {
    if ((p->len==32) && (p->protocol=='G') && (p->id == id || p->id == 0) ){   //check sanity, protocol, id
      if (p->command=='T'){
-     //processText(&(p->c.text));
+        struct packet ack;
+        ack.len=sizeof(p); 
+        ack.protocol='G';
+        ack.command='a';
+        ack.id= id;
+        ack.ctr= p->ctr;
+        ack.c.ack.flags = 0;
+        nrf_snd_pkt_crc(sizeof(ack),(uint8_t*)&ack);
+        processText(&(p->c.text));
      } 
      else if (p->command=='N'){
         processNickRequest(&(p->c.nickrequest));
@@ -293,6 +320,17 @@ void processAnnounce(struct announce *a)
     }
 }
 
+void processText(struct text *t)
+{
+
+    if( t->flags & FLAGS_CLS )
+       lcdClear() ;
+    lcdSetCrsr(t->x, t->y);
+    t->text[16] = 0;
+    lcdPrint(t->text);
+    lcdRefresh();
+}
+
 //increment ctr and send button state, id and ctr
 void sendButton(uint8_t button)
 {
@@ -306,7 +344,9 @@ void sendButton(uint8_t button)
 
     //lcdClear();
     //lcdPrint("Key:"); lcdPrintInt(buf[2]); lcdNl();
-
-    nrf_snd_pkt_crc(sizeof(p),(uint8_t*)&p);
+    if( flags & FLAGS_SHORT_PACKET )
+        nrf_snd_pkt_crc(16,(uint8_t*)&p);
+    else
+        nrf_snd_pkt_crc(sizeof(p),(uint8_t*)&p);        
 }
 

@@ -4,6 +4,9 @@ def inttouint32(v):
 def uint32toint(v):
     return (ord(v[3])<< 24) + (ord(v[2])<<16) + (ord(v[1])<<8) + (ord(v[0]))
 
+def inttouint16(v):
+    return chr(v&0xff)+chr((v>>8)&0xff)
+
 class Packet:
     def __init__(self, command, id=None):
         self.ctr = 0
@@ -55,7 +58,7 @@ class Button(Packet):
         return s
 
 class Announce(Packet):
-    def __init__(self, gameMac, gameChannel, gameId, gameFlags, gameTitle):
+    def __init__(self, gameMac, gameChannel, gameId, gameFlags, gameTitle, interval=30, jitter=16):
         #always a broadcast
         Packet.__init__(self, 'A', 0)
         self.gameMac = gameMac
@@ -63,14 +66,18 @@ class Announce(Packet):
         self.gameId = gameId
         self.gameFlags = gameFlags
         self.gameTitle = gameTitle[0:8]
+        self.interval = interval
+        self.jitter = jitter
         self.priority = 3
 
     def toMessage(self):
         message = Packet.toMessage(self)
         message += ''.join([chr(x) for x in self.gameMac])
         message += chr(self.gameChannel)
-        message += inttouint32(self.gameId)
+        message += inttouint16(self.gameId)
         message += chr(self.gameFlags)
+        message += chr(self.interval)
+        message += chr(self.jitter)
         message += self.gameTitle
         if len(self.gameTitle) < 8:
             message += '\x00'*(8-len(self.gameTitle))

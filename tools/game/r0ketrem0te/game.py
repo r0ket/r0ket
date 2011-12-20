@@ -19,7 +19,7 @@ class Game:
         self.gamemac = [int(random.random()*254) for x in range(1,6)]
         self.playermac = list(self.gamemac)
         self.playermac[4]+=1
-        self.gameid = int(random.random()*(2**31))
+        self.gameid = int(random.random()*(2**15))
         
         self.bridge = bridge.Bridge(device, self.channel, self.gamemac)
         self.announce = packets.Announce(self.gamemac, self.channel,
