@@ -25,6 +25,7 @@ void Qstatus(void);
 void getsp(void);
 void uptime(void);
 void uuid(void);
+void lcdrtest(void);
 
 static const struct MENU submenu_debug={ "debug", {
 	{ "ChkBattery", &ChkBattery},
@@ -33,6 +34,7 @@ static const struct MENU submenu_debug={ "debug", {
 	{ "ChkFunk", &ChkFunk},
 	{ "Qstatus", &Qstatus},
 //	{ "ShowSP", &getsp},
+	{ "lcdrtest", &lcdrtest},
 	{ "Uptime", &uptime},
 	{ "Uuid", &uuid},
 	{NULL,NULL}
@@ -314,3 +316,18 @@ void ChkFunk(){
     while(!getInputRaw())work_queue();
 };
 
+// //# MENU lcdread
+void lcdrtest(void){
+    lcdClear();
+    lcdPrint("ID1:"); lcdPrintInt(lcdRead(128+64+16+8  +2  )); lcdNl();
+    lcdPrint("ID2:"); lcdPrintInt(lcdRead(128+64+16+8  +2+1)); lcdNl();
+    lcdPrint("ID3:"); lcdPrintInt(lcdRead(128+64+16+8+4    )); lcdNl();
+    lcdPrint("ID4:"); lcdPrintInt(lcdRead(128+64+16+8+4  +1)); lcdNl();
+    lcdPrint("Tmp:"); lcdPrintInt(lcdRead(128+64+16+8+4+2  )); lcdNl(); 
+    lcdPrint("VM:");  lcdPrintInt(lcdRead(128+64+16+8+4+2+1)); lcdNl(); 
+    //    lcd_select(); mylcdWrite(0,128+32+8+4+1); lcd_deselect();
+    delayms(10);
+    lcdInit();
+    lcdRefresh();
+    while(!getInputRaw())delayms(10);
+};
