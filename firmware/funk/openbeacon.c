@@ -115,7 +115,7 @@ uint8_t openbeaconSend(void)
         strength = 0;
 #if SAVE_OPENBEACON
     if( (seq & OPENBEACON_SAVE) == OPENBEACON_SAVE )
-        openbeaconSaveBlock();
+        push_queue(&openbeaconSaveBlock);
 #endif
     nrf_config_set(&oldconfig);
     return status;
