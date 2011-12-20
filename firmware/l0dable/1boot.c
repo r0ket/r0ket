@@ -2,6 +2,7 @@
 
 #include "basic/basic.h"
 #include "basic/config.h"
+#include "filesystem/ff.h"
 
 #include "lcd/print.h"
 #include "usetable.h"
@@ -34,10 +35,22 @@ static const struct MENU submenu_color={ "r0ket color?", {
 
 void ram(void){
 	bool again = true;
+    FIL file;
 	menuflags|=(MENU_JUSTONCE|MENU_BIG);
 	screen_intro();
 	while (again) {
         color_set = false;
+
+        if( f_open(&file, "yell0w", FA_OPEN_EXISTING|FA_READ) == 0 ){
+            yellow();
+            color_set = true;
+        }
+
+        if( f_open(&file, "green", FA_OPEN_EXISTING|FA_READ) == 0 ){
+            yellow();
+            color_set = true;
+        }
+
 		while (!color_set) {	
 			handleMenu(&submenu_color);
 		}
