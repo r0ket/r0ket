@@ -58,7 +58,7 @@ class Button(Packet):
         return s
 
 class Announce(Packet):
-    def __init__(self, gameMac, gameChannel, gameId, gameFlags, gameTitle, interval=30, jitter=16):
+    def __init__(self, gameMac, gameChannel, gameId, gameFlags, gameTitle, interval=5, jitter=10):
         #always a broadcast
         Packet.__init__(self, 'A', 0)
         self.gameMac = gameMac
@@ -89,6 +89,8 @@ class Announce(Packet):
         s += ", gameChannel=%d"%self.gameChannel
         s += ", gameId=%d"%self.gameId
         s += ", gameFlags=%d"%self.gameFlags
+        s += ", interval=%d"%self.interval
+        s += ", jitter=%d"%self.jitter
         s += ", gameTitle="+self.gameTitle
         return s
    
