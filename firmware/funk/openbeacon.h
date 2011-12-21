@@ -9,6 +9,6 @@
 #define OPENBEACON_CHANNEL 81
 
 void openbeaconSetup(void);
-uint8_t openbeaconSend(void);
+void openbeaconSend(void);
 
 #endif
