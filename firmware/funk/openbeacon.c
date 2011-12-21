@@ -82,8 +82,8 @@ static uint8_t openbeaconSendPacket(uint32_t id, uint32_t seq,
 {
     uint8_t buf[32];
 
-    volatile uint8_t i;
-    i = getRandom()&0xff;
+    volatile uint16_t i;
+    i = getRandom()&0xfff;
     while(i--);
 
     buf[0]=0x10; // Length: 16 bytes

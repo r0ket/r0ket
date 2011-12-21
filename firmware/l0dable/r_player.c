@@ -148,6 +148,11 @@ void playGame(void)
         }
         int rnd = getRandom() % jitter;
         delayms(interval*5+rnd);
+        
+        volatile uint16_t i;
+        i = getRandom()&0xfff;
+        while(i--);
+
     };
 }
 
