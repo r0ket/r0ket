@@ -301,12 +301,8 @@ uint8_t mesh_recvloop_plus(uint8_t state){
                 delayms_power(10);
             };
             if(getTimer()>recvend || pktctr>MESHBUFSIZE)
-                state=0xff;
+                state=QS_END;
     };
-    if(state==0xff){
-        return 0xff;
-    };
-
     return state;
 };
 

@@ -2,6 +2,7 @@
 
 #include "basic/basic.h"
 #include "basic/config.h"
+#include "filesystem/ff.h"
 
 #include "lcd/print.h"
 #include "usetable.h"
@@ -21,17 +22,44 @@ static const struct MENU submenu_privacy={ "Privacy?", {
 	{NULL,NULL}
 }};
 
+static void yellow();
+static void green();
+static const char colors[][12] = {"0-yellow","1-green"};
+bool color_set;
+static const struct MENU submenu_color={ "r0ket color?", {
+	{ colors[0], &yellow},
+	{ colors[1], &green},
+	{NULL,NULL}
+}};
 
 
 void ram(void){
 	bool again = true;
+    FIL file;
 	menuflags|=(MENU_JUSTONCE|MENU_BIG);
 	screen_intro();
 	while (again) {
+        color_set = false;
+
+        if( f_open(&file, "yell0w", FA_OPEN_EXISTING|FA_READ) == 0 ){
+            yellow();
+            color_set = true;
+        }
+
+        if( f_open(&file, "green", FA_OPEN_EXISTING|FA_READ) == 0 ){
+            yellow();
+            color_set = true;
+        }
+
+		while (!color_set) {	
+			handleMenu(&submenu_color);
+		}
+
 		privacy_set = false;
 		while (!privacy_set) {	
 			handleMenu(&submenu_privacy);
 		}
+
     	input("Nickname?", GLOBAL(nickname), 32, 127, MAXNICK-1);
 		getInputWaitRelease();
 		again = screen_overview();
@@ -40,6 +68,18 @@ void ram(void){
 	writeFile("nick.cfg",GLOBAL(nickname),strlen(GLOBAL(nickname)));
 	saveConfig();
 };
+
+static void green() {
+	GLOBAL(daytrig) = 155;
+    GLOBAL(daytrighyst) = 10;
+    color_set = true;
+}
+
+static void yellow() {
+	GLOBAL(daytrig) = 160;
+    GLOBAL(daytrighyst) = 15;
+    color_set = true;
+}
 
 static void privacy0() {
 	set_privacy(0);
