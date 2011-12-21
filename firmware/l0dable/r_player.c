@@ -147,7 +147,7 @@ void playGame(void)
             }
         }
         int rnd = getRandom() % jitter;
-        delayms(interval+rnd);
+        delayms(interval*5+rnd);
     };
 }
 
