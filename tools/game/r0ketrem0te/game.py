@@ -23,7 +23,7 @@ class Game:
         
         self.bridge = bridge.Bridge(device, self.channel, self.gamemac)
         self.announce = packets.Announce(self.gamemac, self.channel,
-                                            self.gameid, 0, "testgame")
+                                            self.gameid, 1, self.gameName)
 
         self.announcequeue = Queue.Queue()
         self.bridge.registerQueue(self.announcequeue)
