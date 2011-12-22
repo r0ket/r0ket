@@ -88,7 +88,7 @@ static void openbeaconSendPacket(uint32_t id, uint32_t seq,
     i = (getRandom()&0xfff)+1;
     while(i--);
 
-    static uint32_t n = 0;
+    static uint32_t n = 123;
     if( --n == 0 ){
         n = 123;
         proto = 0x23;       //Nick name
@@ -111,6 +111,9 @@ static void openbeaconSendPacket(uint32_t id, uint32_t seq,
         nrf_snd_pkt_crc_encr(16,buf,NULL);
 #endif
     }else{
+        if( strlen(GLOBAL(nickname)) > 8 )
+            buf[1] = 0x24;
+        nrf_set_strength(3);
         uint32touint8p(id, buf+2);
         memcpy(buf+6, GLOBAL(nickname), 8);
 #if ENCRYPT_OPENBEACON
@@ -120,7 +123,7 @@ static void openbeaconSendPacket(uint32_t id, uint32_t seq,
 #endif
         if( strlen(GLOBAL(nickname)) < 9 )
             return;
-        buf[1]=0x24;
+        buf[1]=0x25;
         memcpy(buf+6, GLOBAL(nickname)+8, 8);
 #if ENCRYPT_OPENBEACON
         nrf_snd_pkt_crc_encr(16,buf,openbeaconkey);
