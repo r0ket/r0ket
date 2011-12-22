@@ -31,9 +31,9 @@ void initMesh(void){
 
 int mesh_sanity(uint8_t * pkt){
     if(MO_TYPE(pkt)>='A' && MO_TYPE(pkt)<='Z'){
-        if(MO_TIME(pkt)>1313803870)
+        if(MO_TIME(pkt)>1325379600)
             return 1;
-        if(MO_TIME(pkt)<1312075898)
+        if(MO_TIME(pkt)<1324602000)
             return 1;
     }else if(MO_TYPE(pkt)>='a' && MO_TYPE(pkt)<='z'){
         if(MO_TIME(pkt)>16777216)
@@ -41,7 +41,12 @@ int mesh_sanity(uint8_t * pkt){
         if(MO_TIME(pkt)<0)
             return 1;
     };
-    if(MO_TYPE(pkt)=='t'){
+    if(MO_TYPE(pkt)!='E' && 
+       MO_TYPE(pkt)!='F' && 
+       MO_TYPE(pkt)!='G' && 
+       MO_TYPE(pkt)!='T' && 
+       1
+            ){
         return 1;
     };
     if(MO_TYPE(pkt)>0x7f || MO_TYPE(pkt)<0x20)
@@ -92,7 +97,7 @@ void mesh_cleanup(void){
             };
             if(mesh_sanity(meshbuffer[i].pkt)){
                 meshbuffer[i].flags=MF_FREE;
-#if 1
+#if 0
                 setSystemFont();
                 lcdClear();
                 lcdPrintln("MESH PANIC!");
