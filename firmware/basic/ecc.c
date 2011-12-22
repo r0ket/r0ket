@@ -15,9 +15,17 @@
 #include "ecc.h"
 #include "random.h"
 
-exp_t base_order;
-elem_t poly;                                      /* the reduction polynomial */
-elem_t coeff_b, base_x, base_y;
+elem_t poly =    {0x8, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x000000c9};
+//bitstr (poly,    "8    00000000    00000000    00000000    00000000    000000c9");
+elem_t coeff_b = {0x2, 0x0a601907, 0xb8c953ca, 0x1481eb10, 0x512f7874, 0x4a3205fd};
+//bitstr (coeff_b," 2    0a601907    b8c953ca    1481eb10    512f7874    4a3205fd");
+elem_t base_x =  {0x3, 0xf0eba162, 0x86a2d57e, 0xa0991168, 0xd4994637, 0xe8343e36};
+//    bitstr_parse(base_x,     "3f0eba16286a2d57ea0991168d4994637e8343e36");
+elem_t base_y =  {0x0, 0xd51fbc6c, 0x71a0094f, 0xa2cdd545, 0xb11c5c0c, 0x797324f1};
+//    bitstr_parse(base_y,     "0d51fbc6c71a0094fa2cdd545b11c5c0c797324f1");
+elem_t base_order = {0x4, 0x00000000, 0x00000000, 0x000292fe, 0x77e70c12, 0xa4234c33};
+//bitstr_parse(base_order, "40000000000000000000292fe77e70c12a4234c33");
+
 
 static unsigned char rnd1()
 {
@@ -505,15 +513,6 @@ int ECIES_decryptkeygen(uint8_t *rx, uint8_t *ry,
   ECIES_kdf((char*)k1,(char*) k2, Zx, Rx, Ry);
   return 0;
 } 
-
-void ECIES_setup(void)
-{
-    bitstr_parse(poly, "800000000000000000000000000000000000000c9");
-    bitstr_parse(coeff_b, "20a601907b8c953ca1481eb10512f78744a3205fd");
-    bitstr_parse(base_x, "3f0eba16286a2d57ea0991168d4994637e8343e36");
-    bitstr_parse(base_y, "0d51fbc6c71a0094fa2cdd545b11c5c0c797324f1");
-    bitstr_parse(base_order, "40000000000000000000292fe77e70c12a4234c33");
-}
 
 #define ECIES_OVERHEAD (8 * NUMWORDS + 8)
 

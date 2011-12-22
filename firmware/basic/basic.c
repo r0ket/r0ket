@@ -89,7 +89,6 @@ void rbInit() {
     //nrf_init();
     backlightInit();
     font=&Font_7x8;
-    ECIES_setup();
 }
 
 #define WEAK_ALIAS(f) __attribute__ ((weak, alias (#f)));
