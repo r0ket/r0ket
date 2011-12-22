@@ -93,6 +93,7 @@ uint16_t gameId;
 uint8_t interval;
 uint8_t jitter;
 uint8_t flags;
+uint8_t *gameTitle;
 
 void sendButton(uint8_t button);
 void sendJoin(uint32_t game);
@@ -129,6 +130,9 @@ void playGame(void)
 {
     int len;
     struct packet p;
+    lcdPrintln("Now playing:");
+    lcdPrintln(gameTitle);
+    lcdRefresh();
 
     while(1){
         uint8_t button = getInputRaw();
@@ -191,7 +195,6 @@ uint8_t joinGame()
     p.id= id;
     p.ctr= ++ctr;
     p.c.join.gameId=gameId;
-    lcdClear();
     lcdPrintln("Joining game");
     lcdRefresh();
 
@@ -278,7 +281,9 @@ uint8_t selectGame()
                 interval = games[selected].interval;
                 jitter = games[selected].jitter;
                 flags = games[selected].gameFlags;
+                gameTitle = games[selected].gameTitle;
                 nrf_config_set(&config);
+                lcdClear();
                 if( games[selected].gameFlags & FLAGS_MASS_GAME )
                     return 1;
                 else
