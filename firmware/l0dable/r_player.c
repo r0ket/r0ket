@@ -183,6 +183,8 @@ uint8_t joinGame()
     int i;
     struct packet p;
     struct packet ack;
+    memset((void*)&p, 0, sizeof(p));
+    memset((void*)&ack, 0, sizeof(ack));
     p.len=sizeof(p); 
     p.protocol='G';
     p.command='J';
@@ -288,6 +290,7 @@ uint8_t selectGame()
 void processNickRequest( struct nickrequest *nq)
 {
     struct packet p;
+    memset((void*)&p, 0, sizeof(p));
     p.len=sizeof(p); 
     p.protocol='G'; // Proto
     p.command='n';
@@ -304,6 +307,7 @@ void processPacket(struct packet *p)
    if ((p->len==32) && (p->protocol=='G') && (p->id == id || p->id == 0) ){   //check sanity, protocol, id
      if (p->command=='T'){
         struct packet ack;
+        memset((void*)&ack, 0, sizeof(ack));
         ack.len=sizeof(p); 
         ack.protocol='G';
         ack.command='a';
@@ -354,6 +358,7 @@ void processText(struct text *t)
 void sendButton(uint8_t button)
 {
     struct packet p;
+    memset((void*)&p, 0, sizeof(p));
     p.len=sizeof(p); 
     p.protocol='G'; // Proto
     p.command='B';
