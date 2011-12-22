@@ -145,9 +145,7 @@ static int process(char * input){
         return -1;
 
     puts_plus("\r\n");
-    puts_plus("D [");
-    puts_plus(input);
-    puts("]\r\n");
+//    puts_plus("D ["); puts_plus(input); puts("]\r\n");
 
     if(input[0]=='i'){
         nrf_init();
@@ -161,8 +159,8 @@ static int process(char * input){
             config.maclen[0]=0x20;
             config.nrmacs=1;
             nrf_config_set(&config);
-            memcpy(thekey,meshkey,sizeof(thekey));
-            funkencrypt=1;
+//            memcpy(thekey,meshkey,sizeof(thekey));
+            funkencrypt=0;
         }else if(input[1]=='M'){
             config.channel=83;
             memcpy(config.txmac,MESH_MAC,5);
@@ -170,11 +168,11 @@ static int process(char * input){
             config.maclen[0]=0x20;
             config.nrmacs=1;
             nrf_config_set(&config);
-            static const uint32_t const pubmesh[4] = {
-                0x00000042, 0x000005ec, 0x00000023, 0x00000005
-            };
-            memcpy(thekey,pubmesh,sizeof(thekey));
-            funkencrypt=1;
+//            static const uint32_t const pubmesh[4] = {
+//                0x00000042, 0x000005ec, 0x00000023, 0x00000005
+//            };
+//            memcpy(thekey,pubmesh,sizeof(thekey));
+            funkencrypt=0;
         }else if(input[1]=='r'){
             config.channel=REMOTE_CHANNEL;
             memcpy(config.txmac,REMOTE_MAC,5);
@@ -182,8 +180,8 @@ static int process(char * input){
             config.maclen[0]=0x10;
             config.nrmacs=1;
             nrf_config_set(&config);
-            memcpy(thekey,remotekey,sizeof(thekey));
-            funkencrypt=1;
+//            memcpy(thekey,remotekey,sizeof(thekey));
+            funkencrypt=0;
         }else if(input[1]=='b'){
             config.channel=BEACON_CHANNEL;
             memcpy(config.txmac,BEACON_MAC,5);
@@ -191,8 +189,8 @@ static int process(char * input){
             config.maclen[0]=0x10;
             config.nrmacs=1;
             nrf_config_set(&config);
-            memcpy(thekey,openbeaconkey,sizeof(thekey));
-            funkencrypt=1;
+//            memcpy(thekey,openbeaconkey,sizeof(thekey));
+            funkencrypt=0;
         }else if(input[1]=='B'){
             config.channel=BEACON_CHANNEL;
             memcpy(config.txmac,BEACON_MAC,5);
@@ -200,11 +198,11 @@ static int process(char * input){
             config.maclen[0]=0x10;
             config.nrmacs=1;
             nrf_config_set(&config);
-            static const uint32_t pubbeaconkey[4] = {
-                        0xB4595344, 0xD3E119B6, 0xA814D0EC, 0xEFF5A24E 
-            };
-            memcpy(thekey,pubbeaconkey,sizeof(thekey));
-            funkencrypt=1;
+//            static const uint32_t pubbeaconkey[4] = {
+//                        0xB4595344, 0xD3E119B6, 0xA814D0EC, 0xEFF5A24E 
+//            };
+//            memcpy(thekey,pubbeaconkey,sizeof(thekey));
+            funkencrypt=0;
         };
     }else if(input[0]=='t'){
         type=input[1];
