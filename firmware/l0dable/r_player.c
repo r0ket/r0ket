@@ -182,6 +182,7 @@ uint8_t joinGame()
 {
     int i;
     struct packet p;
+    struct packet ack;
     p.len=sizeof(p); 
     p.protocol='G';
     p.command='J';
@@ -195,11 +196,11 @@ uint8_t joinGame()
     for(i=0; i<10; i++){
         nrf_snd_pkt_crc(sizeof(p),(uint8_t*)&p);
 
-        int len = nrf_rcv_pkt_time(30,sizeof(p),(uint8_t*)&p);
-        if( len==sizeof(p) ){
-            if( (p.len==32) && (p.protocol=='G') && p.command=='a' ){   //check sanity, protocol
-                if( p.id == id && p.ctr == ctr ){
-                    if( p.c.ack.flags & FLAGS_ACK_JOINOK ){
+        int len = nrf_rcv_pkt_time(30,sizeof(ack),(uint8_t*)&ack);
+        if( len==sizeof(ack) ){
+            if( (ack.len==32) && (ack.protocol=='G') && ack.command=='a' ){   //check sanity, protocol
+                if( ack.id == id && ack.ctr == ctr ){
+                    if( ack.c.ack.flags & FLAGS_ACK_JOINOK ){
                         lcdPrintln("Join OK");
                         lcdRefresh();
                         return 1;
@@ -233,6 +234,10 @@ uint8_t selectGame()
     nrf_config_set(&config);
 
     gamecount = 0;
+    lcdClear();
+    lcdPrintln("Searching for");
+    lcdPrintln("games...");
+    lcdRefresh();
     for(i=0;i<60;i++){
         len= nrf_rcv_pkt_time(30, sizeof(p), (uint8_t*)&p);
         if (len==sizeof(p)){
