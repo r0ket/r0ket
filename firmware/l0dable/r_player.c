@@ -313,7 +313,7 @@ void processPacket(struct packet *p)
      if (p->command=='T'){
         struct packet ack;
         memset((void*)&ack, 0, sizeof(ack));
-        ack.len=sizeof(p); 
+        ack.len=sizeof(ack); 
         ack.protocol='G';
         ack.command='a';
         ack.id= id;
