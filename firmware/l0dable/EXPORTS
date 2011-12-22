@@ -104,18 +104,6 @@ nickname
 systickGetTicks
 uint32touint8p
 uint8ptouint32
-#Add stuff here
-#o_init
-#o_path_new
-#o_move_to
-#o_line_to
-#o_curve_to
-#o_close
-#o_set_gray
-#o_fill
-#o_set_shader
-#o_identity
-#o_transform
 #I2C
 I2CMasterBuffer
 I2CSlaveBuffer
@@ -123,6 +111,7 @@ I2CWriteLength
 I2CReadLength
 i2cEngine
 i2cInit
+#stuff
 timer32Callback0
 lcdRead
 lcdInit
@@ -130,3 +119,15 @@ lcdSetCrsr
 lcdSetCrsrX
 getInputWaitRepeat
 applyConfig
+o_init
+o_path_new
+o_move_to
+o_line_to
+o_curve_to
+o_close
+o_set_gray
+o_fill
+o_set_shader
+o_identity
+o_transform
+#Add stuff here
