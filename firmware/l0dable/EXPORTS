@@ -38,7 +38,8 @@ ECIES_encyptkeygen
 bitstr_parse_export
 #fs
 f_close
-f_get_rc_string
+#f_get_rc_string
+notimplemented
 f_lseek
 f_open
 f_read
@@ -126,4 +127,3 @@ timer32Callback0
 lcdRead
 lcdInit
 lcdSetCrsr
-

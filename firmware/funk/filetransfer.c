@@ -90,7 +90,8 @@ int filetransfer_receive(uint8_t *mac, uint32_t const k[4])
     res = f_open(&file, (const char*)metadata, FA_OPEN_ALWAYS|FA_WRITE);
 
     //lcdPrintln("file opened"); lcdRefresh();
-    if( res ) {lcdPrintln("res"); lcdPrint(f_get_rc_string(res)); lcdRefresh(); while(1);}
+    //if( res ) {lcdPrintln("res"); lcdPrint(f_get_rc_string(res)); lcdRefresh(); while(1);}
+    if( res ){ lcdPrintln("file error"); lcdRefresh(); while(1);}
     if( res )
         return res;
     

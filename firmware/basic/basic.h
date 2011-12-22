@@ -213,6 +213,7 @@ const char* IntToStr(int num, unsigned int mxlen, char flag);
 #define WFI       delayms(SYSTICKSPEED)
 #endif
 
+void notimplemented(void);
 
 
 #endif

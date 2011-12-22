@@ -105,3 +105,7 @@ void PIOINT3_IRQHandler(void) {
     }
 }
 
+void notimplemented(void)
+{
+    while(1);
+}
