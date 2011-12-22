@@ -23,6 +23,7 @@ LIBS += filesystem/libfat.a
 LIBS += usb/libusb.a
 LIBS += funk/libfunk.a
 LIBS += usbcdc/libusbcdc.a
+LIBS += flame/libflame.a
 
 ##########################################################################
 # GNU GCC compiler flags
@@ -49,6 +50,7 @@ LDLIBS += -Lcore -lcore
 LDLIBS += -Lusb -lusb
 LDLIBS += -lbasic
 LDLIBS += -lfunk
+LDLIBS += -Lflame -lflame
 OCFLAGS = --strip-unneeded
 
 SUBDIRS?= $(foreach lib,$(LIBS),$(dir $(lib)))

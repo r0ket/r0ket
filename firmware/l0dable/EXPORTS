@@ -130,3 +130,10 @@ lcdSetCrsr
 lcdSetCrsrX
 getInputWaitRepeat
 applyConfig
+# flame API
+flameDetect
+flameSetBrightness
+flameSetColor
+flameClaim
+flameFree
+

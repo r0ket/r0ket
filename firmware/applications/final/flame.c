@@ -1,176 +1,131 @@
 /*
 
-    flame m0dul - https://github.com/kiu/flame
+    original flame m0dul - https://github.com/kiu/flame
 
+    flame m0dul with RGB (rev c) - https://github.com/schneider42/flame
 */
 
 #include "basic/basic.h"
-#include "core/i2c/i2c.h"
 #include "basic/config.h"
+#include "basic/xxtea.h"
+#include "flame/flame.h"
 
-#define FLAME_I2C_WRITE         0xC4
-#define FLAME_I2C_READ          0xC5
+#include "filesystem/util.h"
 
-#define FLAME_I2C_CR_INPUT      0x00
-#define FLAME_I2C_CR_PSC0       0x01
-#define FLAME_I2C_CR_PWM0       0x02
-#define FLAME_I2C_CR_PSC1       0x03
-#define FLAME_I2C_CR_PWM1       0x04
-#define FLAME_I2C_CR_LS0        0x05
+#define nick               GLOBAL(nickname)
 
-#define FLAME_I2C_LS0_OFF       0x00
-#define FLAME_I2C_LS0_ON        0x01
-#define FLAME_I2C_LS0_PWM0      0x02
-#define FLAME_I2C_LS0_PWM1      0x03
+static uint8_t flamesEnabled = 0;
+static uint8_t flameMode = FLAME_STATE_OFF;
+static uint8_t flameBrightness = 0;
+static uint8_t flameTicks = 0;
+static uint8_t flamesOwned = 0;
 
-#define FLAME_I2C_LS0_LED0      0x00
-#define FLAME_I2C_LS0_LED1      0x02
-#define FLAME_I2C_LS0_LED2      0x04
-#define FLAME_I2C_LS0_LED3      0x06
+static uint8_t rgbData[24];
+static uint8_t rgbDataSize = 0;
+static uint8_t rgbDataOffset = 0;
 
-#define FLAME_OFF               0x00
-#define FLAME_UP                0x01
-#define FLAME_UP_WAIT           0x02
-#define FLAME_DOWN              0x03
-#define FLAME_DOWN_WAIT         0x04
+static void changeColor() {
+    if (rgbDataSize > 2) {
+        flameSetColor(flamesOwned, rgbData[rgbDataOffset],
+                rgbData[rgbDataOffset + 1], rgbData[rgbDataOffset + 2]);
+        if (rgbDataSize >= rgbDataOffset + 5) {
+            rgbDataOffset += 3;
+        } else {
+            rgbDataOffset = 0;
+        }
+    } else {
+        // generate a hash from the nickname
+        uint32_t hash[4];
+        uint32_t const key[4] = {0, 0, 0, 0};
+        xxtea_cbcmac(hash, (uint32_t *)nick, 4, key);
 
-/**************************************************************************/
-
-#define flameBrightnessMax GLOBAL(flamemax)
-#define flameBrightnessMin GLOBAL(flamemin)
-#define flameSpeedUp       GLOBAL(flamespeed)
-#define flameSpeedDown     GLOBAL(flamespeed)
-#define flameWaitUp        GLOBAL(flamemaxw)
-#define flameWaitDown      GLOBAL(flameminw)
-
-uint8_t flameEnabled = 0;
-uint8_t flameMode = FLAME_OFF;
-uint8_t flameI2Cpwm = 0;
-uint8_t flameTicks = 0;
-
-uint32_t flameSetI2C(uint8_t cr, uint8_t value) {
-    I2CMasterBuffer[0] = FLAME_I2C_WRITE;
-    I2CMasterBuffer[1] = cr;
-    I2CMasterBuffer[2] = value;
-    I2CWriteLength = 3;
-    I2CReadLength = 0;
-    return i2cEngine();
-}
-
-void setFlamePWM() {
-    flameSetI2C(FLAME_I2C_CR_PWM0, flameI2Cpwm); // set pwm
+        flameSetColor(flamesOwned, hash[0] & 0xFF, hash[1] & 0xFF, hash[2] & 0xFF);
+    }
 }
 
 void tick_flame(void) { // every 10ms
     static char night=0;
+    flamesOwned = flamesEnabled & ~flamesClaimed;
 
-    if (!flameEnabled) {
+    if (!flamesOwned) {
         return;
     }
 
     if (night != isNight()) {
         night = isNight();
         if (!night) {
-            flameMode = FLAME_OFF;
-            flameI2Cpwm = 0;
-            push_queue(&setFlamePWM);
+            flameMode = FLAME_STATE_OFF;
+            flameBrightness = 0;
+            flameSetBrightness(flamesOwned, flameBrightness);
         };
     };
 
     flameTicks++;
 
-    if (flameI2Cpwm > flameBrightnessMax) {
-        flameI2Cpwm = flameBrightnessMax;
+    if (flameBrightness > flameBrightnessMax) {
+        flameBrightness = flameBrightnessMax;
     }
-    if (flameI2Cpwm < flameBrightnessMin) {
-        flameI2Cpwm = flameBrightnessMin;
+    if (flameBrightness < flameBrightnessMin) {
+        flameBrightness = flameBrightnessMin;
     }
 
-    if (flameMode == FLAME_OFF) {
+    if (flameMode == FLAME_STATE_OFF) {
         if (isNight()) {
             flameTicks = 0;
-            flameMode = FLAME_UP;
+            flameMode = FLAME_STATE_UP;
+            changeColor(flamesOwned, flameBrightness);
         }
     }
 
-    if (flameMode == FLAME_UP) {
-        if (0xFF - flameI2Cpwm >= flameSpeedUp ) {
-            flameI2Cpwm += flameSpeedUp;
-        } else {        
-            flameI2Cpwm = 0xFF;
-        }
-        push_queue(&setFlamePWM);
-        if (flameI2Cpwm >= flameBrightnessMax) {
-            flameMode = FLAME_UP_WAIT;
-            flameTicks = 0;
-        }
-    }
-
-    if (flameMode == FLAME_UP_WAIT) {
-        if (flameTicks >= flameWaitUp) {
-            flameMode = FLAME_DOWN;
-        }
-    }
-
-    if (flameMode == FLAME_DOWN) {
-        if (flameSpeedDown <= flameI2Cpwm) {
-            flameI2Cpwm -= flameSpeedDown;
+    if (flameMode == FLAME_STATE_UP) {
+        if (0xFF - flameBrightness >= flameSpeedUp ) {
+            flameBrightness += flameSpeedUp;
         } else {
-            flameI2Cpwm = 0x00;
+            flameBrightness = 0xFF;
         }
-        push_queue(&setFlamePWM);
-        if (flameI2Cpwm <= flameBrightnessMin) {
-            flameMode = FLAME_DOWN_WAIT;
+        flameSetBrightness(flamesOwned, flameBrightness);
+        if (flameBrightness >= flameBrightnessMax) {
+            flameMode = FLAME_STATE_UP_WAIT;
             flameTicks = 0;
         }
     }
 
-    if (flameMode == FLAME_DOWN_WAIT) {
+    if (flameMode == FLAME_STATE_UP_WAIT) {
+        if (flameTicks >= flameWaitUp) {
+            flameMode = FLAME_STATE_DOWN;
+        }
+    }
+
+    if (flameMode == FLAME_STATE_DOWN) {
+        if (flameSpeedDown <= flameBrightness) {
+            flameBrightness -= flameSpeedDown;
+        } else {
+            flameBrightness = 0x00;
+        }
+        flameSetBrightness(flamesOwned, flameBrightness);
+        if (flameBrightness <= flameBrightnessMin) {
+            flameMode = FLAME_STATE_DOWN_WAIT;
+            flameTicks = 0;
+        }
+    }
+
+    if (flameMode == FLAME_STATE_DOWN_WAIT) {
         if (flameTicks >= flameWaitDown) {
-            flameMode = FLAME_OFF;
+            flameMode = FLAME_STATE_OFF;
         }
     }
 }
 
 void init_flame(void) {
-    i2cInit(I2CMASTER); // Init I2C
+    flamesEnabled = flameDetect();
 
-    flameEnabled = (flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_OFF << FLAME_I2C_LS0_LED0) == I2CSTATE_ACK); // probe i2c
-
-    if (!flameEnabled)
+    if (!flamesEnabled)
         return;
 
-    flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_OFF << FLAME_I2C_LS0_LED0); // set led0 off
-    flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_OFF << FLAME_I2C_LS0_LED1); // set led1 off
-    flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_OFF << FLAME_I2C_LS0_LED2); // set led2 off
-    flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_OFF << FLAME_I2C_LS0_LED3); // set led3 off
+    flameInit(flamesEnabled);
 
-    flameSetI2C(FLAME_I2C_CR_PSC0, 0x00); // set prescaler
-    flameSetI2C(FLAME_I2C_CR_PWM0, 0x00); // set pwm
-    flameSetI2C(FLAME_I2C_CR_LS0, FLAME_I2C_LS0_PWM0 << FLAME_I2C_LS0_LED0); // set led0 to pwm
+    rgbDataSize = readTextFile("FLAME.RGB", rgbData, 24);
 
     enableConfig(CFG_TYPE_FLAME,1);
 }
 
-#include "lcd/print.h"
-
-// //# MENU flame
-void ChkFlame(void) {
-    do{
-        lcdClear();
-        lcdPrint("Enabled:");
-        lcdPrintln(IntToStr(flameEnabled,1,0));
-
-        lcdPrint("State:");
-        lcdPrintln(IntToStr(flameMode,1,0));
-
-        lcdPrint("PWMtarg:");
-        lcdPrintln(IntToStr(flameI2Cpwm,3,0));
-
-        lcdPrint("FTicks:");
-        lcdPrintln(IntToStr(flameTicks,3,0));
-
-        lcdRefresh();
-        delayms_queue(10);
-    } while ((getInputRaw())==BTN_NONE);
-}
