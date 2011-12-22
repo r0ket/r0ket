@@ -319,7 +319,8 @@ void processPacket(struct packet *p)
         ack.id= id;
         ack.ctr= p->ctr;
         ack.c.ack.flags = 0;
-        nrf_snd_pkt_crc(sizeof(ack),(uint8_t*)&ack);
+        if( p->id )
+            nrf_snd_pkt_crc(sizeof(ack),(uint8_t*)&ack);
         processText(&(p->c.text));
      } 
      else if (p->command=='N'){
