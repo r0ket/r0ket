@@ -22,7 +22,7 @@ void main_final(void) {
 
     init_nick();
 	if(GLOBAL(privacy)>2){ //firstboot
-        execute_file("initanim.c0d");
+        execute_file("initanim.int");
         if(execute_file("1boot.int")){
             lcdPrintln("Badge SETUP");
             lcdPrintln("error.");
