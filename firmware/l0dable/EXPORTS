@@ -127,3 +127,6 @@ timer32Callback0
 lcdRead
 lcdInit
 lcdSetCrsr
+lcdSetCrsrX
+getInputWaitRepeat
+applyConfig
