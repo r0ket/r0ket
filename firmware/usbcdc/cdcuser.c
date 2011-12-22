@@ -41,7 +41,7 @@ volatile unsigned char  CDC_DepInEmpty  = 1;                   // Data IN EP is 
   much faster than  UART transmits
  *---------------------------------------------------------------------------*/
 /* Buffer masks */
-#define CDC_BUF_SIZE               (64)   // Output buffer in bytes (power 2)
+#define CDC_BUF_SIZE               (128)   // Output buffer in bytes (power 2)
                                                        // large enough for file transfer
 #define CDC_BUF_MASK               (CDC_BUF_SIZE-1ul)
 
@@ -342,6 +342,8 @@ void CDC_BulkIn(void)
 {
     int numBytesRead, numBytesAvail;
     CDC_InBufAvailChar(&numBytesAvail);
+    if( numBytesAvail > 64 )
+        numBytesAvail = 64;
     numBytesRead = CDC_RdInBuf((char*)&BulkBufIn[0], &numBytesAvail);
     // send over USB
     if (numBytesRead > 0) {
