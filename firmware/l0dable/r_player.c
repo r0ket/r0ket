@@ -12,7 +12,7 @@
 
 
 //channel and mac used to transmit game announcements
-#define ANNOUNCE_CHANNEL 81
+#define ANNOUNCE_CHANNEL 87
 #define ANNOUNCE_MAC     "REM0T"
 
 struct NRF_CFG config;
@@ -241,7 +241,8 @@ uint8_t selectGame()
     gamecount = 0;
     lcdClear();
     lcdPrintln("Searching for");
-    lcdPrintln("games...");
+    lcdPrintln("games on");
+    lcdPrintln("channel 87");
     lcdRefresh();
     for(i=0;i<60;i++){
         len= nrf_rcv_pkt_time(30, sizeof(p), (uint8_t*)&p);
