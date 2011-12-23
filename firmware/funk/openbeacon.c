@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <string.h>
 #include "funk/openbeacon.h"
 #include "funk/nrf24l01p.h"
 #include "basic/byteorder.h"
@@ -6,6 +7,7 @@
 #include "filesystem/ff.h"
 #include "basic/uuid.h"
 #include "basic/config.h"
+#include "basic/random.h"
 
 #include "SECRETS"
 

@@ -270,7 +270,7 @@ void lcdDisplay(void) {
       unsigned char br=0xFF, bg=0xFF, bb=0xFF;
       unsigned char frame_r=0x00, frame_g=0x00, frame_b=0x80;
       uint16_t color,framecolor,backcolor;
-      uint16_t x,y,i;
+      uint16_t x,y;
       bool px;
       uint16_t actualcolor;
       color = ((r&0xF8) << 8) | ((g&0xFC)<<3) | ((b&0xF8) >> 3);

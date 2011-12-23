@@ -189,7 +189,7 @@ void init_flame_rgb(void) {
 
     flameRGBSetI2C(FLAME_I2C_CR_GRPPWM, 0x00); // overall dimming
 
-    rgbDataSize = readTextFile("FLAME.RGB", rgbData, 24);
+    rgbDataSize = readTextFile("FLAME.RGB", (char *)rgbData, 24);
 
     enableConfig(CFG_TYPE_FLAME,1);
 }

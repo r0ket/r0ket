@@ -8,6 +8,7 @@
 #include "lcd/display.h"
 
 #include "filesystem/ff.h"
+#include "filesystem/execute.h"
 
 #include <string.h>
 
