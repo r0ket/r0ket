@@ -1,0 +1,17 @@
+dir=$1
+if [ -z "$dir" ] ; then
+    echo Missing argument
+    exit 1
+fi
+cd $1
+
+while : ; do
+dd if=/dev/urandom count=130 of=random.file
+sync
+sleep 1
+rm random.file
+sync
+sleep 1
+echo "Done once."
+
+done
