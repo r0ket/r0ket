@@ -20,6 +20,7 @@ static unsigned long iter=0;
 void ram(void) {
     getInputWaitRelease();
 
+    char template[256];
     static int nickx=2,nicky=10;
     static int nickwidth,nickheight;
     static char *croppednickbase;
@@ -29,7 +30,8 @@ void ram(void) {
     static char movx=1;
     static char LCDSHIFTX_EVERY_N=1;
     static char LCDSHIFTY_EVERY_N=1;
-    static char charwidthbuffer[]={82,48,107,101,84,32,70,105,114,109,119,48,114,101,32,112,114,51,115,51,110,116,51,100,32,98,121,32,84,69,65,77,32,82,48,75,69,84,58,32,67,111,100,101,32,119,114,105,116,116,101,110,32,98,121,32,48,48,45,115,99,104,110,101,105,100,48,114,44,32,115,48,99,44,32,98,48,114,105,115,44,32,105,103,103,48,44,32,108,48,108,97,102,105,115,99,104,44,32,98,115,120,44,32,107,48,117,32,97,110,100,32,48,116,104,101,114,115,46,32,86,105,115,105,116,32,117,115,32,97,116,32,102,112,108,101,116,122,32,86,105,108,108,48,103,101,46,32,83,104,48,117,116,32,108,48,117,100,58,32,76,97,117,110,99,104,32,84,104,101,32,82,48,107,101,116,33,0};
+    // spacings for new variable width fonttable
+    static char charwidthbuffer[]={52,18,77,71,54,2,40,75,84,79,89,67,84,71,2,82,84,21,85,21,80,86,21,70,2,68,91,2,54,39,35,47,2,52,18,45,39,54,28,2,37,18,70,71,2,89,84,75,86,86,71,80,2,68,91,2,18,18,15,85,69,74,80,71,75,70,18,84,14,2,85,18,69,14,2,68,18,84,75,85,14,2,75,73,73,18,14,2,78,18,78,67,72,75,85,69,74,14,2,68,85,90,14,2,77,18,87,14,2,84,18,91,2,67,80,70,2,18,86,74,71,84,85,16,2,36,71,2,86,74,71,2,72,75,84,85,86,2,86,81,2,85,74,81,89,2,86,74,75,85,2,79,71,85,85,67,73,71,2,67,86,2,18,87,84,2,86,67,68,78,71,2,67,80,70,2,89,75,80,2,67,2,84,18,77,71,86,2,78,67,87,80,69,74,71,84,3,-30,0};
     char *nick=nickname;
     croppednickbase=&charwidthbuffer[0];
 
@@ -48,8 +50,11 @@ void ram(void) {
     char stepmode=0;
     // ugly hack for wrong encoded multibyte chars in default Font
     if(utf8boundary==80){ nick=croppednickbase; setExtFont(NULL);
+      nickoff*=speedmode;
+      while(nick[nickoff]!=0)template[nickoff]=nick[nickoff]+(delay<<1),nickoff++;
+      nick=template;
       nickwidth=DoString(nickx,nicky,nick);
-      movx=1; delay=50;
+      movx=1; delay=50; nickoff=10;
     }
     while (1) {
         ++iter;
