@@ -119,6 +119,12 @@ lcdSetCrsr
 lcdSetCrsrX
 getInputWaitRepeat
 applyConfig
+# flame API
+flameDetect
+flameSetBrightness
+flameSetColor
+flameClaim
+flameFree
 o_init
 o_path_new
 o_move_to
