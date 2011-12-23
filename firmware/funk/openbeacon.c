@@ -1,10 +1,13 @@
 #include <stdint.h>
+#include <string.h>
 #include "funk/openbeacon.h"
 #include "funk/nrf24l01p.h"
 #include "basic/byteorder.h"
 #include "sysdefs.h"
 #include "filesystem/ff.h"
 #include "basic/uuid.h"
+#include "basic/config.h"
+#include "basic/random.h"
 
 #include "SECRETS"
 
@@ -77,31 +80,59 @@ void openbeaconSetup(void)
 #endif
 }
 
-static uint8_t openbeaconSendPacket(uint32_t id, uint32_t seq,
+static void openbeaconSendPacket(uint32_t id, uint32_t seq,
         uint8_t flags, uint8_t strength)
 {
-    uint8_t buf[32];
+    uint8_t buf[16];
+    uint8_t proto = 0x17;   //Tracking
 
     volatile uint16_t i;
-    i = getRandom()&0xfff;
+    i = (getRandom()&0xfff)+1;
     while(i--);
 
+    static uint32_t n = 123;
+    if( --n == 0 ){
+        n = 123;
+        proto = 0x23;       //Nick name
+    }
+
     buf[0]=0x10; // Length: 16 bytes
-    buf[1]=0x17; // Proto - fixed at 0x17?
-    buf[2]=flags;
-    buf[3]=strength*85; // Send intensity
+    buf[1]=proto;
+    if( proto == 0x17 ){
+        buf[2]=flags;
+        buf[3]=strength*85; // Send intensity
 
-    uint32touint8p(seq, buf+4);
-    uint32touint8p(id, buf+8);
+        uint32touint8p(seq, buf+4);
+        uint32touint8p(id, buf+8);
 
-    buf[12]=0xff; // salt (0xffff always?)
-    buf[13]=0xff;
-
+        buf[12]=0xff; // salt (0xffff always?)
+        buf[13]=0xff;
 #if ENCRYPT_OPENBEACON
-    return nrf_snd_pkt_crc_encr(16,buf,openbeaconkey);
+        nrf_snd_pkt_crc_encr(16,buf,openbeaconkey);
 #else
-    return nrf_snd_pkt_crc_encr(16,buf,NULL);
+        nrf_snd_pkt_crc_encr(16,buf,NULL);
 #endif
+    }else{
+        if( strlen(GLOBAL(nickname)) > 8 )
+            buf[1] = 0x24;
+        nrf_set_strength(3);
+        uint32touint8p(id, buf+2);
+        memcpy(buf+6, GLOBAL(nickname), 8);
+#if ENCRYPT_OPENBEACON
+        nrf_snd_pkt_crc_encr(16,buf,openbeaconkey);
+#else
+        nrf_snd_pkt_crc_encr(16,buf,NULL);
+#endif
+        if( strlen(GLOBAL(nickname)) < 9 )
+            return;
+        buf[1]=0x25;
+        memcpy(buf+6, GLOBAL(nickname)+8, 8);
+#if ENCRYPT_OPENBEACON
+        nrf_snd_pkt_crc_encr(16,buf,openbeaconkey);
+#else
+        nrf_snd_pkt_crc_encr(16,buf,NULL);
+#endif
+    }   
 }
 
 void openbeaconSend(void)

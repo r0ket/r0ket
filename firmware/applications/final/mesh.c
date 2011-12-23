@@ -120,6 +120,7 @@ char *meshmsgs(void){
     return msgtypes;
 };
 
+#if 0
 static inline uint32_t popcount(uint32_t *buf, uint8_t n){
     int cnt=0;
     do {
@@ -133,6 +134,7 @@ static inline uint32_t popcount(uint32_t *buf, uint8_t n){
     } while(--n);
     return cnt;
 }
+#endif
 
 extern MPKT meshbuffer[MESHBUFSIZE];
 //# MENU messages
@@ -156,10 +158,13 @@ void m_choose(){
                 strcpy(p,"Message");
                 break;
             case('E'):
-                strcpy(p,"Kourou");
+                strcpy(p,"Saal 1");
                 break;
             case('F'):
-                strcpy(p,"Baikonur");
+                strcpy(p,"Saal 2");
+                break;
+            case('G'):
+                strcpy(p,"Saal 3");
                 break;
             case('T'):
                 strcpy(p,"Time");
@@ -167,12 +172,14 @@ void m_choose(){
             case('i'):
                 strcpy(p,"Invaders");
                 break;
+#if 0
             case('j'):
                 strcpy(p,"Jump");
                 break;
             case('r'):
                 strcpy(p,"r0type");
                 break;
+#endif
             default:
                 p[0]=*mm;
                 p[1]=0;
@@ -198,10 +205,13 @@ void m_choose(){
             lcdPrintln("Message");
             break;
         case('E'):
-            lcdPrintln("Kourou");
+            lcdPrintln("Saal 1");
             break;
         case('F'):
-            lcdPrintln("Baikonur");
+            lcdPrintln("Saal 2");
+            break;
+        case('G'):
+            lcdPrintln("Saal 3");
             break;
         case('T'):
             lcdPrintln("Time");
@@ -209,12 +219,14 @@ void m_choose(){
         case('i'):
             lcdPrintln("Invaders");
             break;
+#if 0
         case('j'):
             strcpy(p,"Jump");
             break;
         case('r'):
             strcpy(p,"r0type");
             break;
+#endif
     };
     if(tmm[i]>='a' && tmm[i]<='z'){
         lcdPrintln(IntToStr(MO_TIME(meshbuffer[j].pkt),10,0));
@@ -227,6 +239,7 @@ void m_choose(){
         lcdPrint(IntToStr(tm->tm_sec,2,F_LONG|F_ZEROS));
         lcdNl();
 
+#if 0
         if(tmm[i]=='Z'){
             lcdPrintln(IntToStrX(uint8ptouint32(meshbuffer[j].pkt+ 6),8));
             lcdPrintln(IntToStrX(uint8ptouint32(meshbuffer[j].pkt+10),8));
@@ -239,7 +252,9 @@ void m_choose(){
             lcdRefresh();
             getInputWaitRelease();
             continue;
-        }else if(tmm[i]=='T'){
+        }else 
+#endif
+        if(tmm[i]=='T'){
             lcdPrint(IntToStr(tm->tm_mday,2,F_LONG));
             lcdPrint(".");
             lcdPrint(IntToStr(tm->tm_mon+1,2,0));

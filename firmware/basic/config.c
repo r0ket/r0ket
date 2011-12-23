@@ -3,6 +3,7 @@
 
 #include "lcd/display.h"
 #include "lcd/print.h"
+#include "lcd/backlight.h"
 #include "filesystem/ff.h"
 #include "basic/random.h"
 #include "basic/config.h"

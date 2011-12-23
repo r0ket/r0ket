@@ -1,5 +1,9 @@
 #include <sysdefs.h>
 #include <ff.h>
+#include <string.h>
+#include "at45db041d.h"
+#include "lcd/print.h"
+#include "usb/usbmsc.h"
 
 FATFS FatFs;          /* File system object for logical drive */
 
@@ -29,13 +33,12 @@ const uint8_t init2[] = {0x80, 0x00, 0x29, 0x37,
                    0x4d, 0x45, 0x20, 0x20, 0x20, 0x20, 0x46, 0x41,
                    0x54, 0x20, 0x20, 0x20, 0x20, 0x20};
 
-inline void format_formatDF(void)
-{
+inline void format_formatDF(void) {
 	int i;
-	char buf[512];
+	BYTE buf[512];
 
     memset(buf, 0, 512);
-    for(i=0; i<20; i++) dataflash_write(buf, i, 1);
+    for(i=0; i<100; i++) dataflash_write(buf, i, 1);
 
     memcpy(buf, init1, sizeof(init1));
     memcpy(buf+0x24, init2, sizeof(init2)); 

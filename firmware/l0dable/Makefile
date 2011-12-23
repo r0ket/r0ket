@@ -31,7 +31,7 @@ CRYPTFLAGS=-p
 skey=`cd .. && ./getkey.pl l0dable_sign`
 ekey=`cd .. && ./getkey.pl l0dable_crypt`
 
-all: $(OBJS) $(ELFS) $(BINS) $(CODS) $(NIKS) 1boot.int debug.int config.int
+all: $(OBJS) $(ELFS) $(BINS) $(CODS) $(NIKS) 1boot.int debug.int config.int initanim.int
 
 $(LDFILE):
 	-@echo "MEMORY" > $(LDFILE)
@@ -69,6 +69,9 @@ debug.int: debug.c0d .PHONY
 	mv $< $@
 
 config.int: config.c0d .PHONY
+	mv $< $@
+
+initanim.int: initanim.c0d .PHONY
 	mv $< $@
 
 clean:
