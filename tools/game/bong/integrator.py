@@ -39,7 +39,7 @@ def receivedPacket(packet):
             pos=1
 
 game = r0ketrem0te.game.Game('COM4', "testgame", 83,
-                           81, [ord(x) for x in 'REM0T'], 2, True)
+                           87, [ord(x) for x in 'REM0T'], 2, True)
 game.bridge.registerCallback(receivedPacket)
 
 class Application(tornado.web.Application):

@@ -29,7 +29,7 @@ class Pong:
         pygame.init()
         
         self.rem0te = r0ketrem0te.game.Game('/dev/ttyACM0', "pong", 83,
-                           81, [ord(x) for x in 'REM0T'], 2, True)
+                           87, [ord(x) for x in 'REM0T'], 2, True)
         self.rem0te.registerPlayerCallback(self.playercallback)
 
         self.player_right = Rem0tePlayer(self.rem0te)
