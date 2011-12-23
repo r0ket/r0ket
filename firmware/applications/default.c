@@ -22,22 +22,6 @@ void main_default(void) {
 	lcdRefresh();
 	lcdClear();
     
-	switch(getInputRaw()){
-        case BTN_ENTER:
-            lcdPrint("ISP active");
-            lcdRefresh();
-            ReinvokeISP();
-            break;
-        case BTN_UP: // Reset config
-            saveConfig();
-            break;
-        case BTN_DOWN:
-            usbMSCInit();
-            while(1);
-            //delayms_power(100);
-            break;
-    };
-
     readConfig();
 	if(getInputRaw()==BTN_RIGHT){
             GLOBAL(develmode)=1;

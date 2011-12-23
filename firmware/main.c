@@ -53,7 +53,25 @@ int main(void) {
     lcdFill(0);
     lcdDisplay();
     
+    switch(getInputRaw()){
+        case BTN_ENTER:
+            lcdPrint("ISP active");
+            lcdRefresh();
+            ReinvokeISP();
+            break;
+        case BTN_DOWN:
+            lcdPrint("MSC active");
+            lcdRefresh();
+            usbMSCInit();
+            while(1);
+            break;
+    };
+
     fsInit();
+
+    if( getInputRaw() == BTN_UP ){ // Reset config
+            saveConfig();
+    }
 
 	wrapper(); // see module/ subdirectory
 }
