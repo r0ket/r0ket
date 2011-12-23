@@ -52,6 +52,7 @@ echo "###"
 mv l0dable/*.c0d $TARG/files/
 mv l0dable/*.int $TARG/files/
 mv l0dable/*.nik $TARG/files/
+cp l0dable/files/* $TARG/files/
 
 if grep -q 'define ENCRYPT_L0DABLE' SECRETS ; then
 
