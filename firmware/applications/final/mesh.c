@@ -104,9 +104,14 @@ char *meshmsgs(void){
         hi=0xff;
         for(int i=0;i<MESHBUFSIZE;i++){
             if(meshbuffer[i].flags&MF_USED){
-                if(MO_TYPE(meshbuffer[i].pkt)>lo)
-                    if(MO_TYPE(meshbuffer[i].pkt)<hi)
-                        hi=MO_TYPE(meshbuffer[i].pkt);
+                if(MO_TYPE(meshbuffer[i].pkt)=='E' ||
+                   MO_TYPE(meshbuffer[i].pkt)=='F' ||
+                   MO_TYPE(meshbuffer[i].pkt)=='G' ||
+                   MO_TYPE(meshbuffer[i].pkt)=='T' ||
+                   MO_TYPE(meshbuffer[i].pkt)=='i')
+                    if(MO_TYPE(meshbuffer[i].pkt)>lo)
+                        if(MO_TYPE(meshbuffer[i].pkt)<hi)
+                            hi=MO_TYPE(meshbuffer[i].pkt);
             };
         };
         if(hi==0xff){
@@ -147,16 +152,18 @@ void m_choose(){
 
     while(1){
     char *p=list;
-    strcpy(p,"Note");
+    strcpy(p,"Messages");
     while(*p++);
 
     char *mm=meshmsgs();
     char *tmm=mm;
     while(*mm){
         switch(*mm){
+#if 0
             case('A'):
                 strcpy(p,"Message");
                 break;
+#endif
             case('E'):
                 strcpy(p,"Saal 1");
                 break;
