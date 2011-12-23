@@ -252,6 +252,23 @@ uint8_t selectGame()
             processPacket(&p);
         }
     }
+    if( gamecount == 0){
+        config.channel = 81;
+        nrf_config_set(&config);
+        lcdClear();
+        lcdPrintln("Searching for");
+        lcdPrintln("games on");
+        lcdPrintln("channel 81");
+        lcdRefresh();
+        for(i=0;i<60;i++){
+            len= nrf_rcv_pkt_time(30, sizeof(p), (uint8_t*)&p);
+            if (len==sizeof(p)){
+                if( a ) a = 0; else a = 1;
+                gpioSetValue (RB_LED2, a);
+                processPacket(&p);
+            }
+        }
+    }
     selected = 0;
     while(1){
         showGames(selected);
