@@ -18,6 +18,8 @@ typedef uint8_t uchar;
 
 static unsigned long iter=0;
 
+static int getint3fromf(FIL *file);
+
 void ram(void) {
     getInputWaitRelease();
 
@@ -38,7 +40,8 @@ void ram(void) {
 
 
     lcdClear();
-    setExtFont(GLOBAL(nickfont));
+    /* setExtFont(GLOBAL(nickfont)); */
+    setExtFont(NULL);
 
     /* nickheight=getFontHeight(); */
 
@@ -54,16 +57,12 @@ void ram(void) {
         res+=f_read(&file, (char *)favers, 4, &readbytes); 
         favers[4]=0;
 
-        res+=f_read(&file, (char *)&ob, 1, &readbytes); 
-        evcur=ob;
-        res+=f_read(&file, (char *)&ob, 1, &readbytes); 
-        evcur+=ob*256;
 
         lcdClear();
         DoString(0,0,"Fahrplan ");
         DoString(60,0,favers);
         DoString(0,16,"SW Rel. V0.001");
-        if(filvers!=1) {
+        if(filvers!=2) {
         DoString(0,24,"Incompatible  ");
         DoString(0,32,"Binary. Get   ");
         DoString(0,40,"update from   ");
@@ -87,6 +86,8 @@ void ram(void) {
 	getInputWait();
 	getInputWaitRelease();
 
+        evcur=getint3fromf(&file);
+
     while (1) {
         ++iter;
         lcdDisplay();
@@ -100,21 +101,10 @@ void ram(void) {
 #ifndef SIMULATOR
         f_lseek(&file,evcur);
 
-        res+=f_read(&file, (char *)&ob, 1, &readbytes); 
-        eventid=ob;
-        res+=f_read(&file, (char *)&ob, 1, &readbytes); 
-        eventid+=ob*256;
+        eventid=getint3fromf(&file);
+        evprv=getint3fromf(&file);
+        evnext=getint3fromf(&file);
 
-        res+=f_read(&file, (char *)&ob, 1, &readbytes); 
-        evprv=ob;
-        res+=f_read(&file, (char *)&ob, 1, &readbytes); 
-        evprv+=ob*256;
-
-        res+=f_read(&file, (char *)&ob, 1, &readbytes); 
-        evnext=ob;
-        res+=f_read(&file, (char *)&ob, 1, &readbytes); 
-        evnext+=ob*256;
- 
         res+=f_read(&file, (char *)title, 15, &readbytes); 
         res+=f_read(&file, (char *)info, 15, &readbytes); 
         evtext=f_tell(&file);
@@ -183,4 +173,19 @@ void ram(void) {
         delayms_queue_plus(delay,0);
     }
     return;
+}
+
+static int getint3fromf(FIL *file) {
+    unsigned char ob;
+    UINT readbytes;
+    int res;
+
+    f_read(file, (char *)&ob, 1, &readbytes); 
+    res=ob;
+    f_read(file, (char *)&ob, 1, &readbytes); 
+    res+=ob*256;
+    f_read(file, (char *)&ob, 1, &readbytes); 
+    res+=ob*256*256;
+
+    return res;
 }
