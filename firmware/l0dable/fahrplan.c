@@ -61,7 +61,7 @@ void ram(void) {
         lcdClear();
         DoString(0,0,"Fahrplan ");
         DoString(60,0,favers);
-        DoString(0,16,"SW Rel. V0.001");
+        DoString(0,16,"SW Rel. V0.002");
         if(filvers!=2) {
         DoString(0,24,"Incompatible  ");
         DoString(0,32,"Binary. Get   ");
