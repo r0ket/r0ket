@@ -1,0 +1,3 @@
+#!/bin/sh
+dd if=firmware.bin seek=4 of=/dev/$1 2>/dev/null
+echo "FLASH done: $1"

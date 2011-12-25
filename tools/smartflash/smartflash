@@ -1,0 +1,153 @@
+#!/usr/bin/perl
+
+use strict;
+$|=1;
+
+my $DEV="/sys/bus/usb/devices";
+
+sub getline{
+	my($path)=@_;
+	open(my $f,"<",$DEV."/".$path) || do {
+#		print "failed opening $path: $!\n";
+		return "";
+	};
+	my $l=<$f>;
+	close($f);
+	chomp($l);
+	return $l;
+};
+
+
+my %found;
+my %done;
+
+sub gosub {
+	my ($dev,$grep)=@_;
+	my $dh;
+	my $dir;
+	opendir($dh, $DEV."/".$dev) || do {
+#		print "Failure for $dev?\n";
+		return "";
+	};
+	($dir)=grep {/$grep/} grep {/^[^.]/} readdir($dh);
+	if($dir eq ""){
+		return "";
+	};
+	close $dh;
+	$dev.="/".$dir;
+	return $dev;
+};
+
+
+
+
+sub getdev{
+	my ($dev)=@_;
+	my $dh;
+	my $dir;
+
+	$dev=gosub($dev,":1");
+	$dev=gosub($dev,"^host");
+	$dev=gosub($dev,"^target");
+	$dev=~/target(.*)/;
+	$dev=gosub($dev,$1);
+	$dev=gosub($dev,"^block");
+	$dev=gosub($dev,".");
+	$dev=~m!/([^/]*)$!;
+	my $r=$1;
+	if($r!~/^sd/){
+#		print "Strange device? $dev -> $r\n";
+		return "";
+	};
+	return $r;
+};
+
+my %pids;
+use POSIX ":sys_wait_h";
+
+my $kid;
+$SIG{CHLD}=sub {
+	do {
+		$kid = waitpid(-1, WNOHANG);
+		delete $pids{$kid};
+	}while $kid>0;
+};
+
+sub dwim{
+	my($dev)=@_;
+#	print ("checking $dev\n");
+	my $pr=getline($dev."/idProduct");
+	return -1 if($pr eq "");
+	my $ve=getline($dev."/idVendor");
+	my $mf=getline($dev."/manufacturer");
+#	print "$pr:$ve\n";
+	if("$ve:$pr" eq "16c0:08ac") {
+		return 1 if $done{$dev}==1;
+		my $sdev=getdev($dev);
+		if ($sdev eq ""){
+			print "$dev not ready.\n";
+			return 1;
+		};
+		print "Mass storage $dev -> $sdev\n";
+
+		my $pid = fork();
+		if (not defined $pid) {
+			die "fork failed\n";
+		} elsif ($pid == 0) {
+			system("./mass $sdev");
+			exit(0);
+		} else {
+#			print "IM THE PARENT $pid\n";
+			$pids{$pid}=1;
+#			print join(",",%pids),"\n";
+#			print scalar keys %pids;
+#			print "\n";
+		}
+		$done{$dev}=1;
+		return 1;
+	};
+	if("$ve:$pr" eq "04cc:0003") {
+		return 1 if $done{$dev}==2;
+		my $sdev=getdev($dev);
+		if ($sdev eq ""){
+			print "$dev not ready.\n";
+			return 1;
+		};
+		print "flash $dev -> $sdev\n";
+		system("./flash $sdev");
+		$done{$dev}=2;
+		return 1;
+	};
+	return -1;
+};
+
+my %disable;
+while(1){
+	opendir(my $dh, $DEV);
+	my @paths=readdir($dh);
+	close $dh;
+#	print "f: ",join(",",@files),"\n";
+device:
+	for my $path (@paths){
+		next if ($disable{$path});
+		next if $path =~ /^usb/;
+		next if $path =~ /:/;
+#		print "p $path\n";
+		$found{$path}=1;
+		my $res=dwim($path);
+		if($res==-1){
+			print "Disabling: $path\n";
+			$disable{$path}=1;
+		};
+	};
+	for my $a (keys %done){
+		if (!$found{$a}){
+			delete $done{$a};
+			print "$a vanished\n";
+		};
+	};
+	%found=();
+#	print "\n";
+	sleep(1);
+	print scalar(keys %pids),"\r";
+};
