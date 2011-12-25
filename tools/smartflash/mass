@@ -44,6 +44,7 @@ cp \
 	1files/scope.c0d \
 	1files/Geigerct.c0d \
 	1files/voltage.c0d \
+    files/debug.int \
 	files/* \
 	$dir/$dev
 #sync
