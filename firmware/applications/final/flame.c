@@ -123,9 +123,11 @@ void init_flame(void) {
         return;
 
     flameInit(flamesEnabled);
-
-    rgbDataSize = readTextFile("FLAME.RGB", (char *)rgbData, 24);
-
+    
+    int s = readFile("FLAME.RGB", (char *)rgbData, 24);
+    if( s > 0 )
+        rgbDataSize = s;
+    
     enableConfig(CFG_TYPE_FLAME,1);
 }
 
