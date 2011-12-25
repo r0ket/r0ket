@@ -1,0 +1,23 @@
+smarflash recognizes r0kets in firmware flash or mass storage flash mode and flashes them to factory defaults with a new generated random crypto key.
+
+Runs only under linux (sorry, but requires /sys/... stuff)
+
+You NEED to disable your automounter and run it as root.
+
+Disabling automounter on ubuntu 10.4: 
+	run gconf-editor
+	apps > nautilus > preferences
+
+	media_automount = OFF
+	media_automount_open = OFF
+	media_autorun_never = ON 
+
+run "make setup" to generate/gathe the necessary files
+then run "./smarflash" and flash away.
+
+
+TODO ideas:
+- keep cryptokey if already there.
+- ability to format if not? Or somehow force formatting?
+- fix broken FS: save config/keys // reformat // copy back
+
