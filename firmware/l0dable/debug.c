@@ -335,8 +335,8 @@ void lcdrtest(void){
 };
 
 void release(){
-    lcdPrint("r0ket");
-    lcdPrint("Release: ");
+    lcdPrintln("r0ket");
+    lcdPrintln("Release: ");
     lcdPrintln(IntToStrX(getrelease(),8));
     lcdRefresh();
     while(!getInputRaw())work_queue();
