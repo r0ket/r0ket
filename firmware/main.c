@@ -75,3 +75,7 @@ int main(void) {
 
 	wrapper(); // see module/ subdirectory
 }
+
+int getrelease(void){
+    return 0x00000104;
+};
