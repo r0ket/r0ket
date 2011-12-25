@@ -6,6 +6,9 @@ setup:
 	cp ../../firmware/l0dable/*nik files
 	cp ../../firmware/l0dable/*int files
 	cp ../../firmware/l0dable/files/* files
+	cp ../font/binary/*f0n files
+	cp ../image/lcd/*lcd files
+	cp ../image/lcd/i42.lcd files/nick.lcd
 	cd ../crypto && make clean && make generate-keys
 	cp ../crypto/generate-keys .
 	@echo
