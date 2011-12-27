@@ -12,8 +12,9 @@ class Player():
         self.timeout = 10
         self.active = False
 
+# set shortpackets=True if you want to announce a game to be read with OpenBeacon readers
 class Game:
-    def __init__(self, device, gameName, gameChannel, announcechannel, announcemac, maxplayer=0, askname=False):
+    def __init__(self, device, gameName, gameChannel, announcechannel, announcemac, maxplayer=0, askname=False, shortpackets=False):
         self.gameName = gameName
         self.channel = gameChannel
         self.gamemac = [int(random.random()*254) for x in range(1,6)]
@@ -21,9 +22,14 @@ class Game:
         self.playermac[4]+=1
         self.gameid = int(random.random()*(2**15))
         
+        flags = 0
+        if maxplayer == 0:
+            flags = 1
+        if shortpackets:
+            flags += 2
         self.bridge = bridge.Bridge(device, self.channel, self.gamemac)
         self.announce = packets.Announce(self.gamemac, self.channel,
-                                            self.gameid, 0, self.gameName)
+                                            self.gameid, flags, self.gameName)
 
         self.announcequeue = Queue.Queue()
         self.bridge.registerQueue(self.announcequeue)
