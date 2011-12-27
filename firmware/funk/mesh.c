@@ -198,7 +198,7 @@ static inline uint32_t popcount(uint32_t *buf, uint8_t n){
 
 uint8_t mesh_recvqloop_work(void){
     __attribute__ ((aligned (4))) uint8_t buf[32];
-    int len;
+    unsigned int len;
 
         len=nrf_rcv_pkt_poll_dec(sizeof(buf),buf,NULL);
 
@@ -249,6 +249,8 @@ uint8_t mesh_recvqloop_work(void){
             (*(
                (uint32_t*)(MO_BODY(buf)+6)
                ))++;
+	    if(GLOBAL(privacy)==0)
+		    uint32touint8p(GetUUID32(),MO_BODY(buf)+20);
             MO_TIME_set(mpkt->pkt,0);
         };
 #if 0
