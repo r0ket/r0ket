@@ -9,35 +9,80 @@ import os.path
 import logging
 import threading
 import socket
+import time
 
 from tornado.options import define, options
 
 define("port", default=8888, help="run on the given port", type=int)
 
 pong=None
-pos=0.5
+left=0.0
+right=0.0
+cntr=0
+cntl=0
+info={}
 
 def sendpos():
+    global right, left
+    global cntr, cntl
+    global info
+    sstr="{ \"right\": %s, \"cntr\": %s , \"cntl\": %s, \"left\": %s }"%(right,cntr,cntl,left)
     if pong:
-        pong.write_message("{ \"right\": "+str(pos)+" }")
-    threading.Timer(.5,sendpos).start()
+        pong.write_message(sstr)
+#    	print sstr
+    threading.Timer(.1,sendpos).start()
+    for (id,(b,t,r)) in info.items():
+	if(t+5<time.time()):
+#	    print "time=%s"%(time.time())
+	    del info[id]
+    sumr=0.0
+    suml=0.0
+    cntr=0.0
+    cntl=0.0
+    for (id,(b,t,r)) in info.items():
+	if r==1:
+	    cntr+=1
+	else:
+	    cntl+=1
+    	if b&1==1:
+	    if r==1:
+		sumr-=1
+	    else:
+		suml-=1
+    	if b&2==2:
+	    if r==1:
+		sumr+=1
+	    else:
+		suml+=1
+#	print "summing: suml=%s cntl=%s sumr=%s cntr=%s"%(suml,cntl,sumr,cntr)
+    if cntr==0:
+        right=0
+    else:
+        right=sumr/cntr
+    if cntl==0:
+        left=0
+    else:
+        left=suml/cntl
+#    print "right=%s left=%s"%(right,left)
 
 sendpos()
 
-def receivedPacket(packet):
-    global pos
-    if isinstance(packet,r0ketrem0te.packets.Button):
-        if packet.button == 2:
-            pos+=.01
-        if packet.button == 1:
-            pos-=.01
-        if pos <0:
-            pos=0
-        if pos >1:
-            pos=1
-
 def workPacket(data, addr):
-    print "new packet:", list(data), addr
+    global right, left
+    global cntr, cntl
+    global reid
+    global r0id
+    global button
+    global info
+#    print "new packet:", list(data), addr
+    reid=ord(data[4])*256 + ord(data[5])
+    r0id=ord(data[19])*256*256*256 + ord(data[20])*256*256+ord(data[21])*256+ord(data[22])
+    button=ord(data[27])
+    rl=1
+    if reid == 1123:
+    	rl=2
+    info[r0id]=(button,time.time(),rl)
+    print "added rl=%s r0=%s bu=%s"%(rl,r0id,button)
 
 def readerThread():
     sock = socket.socket( socket.AF_INET, # Internet
