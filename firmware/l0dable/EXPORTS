@@ -136,4 +136,5 @@ o_fill
 o_set_shader
 o_identity
 o_transform
+getrelease
 #Add stuff here

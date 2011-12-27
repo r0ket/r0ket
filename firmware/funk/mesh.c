@@ -19,9 +19,9 @@ MPKT meshbuffer[MESHBUFSIZE];
 
 struct NRF_CFG oldconfig;
 
-static int meshgen_gt(char gen){
-    unsigned char dif=meshgen-gen;
-    if(meshgen==0)
+static int mesh_gt(char curgen, char newgen){
+    unsigned char dif=curgen-newgen;
+    if(curgen==0)
         return 1;
     return (dif>128);
 };
@@ -53,6 +53,7 @@ int mesh_sanity(uint8_t * pkt){
     };
     if(MO_TYPE(pkt)!='A' && 
        MO_TYPE(pkt)!='a' && 
+       MO_TYPE(pkt)!='B' && 
        MO_TYPE(pkt)!='E' && 
        MO_TYPE(pkt)!='F' && 
        MO_TYPE(pkt)!='G' && 
@@ -213,7 +214,7 @@ uint8_t mesh_recvqloop_work(void){
 
         // New mesh generation?
         if(MO_TYPE(buf)=='T'){
-            if(meshgen_gt(MO_GEN(buf))){
+            if(mesh_gt(meshgen,MO_GEN(buf))){
                 meshgen=MO_GEN(buf);
                 _timet=0;
                 meshincctr=0;
@@ -241,6 +242,15 @@ uint8_t mesh_recvqloop_work(void){
         // Store packet in a same/free slot
         MPKT* mpkt=meshGetMessage(MO_TYPE(buf));
 
+        // Propagation test
+        if(MO_TYPE(buf)=='B'){
+            if(! mesh_gt(MO_BODY(mpkt->pkt)[0],MO_BODY(buf)[0]) )
+                return 0;
+            (*(
+               (uint32_t*)(MO_BODY(buf)+6)
+               ))++;
+            MO_TIME_set(mpkt->pkt,0);
+        };
 #if 0
         // Schnitzel
         if(MO_TYPE(buf)=='Z'){

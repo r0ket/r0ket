@@ -1,0 +1,53 @@
+#!/bin/sh
+
+dev=$1
+dir=/tmp/r0ket
+
+
+set -e
+
+if [ ! -d $dir ] ; then
+	mkdir $dir
+fi
+
+if [ ! -d $dir/$dev ] ; then 
+	mkdir $dir/$dev
+fi
+
+umount /dev/$dev 2>/dev/null || true
+./generate-keys
+mount /dev/$dev -t vfat $dir/$dev
+cp files/* $dir/$dev
+cp \
+	1files/invaders.c0d \
+	1files/mandel.c0d \
+	1files/r_player.c0d \
+	1files/jump.c0d \
+	1files/bricks.c0d \
+	1files/rockets.c0d \
+	1files/fahrplan.c0d \
+	1files/r0type.c0d \
+	1files/beaconid.c0d \
+	1files/people.c0d \
+	1files/starfld.c0d \
+	1files/static.c0d \
+	1files/sendcard.c0d \
+	1files/recvcard.c0d \
+	1files/showcard.c0d \
+	1files/pongo.c0d \
+	1files/minichat.c0d \
+	1files/blink.c0d \
+	1files/pwgen.c0d \
+	1files/showlcd.c0d \
+	1files/tedliz.c0d \
+	1files/leiwand.c0d \
+	1files/scope.c0d \
+	1files/Geigerct.c0d \
+	1files/voltage.c0d \
+    files/debug.int \
+	files/* \
+	$dir/$dev
+#sync
+#ls -l $dir/$dev
+umount /dev/$dev
+echo "MASS done: $dev $dir"

@@ -26,17 +26,19 @@ void getsp(void);
 void uptime(void);
 void uuid(void);
 void lcdrtest(void);
+void release(void);
 
 static const struct MENU submenu_debug={ "debug", {
 	{ "ChkBattery", &ChkBattery},
 	{ "ChkLight", &ChkLight},
 	{ "MeshInfo", &m_time},
 	{ "ChkFunk", &ChkFunk},
-	{ "Qstatus", &Qstatus},
+//	{ "Qstatus", &Qstatus},
 //	{ "ShowSP", &getsp},
-	{ "lcdrtest", &lcdrtest},
+	{ "LcdRead", &lcdrtest},
 	{ "Uptime", &uptime},
 	{ "Uuid", &uuid},
+	{ "Release", &release},
 	{NULL,NULL}
 }};
 
@@ -126,7 +128,7 @@ void uuid(void) {
     lcdPrintln(IntToStrX(iap_return.Result[2],8));
     lcdPrintln(IntToStrX(iap_return.Result[3],8));
     lcdNl();
-    lcdPrintln("Beacon ID:");
+    lcdPrintln("Bacon ID:");
     lcdPrintln(IntToStrX(GetUUID32(),8));
     lcdRefresh();
     while(!getInputRaw())work_queue();
@@ -330,4 +332,12 @@ void lcdrtest(void){
     lcdInit();
     lcdRefresh();
     while(!getInputRaw())delayms(10);
+};
+
+void release(){
+    lcdPrintln("r0ket");
+    lcdPrintln("Release: ");
+    lcdPrintln(IntToStrX(getrelease(),8));
+    lcdRefresh();
+    while(!getInputRaw())work_queue();
 };
