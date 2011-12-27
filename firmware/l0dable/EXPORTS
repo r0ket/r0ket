@@ -137,4 +137,5 @@ o_set_shader
 o_identity
 o_transform
 getrelease
+nrf_set_strength
 #Add stuff here

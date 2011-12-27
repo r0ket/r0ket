@@ -116,6 +116,7 @@ void ram(void)
     config.channel = ANNOUNCE_CHANNEL;
     memcpy(config.mac0, ANNOUNCE_MAC, 5);
     nrf_config_set(&config);
+    nrf_set_strength(3);
 
     id = getRandom();
     ctr = 1;
