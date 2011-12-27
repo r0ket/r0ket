@@ -54,6 +54,7 @@ my @img;
 for my $y (0..$h-1){
 	for my $x (0..$w-1){
 		my $px= $image->getPixel($x,$y);
+        $px=1 if $px>1;
 		$img[$x][($y+4)/8]|=$px<<(7-($y+4)%8);
 		if($verbose){
 			$px=~y/01/ */; print STDERR $px;
