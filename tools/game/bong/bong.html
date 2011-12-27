@@ -35,6 +35,14 @@ div.score
   font-size: 20px;
   font-family: courier new;
 }
+div.player
+{
+  color: #33FF33;
+  background-color: transparent;
+  width: 640px;
+  font-size: 20px;
+  font-family: courier new;
+}
   </style>
   <body>
     <input id="playfield">
@@ -46,5 +54,7 @@ div.score
 	</input>
 	<div style="font-size:14;color:black;background-color:white;" id="socket">s_data...</div>
 	<div style="font-size:14;color:black;background-color:white;" id="debug">debug</div>
+    <div class="player" style="text-align:left" id="player_left">0</div>
+    <div class="player" style="text-align:right" id="player_right">0</div>
   </body>
 </html>

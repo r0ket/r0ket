@@ -1,5 +1,5 @@
 // Initialisation
-var socket = "ws://83.133.179.198:8888/data";
+var socket = "ws://127.0.0.1:8888/data";
 var field= { w: 320, h: 240 };
 var paddle = { w: 2, h: 30 };
 var ball = { w: 5, h: 5, s: 5 };
@@ -12,6 +12,9 @@ function pong() {
 	this.score = {};
 	this.score.left = {};
 	this.score.right = {};
+	this.cnt = {};
+	this.cnt.left = {};
+	this.cnt.right = {};
 	this.field = {};
 	this.game = { run: 0 };
 
@@ -39,6 +42,12 @@ function pong() {
 	setupavatar(this.left);
 	setupavatar(this.right);
 	setupavatar(this.field);
+
+	this.cnt.left.avatar=$('div#player_left');
+	this.cnt.right.avatar=$('div#player_right');
+
+	$('div#player_left').css({top: 2*this.field.size.h-30});
+	$('div#player_right').css({top: 2*this.field.size.h-30});
 
 	this.field.avatar.focus();
 	
@@ -209,10 +218,15 @@ pong.prototype.socketstart = function(uri){
 			var result=JSON.parse(data);
 			if (result.right){
 				this.setright(result.right);
-			} else if (result.left){
+			} ;
+			if (result.left){
 				this.setleft(result.left);
-			}else {
-				// unknown json input
+			};
+			if (result.cntl){
+				this.cnt.left.avatar.html(result.cntl);
+			};
+			if (result.cntr){
+				this.cnt.right.avatar.html(result.cntr);
 			};
 		}else{
 			// unknown non-json input
