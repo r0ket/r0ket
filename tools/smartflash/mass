@@ -17,7 +17,6 @@ fi
 umount /dev/$dev 2>/dev/null || true
 ./generate-keys
 mount /dev/$dev -t vfat $dir/$dev
-cp files/* $dir/$dev
 cp \
 	1files/invaders.c0d \
 	1files/mandel.c0d \
@@ -29,6 +28,7 @@ cp \
 	1files/r0type.c0d \
 	1files/beaconid.c0d \
 	1files/people.c0d \
+	1files/release.c0d \
 	1files/starfld.c0d \
 	1files/static.c0d \
 	1files/sendcard.c0d \
@@ -44,7 +44,7 @@ cp \
 	1files/scope.c0d \
 	1files/Geigerct.c0d \
 	1files/voltage.c0d \
-    files/debug.int \
+	1files/debug.int \
 	files/* \
 	$dir/$dev
 #sync

@@ -37,8 +37,8 @@ if($cmd =~ /^r/){
 	$cmd=~s/r//;
 	$cmd+=1;
 	my $fmt=shift;
+	my $read="";
 	while($cmd-->0){
-		my $read="";
 		while($read !~ /\\1.*\\0/){
 			my $rr="";
 			if (@fh = $sel->can_read(100)) {
@@ -46,20 +46,34 @@ if($cmd =~ /^r/){
 				$read.=$rr;
 			}
 		};
-		print "Read: <"; sprint $read; print ">\n";
-		$read =~ s/^\\1//;
-		if($fmt eq "m"){
-			print "M [",substr($read,0,1),"] ";
-			print "g=",unpack("C",substr($read,1,1))," ";
-			print "t=",unpack("N",substr($read,2,4))," ";
-			print "beacon=",unpack("H*",substr($read,26,4))," ";
+		while ($read =~ s/\\1(.*?)\\0//){
+			my $str=$1;
+			my $cs=substr($str,0,30);
+			my $crc=unpack("n",substr($str,30,2));
+			my $crc2= crcccitt($cs),"\n";
+			if($fmt eq "m"){
+				my $i=substr($str,0,1);
+				print "M [",substr($str,0,1),"] ";
+				print "g=",unpack("C",substr($str,1,1))," ";
+				if($i eq "T"){
+					print "t=",unpack("N",substr($str,2,4))," ";
+					print "(",scalar gmtime unpack("N",substr($str,2,4)),") ";
+					print "beacon=",unpack("H*",substr($str,26,4))," ";
+				}elsif($i eq "B"){
+					print "t=",unpack("N",substr($str,2,4))," ";
+					print "ID=",unpack("c",substr($str,6,1))," ";
+					print "HOP=",unpack("n",substr($str,11,4))," ";
+				};
+#				print "\n";
+			}else{
+				print "Read: <"; sprint $str; print ">\n";
+			};
+			print "CRCFAIL" if ($crc ne $crc2);
 			print "\n";
 		};
-		my $cs=substr($read,0,30);
-		my $crc=substr($read,30,2);
-		print unpack("n",$crc),"<>";
-		print crcccitt($cs),"\n";
 	};
+	print "rest: <"; sprint $read; print ">\n";
+	exit;
 }elsif ($cmd eq "mt"){
 	my $par=pack("H*",shift);
 	print "Write: <"; sprint $par; print ">\n";
@@ -120,7 +134,7 @@ if($cmd =~ /^r/){
 	}elsif($scmd eq "b"){
 		$par.="B";
 		$par.=chr(shift); #gen
-		$par.=pack("N",scalar(time)+1*60*60+ 300);
+		$par.=pack("N",scalar(time)+1*60*60+ 600);
 
         $par.= pack("C",shift||0);
         $par.= pack("C",0);
@@ -137,6 +151,7 @@ if($cmd =~ /^r/){
 	};
 	
 	$par.=pack("n",crcccitt($par));
+#	$par.="00";
 	print "Write: <"; sprint $par; print ">\n";
 	while($cmd-->0){
 		syswrite(SER, '\1'.$par.'\0');
