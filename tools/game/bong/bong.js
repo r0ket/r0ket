@@ -216,17 +216,17 @@ pong.prototype.socketstart = function(uri){
 		$('#socket').html(data);
 		if(data.slice(0,1)=="{"){
 			var result=JSON.parse(data);
-			if (result.right){
-				this.setright(result.right);
+			if ("right" in result){
+				game.setright(result.right);
 			} ;
-			if (result.left){
-				this.setleft(result.left);
+			if ("left" in result){
+				game.setleft(result.left);
 			};
-			if (result.cntl){
-				this.cnt.left.avatar.html(result.cntl);
+			if ("cntl" in result){
+				game.cnt.left.avatar.html(result.cntl);
 			};
-			if (result.cntr){
-				this.cnt.right.avatar.html(result.cntr);
+			if ("cntr" in result){
+				game.cnt.right.avatar.html(result.cntr);
 			};
 		}else{
 			// unknown non-json input
