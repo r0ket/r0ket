@@ -4,7 +4,7 @@ all : tui gui
 
 tui-core :
 	$(MAKE) -C ../firmware/l0dable usetable.h
-	cd ..; $(SHELL) simulat0r/bin/update-bridge-files.sh
+	cd ..; bash simulat0r/bin/update-bridge-files.sh
 	$(MAKE) -C firmware
 	$(MAKE) -C simcore
 	$(MAKE) -C tui
