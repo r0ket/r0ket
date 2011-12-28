@@ -39,7 +39,8 @@ void initMesh(void){
 int mesh_sanity(uint8_t * pkt){
     if(MO_TYPE(pkt)>0x7f || MO_TYPE(pkt)<0x20)
         return 1;
-
+    if(MO_TYPE(pkt)=='T' && MO_BODY(pkt)[5])
+           return 3;
     if(MO_TYPE(pkt)>='A' && MO_TYPE(pkt)<='Z'){
         if(MO_TIME(pkt)>1325379600)
             return 1;
@@ -88,6 +89,22 @@ MPKT * meshGetMessage(uint8_t type){
     return &meshbuffer[free];
 };
 
+void meshPanic(uint8_t * pkt){
+#if 0
+    setSystemFont();
+    lcdClear();
+    lcdPrint("MESH-PANIC:");
+    lcdNl();
+    for(int i=0;i<32;i++){
+        lcdPrint(IntToStrX(pkt[i],2));
+        if(i%6==5)
+            lcdNl();
+    }
+    lcdRefresh();
+    while ((getInputRaw())==BTN_NONE);
+#endif
+};
+
 void mesh_cleanup(void){
     time_t now=getSeconds();
     for(int i=1;i<MESHBUFSIZE;i++){
@@ -107,21 +124,10 @@ void mesh_cleanup(void){
             };
             if(mesh_sanity(meshbuffer[i].pkt)==1){
                 meshbuffer[i].flags=MF_FREE;
-#if 0
-                setSystemFont();
-                lcdClear();
-                lcdPrintln("MESH PANIC!");
-                lcdPrint(IntToStr(i,2,0));
-                lcdPrintln(":");
-                lcdPrint(IntToStrX(meshbuffer[i].pkt[0],2));
-                lcdPrint(" ");
-                lcdPrintln(IntToStrX(meshbuffer[i].pkt[1],2));
-                lcdPrintln(IntToStrX(uint8ptouint32(meshbuffer[i].pkt+2),8));
-                lcdPrintln(IntToStrX(uint8ptouint32(meshbuffer[i].pkt+6),8));
-                lcdPrintln(IntToStrX(uint8ptouint32(meshbuffer[i].pkt+10),8));
-                lcdRefresh();
-                while ((getInputRaw())==BTN_NONE);
-#endif
+            };
+            if(mesh_sanity(meshbuffer[i].pkt)==3){
+                meshbuffer[i].flags=MF_FREE;
+                meshPanic(meshbuffer[i].pkt);
             };
         };
     };
@@ -209,31 +215,35 @@ uint8_t mesh_recvqloop_work(void){
 
         if(mesh_sanity(buf)){
             meshincctr++;
+            if(mesh_sanity(buf)==3){
+                meshPanic(buf);
+            };
             return 0;
         };
 
         // New mesh generation?
         if(MO_TYPE(buf)=='T'){
             if(mesh_gt(meshgen,MO_GEN(buf))){
-                meshgen=MO_GEN(buf);
                 _timet=0;
                 meshincctr=0;
-                meshnice=0;
-            };
-            // Set new time iff newer
-            time_t toff=MO_TIME(buf)-((getTimer()+(600/SYSTICKSPEED))/(1000/SYSTICKSPEED));
-            if (toff>_timet){ // Do not live in the past.
-                _timet = toff;
-                meshincctr++;
-            };
-            if(MO_BODY(buf)[4] > meshnice)
                 meshnice=MO_BODY(buf)[4];
-            return 1;
+                meshgen=MO_GEN(buf);
+            };
         };
 
         // Discard packets with wrong generation
         if(meshgen != MO_GEN(buf)){
             return 0;
+        };
+
+        // Set new time iff newer
+        if(MO_TYPE(buf)=='T'){
+            time_t toff=MO_TIME(buf)-((getTimer()+(600/SYSTICKSPEED))/(1000/SYSTICKSPEED));
+            if (toff>_timet){ // Do not live in the past.
+                _timet = toff;
+                meshincctr++;
+            };
+            return 1;
         };
 
         // Safety: Truncate ascii packets by 0-ing the CRC
