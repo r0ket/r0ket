@@ -9,7 +9,7 @@
 #define M_RECVTIM 100
 
 #define MESH_CHANNEL 83
-#define MESH_MAC     "BMESH"
+#define MESH_MAC     "ORBIT"
 
 #define MO_TYPE(x)       (x[0])
 #define MO_TYPE_set(x,y) (x[0]=y)
