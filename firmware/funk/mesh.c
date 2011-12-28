@@ -77,7 +77,7 @@ MPKT * meshGetMessage(uint8_t type){
         };
     };
     if(free==-1){ // Buffer full. Ah well. Kill a random packet
-        free=1; // XXX: GetRandom()?
+        free= (int)(getRandom() % MESHBUFSIZE);
         meshbuffer[free].flags=MF_FREE;
     };
     if(meshbuffer[free].flags==MF_FREE){
