@@ -18,6 +18,7 @@ LIBS += ../firmware/core/libcore.a
 LIBS += ../firmware/funk/libfunk.a
 LIBS += ../firmware/usbcdc/libusbcdc.a
 LIBS += ../firmware/basic/libbasic.a
+LIBS += ../firmware/flame/libflame.a
 
 
 

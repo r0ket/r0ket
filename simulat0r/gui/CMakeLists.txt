@@ -16,7 +16,8 @@ link_directories(${CMAKE_CURRENT_BINARY_DIR}
 ../../firmware/basic 
 ../../firmware/core 
 ../../firmware/usbcdc 
-../../firmware/usb)
+../../firmware/usb
+../../firmware/flame)
 
 include(${QT_USE_FILE})
 set(qsimulat0r_SRCS
@@ -61,6 +62,7 @@ libfunk.a
 libusbcdc.a
 libbasic.a
 libcore.a
+libflame.a
 
 liblcd.a
 
