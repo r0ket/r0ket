@@ -43,6 +43,7 @@ if($cmd =~ /^r/){
 			my $rr="";
 			if (@fh = $sel->can_read(100)) {
 				sysread($fh[0],$rr,1024);
+                $rr=~s/\\\\/\\/g;
 				$read.=$rr;
 			}
 		};
@@ -65,6 +66,8 @@ if($cmd =~ /^r/){
 					print "HOP=",unpack("n",substr($str,11,4))," ";
 				};
 #				print "\n";
+            }elsif($fmt eq "x"){
+                print "<",unpack("H*",$str),">";
 			}else{
 				print "Read: <"; sprint $str; print ">\n";
 			};
@@ -74,6 +77,16 @@ if($cmd =~ /^r/){
 	};
 	print "rest: <"; sprint $read; print ">\n";
 	exit;
+}elsif ($cmd eq "pM"){
+	syswrite(SER, '\3ORBIT\0');
+	syswrite(SER, '\4ORBIT\0');
+	syswrite(SER, '\5S\0');
+	syswrite(SER, '\6'.pack("H*","20").'\0');
+}elsif ($cmd eq "pB"){
+	syswrite(SER, '\3'.pack("H*","0102030201").'\0');
+	syswrite(SER, '\4'.pack("H*","0102030201").'\0');
+	syswrite(SER, '\5Q\0');
+	syswrite(SER, '\6'.pack("H*","10").'\0');
 }elsif ($cmd eq "mt"){
 	my $par=pack("H*",shift);
 	print "Write: <"; sprint $par; print ">\n";
