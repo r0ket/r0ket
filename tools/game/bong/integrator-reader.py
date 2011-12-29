@@ -21,16 +21,12 @@ right=0.0
 cntr=0
 cntl=0
 info={}
+idle={}
 
 def sendpos():
     global right, left
     global cntr, cntl
     global info
-    sstr="{ \"right\": %s, \"cntr\": %s , \"cntl\": %s, \"left\": %s }"%(right,cntr,cntl,left)
-    if pong:
-        pong.write_message(sstr)
-#    	print sstr
-    threading.Timer(.1,sendpos).start()
     for (id,(b,t,r)) in info.items():
 	if(t+5<time.time()):
 #	    print "time=%s"%(time.time())
@@ -40,10 +36,15 @@ def sendpos():
     cntr=0.0
     cntl=0.0
     for (id,(b,t,r)) in info.items():
-	if r==1:
-	    cntr+=1
-	else:
-	    cntl+=1
+        if b != 0:
+            idle[id]=time.time()
+        if idle[id]+30<time.time():
+            print "idle-ignoring %s"%(id)
+        else:
+            if r==1:
+                cntr+=1
+            else:
+                cntl+=1
     	if b&1==1:
 	    if r==1:
 		sumr-=1
@@ -63,7 +64,11 @@ def sendpos():
         left=0
     else:
         left=suml/cntl
-#    print "right=%s left=%s"%(right,left)
+    sstr="{ \"right\": %s, \"cntr\": %s , \"cntl\": %s, \"left\": %s }"%(right,cntr,cntl,left)
+    if pong:
+        pong.write_message(sstr)
+#    	print sstr
+    threading.Timer(.1,sendpos).start()
 
 sendpos()
 
