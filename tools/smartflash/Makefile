@@ -1,12 +1,11 @@
 setup:
 	cd ../../firmware && make clean && make && make l0dables
 	cp ../../firmware/firmware.bin .
-	-mkdir files 1files
-	cp ../../firmware/l0dable/*c0d 1files
+	-mkdir files
+	cp ../../firmware/l0dable/*c0d files
 	cp ../../firmware/l0dable/*nik files
 	cp ../../firmware/l0dable/*int files
 	cp ../../firmware/l0dable/files/* files
-	mv files/debug.int 1files/debug.int
 	cp ../font/binary/*f0n files
 	cp ../image/lcd/*lcd files
 	cp ../image/lcd/i42.lcd files/nick.lcd
@@ -17,6 +16,6 @@ setup:
 
 clean:
 	rm firmware.bin generate-keys
-	rm -rf files 1files
+	rm -rf files
 
 

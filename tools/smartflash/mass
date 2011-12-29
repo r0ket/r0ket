@@ -3,7 +3,6 @@
 dev=$1
 dir=/tmp/r0ket
 
-
 set -e
 
 if [ ! -d $dir ] ; then
@@ -17,36 +16,36 @@ fi
 umount /dev/$dev 2>/dev/null || true
 ./generate-keys
 mount /dev/$dev -t vfat $dir/$dev
-cp \
-	1files/invaders.c0d \
-	1files/mandel.c0d \
-	1files/r_player.c0d \
-	1files/jump.c0d \
-	1files/bricks.c0d \
-	1files/rockets.c0d \
-	1files/fahrplan.c0d \
-	1files/r0type.c0d \
-	1files/beaconid.c0d \
-	1files/people.c0d \
-	1files/release.c0d \
-	1files/starfld.c0d \
-	1files/static.c0d \
-	1files/sendcard.c0d \
-	1files/recvcard.c0d \
-	1files/showcard.c0d \
-	1files/pongo.c0d \
-	1files/minichat.c0d \
-	1files/blink.c0d \
-	1files/pwgen.c0d \
-	1files/showlcd.c0d \
-	1files/tedliz.c0d \
-	1files/leiwand.c0d \
-	1files/scope.c0d \
-	1files/Geigerct.c0d \
-	1files/voltage.c0d \
-	1files/debug.int \
-	files/* \
-	$dir/$dev
+
+perl copy-files-ordered files $dir/$dev \
+	invaders.c0d \
+	mandel.c0d \
+	r_player.c0d \
+	jump.c0d \
+	bricks.c0d \
+	rockets.c0d \
+	fahrplan.c0d \
+	r0type.c0d \
+	beaconid.c0d \
+	people.c0d \
+	release.c0d \
+	starfld.c0d \
+	static.c0d \
+	sendcard.c0d \
+	recvcard.c0d \
+	showcard.c0d \
+	pongo.c0d \
+	minichat.c0d \
+	blink.c0d \
+	pwgen.c0d \
+	showlcd.c0d \
+	tedliz.c0d \
+	leiwand.c0d \
+	scope.c0d \
+	Geigerct.c0d \
+	voltage.c0d \
+	debug.int
+
 #sync
 #ls -l $dir/$dev
 umount /dev/$dev
