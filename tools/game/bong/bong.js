@@ -154,12 +154,14 @@ pong.prototype.update= function(t){
 		this.setup(-1);
 		this.ball.ang=Math.PI-this.ball.ang;
 		this.game.run=1;
+        this.ball.size.s*=1.05;
 	};
 
 	if(this.ball.x-this.ball.size.w<-field.w){
 		this.score.right.pts++;
 		this.setup(1);
 		this.game.run=1;
+        this.ball.size.s*=1.05;
 	};
 
 	if(this.ball.ang<0)
