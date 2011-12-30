@@ -61,7 +61,7 @@ void ram(void) {
         lcdClear();
         DoString(0,0,"Fahrplan ");
         DoString(60,0,favers);
-        DoString(0,16,"SW Rel. V0.004");
+        DoString(0,16,"SW Rel. V0.005");
         if(filvers!=2) {
         DoString(0,24,"Incompatible  ");
         DoString(0,32,"Binary. Get   ");
@@ -148,7 +148,9 @@ void ram(void) {
           f_lseek(&file,5);
           ob=evcur%256;
           res+=f_write(&file, (char *)&ob, 1, &readbytes);
-          ob=evcur>>8;
+          ob=(evcur>>8) % 256;
+          res+=f_write(&file, (char *)&ob, 1, &readbytes);
+          ob=evcur>>16;
           res+=f_write(&file, (char *)&ob, 1, &readbytes);
 	  return;
 	case BTN_RIGHT:
