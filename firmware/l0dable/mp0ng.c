@@ -83,7 +83,7 @@ struct packet{
 		struct exit{
 			uint8_t reserved[26];
 		}__attribute__((packed)) exit;
-	} c;
+	}__attribute__((packed)) c;
 
 	uint16_t crc;	//checksum of the packet, automatically generated and verfied by the library
 }__attribute__((packed));

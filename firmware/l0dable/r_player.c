@@ -61,7 +61,7 @@ struct packet{
            uint16_t gameId;
            uint8_t reserved[17];
         }__attribute__((packed)) join;
-    }c;
+    }__attribute__((packed)) c;
     uint16_t crc;
 }__attribute__((packed));
 
