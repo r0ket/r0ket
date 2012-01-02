@@ -38,7 +38,7 @@ def sendpos():
     for (id,(b,t,r)) in info.items():
         if b != 0:
             idle[id]=time.time()
-        if idle[id]+30<time.time():
+        if id in idle and idle[id]+30<time.time():
             print "idle-ignoring %s"%(id)
         else:
             if r==1:
