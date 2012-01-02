@@ -59,7 +59,19 @@ function pong() {
 		if(ev.which == 67) ev.data.socketstart(socket);
 		if(ev.which == 81) ev.data.game.run=0;
 		if(ev.which == 82) ev.data.game.run=1;
-		if(ev.which > 48 && ev.which <=57) ev.data.setleft((ev.which-53)/4);
+		if(ev.which == 48) {
+			$('div#folie_1').css({display:"none"});
+			$('div#folie_2').css({display:"none"});
+		};
+		if(ev.which == 49) {
+			$('div#folie_1').css({display:"block"});
+			$('div#folie_2').css({display:"none"});
+		};
+		if(ev.which == 50) {
+			$('div#folie_1').css({display:"none"});
+			$('div#folie_1').css({display:"block"});
+		};
+//		if(ev.which > 48 && ev.which <=57) ev.data.setleft((ev.which-53)/4);
 	});
 
 	$('#debug').css({left:0,top:2*this.field.size.h+10});
