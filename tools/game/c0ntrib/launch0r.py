@@ -1,3 +1,8 @@
+#
+# allows you to control the roketlauncher via the rem0te l0dable
+# documented this in the wiki:
+# - http://r0ket.badge.events.ccc.de/r0ketlauncher#launch0r
+#
 import r0ketrem0te.game
 import time
 import hid
