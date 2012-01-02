@@ -15,7 +15,7 @@ setup:
 	@echo Now run ./smartflash
 
 clean:
-	rm firmware.bin generate-keys
+	rm -f firmware.bin generate-keys
 	rm -rf files
 
 
