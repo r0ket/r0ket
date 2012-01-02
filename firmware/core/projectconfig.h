@@ -1,3 +1,6 @@
+#ifndef __PROJECTCONFIG_H_
+#define __PROJECTCONFIG_H_
+
 #include "lpc134x.h"
 #include "sysdefs.h"
 
@@ -87,4 +90,13 @@
 #define CFG_INTERFACE_UART (1)
 #define CFG_UART_BAUDRATE           (115200)
 #define CFG_UART_BUFSIZE            (512)
+#endif
+
+#ifdef USBSERIAL
+#undef CFG_USBCDC
+#undef CFG_USBMSC
+#define CFG_USBCDC                 (1)
+#define CFG_USBMSC                 (0)
+#endif
+
 #endif

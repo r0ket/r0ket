@@ -33,6 +33,10 @@ INCLUDE_PATHS = -I$(ROOT_PATH) -I$(ROOT_PATH)/core
 
 include $(ROOT_PATH)/Makefile.inc
 
+ifdef APP
+OUTFILE=$(APP)
+endif
+
 LDFLAGS+= -Wl,--gc-sections
 OBJS += lpc1xxx/$(TARGET)_handlers.o lpc1xxx/LPC1xxx_startup.o
 
