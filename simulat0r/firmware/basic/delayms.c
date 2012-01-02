@@ -3,7 +3,8 @@
 
 /* Simulator improved version */
 
-#define _POSIX_C_SOURCE 199309
+#define _POSIX_C_SOURCE 199309L
+#define __USE_POSIX199309
 #include <time.h>
  
 void delayms(uint32_t ms)
