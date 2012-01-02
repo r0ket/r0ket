@@ -1,0 +1,32 @@
+make flags supported by this Makefile
+
+APP=<foo>
+- builds "application" foo (check <foo>.c and the <foo> subdir in applications/)
+
+TABLE=NO
+- removes jumptable from the firmware -- firmware will be smaller but will
+  not support l0dables
+
+USBSERIAL=YES
+- builds with usb serial code instead of usb mass storage code.
+NOTE: need to run "make clean" before changing this flag.
+
+Some examples:
+
+# build official firmware (firmware.bin)
+make
+
+# build interactive RF test firmware (=serial.bin)
+make APP=serial TABLE=NO USBSERIAL=YES clean all
+
+# build RF bridge firmware (e.g. game server r0ket) (=bridge.bin)
+make APP=bridge TABLE=NO USBSERIAL=YES clean all
+
+# build one l0dable as a firmware (for standalone testing or simulat0r)
+make APP=l0dable LAPP=<l0dablename> (=l0dable.bin)
+
+# build all l0dables
+make l0dables
+
+#build one l0dable
+cd l0dables && make <l0dablename>.c0d
