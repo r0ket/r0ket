@@ -153,7 +153,6 @@ int nrf_rcv_pkt_poll_dec(int maxsize, uint8_t * pkt, uint32_t const key[4]){
 
 //    if(key==NULL) return len;
 
-    cmpcrc=crc16(pkt,len-2);
     if(key!=NULL)
         xxtea_decode_words((uint32_t*)pkt,len/4,key);
 

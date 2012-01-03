@@ -77,5 +77,5 @@ int main(void) {
 }
 
 int getrelease(void){
-    return 0x00000107;
+    return 0x00000108;
 };
