@@ -95,11 +95,13 @@ MPKT * meshGetMessage(uint8_t type){
     return &meshbuffer[free];
 };
 
-void meshPanic(uint8_t * pkt){
+void meshPanic(uint8_t * pkt,int bufno){
 #if 1
     setSystemFont();
     lcdClear();
-    lcdPrint("MESH-PANIC:");
+    lcdPrint("PANIC[");
+    lcdPrint(IntToStrX(bufno,2));
+    lcdPrint("]");
     lcdNl();
     for(int i=0;i<32;i++){
         lcdPrint(IntToStrX(pkt[i],2));
@@ -130,7 +132,7 @@ void mesh_cleanup(void){
             };
             if(mesh_sanity(meshbuffer[i].pkt)&MP_SEND!=0){
                 meshbuffer[i].flags=MF_FREE;
-                meshPanic(meshbuffer[i].pkt);
+                meshPanic(meshbuffer[i].pkt,i);
             };
         };
     };
@@ -219,7 +221,7 @@ uint8_t mesh_recvqloop_work(void){
         if(mesh_sanity(buf)){
             meshincctr++;
             if(mesh_sanity(buf)&MP_RECV!=0){
-                meshPanic(buf);
+                meshPanic(buf,-1);
             };
             return 0;
         };
