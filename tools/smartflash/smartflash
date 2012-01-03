@@ -46,17 +46,17 @@ sub getdev{
 	my $dh;
 	my $dir;
 
-	$dev=gosub($dev,":1");
+	$dev=gosub($dev,":1") || return "";
 	$dev=gosub($dev,"^host");
-	$dev=gosub($dev,"^target");
+	$dev=gosub($dev,"^target") || return "";
 	$dev=~/target(.*)/;
-	$dev=gosub($dev,$1);
-	$dev=gosub($dev,"^block");
-	$dev=gosub($dev,".");
+	$dev=gosub($dev,$1) || return "";
+	$dev=gosub($dev,"^block") || return "";
+	$dev=gosub($dev,".") || return "";
 	$dev=~m!/([^/]*)$!;
 	my $r=$1;
 	if($r!~/^sd/){
-#		print "Strange device? $dev -> $r\n";
+		print "Strange device? $dev -> $r\n";
 		return "";
 	};
 	return $r;
@@ -94,14 +94,10 @@ sub dwim{
 		if (not defined $pid) {
 			die "fork failed\n";
 		} elsif ($pid == 0) {
-			system("./mass $sdev");
+			system("./mass $sdev $dev");
 			exit(0);
 		} else {
-#			print "IM THE PARENT $pid\n";
 			$pids{$pid}=1;
-#			print join(",",%pids),"\n";
-#			print scalar keys %pids;
-#			print "\n";
 		}
 		$done{$dev}=1;
 		return 1;
@@ -114,17 +110,18 @@ sub dwim{
 			return 1;
 		};
 		print "flash $dev -> $sdev\n";
-		system("./flash $sdev");
+		system("./flash $sdev $dev");
 		$done{$dev}=2;
 		return 1;
 	};
+	print "$ve:$pr [$mf] @ ";
 	return -1;
 };
 
 my %disable;
 while(1){
 	opendir(my $dh, $DEV);
-	my @paths=readdir($dh);
+	my @paths=grep {/^[^.]/} readdir($dh);
 	close $dh;
 #	print "f: ",join(",",@files),"\n";
 device:
@@ -136,7 +133,7 @@ device:
 		$found{$path}=1;
 		my $res=dwim($path);
 		if($res==-1){
-			print "Disabling: $path\n";
+			print "$path -- ignoring it forever\n";
 			$disable{$path}=1;
 		};
 	};
