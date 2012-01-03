@@ -43,8 +43,6 @@ void initMesh(void){
 int mesh_sanity(uint8_t * pkt){
     if(MO_TYPE(pkt)>0x7f || MO_TYPE(pkt)<0x20)
         return MP_SEND;
-    if(MO_TYPE(pkt)=='T' && MO_BODY(pkt)[5])
-           return MP_SEND;
     if(MO_TYPE(pkt)=='T' && MO_TIME(pkt)<86400)
            return MP_OK;
     if(MO_TYPE(pkt)>='A' && MO_TYPE(pkt)<='Z'){
@@ -96,8 +94,8 @@ MPKT * meshGetMessage(uint8_t type){
 };
 
 void meshPanic(uint8_t * pkt,int bufno){
+#if 0
     static int done=0;
-#if 1
     if(!done){
 	setSystemFont();
 	lcdClear();
