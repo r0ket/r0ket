@@ -17,6 +17,7 @@ for (@files){
 		warn "$_ not found in $src\n";
 	}else{
 		push @dwim,$_;
+		delete $allfiles{$_};
 	};
 };
 
