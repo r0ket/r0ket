@@ -87,6 +87,7 @@ void m_time(void){
     delayms(100);
     while(1) {
         lcdClear();
+        lcdPrint("  ");
         tm= mygmtime(getSeconds());
         lcdPrint(IntToStr(tm->tm_hour,2,F_LONG));
         lcdPrint(":");
