@@ -68,7 +68,7 @@ endif
 debug.int: debug.c0d .PHONY
 	mv $< $@
 
-dbgmesh.int: debug.c0d .PHONY
+dbgmesh.int: dbgmesh.c0d .PHONY
 	mv $< $@
 
 config.int: config.c0d .PHONY
