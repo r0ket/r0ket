@@ -1,6 +1,7 @@
 #!/bin/sh
 
 dev=$1
+port=$2
 dir=/tmp/r0ket
 
 set -e
@@ -14,6 +15,7 @@ if [ ! -d $dir/$dev ] ; then
 fi
 
 umount /dev/$dev 2>/dev/null || true
+#mkdosfs -I /dev/$dev
 ./generate-keys
 mount /dev/$dev -t vfat $dir/$dev
 
@@ -46,7 +48,9 @@ perl copy-files-ordered files $dir/$dev \
 	voltage.c0d \
 	debug.int
 
-#sync
-#ls -l $dir/$dev
+#echo -n "$port" >$dir/$dev/NICK.CFG
+##                         d              
+#echo 0300000f011e00000e0001ff0001ff8f000000 |xxd -r -p >$dir/$dev/R0KET.CFG
+
 umount /dev/$dev
-echo "MASS done: $dev $dir"
+echo "MASS done: $dev @ $port"
