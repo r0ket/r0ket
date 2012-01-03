@@ -1,14 +1,5 @@
 /*
- * geigerct.c
- *
- *
- *  Created on: 11.08.2011
- *      Author: Turbo J <turboj@web.de>
- *
- *  Implements simple Geiger Counter
- *  Counts rising edges on P3_0 = BUSINT
- *  so you can directly connect the Geiger board
- *  from http://mightyohm.com/blog/products/geiger-counter/
+ * nick_work.c - workshop nick animation
  *
  */
 
