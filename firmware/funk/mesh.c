@@ -36,21 +36,25 @@ void initMesh(void){
     meshbuffer[0].flags=MF_USED;
 };
 
+#define MP_OK     0
+#define MP_SEND   1
+#define MP_RECV   2
+#define MP_IGNORE 4
 int mesh_sanity(uint8_t * pkt){
     if(MO_TYPE(pkt)>0x7f || MO_TYPE(pkt)<0x20)
-        return 1;
+        return MP_SEND;
     if(MO_TYPE(pkt)=='T' && MO_BODY(pkt)[5])
-           return 3;
+           return MP_SEND;
     if(MO_TYPE(pkt)>='A' && MO_TYPE(pkt)<='Z'){
-        if(MO_TIME(pkt)>1325379600)
-            return 1;
+        if(MO_TIME(pkt)>1326409200)
+            return MP_SEND;
         if(MO_TIME(pkt)<1324602000)
-            return 1;
+            return MP_SEND;
     }else if(MO_TYPE(pkt)>='a' && MO_TYPE(pkt)<='z'){
         if(MO_TIME(pkt)>16777216)
-            return 1;
+            return MP_SEND;
         if(MO_TIME(pkt)<0)
-            return 1;
+            return MP_SEND;
     };
     if(MO_TYPE(pkt)!='A' && 
        MO_TYPE(pkt)!='a' && 
@@ -60,9 +64,9 @@ int mesh_sanity(uint8_t * pkt){
        MO_TYPE(pkt)!='G' && 
        MO_TYPE(pkt)!='T'
             ){
-        return 2;
+        return MP_IGNORE;
     };
-    return 0;
+    return MP_OK;
 };
 
 MPKT * meshGetMessage(uint8_t type){
@@ -90,7 +94,7 @@ MPKT * meshGetMessage(uint8_t type){
 };
 
 void meshPanic(uint8_t * pkt){
-#if 0
+#if 1
     setSystemFont();
     lcdClear();
     lcdPrint("MESH-PANIC:");
@@ -122,10 +126,7 @@ void mesh_cleanup(void){
                 if (MO_TIME(meshbuffer[i].pkt)-now>SECS_DAY)
                     meshbuffer[i].flags=MF_FREE;
             };
-            if(mesh_sanity(meshbuffer[i].pkt)==1){
-                meshbuffer[i].flags=MF_FREE;
-            };
-            if(mesh_sanity(meshbuffer[i].pkt)==3){
+            if(mesh_sanity(meshbuffer[i].pkt)&MP_SEND!=0){
                 meshbuffer[i].flags=MF_FREE;
                 meshPanic(meshbuffer[i].pkt);
             };
@@ -215,7 +216,7 @@ uint8_t mesh_recvqloop_work(void){
 
         if(mesh_sanity(buf)){
             meshincctr++;
-            if(mesh_sanity(buf)==3){
+            if(mesh_sanity(buf)&MP_RECV!=0){
                 meshPanic(buf);
             };
             return 0;
