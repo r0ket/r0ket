@@ -134,7 +134,7 @@ void mesh_cleanup(void){
                 if (MO_TIME(meshbuffer[i].pkt)-now>SECS_DAY)
                     meshbuffer[i].flags=MF_FREE;
             };
-            if(mesh_sanity(meshbuffer[i].pkt)&MP_SEND!=0){
+            if((mesh_sanity(meshbuffer[i].pkt)&MP_SEND)!=0){
                 meshbuffer[i].flags=MF_FREE;
                 meshPanic(meshbuffer[i].pkt,i);
             };
@@ -224,7 +224,7 @@ uint8_t mesh_recvqloop_work(void){
 
         if(mesh_sanity(buf)){
             meshincctr++;
-            if(mesh_sanity(buf)&MP_RECV!=0){
+            if((mesh_sanity(buf)&MP_RECV)!=0){
                 meshPanic(buf,-1);
             };
             return 0;
