@@ -49,9 +49,9 @@ int mesh_sanity(uint8_t * pkt){
            return MP_OK;
     if(MO_TYPE(pkt)>='A' && MO_TYPE(pkt)<='Z'){
         if(MO_TIME(pkt)>1326409200)
-            return MP_SEND;
+            return MP_SEND|MP_RECV;
         if(MO_TIME(pkt)<1324602000)
-            return MP_SEND;
+            return MP_SEND|MP_RECV;
     }else if(MO_TYPE(pkt)>='a' && MO_TYPE(pkt)<='z'){
         if(MO_TIME(pkt)>16777216)
             return MP_SEND;
