@@ -135,6 +135,8 @@ void m_time(void){
         lcdNl();
         lcdPrint("Nice:");
         lcdPrintInt(meshnice);
+	lcdPrint(" R:");
+	lcdPrint(IntToStrX(getrelease()%0xfff,3));
         lcdNl();
         lcdRefresh();
 
