@@ -96,20 +96,24 @@ MPKT * meshGetMessage(uint8_t type){
 };
 
 void meshPanic(uint8_t * pkt,int bufno){
+    static int done=0;
 #if 1
-    setSystemFont();
-    lcdClear();
-    lcdPrint("PANIC[");
-    lcdPrint(IntToStrX(bufno,2));
-    lcdPrint("]");
-    lcdNl();
-    for(int i=0;i<32;i++){
-        lcdPrint(IntToStrX(pkt[i],2));
-        if(i%6==5)
-            lcdNl();
-    }
-    lcdRefresh();
-    while ((getInputRaw())==BTN_NONE);
+    if(!done){
+	setSystemFont();
+	lcdClear();
+	lcdPrint("PANIC[");
+	lcdPrint(IntToStrX(bufno,2));
+	lcdPrint("]");
+	lcdNl();
+	for(int i=0;i<32;i++){
+	    lcdPrint(IntToStrX(pkt[i],2));
+	    if(i%6==5)
+		lcdNl();
+	}
+	lcdRefresh();
+	while ((getInputRaw())==BTN_NONE);
+    };
+    done=1;
 #endif
 };
 
