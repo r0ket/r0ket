@@ -211,7 +211,7 @@ static inline uint32_t popcount(uint32_t *buf, uint8_t n){
 
 uint8_t mesh_recvqloop_work(void){
     __attribute__ ((aligned (4))) uint8_t buf[32];
-    unsigned int len;
+    signed int len;
 
         len=nrf_rcv_pkt_poll_dec(sizeof(buf),buf,NULL);
 
