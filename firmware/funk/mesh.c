@@ -42,9 +42,9 @@ void initMesh(void){
 #define MP_IGNORE 4
 int mesh_sanity(uint8_t * pkt){
     if(MO_TYPE(pkt)>0x7f || MO_TYPE(pkt)<0x20)
-        return MP_SEND;
+        return MP_SEND|MP_RECV;
     if(MO_TYPE(pkt)=='T' && MO_BODY(pkt)[5])
-           return MP_SEND;
+           return MP_SEND|MP_RECV;
     if(MO_TYPE(pkt)=='T' && MO_TIME(pkt)<86400)
            return MP_OK;
     if(MO_TYPE(pkt)>='A' && MO_TYPE(pkt)<='Z'){
@@ -66,7 +66,7 @@ int mesh_sanity(uint8_t * pkt){
        MO_TYPE(pkt)!='G' && 
        MO_TYPE(pkt)!='T'
             ){
-        return MP_IGNORE;
+        return MP_IGNORE|MP_RECV;
     };
     return MP_OK;
 };
@@ -105,11 +105,16 @@ void meshPanic(uint8_t * pkt,int bufno){
 	lcdPrint(IntToStrX(bufno,2));
 	lcdPrint("]");
 	lcdNl();
+	lcdPrint(" ");
 	for(int i=0;i<32;i++){
 	    lcdPrint(IntToStrX(pkt[i],2));
-	    if(i%6==5)
+	    if(i%6==5){
 		lcdNl();
+		lcdPrint(" ");
+	    };
 	}
+	lcdPrint(" ");
+	lcdPrint(IntToStrX(crc16(pkt,30),4));
 	lcdRefresh();
 	while ((getInputRaw())==BTN_NONE);
     };
@@ -225,7 +230,7 @@ uint8_t mesh_recvqloop_work(void){
         if(mesh_sanity(buf)){
             meshincctr++;
             if((mesh_sanity(buf)&MP_RECV)!=0){
-                meshPanic(buf,-1);
+                meshPanic(buf,-len);
             };
             return 0;
         };
