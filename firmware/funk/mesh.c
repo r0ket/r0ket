@@ -60,6 +60,7 @@ int mesh_sanity(uint8_t * pkt){
     };
     if(MO_TYPE(pkt)!='A' && 
        MO_TYPE(pkt)!='a' && 
+       MO_TYPE(pkt)!='i' && 
        MO_TYPE(pkt)!='B' && 
        MO_TYPE(pkt)!='E' && 
        MO_TYPE(pkt)!='F' && 
@@ -96,9 +97,10 @@ MPKT * meshGetMessage(uint8_t type){
 };
 
 void meshPanic(uint8_t * pkt,int bufno){
-    static int done=0;
 #if 1
+    static int done=0;
     if(!done){
+        gpioSetValue (RB_LED0, 1-gpioGetValue(RB_LED0));
 	setSystemFont();
 	lcdClear();
 	lcdPrint("PANIC[");
@@ -108,6 +110,9 @@ void meshPanic(uint8_t * pkt,int bufno){
 	lcdPrint(" ");
 	for(int i=0;i<32;i++){
 	    lcdPrint(IntToStrX(pkt[i],2));
+	    if(i%6==2){
+		lcdPrint(" ");
+	    };
 	    if(i%6==5){
 		lcdNl();
 		lcdPrint(" ");
