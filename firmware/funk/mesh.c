@@ -107,7 +107,6 @@ void meshPanic(uint8_t * pkt,int bufno){
 	lcdPrint(IntToStrX(bufno,2));
 	lcdPrint("]");
 	lcdNl();
-	lcdPrint(" ");
 	for(int i=0;i<32;i++){
 	    lcdPrint(IntToStrX(pkt[i],2));
 	    if(i%6==2){
@@ -115,7 +114,6 @@ void meshPanic(uint8_t * pkt,int bufno){
 	    };
 	    if(i%6==5){
 		lcdNl();
-		lcdPrint(" ");
 	    };
 	}
 	lcdPrint(" ");
