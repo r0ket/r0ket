@@ -254,6 +254,9 @@ uint8_t mesh_recvqloop_work(void){
         if(MO_TYPE(buf)=='T'){
             time_t toff=MO_TIME(buf)-((getTimer()+(600/SYSTICKSPEED))/(1000/SYSTICKSPEED));
             if (toff>_timet){ // Do not live in the past.
+		if( (_timet!=0) && (toff-_timet)>5){
+			meshPanic(buf,0x20);
+		};
                 _timet = toff;
                 meshincctr++;
             };
