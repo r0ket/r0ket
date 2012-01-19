@@ -1,3 +1,15 @@
+/*
+ * This l0dable by Benedikt Roth and Stefan Tomanek serves as your main
+ * viewscreen, displaying your nickname the way you want it, and lets the
+ * stars zoom by. You can accelerate your vessel by pushing the joystick
+ * upwards or bring it to a halt by pressing it down - leaving your ship
+ * drifting in the endless space. Attach two LEDs to the modulbus
+ * connectors (SS2->GND, SS5->GND), so your r0ket can light up its nacelles
+ * when breaking the warp barrier.
+ *
+ * commit 33fe346942176a0e988818980d04d1a8f746f894 1 parent 0eaf74fa87
+ * wertarbyte authored August 13, 2011
+ */
 #include <sysinit.h>
 
 #include "basic/basic.h"
