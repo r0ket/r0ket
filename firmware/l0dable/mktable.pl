@@ -5,6 +5,7 @@
 use strict;
 
 my $DIR="l0dable";
+my $memcpy;
 
 if( -d "../$DIR"){
     chdir("..");
@@ -105,10 +106,16 @@ for my $idx (0..$#symb){
         print C "$_,";
     };
     print I "#define $_ ($types{$_}(TheTable[$idx]))";
+	if($_ eq "memcpy" || $_ eq "memmove"){
+		$memcpy=$idx
+	};
 };
 
 print C "};";
 
+if (defined($memcpy)){
+	print I "#define _memcpy_nr $memcpy";
+};
 close(I);
 close(H);
 close(C);
