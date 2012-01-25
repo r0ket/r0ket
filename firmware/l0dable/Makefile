@@ -43,8 +43,8 @@ $(LDFILE):
 %.o : %.c
 	$(CC) $(CFLAGS) -o $@ $<
 
-%.elf: %.o $(FIRMWARE) $(LDFILE)
-	$(LD) $(LDFLAGS) -T $(LDFILE) -o $@ $<
+%.elf: %.o $(FIRMWARE) $(LDFILE) libmemcpy.a
+	$(LD) $(LDFLAGS) -T $(LDFILE) -o $@ $< -L. -lmemcpy
 	$(SIZE) $@
 
 %.bin: %.elf
@@ -84,6 +84,13 @@ $(OBJS): usetable.h
 
 usetable.h:
 	./mktable.pl
+
+help/memcpy.o: help/memcpy.c
+
+libmemcpy.a: help/memcpy.o
+	$(AR) rcs $@ $<
+	$(RANLIB) $(RANLIBFLAGS) $@
+
 
 .SUFFIXES:
 
