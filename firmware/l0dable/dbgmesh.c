@@ -95,6 +95,7 @@ void m_time(void){
         lcdPrint(":");
         lcdPrint(IntToStr(tm->tm_sec,2,F_LONG|F_ZEROS));
         lcdNl();
+        lcdPrint(" ");
         lcdPrint(IntToStr(tm->tm_mday,2,F_LONG));
         lcdPrint(".");
         lcdPrint(IntToStr(tm->tm_mon+1,2,0));
