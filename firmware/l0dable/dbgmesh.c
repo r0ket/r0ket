@@ -169,6 +169,8 @@ void m_time(void){
 		case BTN_UP:
 		    active=1;
 		    break;
+		case BTN_NONE:
+		    break;
 		default:
 		    return;
 	    };
