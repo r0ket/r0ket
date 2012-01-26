@@ -72,17 +72,6 @@ static void openbeaconRead()
 
 void openbeaconSetup(void)
 {
-    uint8_t c = 0;
-    uint8_t channels[] = {12,17,22,27,32,37,42,47,52,57,62,67,72};
-    //nrf_startCW();
-    while(0){
-        delayms(20);
-        nrf_set_channel(channels[c++]);
-        if( c == sizeof(channels) ){
-            c = 0;
-        }
-    }
-
     oid = GetUUID32();
     strength = 0;
 #if SAVE_OPENBEACON
