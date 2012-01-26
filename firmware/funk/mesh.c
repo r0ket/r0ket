@@ -13,6 +13,10 @@ char meshgen=0; // Generation
 char meshincctr=0;
 char meshmsg=0;
 char meshnice=0;
+
+char mesh_mode=0;
+#define MM_TIME (1<<0)
+#define MM_ENC  (1<<1)
 MPKT meshbuffer[MESHBUFSIZE];
 
 #include "SECRETS"
@@ -23,6 +27,8 @@ static int mesh_gt(char curgen, char newgen){
     unsigned char dif=curgen-newgen;
     if(curgen==0)
         return 1;
+	if(newgen==0)
+		return 0;
     return (dif>128);
 };
 
@@ -245,6 +251,7 @@ uint8_t mesh_recvqloop_work(void){
                 meshincctr=0;
                 meshnice=MO_BODY(buf)[4];
                 meshgen=MO_GEN(buf);
+				mesh_mode&=~MM_TIME;
             };
         };
 
@@ -253,18 +260,19 @@ uint8_t mesh_recvqloop_work(void){
             return 0;
         };
 
-        // Set new time iff newer
-        if(MO_TYPE(buf)=='T'){
-            time_t toff=MO_TIME(buf)-((getTimer()+(600/SYSTICKSPEED))/(1000/SYSTICKSPEED));
-            if (toff>_timet){ // Do not live in the past.
-		if( (_timet!=0) && (toff-_timet)>5){
-			meshPanic(buf,0x20);
+        // Set new time iff I don't have a valid one.
+		if((mesh_mode & MM_TIME)==0){
+			if(MO_TYPE(buf)=='T'){
+				time_t toff=MO_TIME(buf)-((getTimer()+(600/SYSTICKSPEED))/(1000/SYSTICKSPEED));
+				_timet = toff;
+				if(meshgen==0 && MO_TIME(buf)<60*60*24){
+					; // still not valid
+				}else{
+					mesh_mode|=MM_TIME; // Got a time now.
+				};
+				return 1;
+			};
 		};
-                _timet = toff;
-                meshincctr++;
-            };
-            return 1;
-        };
 
         // Safety: Truncate ascii packets by 0-ing the CRC
         buf[MESHPKTSIZE-2]=0;
