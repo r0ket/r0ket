@@ -14,7 +14,7 @@ rebuild:
 
 setup:
 	cp ../../firmware/firmware.bin .
-	-mkdir files
+	mkdir -p files
 	cp ../../firmware/l0dable/*c0d files
 	cp ../../firmware/l0dable/*nik files
 	cp ../../firmware/l0dable/*int files
