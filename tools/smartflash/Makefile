@@ -1,9 +1,16 @@
-dwim: build setup
+default: build setup
 
-all: dwim run
+all: build setup run
 
-build:
-	cd ../../firmware && make clean && make && make l0dables
+redo: rebuild setup run
+
+build: cleanbuild rebuild
+
+cleanbuild:
+	cd ../../firmware && make clean
+
+rebuild:
+	cd ../../firmware && make && make l0dables
 
 setup:
 	cp ../../firmware/firmware.bin .
@@ -18,10 +25,10 @@ setup:
 	cd ../crypto && make clean && make generate-keys
 	cp ../crypto/generate-keys .
 	@echo
-	@echo Now run ./smartflash
+	@echo "Now run ./smartflash (as root)"
 
 run:
-	./smartflash
+	sudo ./smartflash
 
 clean:
 	rm -f firmware.bin generate-keys
