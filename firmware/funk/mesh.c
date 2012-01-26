@@ -48,12 +48,12 @@ int mesh_sanity(uint8_t * pkt){
     if(MO_TYPE(pkt)=='T' && MO_TIME(pkt)<86400)
            return MP_OK;
     if(MO_TYPE(pkt)>='A' && MO_TYPE(pkt)<='Z'){
-        if(MO_TIME(pkt)>1327519200)
+        if(MO_TIME(pkt)>1370340000) /* 4.Jun 2013 */
             return MP_SEND|MP_RECV;
-        if(MO_TIME(pkt)<1324602000)
+        if(MO_TIME(pkt)<1325376000) /* 1.1.2012 */
             return MP_SEND|MP_RECV;
     }else if(MO_TYPE(pkt)>='a' && MO_TYPE(pkt)<='z'){
-        if(MO_TIME(pkt)>16777216)
+        if(MO_TIME(pkt)>16777216) /* 3-byte only */
             return MP_SEND;
         if(MO_TIME(pkt)<0)
             return MP_SEND;
