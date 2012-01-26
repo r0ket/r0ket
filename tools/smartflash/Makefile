@@ -1,5 +1,11 @@
-setup:
+dwim: build setup
+
+all: dwim run
+
+build:
 	cd ../../firmware && make clean && make && make l0dables
+
+setup:
 	cp ../../firmware/firmware.bin .
 	-mkdir files
 	cp ../../firmware/l0dable/*c0d files
@@ -14,8 +20,9 @@ setup:
 	@echo
 	@echo Now run ./smartflash
 
+run:
+	./smartflash
+
 clean:
 	rm -f firmware.bin generate-keys
 	rm -rf files
-
-
