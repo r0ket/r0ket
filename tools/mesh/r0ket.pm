@@ -145,6 +145,45 @@ sub nice_mesh{
     return $out;
 };
 
+sub nice_beacon{
+    my $pkt=shift;
+    my $out;
+    my $type=substr($pkt,1,1);
+    $out->{type}=$type;
+
+    if($type eq "\x17"){
+        $out->{type}=    "beacon";
+        $out->{length}=  unpack("C", substr($pkt,0,1));
+        $out->{button}=  unpack("H*",substr($pkt,2,1));
+        $out->{strength}=unpack("H*",substr($pkt,3,1));
+        $out->{idx}=     unpack("N", substr($pkt,4,4));
+        $out->{beacon}=  unpack("H*",substr($pkt,8,4));
+        $out->{unused}=  unpack("H*",substr($pkt,12,2));
+
+        $out->{string}=sprintf "BEACON ln=%d bt=%s str=%s idx=%08x beacon=%s",
+            $out->{length},
+            $out->{button},
+            $out->{strength},
+            $out->{idx},
+            $out->{beacon};
+        if(unpack("H*",substr($pkt,12,2)) ne "ffff"){
+            print "unused=",unpack("H*",substr($pkt,12,2))," ";
+        };
+    }elsif($type eq "\x23"){
+        $out->{type}=   "nick";
+        $out->{beacon}= unpack("H*",substr($pkt,2,4));
+        $out->{nick}=   unpack("Z*",substr($pkt,6,length($pkt)-2));
+
+        $out->{string}=sprintf "NICK beacon=%s nick=%s",
+            $out->{beacon},
+            $out->{nick};
+    }else{
+        $out->{string}="<?:".unpack("H*",$pkt).">";
+    };
+    return $out;
+};
+
+
 sub pkt_beauty{
     my $pkt=shift;
     my $out;
