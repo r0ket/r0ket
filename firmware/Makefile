@@ -37,13 +37,13 @@ ifdef APP
 OUTFILE=$(APP)
 endif
 
-LDFLAGS+= -Wl,--gc-sections
+LDFLAGS+= --gc-sections
 OBJS += lpc1xxx/$(TARGET)_handlers.o lpc1xxx/LPC1xxx_startup.o
 
 ##########################################################################
 # Startup files
 ##########################################################################
-LDLIBS  = -lm
+LDLIBS  =
 LDLIBS += -Lapplications -lapp
 LDLIBS += -Lfunk -lfunk
 LDLIBS += -Lusbcdc -lusbcdc
@@ -111,7 +111,7 @@ $(LD_TEMP):
 	-@echo "INCLUDE $(LD_SCRIPT)" >> $(LD_TEMP)
 
 $(OUTFILE).elf: $(OBJS) $(SYS_OBJS) $(SUBDIRS) $(LPCFIX) $(LD_TEMP)
-	$(CC) $(LDFLAGS) -T $(LD_TEMP) -o $(OUTFILE).elf $(OBJS) $(LDLIBS)
+	$(LD) $(LDFLAGS) -T $(LD_TEMP) -o $(OUTFILE).elf $(OBJS) $(LDLIBS)
 	-@echo ""
 	$(SIZE) $(OUTFILE).elf
 	-@echo ""
