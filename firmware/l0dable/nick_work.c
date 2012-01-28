@@ -71,11 +71,12 @@ int melody_timeout;
 
 static void init_lilakit(void);
 static void tick_lilakit(void);
+void melody_play(void);
 static void mainloop();
 void handler(void);
 
 void ram(void) {
-    timer32Callback0 = handler;
+    timer32Callback0 = (uint32_t) handler;
     
     /* Enable the clock for CT32B0 */
     SCB_SYSAHBCLKCTRL |= (SCB_SYSAHBCLKCTRL_CT32B0);

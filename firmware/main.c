@@ -4,7 +4,10 @@
 #include "core/pmu/pmu.h"
 
 #include "basic/basic.h"
+#include "basic/config.h"
 #include "lcd/render.h"
+#include "lcd/print.h"
+#include "usb/usbmsc.h"
 #include "filesystem/ff.h"
 
 
@@ -34,7 +37,7 @@
 
 void wrapper(void);
 
-int main(void) {
+void main(void) {
     // Configure cpu and mandatory peripherals
     cpuInit();                                // Configure the CPU
 // we do it later

@@ -117,7 +117,7 @@ static bool screen_overview() {
 	while (key != BTN_ENTER) {
 		lcdClear();
 		lcdPrintln("Privacy:");
-		lcdPrintln(levels[GLOBAL(privacy)]);
+		lcdPrintln(levels[(int)GLOBAL(privacy)]);
 		lcdPrintln("");
 		lcdPrintln("Nickname:");
 		lcdPrintln(GLOBAL(nickname));
