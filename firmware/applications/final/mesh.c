@@ -186,6 +186,9 @@ void m_choose(){
             case('r'):
                 strcpy(p,"r0type");
                 break;
+            case('s'):
+                strcpy(p,"Snake");
+                break;
 #endif
             default:
                 p[0]=*mm;
@@ -232,6 +235,9 @@ void m_choose(){
             break;
         case('r'):
             strcpy(p,"r0type");
+            break;
+        case('s'):
+            strcpy(p,"Snake");
             break;
 #endif
     };
