@@ -39,7 +39,7 @@ void ram(void) {
         lcdPrint(" ");
         lcdPrint(IntToStr(v,2,0));
         lcdPrint(".");
-        lcdPrint(IntToStr(mv%1000,3,F_ZEROS));
+        lcdPrint(IntToStr(mv%1000,3,F_ZEROS|F_LONG));
         lcdPrintln("V");
 
         lcdNl();
