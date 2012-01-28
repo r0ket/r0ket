@@ -9,8 +9,9 @@ package r0ket;
 
 use Digest::CRC qw(crcccitt);
 use POSIX qw(strftime);
+use Time::HiRes;
 
-our $verbose=1;
+our $verbose=0;
 our $bridge; # Open device
 
 ### Utility
@@ -19,10 +20,31 @@ sub sprint{
 		if (ord($_)>30 && ord($_)<127){
 			$_;
 		}else{
-			"[x".unpack("H*",$_)."]";
+#			"[x".unpack("H*",$_)."]";
+			"\\".unpack("C",$_);
 		}
         }split(//,shift));
 };
+
+sub hprint{
+    return unpack("H*",shift);
+};
+
+sub flagsstr {
+    my $in=shift;
+    my @f;
+    my $f=1;
+    for (@_){
+        if($in & $f){
+            push @f,$_;
+        };
+        $f*=2;
+    };
+    return join(",",@f);
+};
+
+
+
 
 ### Nickname/beacon helper functions
 our %beacon;
@@ -69,32 +91,39 @@ sub writebeacon{
 ### Packet mgmt
 
 our $buffer;
+our $firstpkt=2;
 sub get_packet{
     sub _get_bytes{
         my $rr;
         sysread($bridge,$rr,1024);
         if(length($rr)<=1){
-            select(undef,undef,undef,0.1);
+            select(undef,undef,undef,0.05);
         };
         $buffer.=$rr;
     };
 
     my $cnt=0;
-    while(++$cnt<50){
+    while(++$cnt<100){
         if(length($buffer)<2){
             _get_bytes();
         }elsif($buffer !~ /^\\[12]/){
             $buffer=~s/^(.[^\\]*)//s;
-#            print STDERR "Unparseable stuff: <",sprint($1),">\n";
-        }elsif ($buffer =~ s/^\\([12])(.*?)\\0//s){
-            my $str=$2;
+            if($firstpkt){
+                $firstpkt--;
+            }else{
+                print STDERR "Unparseable stuff: <",sprint($1),">\n";
+            };
+        }elsif ($buffer =~ s/^\\2\\0//s){
+            return 'ack'; # In-band signalling. Evil %)
+        }elsif ($buffer =~ s/^\\1(.*?)\\0//s){
+            my $str=$1;
             $str=~s/\\\\/\\/g; # dequote
             return $str;
         }else{
             _get_bytes();
         };
     };
-    die "No packets for >1sec?\n";
+    die "No packets for 5seconds?\n";
 };
 
 sub rest{
@@ -120,7 +149,7 @@ sub nice_mesh{
 
         $out->{string}.=sprintf " t=%s (%+4d) rel=%s beacon=%s",
             strftime("%Y-%m-%d %H:%M:%S",gmtime $out->{time}),
-            $out->{time}-(time+3600),
+            $out->{time}-(Time::HiRes::time+3600),
             $out->{release},
             resolvebeacon($out->{beacon});
     }elsif($type eq "i"){
@@ -142,6 +171,65 @@ sub nice_mesh{
     }else{
         $out->{string}.= " <??: ".unpack("H*",substr($pkt,2,length($pkt)-4)).">";
     };
+
+    my $pkt_crc=  unpack("n",substr($pkt,length($pkt)-2,2));
+    my $calc_crc= crcccitt(substr($pkt,0,length($pkt)-2));
+    
+    if ($pkt_crc eq $calc_crc){
+        $out->{crc}="ok";
+    }else{
+        $out->{crc}="fail";
+        $out->{string}.= " CRCFAIL";
+    };
+
+    return $out;
+};
+
+sub nice_game{
+    my $pkt=shift;
+    my $out;
+    my $type=substr($pkt,2,1);
+
+    $out->{proto}=substr($pkt,1,1);
+    $out->{type} =substr($pkt,2,1);
+    $out->{id}   =unpack("V",substr($pkt,3,4));
+    $out->{ctr}  =unpack("V",substr($pkt,7,4));
+
+    $out->{string}=sprintf "G[%s] id=%d ctr=%d",
+            $out->{type}, $out->{id}, $out->{ctr};
+
+    if($type eq "A"){
+        $out->{mac}      = substr($pkt,11,5);
+        $out->{channel}  = unpack("C" ,substr($pkt,16,1));
+        $out->{id}       = unpack("v", substr($pkt,17,2));
+        $out->{flags}    = unpack("C", substr($pkt,19,1));
+        $out->{flagsstr}=flagsstr($out->{flags},qw(mass short lrecv));
+        $out->{interval} = unpack("C", substr($pkt,20,1));
+        $out->{jitter}   = unpack("C", substr($pkt,21,1));
+        $out->{title}    = unpack("Z*",substr($pkt,22,10));
+
+        $out->{string}.=sprintf " mac=%s ch=%s id=%d fl=<%s> itvl=%d j=%d %s",
+            sprint($out->{mac}),
+            $out->{channel},
+            $out->{id},
+            $out->{flagsstr},
+            $out->{interval},
+            $out->{jitter},
+            $out->{title};
+    }else{
+        $out->{string}.= " <??: ".unpack("H*",substr($pkt,2,length($pkt)-4)).">";
+    };
+
+    my $pkt_crc=  unpack("n",substr($pkt,length($pkt)-2,2));
+    my $calc_crc= crcccitt(substr($pkt,0,length($pkt)-2));
+    
+    if ($pkt_crc eq $calc_crc){
+        $out->{crc}="ok";
+    }else{
+        $out->{crc}="fail";
+        $out->{string}.= " CRCFAIL";
+    };
+
     return $out;
 };
 
@@ -194,25 +282,6 @@ sub nice_beacon{
     return $out;
 };
 
-
-sub pkt_beauty{
-    my $pkt=shift;
-    my $out;
-
-    $out=nice_mesh($pkt);
-
-    my $pkt_crc=  unpack("n",substr($pkt,length($pkt)-2,2));
-    my $calc_crc= crcccitt(substr($pkt,0,length($pkt)-2));
-    
-    if ($pkt_crc eq $calc_crc){
-        $out->{crc}="ok";
-    }else{
-        $out->{crc}="fail";
-        $out->{string}.= " CRCFAIL";
-    };
-    return $out;
-}
-
 sub r0ket_init{
     my $ser;
     if ($ARGV[0] eq "-s"){
@@ -263,4 +332,14 @@ sub set_rxlen {
     send_pkt_num(pack("C",shift),6);
 };
 
+sub wait_ok {
+    my $pkt;
+    $pkt=get_packet();
+    while($pkt ne "ack"){
+        print "pkt=",(sprint $pkt),"\n";
+        $pkt=get_packet();
+    };
+    print "ok!\n";
+    return 1;
+};
 1;

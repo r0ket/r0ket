@@ -37,9 +37,15 @@ $win_top->addstr(1,0,"-"x20);
 $win_top->refresh;
 
 my $beaconctr=0;
+my $crcerr=0;
 while(1){
     $str=r0ket::get_packet();
-    my $p=r0ket::pkt_beauty($str);
+    my $p=r0ket::nice_mesh($str);
+    if($p->{crc} ne "ok"){
+        $crcerr++;
+        next;
+    };
+
     if(!$bdata{$p->{beacon}}){
         $bdata{$p->{beacon}}=++$beaconctr;
     };
