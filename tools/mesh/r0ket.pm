@@ -10,6 +10,8 @@ package r0ket;
 use Digest::CRC qw(crcccitt);
 use POSIX qw(strftime);
 
+our $verbose=1;
+our $bridge; # Open device
 
 ### Utility
 sub sprint{
@@ -68,11 +70,9 @@ sub writebeacon{
 
 our $buffer;
 sub get_packet{
-    my $dev=shift;
-
     sub _get_bytes{
         my $rr;
-        sysread($dev,$rr,1024);
+        sysread($bridge,$rr,1024);
         if(length($rr)<=1){
             select(undef,undef,undef,0.1);
         };
@@ -80,7 +80,7 @@ sub get_packet{
     };
 
     my $cnt=0;
-    while(++$cnt<10){
+    while(++$cnt<50){
         if(length($buffer)<2){
             _get_bytes();
         }elsif($buffer !~ /^\\[12]/){
@@ -180,6 +180,17 @@ sub nice_beacon{
     }else{
         $out->{string}="<?:".unpack("H*",$pkt).">";
     };
+
+    my $pkt_crc=  unpack("n",substr($pkt,length($pkt)-2,2));
+    my $calc_crc= crcccitt(substr($pkt,0,length($pkt)-2));
+    
+    if ($pkt_crc eq $calc_crc){
+        $out->{crc}="ok";
+    }else{
+        $out->{crc}="fail";
+        $out->{string}.= " CRCFAIL";
+    };
+
     return $out;
 };
 
@@ -202,5 +213,54 @@ sub pkt_beauty{
     return $out;
 }
 
+sub r0ket_init{
+    my $ser;
+    if ($ARGV[0] eq "-s"){
+        shift;
+        $ser=shift;
+    };
+    if(!defined $ser){
+        if (defined $ENV{R0KETBRIDGE} && -e $ENV{R0KETBRIDGE}){
+            $ser=$ENV{R0KETBRIDGE}
+        };
+    };
+    if(!defined $ser){
+        do {$ser=$_ if ( -e $_ ) } for qw(/dev/ttyS3 /dev/ttyACM0);
+    };
+    open($bridge, "+<",$ser) || die "open serial: $!";
+    if($verbose){
+        print "using: $ser\n";
+    };
+};
+
+sub send_raw {
+    if($verbose){
+        print "send: ",unpack("H*",$_[0]),"\n";
+    };
+    syswrite($bridge,shift);
+};
+
+sub send_pkt_num {
+    my $pkt=shift;
+    $pkt=~s/\\/\\\\/;
+    send_raw('\\'.shift().$pkt.'\0');
+};
+
+sub send_pkt {
+    send_pkt_num(shift,1);
+};
+
+sub set_txmac {
+    send_pkt_num(shift,3);
+};
+sub set_rxmac {
+    send_pkt_num(shift,4);
+};
+sub set_channel {
+    send_pkt_num(pack("C",shift),5);
+};
+sub set_rxlen {
+    send_pkt_num(pack("C",shift),6);
+};
 
 1;

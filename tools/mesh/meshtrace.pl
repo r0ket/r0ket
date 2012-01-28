@@ -11,16 +11,13 @@ use r0ket;
 
 $|=1;
 
-my $ser="<undef>";
+r0ket::r0ket_init();
 
-do {$ser=$_ if ( -e $_ ) } for qw(/dev/ttyS3 /dev/ttyACM0);
-
-if ($ARGV[0] eq "-s"){
-    shift;
-    $ser=shift;
-};
-
-open(SER, "+<",$ser) || die "open serial: $!";
+# Default mesh settings.
+r0ket::set_txmac("ORBIT");
+r0ket::set_rxmac("ORBIT");
+r0ket::set_channel(83);
+r0ket::set_rxlen(32);
 
 r0ket::readbeacon();
 
@@ -41,7 +38,7 @@ $win_top->refresh;
 
 my $beaconctr=0;
 while(1){
-    $str=r0ket::get_packet(\*SER);
+    $str=r0ket::get_packet();
     my $p=r0ket::pkt_beauty($str);
     if(!$bdata{$p->{beacon}}){
         $bdata{$p->{beacon}}=++$beaconctr;
