@@ -166,7 +166,7 @@ void lcdInit(void) {
     lcd_select();
 
     if(displayType==DISPLAY_N1200){
-        uint8_t initseq[]= { 0xE2,0xAF, // Display ON
+        static uint8_t initseq[]= { 0xE2,0xAF, // Display ON
                              0xA1, // Mirror-X
                              0xA4, 0x2F, 0xB0, 0x10};
         int i = 0;
@@ -175,7 +175,7 @@ void lcdInit(void) {
             delayms(5); // actually only needed after the first
         }
     }else{ /* displayType==DISPLAY_N1600 */
-        uint8_t initseq_d[] = {  
+        static uint8_t initseq_d[] = {  
                                0x36,
                                0x29, 0xBA, 0x07,
                                0x15, 0x25, 0x3f,
