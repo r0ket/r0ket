@@ -90,6 +90,8 @@ void setLeft();
 void setRight();
 struct packet a;
 
+void setJeopardy();
+
 void ram(void)
 {
     int priv = GLOBAL(privacy);
@@ -103,7 +105,7 @@ void ram(void)
     nrf_config_set(&config);
 
     nrf_set_strength(3);
-    int rnd;
+//    int rnd;
 
    volatile uint16_t i;
     while( 1 ){

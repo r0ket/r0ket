@@ -83,7 +83,7 @@ meshnice
 #external
 strcpy
 strlen
-memcpy
+memmove
 memset
 #stuff
 GetLight

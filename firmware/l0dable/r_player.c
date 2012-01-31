@@ -34,11 +34,11 @@ struct packet{
             uint8_t x;
             uint8_t y;
             uint8_t flags;
-            uint8_t text[16];
+            char text[16];
         }__attribute__((packed)) text;
         struct nick{
             uint8_t flags;
-            uint8_t nick[18];
+            char nick[18];
         }__attribute__((packed)) nick;
         struct nickrequest{
            uint8_t reserved[19];
@@ -55,7 +55,7 @@ struct packet{
            uint8_t gameFlags;
            uint8_t interval;
            uint8_t jitter;
-           uint8_t gameTitle[8];
+           char gameTitle[8];
         }__attribute__((packed)) announce;
         struct join{
            uint16_t gameId;
@@ -93,7 +93,7 @@ uint16_t gameId;
 uint8_t interval;
 uint8_t jitter;
 uint8_t flags;
-uint8_t *gameTitle;
+char *gameTitle;
 
 void sendButton(uint8_t button);
 void sendJoin(uint32_t game);
@@ -321,7 +321,7 @@ void processNickRequest( struct nickrequest *nq)
     p.id= id;
     p.ctr= ++ctr;
     p.c.nick.flags = 0;
-    uint8_t *nick = GLOBAL(nickname);
+    char *nick = GLOBAL(nickname);
     strcpy(p.c.nick.nick, nick);
     nrf_snd_pkt_crc(sizeof(p),(uint8_t*)&p);
 }
@@ -374,7 +374,7 @@ void processText(struct text *t)
     if( t->flags & FLAGS_CLS )
        lcdClear() ;
     lcdSetCrsr(t->x, t->y);
-    t->text[16] = 0;
+    t->text[16] = 0; // XXX:Actually ok, beause the CRC is there. But evil!
     lcdPrint(t->text);
     lcdRefresh();
 }

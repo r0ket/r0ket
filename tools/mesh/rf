@@ -1,0 +1,266 @@
+#!/usr/bin/perl
+#
+# vim:set ts=4 sw=4:
+
+use strict;
+
+use IO::Select;
+use Digest::CRC qw(crcccitt);
+use POSIX qw(strftime);
+
+use FindBin;
+use lib "$FindBin::Bin";
+use r0ket;
+
+$|=1;
+
+r0ket::r0ket_init();
+
+my @fh;
+my $read;
+
+if ($ARGV[0] =~ /^-?-?h/){
+    print STDERR "Mini-Help:\n";
+    print STDERR "-s <devicename> (or \$R0KETBRIDGE)\n";
+    print STDERR "-w write beacon2nick file\n";
+    print STDERR "\n";
+    print STDERR "recv<num>: receive (number) pakets\n";
+    print STDERR " - r hex    : hexdump packets\n";
+    print STDERR " - r ascii  : asciidump packets\n";
+    print STDERR " - r beacon : parse as openbeacon\n";
+    print STDERR " - r mesh   : parse as mesh packet\n";
+    print STDERR " - r game   : parse as game packet(incomplete)\n";
+    print STDERR "\n";
+    print STDERR "send<num>: send packet (number) times\n";
+    print STDERR " - s raw <hex>: send raw hex packet\n";
+    print STDERR " - s hex <hex>: send packet with crc16\n";
+    print STDERR " - s mesh t <gen>: send mesh time packet\n";
+    print STDERR " - s mesh <other>, see source :-)\n";
+    print STDERR "\n";
+    print STDERR "preset: config per preset\n";
+    print STDERR "- p m - preset minimesh\n";
+    print STDERR "- p b - preset openbeacon\n";
+    print STDERR "- p a - preset game announce\n";
+    print STDERR "- p r - preset sample game\n";
+    print STDERR "config: config rf chip\n";
+    print STDERR "- c rx  - set rxmac\n";
+    print STDERR "- c tx  - set txmac\n";
+    print STDERR "- c len - set rxlength\n";
+    print STDERR "- c ch  - set channel\n";
+    print STDERR "- c <opt>hex - set any option via hex string\n";
+    print STDERR "\n";
+    print STDERR "etc...\n";
+    exit(1);
+};
+
+my $writend=0;
+if ($ARGV[0] eq "-w"){
+    shift;
+    $writend=1;
+};
+
+END{
+    r0ket::writebeacon if($writend);
+};
+
+my $cmd=shift;
+
+if($cmd =~ /^r/){
+    r0ket::readbeacon();
+	$cmd=~s/r(ecv)?//;
+	$cmd=100 if $cmd+0==0;
+	my $fmt=shift || "_";
+    my $arg=shift || undef;
+	my $read="";
+
+    my $str;
+    while($cmd>0){
+        $str=r0ket::get_packet();
+
+        if($fmt =~ /_/){
+            if(substr($str,0,1)eq "\x10"){
+                if(substr($str,1,1)eq"G"){
+                    $fmt="g_";
+                }else{
+                    $fmt="b_";
+                };
+            }elsif(substr($str,0,1)eq "\x20"){
+                $fmt="g_";
+            }elsif(length($str)==32){
+                $fmt="m_";
+            }else{
+                $fmt="x_";
+            };
+        };
+
+        if($fmt =~ /^m/){
+            my $p=r0ket::nice_mesh($str);
+            print $p->{string};
+        }elsif($fmt =~ /^b/){
+            my $p=r0ket::nice_beacon($str);
+            print $p->{string};
+        }elsif($fmt =~ /^g/){
+            my $p=r0ket::nice_game($str);
+            print $p->{string};
+        }elsif($fmt =~ /^(x|hex)/){
+            my $pkt_crc=  unpack("n",substr($str,length($str)-2,2));
+            my $calc_crc= crcccitt(substr($str,0,length($str)-2));
+            print "<",unpack("H*",$str),">";
+            if($pkt_crc ne $calc_crc){
+                print " CRCFAIL";
+            };
+        }elsif($fmt =~ /^a/){
+            print "<", r0ket::sprint($str), ">";
+        }else{
+            die "Unknown packet format: $fmt\n";
+        };
+        print "\n";
+        $cmd--;
+        next;
+    };
+    r0ket::rest();
+}elsif ($cmd =~ /^p/){ # Preset
+    my $sub=shift;
+    if ($sub =~/^m/i){ # Default mesh settings.
+        r0ket::set_txmac("ORBIT");
+        r0ket::set_rxmac("ORBIT");
+        r0ket::set_channel(83);
+        r0ket::set_rxlen(32);
+    }elsif ($sub =~/^b/i){ # Default OpenBeacon settings
+        r0ket::set_txmac(pack("H*","0102030201"));
+        r0ket::set_rxmac(pack("H*","0102030201"));
+        r0ket::set_channel(81);
+        r0ket::set_rxlen(16);
+    }elsif ($sub =~/^a/i){ # Default rem0te announce settings
+        r0ket::set_txmac("REM0T");
+        r0ket::set_rxmac("REM0T");
+        r0ket::set_channel(87);
+        r0ket::set_rxlen(32);
+    }elsif ($sub =~/^r/i){ # Default bpong game settings
+        r0ket::set_txmac("BPONG");
+        r0ket::set_rxmac("BPONG");
+        r0ket::set_channel(91);
+        r0ket::set_rxlen(32);
+    }else{
+        die "Unkown preset $sub\n";
+    };
+}elsif ($cmd =~ /^c/){
+    my $set=shift;
+
+    if($set=~s/hex//){
+        $ARGV[0]=pack("H*",$ARGV[0]);
+    };
+    if ($set =~ /^tx/){
+        r0ket::set_txmac(shift);
+    }elsif ($set =~ /^rx/){
+        r0ket::set_rxmac(shift);
+    }elsif ($set =~ /^ch/){
+        r0ket::set_channel(shift);
+    }elsif ($set =~ /^len/){
+        r0ket::set_rxlen(shift);
+    }else{
+        die "Unknown config argument $set\n";
+    };
+    r0ket::wait_ok();
+
+}elsif ($cmd =~ /^s/){
+	$cmd=~s/^//;
+	$cmd=1 if $cmd==0;
+
+    my $pkt;
+
+    my $sub=shift;
+    if($sub =~ /^raw/){
+        $pkt=pack("H*",shift);
+    }elsif($sub =~ /^hex/){
+        $pkt=pack("H*",shift);
+        $pkt.=pack("n",crcccitt($pkt));
+    }elsif($sub =~ /^m/){
+        my $scmd=shift;
+
+        if($scmd eq "t"){
+            $pkt.="T";
+            $pkt.=chr(shift); #gen
+            $pkt.=pack("N",scalar(time)+1*60*60);
+
+            $pkt.=pack("N",0);
+            $pkt.=pack("N",0);
+            $pkt.=pack("N",0);
+            $pkt.=pack("N",0);
+            $pkt.=pack("N",0);
+            $pkt.=pack("N",0);
+        }elsif($scmd eq "a"){
+            $pkt.="A";
+            $pkt.=chr(shift); #gen
+            $pkt.=pack("N",scalar(time)+1*60*60+ 300);
+
+            $pkt.= pack("C",shift||0);
+            $pkt.= pack("C",0);
+            $pkt.= pack("C",0);
+            $pkt.= pack("C",0);
+
+            $pkt.=pack("N",0);
+            $pkt.=pack("N",0);
+            $pkt.=pack("N",0);
+            $pkt.=pack("N",0);
+            $pkt.=pack("N",0);
+        }elsif($scmd eq "b"){
+            $pkt.="B";
+            $pkt.=chr(shift); #gen
+            $pkt.=pack("N",scalar(time)+1*60*60+ 600);
+
+            $pkt.= pack("C",shift||0);
+            $pkt.= pack("C",0);
+            $pkt.= pack("C",0);
+            $pkt.= pack("C",0);
+
+            $pkt.=pack("N",0);
+            $pkt.=pack("N",0);
+            $pkt.=pack("N",0);
+            $pkt.=pack("N",0);
+            $pkt.=pack("N",0);
+        }elsif($scmd eq "c"){
+            $pkt.="\x1";
+            $pkt.=chr(shift); #gen
+            $pkt.=pack("N",scalar(time)+1*60*60+ 600);
+
+            $pkt.= pack("C",shift||0);
+            $pkt.= pack("C",0);
+            $pkt.= pack("C",0);
+            $pkt.= pack("C",0);
+
+            $pkt.=pack("N",0);
+            $pkt.=pack("N",0);
+            $pkt.=pack("N",0);
+            $pkt.=pack("N",0);
+            $pkt.=pack("N",0);
+        }elsif($scmd eq "i"){
+            $pkt.="i";
+            $pkt.=chr(shift); #gen
+            $pkt.=pack("N",shift||42);
+
+            $pkt.=shift;
+            $pkt.="\0"x(30-length($pkt));
+        }else{
+            die "Unknown mesh subtype: $scmd\n";
+        };
+        $pkt.=pack("n",crcccitt($pkt));
+    }else{
+            die "Unknown send subtype: $sub\n";
+    };
+
+	print "Write: <", sprint($pkt),">, ";
+    print "crc: ",unpack("n",substr($pkt,length($pkt)-2,2))," ";
+    print "len: ",length($pkt),"\n";
+	while($cmd-->0){
+        r0ket::send_pkt($pkt);
+        r0ket::wait_ok;
+	};
+}else{
+    die "Option not understood\n";
+};
+
+#if (@fh = $sel->can_read(10)) {
+#  sysread($fh[0],$read,1024);
+#}
+#print "PostRead: <", sprint($read), ">\n";

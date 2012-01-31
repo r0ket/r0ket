@@ -1,5 +1,11 @@
 #!/bin/sh -e
 
+# We currently don't use crypto, so this script is deprecated.
+
+if [ -z ${MAKE} ]; then
+    which gmake >/dev/null && MAKE=gmake || MAKE=make
+fi
+
 TARG=../release
 
 if [ ! -d ../firmware ] ; then
@@ -32,9 +38,9 @@ echo "###"
 echo "### Building final"
 echo "###"
 export FINAL=y
-make clean 
+$MAKE clean 
 ./l0dable/mktable.pl
-make APP=final
+$MAKE APP=final
 cp firmware.elf $TARG/final.elf
 cp firmware.bin $TARG/final.bin
 
@@ -48,7 +54,7 @@ cp ../tools/image/lcd/i42.lcd $TARG/files/nick.lcd
 echo "###"
 echo "### Gathering loadables"
 echo "###"
-(cd l0dable && make)
+(cd l0dable && $MAKE)
 mv l0dable/*.c0d $TARG/files/
 mv l0dable/*.int $TARG/files/
 mv l0dable/*.nik $TARG/files/
@@ -59,7 +65,7 @@ if grep -q 'define ENCRYPT_L0DABLE' SECRETS ; then
 echo "###"
 echo "### Building crypto"
 echo "###"
-(cd ../tools/crypto && make)
+(cd ../tools/crypto && $MAKE)
 
 echo "###"
 echo "### Crypting loadables"

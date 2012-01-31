@@ -48,16 +48,16 @@ void initMesh(void){
 #define MP_IGNORE 4
 int mesh_sanity(uint8_t * pkt){
     if(MO_TYPE(pkt)>0x7f || MO_TYPE(pkt)<0x20)
-        return MP_SEND|MP_RECV;
+        return MP_SEND;
     if(MO_TYPE(pkt)=='T' && MO_BODY(pkt)[5])
-           return MP_SEND|MP_RECV;
+           return MP_SEND;
     if(MO_TYPE(pkt)=='T' && MO_TIME(pkt)<86400)
            return MP_OK;
     if(MO_TYPE(pkt)>='A' && MO_TYPE(pkt)<='Z'){
         if(MO_TIME(pkt)>1370340000) /* 4.Jun 2013 */
-            return MP_SEND|MP_RECV;
+            return MP_SEND;
         if(MO_TIME(pkt)<1325376000) /* 1.1.2012 */
-            return MP_SEND|MP_RECV;
+            return MP_SEND;
     }else if(MO_TYPE(pkt)>='a' && MO_TYPE(pkt)<='z'){
         if(MO_TIME(pkt)>16777216) /* 3-byte only */
             return MP_SEND;
@@ -73,7 +73,7 @@ int mesh_sanity(uint8_t * pkt){
        MO_TYPE(pkt)!='G' && 
        MO_TYPE(pkt)!='T'
             ){
-        return MP_IGNORE|MP_RECV;
+        return MP_IGNORE;
     };
     return MP_OK;
 };
@@ -103,7 +103,7 @@ MPKT * meshGetMessage(uint8_t type){
 };
 
 void meshPanic(uint8_t * pkt,int bufno){
-#if 1
+#if 0
     static int done=0;
     if(!done){
         gpioSetValue (RB_LED0, 1-gpioGetValue(RB_LED0));

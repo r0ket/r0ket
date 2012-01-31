@@ -1,5 +1,5 @@
-firmware.bin
-firmware.elf
+*.bin
+*.elf
 lpc1xxx/memory.ld
 applications/wrapper.c
 lcd/allfonts.h

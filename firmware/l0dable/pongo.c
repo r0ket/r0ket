@@ -113,6 +113,9 @@ void init();
  ** Code Section
 *********************************************/
 
+void init();
+void ram();
+
 void game(void)
 {
   init();
@@ -139,7 +142,7 @@ void game(void)
   }
 }
 
-init()
+void init()
 {
   // init ball
   ball1.size = PONG_BALL_SIZE;

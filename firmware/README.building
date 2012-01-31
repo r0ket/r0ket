@@ -1,4 +1,13 @@
-make flags supported by this Makefile
+### A note on the compiler
+We are currently using the CodeSourcery gcc (see wiki for link).
+You can also use a standard arm cross-gcc
+ (https://github.com/esden/summon-arm-toolchain)
+but please note that this creates larger binaries.
+We are talking about 100-200 bytes for firmware.bin,
+you will run into space problems with the default firmware.
+Sorry about that.
+
+### Make flags supported by this Makefile
 
 APP=<foo>
 - builds "application" foo (check <foo>.c and the <foo> subdir in applications/)
@@ -28,5 +37,5 @@ make APP=l0dable LAPP=<l0dablename> (=l0dable.bin)
 # build all l0dables
 make l0dables
 
-#build one l0dable
+# build one l0dable
 cd l0dables && make <l0dablename>.c0d

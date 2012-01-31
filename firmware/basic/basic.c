@@ -18,7 +18,7 @@ void rbInit() {
     gpioSetDir(USB_CONNECT, gpioDirection_Output);
     gpioSetValue(USB_CONNECT, 1);
 
-    uint8_t ports[] = { RB_BTN0, RB_BTN1, RB_BTN2, RB_BTN3, RB_BTN4,
+    static uint8_t ports[] = { RB_BTN0, RB_BTN1, RB_BTN2, RB_BTN3, RB_BTN4,
                         RB_LED0, RB_LED1, RB_LED2, 
                         RB_SPI_SS0, RB_SPI_SS1, RB_SPI_SS2,
                         RB_SPI_SS3, RB_SPI_SS4, RB_SPI_SS5,
