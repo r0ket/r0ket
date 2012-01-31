@@ -8,7 +8,8 @@ use IO::Select;
 use Digest::CRC qw(crcccitt);
 use POSIX qw(strftime);
 
-use lib '.';
+use FindBin;
+use lib "$FindBin::Bin";
 use r0ket;
 
 $|=1;
@@ -28,7 +29,7 @@ if ($ARGV[0] =~ /^-?-?h/){
     print STDERR " - r ascii  : asciidump packets\n";
     print STDERR " - r beacon : parse as openbeacon\n";
     print STDERR " - r mesh   : parse as mesh packet\n";
-    print STDERR " - r m <letter>: and show only <letter>\n";
+    print STDERR " - r game   : parse as game packet(incomplete)\n";
     print STDERR "\n";
     print STDERR "send<num>: send packet (number) times\n";
     print STDERR " - s raw <hex>: send raw hex packet\n";
@@ -39,6 +40,8 @@ if ($ARGV[0] =~ /^-?-?h/){
     print STDERR "preset: config per preset\n";
     print STDERR "- p m - preset minimesh\n";
     print STDERR "- p b - preset openbeacon\n";
+    print STDERR "- p a - preset game announce\n";
+    print STDERR "- p r - preset sample game\n";
     print STDERR "config: config rf chip\n";
     print STDERR "- c rx  - set rxmac\n";
     print STDERR "- c tx  - set txmac\n";
