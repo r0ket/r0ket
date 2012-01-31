@@ -122,10 +122,12 @@ int selectFile(char *filename, const char *extension)
                 }
                 break;
             case BTN_LEFT:
+                getInputWaitRelease();
                 return -1;
             case BTN_ENTER:
             case BTN_RIGHT:
                 strcpy(filename, files[selected]);
+                getInputWaitRelease();
                 return 0;
         }
     }
