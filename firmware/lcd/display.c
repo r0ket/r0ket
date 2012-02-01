@@ -175,7 +175,29 @@ void lcdInit(void) {
             delayms(5); // actually only needed after the first
         }
     }else{ /* displayType==DISPLAY_N1600 */
-        static uint8_t initseq_d[] = {  
+        static uint8_t initseq_d[] = {
+        		/* Decoded:
+        		 * CMD 36: MADCTL (argument missing!)
+        		 * CMD 29: DISPON
+        		 * CMD BA: Data order (1)
+        		 *    DAT 07: ignored?
+        		 * CMD 15:  undefined?
+        		 *    DAT 25: ignored?
+        		 *    DAT 3F: ignored?
+        		 * CMD 11: sleep out
+        		 * CMD 13: normal display mode on
+        		 * CMD 37: set scroll entry point
+        		 *   DAT 00:  scroll entry point
+        		 * CMD 3A: interface pixel format
+        		 *   DAT 05: 16 bit/pixel
+        		 * CMD 2A: column address set
+        		 *   DAT 0    : xs
+        		 *   DAT 98-1 : xe
+        		 * CMD 2B: page address set
+        		 *   DAT 0    : ys
+        		 *   DAT 70-1 : ye
+        		 */
+
                                0x36,
                                0x29, 0xBA, 0x07,
                                0x15, 0x25, 0x3f,
