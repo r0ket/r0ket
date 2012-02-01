@@ -56,14 +56,15 @@ static const struct display_macro INIT_N1200[] = {
 		{COMMAND_TYPE_CMD, 0x10},
 };
 
+static const struct display_macro PREPARE_N1200[] = {
+		{COMMAND_TYPE_CMD, 0xB0},
+		{COMMAND_TYPE_CMD, 0x10},
+		{COMMAND_TYPE_CMD, 0x00},
+};
+
 /* Decoded:
- * CMD 36: MADCTL (argument missing!)
  * CMD 29: DISPON
  * CMD BA: Data order (1)
- *    DAT 07: ignored?
- * CMD 15:  undefined?
- *    DAT 25: ignored?
- *    DAT 3F: ignored?
  * CMD 11: sleep out
  * CMD 13: normal display mode on
  * CMD 37: set scroll entry point
@@ -79,13 +80,8 @@ static const struct display_macro INIT_N1200[] = {
  */
 static const struct display_macro INIT_N1600[] = {
 		{COMMAND_TYPE_CMD, 0x01, 10},
-		{COMMAND_TYPE_CMD, 0x36},
 		{COMMAND_TYPE_CMD, 0x29},
 		{COMMAND_TYPE_CMD, 0xBA},
-		{COMMAND_TYPE_DATA, 0x07},
-		{COMMAND_TYPE_CMD, 0x15},
-		{COMMAND_TYPE_DATA, 0x25},
-		{COMMAND_TYPE_DATA, 0x3F},
 		{COMMAND_TYPE_CMD, 0x11},
 		{COMMAND_TYPE_CMD, 0x13},
 		{COMMAND_TYPE_CMD, 0x37},
@@ -100,14 +96,30 @@ static const struct display_macro INIT_N1600[] = {
 		{COMMAND_TYPE_DATA, 70-1},
 };
 
+static const struct display_macro PREPARE_N1600[] = {
+		{COMMAND_TYPE_CMD, 0x2C},
+};
+
+
 struct display_descriptor {
+	/* Macro to execute in order to initialize the display from scratch */
 	const struct display_macro * init_macro;
 	int init_macro_length;
+
+	/* Macro to execute to prepare the display for sending raw contents */
+	const struct display_macro * prepare_macro;
+	int prepare_macro_length;
 };
 
 const struct display_descriptor DISPLAY_DESCRIPTORS[] = {
-		[DISPLAY_TYPE_N1200] = { INIT_N1200, sizeof(INIT_N1200)/sizeof(INIT_N1200[0]) },
-		[DISPLAY_TYPE_N1600] = { INIT_N1600, sizeof(INIT_N1600)/sizeof(INIT_N1600[0]) },
+		[DISPLAY_TYPE_N1200] = {
+				INIT_N1200, sizeof(INIT_N1200)/sizeof(INIT_N1200[0]),
+				PREPARE_N1200, sizeof(PREPARE_N1200)/sizeof(PREPARE_N1200[0])
+		},
+		[DISPLAY_TYPE_N1600] = {
+				INIT_N1600, sizeof(INIT_N1600)/sizeof(INIT_N1600[0]),
+				PREPARE_N1600, sizeof(PREPARE_N1600)/sizeof(PREPARE_N1600[0])
+		},
 };
 
 /**************************************************************************/
@@ -221,6 +233,13 @@ uint8_t lcdRead(uint8_t data)
     return ret;
 }
 
+static void lcdExecuteMacro(const struct display_macro *macro, int macro_length)
+{
+    for(int i=0; i<macro_length; i++) {
+    	lcdWrite(macro[i].type, macro[i].data);
+    	delayms(macro[i].delay_after);
+    }
+}
 
 void lcdInit(void) {
     int id;
@@ -249,10 +268,7 @@ void lcdInit(void) {
     displayDescriptor = DISPLAY_DESCRIPTORS + displayType;
 
     lcd_select();
-    for(int i=0; i<displayDescriptor->init_macro_length; i++) {
-    	lcdWrite(displayDescriptor->init_macro[i].type, displayDescriptor->init_macro[i].data);
-    	delayms(displayDescriptor->init_macro[i].delay_after);
-    }
+    lcdExecuteMacro(displayDescriptor->init_macro, displayDescriptor->init_macro_length);
     lcd_deselect();
 }
 
@@ -307,10 +323,9 @@ void lcdDisplay(void) {
     char byte;
     lcd_select();
 
+	lcdExecuteMacro(displayDescriptor->prepare_macro, displayDescriptor->prepare_macro_length);
+
     if(displayType==DISPLAY_TYPE_N1200){
-      lcdWrite(COMMAND_TYPE_CMD,0xB0);
-      lcdWrite(COMMAND_TYPE_CMD,0x10);
-      lcdWrite(COMMAND_TYPE_CMD,0x00);
       uint16_t i,page;
       for(page=0; page<RESY_B;page++) {
           for(i=0; i<RESX; i++) {
@@ -337,8 +352,6 @@ void lcdDisplay(void) {
       framecolor= ((frame_r&0xF8) << 8) | ((frame_g&0xFC)<<3) | ((frame_b&0xF8) >> 3);
       backcolor= ((br&0xF8) << 8) | ((bg&0xFC)<<3) | ((bb&0xF8) >> 3);
  
-      lcdWrite(COMMAND_TYPE_CMD,0x2C);
-  
       //top line of the frame...
       _helper_hline(framecolor);
   
