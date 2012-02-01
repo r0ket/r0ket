@@ -166,6 +166,15 @@ void lcdInit(void) {
     lcd_select();
 
     if(displayType==DISPLAY_N1200){
+    	/* Decoded:
+    	 * E2: Internal reset
+    	 * AF: Display on/off: DON = 1
+    	 * A1: undefined?
+    	 * A4: all on/normal: DAL = 0
+    	 * 2F: charge pump on/off: PC = 1
+    	 * B0: set y address: Y[0-3] = 0
+    	 * 10: set x address (upper bits): X[6-4] = 0
+    	 */
         static uint8_t initseq[]= { 0xE2,0xAF, // Display ON
                              0xA1, // Mirror-X
                              0xA4, 0x2F, 0xB0, 0x10};
