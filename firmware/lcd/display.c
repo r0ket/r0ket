@@ -315,9 +315,12 @@ static void _helper_hline(uint16_t color){
         _helper_pixel16(color);
 }
 
-#define THECOLOR_R 0x0
-#define THECOLOR_G 0x60
-#define THECOLOR_B 0x0
+#define COLORPACK_RGB565(r,g,b) (((r&0xF8) << 8) | ((g&0xFC)<<3) | ((b&0xF8) >> 3))
+
+static const uint16_t COLOR_FG =    COLORPACK_RGB565(0x00, 0x60, 0x00);
+static const uint16_t COLOR_BG =    COLORPACK_RGB565(0xff, 0xff, 0xff);
+static const uint16_t COLOR_FRAME = COLORPACK_RGB565(0x00, 0x00, 0x80);
+
 
 void lcdDisplay(void) {
     char byte;
@@ -341,23 +344,15 @@ void lcdDisplay(void) {
           }
       }
     } else { /* displayType==DISPLAY_TYPE_N1600 */
-      unsigned char r=THECOLOR_R,g=THECOLOR_G,b=THECOLOR_B;
-      unsigned char br=0xFF, bg=0xFF, bb=0xFF;
-      unsigned char frame_r=0x00, frame_g=0x00, frame_b=0x80;
-      uint16_t color,framecolor,backcolor;
       uint16_t x,y;
       bool px;
-      uint16_t actualcolor;
-      color = ((r&0xF8) << 8) | ((g&0xFC)<<3) | ((b&0xF8) >> 3);
-      framecolor= ((frame_r&0xF8) << 8) | ((frame_g&0xFC)<<3) | ((frame_b&0xF8) >> 3);
-      backcolor= ((br&0xF8) << 8) | ((bg&0xFC)<<3) | ((bb&0xF8) >> 3);
  
       //top line of the frame...
-      _helper_hline(framecolor);
+      _helper_hline(COLOR_FRAME);
   
       for(y=RESY;y>0;y--){
           //left line of the frame
-          _helper_pixel16(framecolor);
+          _helper_pixel16(COLOR_FRAME);
   
           for(x=RESX;x>0;x--){
               if(GLOBAL(lcdmirror))
@@ -365,17 +360,19 @@ void lcdDisplay(void) {
               else
                   px=lcdGetPixel(x-1,y-1);
                   
-              if((!px)^(!GLOBAL(lcdinvert))) actualcolor=color;
-              else actualcolor=backcolor; /* white */
+              if((!px)^(!GLOBAL(lcdinvert))) {
+            	  _helper_pixel16(COLOR_FG); /* foreground */
+              } else {
+            	  _helper_pixel16(COLOR_BG); /* background */
+              }
   
-              _helper_pixel16(actualcolor);
           }
           //right line of the frame
-          _helper_pixel16(framecolor);
+          _helper_pixel16(COLOR_FRAME);
       }
       
       //bottom line of the frame
-      _helper_hline(framecolor);
+      _helper_hline(COLOR_FRAME);
       }
     lcd_deselect();
 }
