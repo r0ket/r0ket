@@ -12,82 +12,94 @@
 /**************************************************************************/
 
 // Improved version by Ikarus:
-// Fixed 4.xxV --> 4.0xxV output problem
-// & added graphical battery.
+// Added graphical battery.
 
 // hLine and vLine code from Juna, nougad and fu86
 // (camp 2011, CTHN Village) 
 void hLine(int y, int x1, int x2, bool pixel);
 void vLine(int x, int y1, int y2, bool pixel);
 
+void drawCommonThings(int c);
 void rectFill(int x, int y, int width, int heigth, bool pixel);
 
 void ram(void) {
-    int v,mv,c,c_old=0,mv_old=0;
+    int v,mv,c;
+    char old_state=-1;
     do{
         c = gpioGetValue(RB_PWR_CHRG);
         mv = GetVoltage();
-        // Need repaint?
-        if (c != c_old || mv != mv_old) {
-            c_old = c;
-            mv_old = mv;
-            lcdClear();
-            lcdPrintln("Battery status:");
-                    v = mv/1000;
             
-            // Draw battery frame.
-            hLine(20, 14, 72, true);
-            hLine(40, 14, 72, true);
-            vLine(14, 20, 40, true);
-            vLine(72, 20, 25, true);
-            vLine(72, 35, 40, true);
-            hLine(25, 72, 78, true);
-            hLine(35, 72, 78, true);
-            vLine(78, 25, 35, true);
-            
-            // Print and draw status.
-            if(!c){
-                lcdNl();
-                DoString(17, 26, "Charging");
-            }else if (mv<3550){
-                lcdPrintln("  Charge NOW!");
-            }else if (mv<3650){
-                lcdPrintln("  Charge soon");
-                rectFill(16, 22, 12, 16, true);
-            }else if (mv<4000){
-                lcdPrintln("      OK");
-                rectFill(16, 22, 12, 16, true);
-                rectFill(30, 22, 12, 16, true);
-            }else if (mv<4120){
-                lcdPrintln("     Good");
-                rectFill(16, 22, 12, 16, true);
-                rectFill(30, 22, 12, 16, true);
-                rectFill(44, 22, 12, 16, true);
-            }else{
-                lcdPrintln("     Full");
-                rectFill(16, 22, 12, 16, true);
-                rectFill(30, 22, 12, 16, true);
-                rectFill(44, 22, 12, 16, true);
-                rectFill(58, 22, 12, 16, true);
-            };
-
-            // Print voltage.
-            lcdNl();
-            lcdNl();
-            lcdNl();
-            lcdNl();
-            lcdPrint("    ");
-            lcdPrint(IntToStr(v,2,0));
-            lcdPrint(".");
-            lcdPrint(IntToStr(mv%1000, 3, F_ZEROS | F_LONG));
-            lcdPrintln("V");
-            // Print if not charging.
-            if(c){
-                lcdPrintln("(not charging)");
-            };
-            lcdRefresh();
+        // Print state and draw battery (only if state changed).
+        if(!c && old_state != 0){
+            drawCommonThings(c);
+            DoString(17, 29, "Charging");
+            old_state = 0;
+        }else if (c && mv<3550 && old_state != 1){
+            drawCommonThings(c);
+            lcdPrintln("  Charge NOW!");
+            old_state = 1;
+        }else if (c && mv<3650 && mv>=3550 && old_state != 2){
+            drawCommonThings(c);
+            lcdPrintln("  Charge soon");
+            rectFill(16, 25, 12, 16, true);
+            old_state = 2;
+        }else if (c && mv<4000 && mv>=3650 && old_state != 3){
+            drawCommonThings(c);
+            lcdPrintln("      OK");
+            rectFill(16, 25, 12, 16, true);
+            rectFill(30, 25, 12, 16, true);
+            old_state = 3;
+        }else if (c && mv<4120 && mv>=4000 && old_state != 4){
+            drawCommonThings(c);
+            lcdPrintln("     Good");
+            rectFill(16, 25, 12, 16, true);
+            rectFill(30, 25, 12, 16, true);
+            rectFill(44, 25, 12, 16, true);
+            old_state = 4;
+        }else if (c && mv>=4120 && old_state != 5){
+            drawCommonThings(c);
+            lcdPrintln("     Full");
+            rectFill(16, 25, 12, 16, true);
+            rectFill(30, 25, 12, 16, true);
+            rectFill(44, 25, 12, 16, true);
+            rectFill(58, 25, 12, 16, true);
+            old_state = 5;
         }
+
+        // Print voltage. (Every frame).
+        lcdSetCrsr(0, 50);
+        v = mv/1000;
+        lcdPrint("    ");
+        lcdPrint(IntToStr(v,2,0));
+        lcdPrint(".");
+        lcdPrint(IntToStr(mv%1000, 3, F_ZEROS | F_LONG));
+        lcdPrintln("V");
+        lcdSetCrsr(0, 0);
+        lcdRefresh();
     } while ((getInputWaitTimeout(242))==BTN_NONE);
+}
+
+void drawCommonThings(int c) {
+    lcdClear();
+    // Print header.
+    lcdPrintln("Battery status:");
+    
+    // Draw battery frame.
+    hLine(23, 14, 72, true);
+    hLine(43, 14, 72, true);
+    vLine(14, 23, 43, true);
+    vLine(72, 23, 28, true);
+    vLine(72, 38, 43, true);
+    hLine(28, 72, 78, true);
+    hLine(38, 72, 78, true);
+    vLine(78, 28, 38, true);
+    
+    // Print if not charging.
+    lcdSetCrsr(0, 60);
+    if(c){
+        lcdPrintln("(not charging)");
+    };
+    lcdSetCrsr(0, 10);
 }
 
 void hLine(int y, int x1, int x2, bool pixel) {
