@@ -15,7 +15,7 @@
 // Added graphical battery.
 
 // hLine and vLine code from Juna, nougad and fu86
-// (camp 2011, CTHN Village) 
+// (camp 2011, CTHN Village)
 void hLine(int y, int x1, int x2, bool pixel);
 void vLine(int x, int y1, int y2, bool pixel);
 
@@ -28,7 +28,7 @@ void ram(void) {
     do{
         c = gpioGetValue(RB_PWR_CHRG);
         mv = GetVoltage();
-            
+
         // Print state and draw battery (only if state changed).
         if(!c && old_state != 0){
             drawCommonThings(c);
@@ -83,7 +83,7 @@ void drawCommonThings(int c) {
     lcdClear();
     // Print header.
     lcdPrintln("Battery status:");
-    
+
     // Draw battery frame.
     hLine(23, 14, 72, true);
     hLine(43, 14, 72, true);
@@ -93,7 +93,7 @@ void drawCommonThings(int c) {
     hLine(28, 72, 78, true);
     hLine(38, 72, 78, true);
     vLine(78, 28, 38, true);
-    
+
     // Print if not charging.
     lcdSetCrsr(0, 60);
     if(c){
@@ -116,6 +116,6 @@ void vLine(int x, int y1, int y2, bool pixel) {
 
 void rectFill(int x, int y, int width, int heigth, bool pixel) {
     for (int i=y; i<=y+heigth; ++i) {
-        hLine(i, x, x+width, pixel); 
+        hLine(i, x, x+width, pixel);
     }
 }
