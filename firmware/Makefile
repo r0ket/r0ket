@@ -74,7 +74,7 @@ l0dables: table.c
 	@cd l0dable && $(MAKE)
 
 clean:
-	rm -f $(OBJS) $(LD_TEMP) $(OUTFILE).elf $(OUTFILE).bin $(OUTFILE).hex table.c table.h
+	rm -f $(OBJS) $(LD_TEMP) $(OUTFILE).elf $(OUTFILE).bin $(OUTFILE).hex $(OUTFILE).map table.c table.h
 	for dir in $(SUBDIRS); do \
 	    $(MAKE) $(CONFIG_MAKE_PRINTDIRECTORY) -C $$dir clean; \
 	done
@@ -111,7 +111,7 @@ $(LD_TEMP):
 	-@echo "INCLUDE $(LD_SCRIPT)" >> $(LD_TEMP)
 
 $(OUTFILE).elf: $(OBJS) $(SYS_OBJS) $(SUBDIRS) $(LPCFIX) $(LD_TEMP)
-	$(LD) $(LDFLAGS) -T $(LD_TEMP) -o $(OUTFILE).elf $(OBJS) $(LDLIBS)
+	$(LD) $(LDFLAGS) -Map=$(OUTFILE).map -T $(LD_TEMP) -o $(OUTFILE).elf $(OBJS) $(LDLIBS)
 	-@echo ""
 	$(SIZE) $(OUTFILE).elf
 	-@echo ""
