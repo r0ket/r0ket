@@ -9,106 +9,9 @@
 #include "basic/config.h"
 #include "usb/usbmsc.h"
 
-enum display_type {
-	DISPLAY_TYPE_N1200 = 0,
-	DISPLAY_TYPE_N1600 = 1,
-};
 
-enum command_type {
-	COMMAND_TYPE_CMD = 0,
-	COMMAND_TYPE_DATA = 1,
-};
-
-struct display_macro  {
-	enum command_type type:1;
-	unsigned int data:8;
-	unsigned int delay_after:7;
-} __attribute__((packed));
-
-/* Small Nokia 1200 LCD docs:
- *           clear/ set
- *  on       0xae / 0xaf
- *  invert   0xa6 / 0xa7
- *  mirror-x 0xA0 / 0xA1
- *  mirror-y 0xc7 / 0xc8
- *
- *  0x20+x contrast (0=black - 0x2e)
- *  0x40+x offset in rows from top (-0x7f)
- *  0x80+x contrast? (0=black -0x9f?)
- *  0xd0+x black lines from top? (-0xdf?)
- *
- */
-/* Decoded:
- * E2: Internal reset
- * AF: Display on/off: DON = 1
- * A1: undefined?
- * A4: all on/normal: DAL = 0
- * 2F: charge pump on/off: PC = 1
- * B0: set y address: Y[0-3] = 0
- * 10: set x address (upper bits): X[6-4] = 0
- */
-static const struct display_macro INIT_N1200[] = {
-		{COMMAND_TYPE_CMD, 0xE2, 5},
-		{COMMAND_TYPE_CMD, 0xAF},
-		{COMMAND_TYPE_CMD, 0xA1},
-		{COMMAND_TYPE_CMD, 0x2F},
-		{COMMAND_TYPE_CMD, 0xB0},
-		{COMMAND_TYPE_CMD, 0x10},
-};
-
-/* Decoded:
- * CMD 36: MADCTL (argument missing!)
- * CMD 29: DISPON
- * CMD BA: Data order (1)
- *    DAT 07: ignored?
- * CMD 15:  undefined?
- *    DAT 25: ignored?
- *    DAT 3F: ignored?
- * CMD 11: sleep out
- * CMD 13: normal display mode on
- * CMD 37: set scroll entry point
- *   DAT 00:  scroll entry point
- * CMD 3A: interface pixel format
- *   DAT 05: 16 bit/pixel
- * CMD 2A: column address set
- *   DAT 0    : xs
- *   DAT 98-1 : xe
- * CMD 2B: page address set
- *   DAT 0    : ys
- *   DAT 70-1 : ye
- */
-static const struct display_macro INIT_N1600[] = {
-		{COMMAND_TYPE_CMD, 0x01, 10},
-		{COMMAND_TYPE_CMD, 0x36},
-		{COMMAND_TYPE_CMD, 0x29},
-		{COMMAND_TYPE_CMD, 0xBA},
-		{COMMAND_TYPE_DATA, 0x07},
-		{COMMAND_TYPE_CMD, 0x15},
-		{COMMAND_TYPE_DATA, 0x25},
-		{COMMAND_TYPE_DATA, 0x3F},
-		{COMMAND_TYPE_CMD, 0x11},
-		{COMMAND_TYPE_CMD, 0x13},
-		{COMMAND_TYPE_CMD, 0x37},
-		{COMMAND_TYPE_DATA, 0x00},
-		{COMMAND_TYPE_CMD, 0x3A},
-		{COMMAND_TYPE_DATA, 0x05},
-		{COMMAND_TYPE_CMD, 0x2A},
-		{COMMAND_TYPE_DATA, 0x00},
-		{COMMAND_TYPE_DATA, 98-1},
-		{COMMAND_TYPE_CMD, 0x2B},
-		{COMMAND_TYPE_DATA, 0},
-		{COMMAND_TYPE_DATA, 70-1},
-};
-
-struct display_descriptor {
-	const struct display_macro * init_macro;
-	int init_macro_length;
-};
-
-const struct display_descriptor DISPLAY_DESCRIPTORS[] = {
-		[DISPLAY_TYPE_N1200] = { INIT_N1200, sizeof(INIT_N1200)/sizeof(INIT_N1200[0]) },
-		[DISPLAY_TYPE_N1600] = { INIT_N1600, sizeof(INIT_N1600)/sizeof(INIT_N1600[0]) },
-};
+#define DISPLAY_N1200 0
+#define DISPLAY_N1600 1
 
 /**************************************************************************/
 /* Utility routines to manage nokia display */
@@ -117,9 +20,10 @@ const struct display_descriptor DISPLAY_DESCRIPTORS[] = {
 uint8_t lcdBuffer[RESX*RESY_B];
 uint32_t intstatus; // Caches USB interrupt state
                     // (need to disable MSC while displaying)
-enum display_type displayType;
-const struct display_descriptor *displayDescriptor;
+uint8_t displayType;
 
+#define TYPE_CMD    0
+#define TYPE_DATA   1
 
 static void lcd_select() {
 #if CFG_USBMSC
@@ -242,16 +146,83 @@ void lcdInit(void) {
     id=lcdRead(220); // ID3
     
     if(id==14)
-        displayType=DISPLAY_TYPE_N1600;
+        displayType=DISPLAY_N1600;
     else /* ID3 == 48 */
-        displayType=DISPLAY_TYPE_N1200;
+        displayType=DISPLAY_N1200;
     
-    displayDescriptor = DISPLAY_DESCRIPTORS + displayType;
-
+/* Small Nokia 1200 LCD docs:
+ *           clear/ set
+ *  on       0xae / 0xaf
+ *  invert   0xa6 / 0xa7
+ *  mirror-x 0xA0 / 0xA1
+ *  mirror-y 0xc7 / 0xc8
+ *
+ *  0x20+x contrast (0=black - 0x2e)
+ *  0x40+x offset in rows from top (-0x7f)
+ *  0x80+x contrast? (0=black -0x9f?)
+ *  0xd0+x black lines from top? (-0xdf?)
+ *
+ */
     lcd_select();
-    for(int i=0; i<displayDescriptor->init_macro_length; i++) {
-    	lcdWrite(displayDescriptor->init_macro[i].type, displayDescriptor->init_macro[i].data);
-    	delayms(displayDescriptor->init_macro[i].delay_after);
+
+    if(displayType==DISPLAY_N1200){
+    	/* Decoded:
+    	 * E2: Internal reset
+    	 * AF: Display on/off: DON = 1
+    	 * A1: undefined?
+    	 * A4: all on/normal: DAL = 0
+    	 * 2F: charge pump on/off: PC = 1
+    	 * B0: set y address: Y[0-3] = 0
+    	 * 10: set x address (upper bits): X[6-4] = 0
+    	 */
+        static uint8_t initseq[]= { 0xE2,0xAF, // Display ON
+                             0xA1, // Mirror-X
+                             0xA4, 0x2F, 0xB0, 0x10};
+        int i = 0;
+        while(i<sizeof(initseq)){
+            lcdWrite(TYPE_CMD,initseq[i++]);
+            delayms(5); // actually only needed after the first
+        }
+    }else{ /* displayType==DISPLAY_N1600 */
+        static uint8_t initseq_d[] = {
+        		/* Decoded:
+        		 * CMD 36: MADCTL (argument missing!)
+        		 * CMD 29: DISPON
+        		 * CMD BA: Data order (1)
+        		 *    DAT 07: ignored?
+        		 * CMD 15:  undefined?
+        		 *    DAT 25: ignored?
+        		 *    DAT 3F: ignored?
+        		 * CMD 11: sleep out
+        		 * CMD 13: normal display mode on
+        		 * CMD 37: set scroll entry point
+        		 *   DAT 00:  scroll entry point
+        		 * CMD 3A: interface pixel format
+        		 *   DAT 05: 16 bit/pixel
+        		 * CMD 2A: column address set
+        		 *   DAT 0    : xs
+        		 *   DAT 98-1 : xe
+        		 * CMD 2B: page address set
+        		 *   DAT 0    : ys
+        		 *   DAT 70-1 : ye
+        		 */
+
+                               0x36,
+                               0x29, 0xBA, 0x07,
+                               0x15, 0x25, 0x3f,
+                               0x11, 0x13, 0x37,
+                               0x00, 0x3A, 0x05,
+                               0x2A, 0, 98-1,
+                               0x2B, 0, 70-1};
+        uint32_t initseq_c = ~ 0x12BA7; // command/data bitstring
+        int i = 0;
+        lcdWrite(TYPE_CMD,0x01); //sw reset
+        delayms(10);
+
+        while(i<sizeof(initseq_d)){
+            lcdWrite(initseq_c&1, initseq_d[i++]);
+            initseq_c = initseq_c >> 1;
+        }
     }
     lcd_deselect();
 }
@@ -290,8 +261,8 @@ bool lcdGetPixel(char x, char y){
 
 // Color display hepler functions
 static void _helper_pixel16(uint16_t color){
-    lcdWrite(COMMAND_TYPE_DATA,color>>8);
-    lcdWrite(COMMAND_TYPE_DATA,color&0xFF);
+    lcdWrite(TYPE_DATA,color>>8);
+    lcdWrite(TYPE_DATA,color&0xFF);
 }
 
 static void _helper_hline(uint16_t color){
@@ -310,10 +281,10 @@ void lcdDisplay(void) {
     char byte;
     lcd_select();
 
-    if(displayType==DISPLAY_TYPE_N1200){
-      lcdWrite(COMMAND_TYPE_CMD,0xB0);
-      lcdWrite(COMMAND_TYPE_CMD,0x10);
-      lcdWrite(COMMAND_TYPE_CMD,0x00);
+    if(displayType==DISPLAY_N1200){
+      lcdWrite(TYPE_CMD,0xB0);
+      lcdWrite(TYPE_CMD,0x10);
+      lcdWrite(TYPE_CMD,0x00);
       uint16_t i,page;
       for(page=0; page<RESY_B;page++) {
           for(i=0; i<RESX; i++) {
@@ -325,14 +296,14 @@ void lcdDisplay(void) {
               if (GLOBAL(lcdinvert))
                   byte=~byte;
       
-              lcdWrite(COMMAND_TYPE_DATA,byte);
+              lcdWrite(TYPE_DATA,byte);
           }
       }
-    } else { /* displayType==DISPLAY_TYPE_N1600 */
+    } else { /* displayType==DISPLAY_N1600 */
       uint16_t x,y;
       bool px;
  
-      lcdWrite(COMMAND_TYPE_CMD,0x2C);
+      lcdWrite(TYPE_CMD,0x2C);
   
       //top line of the frame...
       _helper_hline(COLOR_FRAME);
@@ -372,13 +343,13 @@ inline void lcdInvert(void) {
 
 void lcdSetContrast(int c) {
     lcd_select();
-    if(displayType==DISPLAY_TYPE_N1200){
+    if(displayType==DISPLAY_N1200){
         if(c<0x1F)
-            lcdWrite(COMMAND_TYPE_CMD,0x80+c);
-    }else{ /* displayType==DISPLAY_TYPE_N1600 */
+            lcdWrite(TYPE_CMD,0x80+c);
+    }else{ /* displayType==DISPLAY_N1600 */
         if(c<0x40) {
-            lcdWrite(COMMAND_TYPE_CMD,0x25);
-            lcdWrite(COMMAND_TYPE_DATA,4*c);
+            lcdWrite(TYPE_CMD,0x25);
+            lcdWrite(TYPE_DATA,4*c);
         };
     }
     lcd_deselect();
@@ -388,7 +359,7 @@ void lcdSetInvert(int c) {
     lcd_select();
      /* it doesn't harm N1600, save space */
 //  if(displayType==DISPLAY_N1200)
-        lcdWrite(COMMAND_TYPE_CMD,(c&1)+0xa6);
+        lcdWrite(TYPE_CMD,(c&1)+0xa6);
     lcd_deselect();
 };
 
