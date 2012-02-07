@@ -249,7 +249,7 @@ if($cmd =~ /^r/){
             die "Unknown send subtype: $sub\n";
     };
 
-	print "Write: <", sprint($pkt),">, ";
+	print "Write: <", r0ket::sprint($pkt),">, ";
     print "crc: ",unpack("n",substr($pkt,length($pkt)-2,2))," ";
     print "len: ",length($pkt),"\n";
 	while($cmd-->0){
