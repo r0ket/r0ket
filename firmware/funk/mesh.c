@@ -342,7 +342,7 @@ void mesh_recvqloop_end(void){
     nrf_config_set(&oldconfig);
 }
 
-void mesh_recvloop(void){
+void mesh_recvloop(void){ /* unused: replaced by mesh_recvloop_plus */
     int recvend=M_RECVTIM/SYSTICKSPEED+getTimer();
     int pktctr=0;
 
@@ -353,7 +353,7 @@ void mesh_recvloop(void){
         }else{
             delayms_power(10);
         };
-    }while(getTimer()<recvend || pktctr>MESHBUFSIZE);
+    }while(getTimer()<recvend && pktctr<MESHBUFSIZE);
     mesh_recvqloop_end();
 };
 
