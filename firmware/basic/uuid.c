@@ -5,7 +5,10 @@
 
 #include "core/iap/iap.h"
 
-uint32_t GetUUID32(void){
+uint32_t uuid32=0;
+uint16_t uuid16=0;
+
+uint32_t __GetUUID32(void){
     IAP_return_t iap_return;
     iap_return = iapReadSerialNumber();
     if (iap_return.ReturnCode == 0){
@@ -21,8 +24,28 @@ uint32_t GetUUID32(void){
 };
 
 // What OpenBeacon used. Do we want this?
-uint16_t GetUUID16(void){
+uint16_t __GetUUID16(void){
     IAP_return_t iap_return;
     iap_return = iapReadSerialNumber();
     return crc16 ((uint8_t *) iap_return.Result, sizeof (iap_return.Result));
 };
+
+uint32_t initUUID(void){
+    uuid32=__GetUUID32();
+    uuid16=__GetUUID16();
+};
+
+uint32_t GetUUID32(void){
+    if(uuid32==0){
+        initUUID();
+    };
+    return uuid32;
+};
+
+uint16_t GetUUID16(void){
+    if(uuid32==0){
+        initUUID();
+    };
+    return uuid16;
+};
+
