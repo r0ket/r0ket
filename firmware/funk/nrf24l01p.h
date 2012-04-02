@@ -85,7 +85,7 @@
 #define R_RF_CH_BITS             0x7f
 
 //RF_SETUP register definitions
-#define R_RF_CONT_WAVE           0x80
+#define R_RF_SETUP_CONT_WAVE     0x80
 #define R_RF_SETUP_RF_DR_LOW     0x20
 #define R_RF_SETUP_PLL_LOCK      0x10
 #define R_RF_SETUP_RF_DR_HIGH    0x08
@@ -139,6 +139,7 @@ char nrf_snd_pkt_crc_encr(int size, uint8_t * pkt, uint32_t const k[4]);
 
 void nrf_init() ;
 void nrf_off() ;
+void nrf_startCW();
 
 void nrf_cmd(uint8_t cmd);
 uint8_t nrf_cmd_status(uint8_t cmd);

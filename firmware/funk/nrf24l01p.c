@@ -404,6 +404,29 @@ void nrf_off() {
             ); // Most important: no R_CONFIG_PWR_UP
 };
 
+void nrf_startCW() {
+    // Enable SPI correctly
+    sspInit(0, sspClockPolarity_Low, sspClockPhase_RisingEdge);
+
+    // Enable CS & CE pins
+    gpioSetDir(RB_SPI_NRF_CS, gpioDirection_Output);
+    gpioSetPullup(&RB_SPI_NRF_CS_IO, gpioPullupMode_Inactive);
+    gpioSetDir(RB_NRF_CE, gpioDirection_Output);
+    gpioSetPullup(&RB_NRF_CE_IO, gpioPullupMode_PullUp);
+    CE_LOW();
+
+    // Setup for nrf24l01+
+    // power up takes 1.5ms - 3.5ms (depending on crystal)
+    CS_LOW();
+
+    nrf_write_reg(R_CONFIG, R_CONFIG_PWR_UP);
+    delayms(2);
+    nrf_write_reg(R_RF_SETUP, R_RF_SETUP_CONT_WAVE |
+                              R_RF_SETUP_PLL_LOCK |
+                              R_RF_SETUP_RF_PWR_3);
+    nrf_write_reg(R_RF_CH, 81);
+    CE_HIGH();
+}
 
 void nrf_check_reset(void){
     if(nrf_cmd_status(C_NOP) & R_STATUS_MAX_RT){
