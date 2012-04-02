@@ -8,7 +8,7 @@
 uint32_t uuid32=0;
 uint16_t uuid16=0;
 
-uint32_t __GetUUID32(void){
+static uint32_t __GetUUID32(void){
     IAP_return_t iap_return;
     iap_return = iapReadSerialNumber();
     if (iap_return.ReturnCode == 0){
@@ -24,7 +24,7 @@ uint32_t __GetUUID32(void){
 };
 
 // What OpenBeacon used. Do we want this?
-uint16_t __GetUUID16(void){
+static uint16_t __GetUUID16(void){
     IAP_return_t iap_return;
     iap_return = iapReadSerialNumber();
     return crc16 ((uint8_t *) iap_return.Result, sizeof (iap_return.Result));
