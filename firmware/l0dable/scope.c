@@ -116,7 +116,7 @@ void ram(void) {
 	case BTN_RIGHT: if (kok) { xs++; xs&=63; kok=0; } break;      
 	case BTN_UP: if (kok) { ch++; ch&=7; kok=0; } break;
 	case BTN_DOWN: if (kok) { ch--; ch&=7; kok=0; } break;
-	case BTN_ENTER: return 0;
+	case BTN_ENTER: return;
 	default: kok=1;
 	}
       }

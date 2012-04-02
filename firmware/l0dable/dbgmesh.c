@@ -83,6 +83,7 @@ void m_time(void){
     struct tm* tm;
     int select=0;
     char c[2]={0,0};
+    int sp;
     getInputWaitRelease();
     delayms(100);
     while(1) {
@@ -95,6 +96,7 @@ void m_time(void){
         lcdPrint(":");
         lcdPrint(IntToStr(tm->tm_sec,2,F_LONG|F_ZEROS));
         lcdNl();
+        lcdPrint(" ");
         lcdPrint(IntToStr(tm->tm_mday,2,F_LONG));
         lcdPrint(".");
         lcdPrint(IntToStr(tm->tm_mon+1,2,0));
@@ -132,6 +134,11 @@ void m_time(void){
         lcdNl();
         lcdPrint("Inc:");
         lcdPrintInt(meshincctr);
+
+        lcdPrint(" SP:");
+        __asm(  "mov %0, sp\n" : "=r" (sp) :);
+        lcdPrint(IntToStrX(sp,4));
+
         lcdNl();
         lcdPrint("Nice:");
         lcdPrintInt(meshnice);
@@ -167,6 +174,8 @@ void m_time(void){
 	    switch(key) {
 		case BTN_UP:
 		    active=1;
+		    break;
+		case BTN_NONE:
 		    break;
 		default:
 		    return;

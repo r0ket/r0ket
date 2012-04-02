@@ -1,7 +1,20 @@
+default: build setup
+
+all: build setup run
+
+redo: rebuild setup run
+
+build: cleanbuild rebuild
+
+cleanbuild:
+	cd ../../firmware && make clean
+
+rebuild:
+	cd ../../firmware && make && make l0dables
+
 setup:
-	cd ../../firmware && make clean && make && make l0dables
 	cp ../../firmware/firmware.bin .
-	-mkdir files
+	mkdir -p files
 	cp ../../firmware/l0dable/*c0d files
 	cp ../../firmware/l0dable/*nik files
 	cp ../../firmware/l0dable/*int files
@@ -12,10 +25,11 @@ setup:
 	cd ../crypto && make clean && make generate-keys
 	cp ../crypto/generate-keys .
 	@echo
-	@echo Now run ./smartflash
+	@echo "Now run ./smartflash (as root)"
+
+run:
+	sudo ./smartflash
 
 clean:
 	rm -f firmware.bin generate-keys
 	rm -rf files
-
-

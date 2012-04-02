@@ -137,8 +137,9 @@ if($cmd =~ /^r/){
                     print "t=";
 # print unpack("N",substr($str,2,4))," ";
                     print strftime("%Y-%m-%d %H:%M:%S",gmtime unpack("N",substr($str,2,4)));
-                    printf " (%+3d) ",unpack("N",substr($str,2,4))-(time+3600);
-                    print "beacon=",resolvebeacon(unpack("H*",substr($str,26,4)))," ";
+                    printf " (%+3d)",unpack("N",substr($str,2,4))-(time+3600);
+                    print " rel=",unpack("H*",substr($str,24,2));
+                    print " beacon=",resolvebeacon(unpack("H*",substr($str,26,4)))," ";
                 }elsif($i eq "i"){
                     print "score=",unpack("N",substr($str,2,4))," ";
                     print "nick=",unpack("Z*",substr($str,6,length($str)-8))," ";

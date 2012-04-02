@@ -13,6 +13,10 @@ char meshgen=0; // Generation
 char meshincctr=0;
 char meshmsg=0;
 char meshnice=0;
+
+char mesh_mode=0;
+#define MM_TIME (1<<0)
+#define MM_ENC  (1<<1)
 MPKT meshbuffer[MESHBUFSIZE];
 
 #include "SECRETS"
@@ -23,6 +27,8 @@ static int mesh_gt(char curgen, char newgen){
     unsigned char dif=curgen-newgen;
     if(curgen==0)
         return 1;
+	if(newgen==0)
+		return 0;
     return (dif>128);
 };
 
@@ -43,21 +49,24 @@ void initMesh(void){
 int mesh_sanity(uint8_t * pkt){
     if(MO_TYPE(pkt)>0x7f || MO_TYPE(pkt)<0x20)
         return MP_SEND;
+    if(MO_TYPE(pkt)=='T' && MO_BODY(pkt)[5])
+           return MP_SEND;
     if(MO_TYPE(pkt)=='T' && MO_TIME(pkt)<86400)
            return MP_OK;
     if(MO_TYPE(pkt)>='A' && MO_TYPE(pkt)<='Z'){
-        if(MO_TIME(pkt)>1326409200)
+        if(MO_TIME(pkt)>1370340000) /* 4.Jun 2013 */
             return MP_SEND;
-        if(MO_TIME(pkt)<1324602000)
+        if(MO_TIME(pkt)<1325376000) /* 1.1.2012 */
             return MP_SEND;
     }else if(MO_TYPE(pkt)>='a' && MO_TYPE(pkt)<='z'){
-        if(MO_TIME(pkt)>16777216)
+        if(MO_TIME(pkt)>16777216) /* 3-byte only */
             return MP_SEND;
         if(MO_TIME(pkt)<0)
             return MP_SEND;
     };
     if(MO_TYPE(pkt)!='A' && 
        MO_TYPE(pkt)!='a' && 
+       MO_TYPE(pkt)!='i' && 
        MO_TYPE(pkt)!='B' && 
        MO_TYPE(pkt)!='E' && 
        MO_TYPE(pkt)!='F' && 
@@ -97,6 +106,7 @@ void meshPanic(uint8_t * pkt,int bufno){
 #if 0
     static int done=0;
     if(!done){
+        gpioSetValue (RB_LED0, 1-gpioGetValue(RB_LED0));
 	setSystemFont();
 	lcdClear();
 	lcdPrint("PANIC[");
@@ -105,9 +115,15 @@ void meshPanic(uint8_t * pkt,int bufno){
 	lcdNl();
 	for(int i=0;i<32;i++){
 	    lcdPrint(IntToStrX(pkt[i],2));
-	    if(i%6==5)
+	    if(i%6==2){
+		lcdPrint(" ");
+	    };
+	    if(i%6==5){
 		lcdNl();
+	    };
 	}
+	lcdPrint(" ");
+	lcdPrint(IntToStrX(crc16(pkt,30),4));
 	lcdRefresh();
 	while ((getInputRaw())==BTN_NONE);
     };
@@ -156,10 +172,13 @@ void mesh_sendloop(void){
     // Update [T]ime packet
     MO_TIME_set(meshbuffer[0].pkt,getSeconds());
     MO_GEN_set(meshbuffer[0].pkt,meshgen);
-    if(GLOBAL(privacy)==0)
+    if(GLOBAL(privacy)==0){
         uint32touint8p(GetUUID32(),meshbuffer[0].pkt+26);
-    else
+        uint32touint8p(getrelease(),meshbuffer[0].pkt+22);
+    }else{
         uint32touint8p(0,meshbuffer[0].pkt+26);
+        uint32touint8p(0,meshbuffer[0].pkt+22);
+    };
 
     MO_BODY(meshbuffer[0].pkt)[4]=meshnice;
 
@@ -223,7 +242,7 @@ uint8_t mesh_recvqloop_work(void){
         if(mesh_sanity(buf)){
             meshincctr++;
             if((mesh_sanity(buf)&MP_RECV)!=0){
-                meshPanic(buf,-1);
+                meshPanic(buf,-len);
             };
             return 0;
         };
@@ -235,6 +254,7 @@ uint8_t mesh_recvqloop_work(void){
                 meshincctr=0;
                 meshnice=MO_BODY(buf)[4];
                 meshgen=MO_GEN(buf);
+				mesh_mode&=~MM_TIME;
             };
         };
 
@@ -243,15 +263,19 @@ uint8_t mesh_recvqloop_work(void){
             return 0;
         };
 
-        // Set new time iff newer
-        if(MO_TYPE(buf)=='T'){
-            time_t toff=MO_TIME(buf)-((getTimer()+(600/SYSTICKSPEED))/(1000/SYSTICKSPEED));
-            if (toff>_timet){ // Do not live in the past.
-                _timet = toff;
-                meshincctr++;
-            };
-            return 1;
-        };
+        // Set new time iff I don't have a valid one.
+		if((mesh_mode & MM_TIME)==0){
+			if(MO_TYPE(buf)=='T'){
+				time_t toff=MO_TIME(buf)-((getTimer()+(600/SYSTICKSPEED))/(1000/SYSTICKSPEED));
+				_timet = toff;
+				if(meshgen==0 && MO_TIME(buf)<60*60*24){
+					; // still not valid
+				}else{
+					mesh_mode|=MM_TIME; // Got a time now.
+				};
+				return 1;
+			};
+		};
 
         // Safety: Truncate ascii packets by 0-ing the CRC
         buf[MESHPKTSIZE-2]=0;
@@ -318,7 +342,7 @@ void mesh_recvqloop_end(void){
     nrf_config_set(&oldconfig);
 }
 
-void mesh_recvloop(void){
+void mesh_recvloop(void){ /* unused: replaced by mesh_recvloop_plus */
     int recvend=M_RECVTIM/SYSTICKSPEED+getTimer();
     int pktctr=0;
 
@@ -329,7 +353,7 @@ void mesh_recvloop(void){
         }else{
             delayms_power(10);
         };
-    }while(getTimer()<recvend || pktctr>MESHBUFSIZE);
+    }while(getTimer()<recvend && pktctr<MESHBUFSIZE);
     mesh_recvqloop_end();
 };
 

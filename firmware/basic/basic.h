@@ -171,12 +171,12 @@ uint16_t crc16(uint8_t * buf, int len);
 // menu.c
 
 struct MENU_DEF {
-    char *text;
+    const char *text;
     void (*callback)(void);
 };
 
 struct MENU {
-    char *title;
+    const char *title;
     struct MENU_DEF entries[];
 };
 

@@ -221,7 +221,7 @@ static void draw_platforms() {
 }
 
 static void draw_player() {
-	bool* sprite;
+	const bool* sprite;
 	if(game.player_y_vel > 0) {
 		sprite = PLAYER_SPRITE_DOWN;
 	}

@@ -29,7 +29,7 @@ void ram(void) {
         if( nrf_rcv_pkt_time(64,sizeof(buf),buf) == 16 ){
             buf[14] = 0;
             if( buf[1] == 0x23 || buf[1] == 0x24){
-                lcdPrintln(buf+6);
+                lcdPrintln((char*)(buf+6));
                 //lcdPrintln("foo");
             }
             lcdRefresh();

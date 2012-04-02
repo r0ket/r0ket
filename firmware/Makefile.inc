@@ -42,7 +42,7 @@ CPU_TYPE = cortex-$(CORTEX_TYPE)
 # Compiler settings, parameters and flags
 ##########################################################################
 
-CFLAGS  = -std=c99 -c -g -Os $(INCLUDE_PATHS) -Wall -mthumb -ffunction-sections -fdata-sections -fmessage-length=0 -mcpu=$(CPU_TYPE) -DTARGET=$(TARGET) -DRAMCODE=$(RAMCODE) -fno-builtin -Wno-unused-function
+CFLAGS  = -std=c99 -c -g -Os $(INCLUDE_PATHS) -Wall -mthumb -ffunction-sections -fdata-sections -fmessage-length=0 -mcpu=$(CPU_TYPE) -DTARGET=$(TARGET) -DRAMCODE=$(RAMCODE) -fno-builtin -Wno-unused-function -ffreestanding
 LDFLAGS = -nostartfiles
 
 ifeq "$(USBSERIAL)" "YES"

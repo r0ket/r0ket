@@ -52,6 +52,7 @@ void * memcpy(void *pDestination, const void *pSource, size_t num)
 {
     unsigned char *pByteDestination;
     unsigned char *pByteSource;
+#ifdef FAST_MEMCPY
     unsigned int *pAlignedSource = (unsigned int *) pSource;
     unsigned int *pAlignedDestination = (unsigned int *) pDestination;
 
@@ -71,6 +72,10 @@ void * memcpy(void *pDestination, const void *pSource, size_t num)
     // Copy remaining bytes
     pByteDestination = (unsigned char *) pAlignedDestination;
     pByteSource = (unsigned char *) pAlignedSource;
+#else
+    pByteDestination = (unsigned char *) pDestination;
+    pByteSource = (unsigned char *) pSource;
+#endif
     while (num--) {
 
         *pByteDestination++ = *pByteSource++;

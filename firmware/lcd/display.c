@@ -166,7 +166,16 @@ void lcdInit(void) {
     lcd_select();
 
     if(displayType==DISPLAY_N1200){
-        uint8_t initseq[]= { 0xE2,0xAF, // Display ON
+    	/* Decoded:
+    	 * E2: Internal reset
+    	 * AF: Display on/off: DON = 1
+    	 * A1: undefined?
+    	 * A4: all on/normal: DAL = 0
+    	 * 2F: charge pump on/off: PC = 1
+    	 * B0: set y address: Y[0-3] = 0
+    	 * 10: set x address (upper bits): X[6-4] = 0
+    	 */
+        static uint8_t initseq[]= { 0xE2,0xAF, // Display ON
                              0xA1, // Mirror-X
                              0xA4, 0x2F, 0xB0, 0x10};
         int i = 0;
@@ -175,7 +184,29 @@ void lcdInit(void) {
             delayms(5); // actually only needed after the first
         }
     }else{ /* displayType==DISPLAY_N1600 */
-        uint8_t initseq_d[] = {  
+        static uint8_t initseq_d[] = {
+        		/* Decoded:
+        		 * CMD 36: MADCTL (argument missing!)
+        		 * CMD 29: DISPON
+        		 * CMD BA: Data order (1)
+        		 *    DAT 07: ignored?
+        		 * CMD 15:  undefined?
+        		 *    DAT 25: ignored?
+        		 *    DAT 3F: ignored?
+        		 * CMD 11: sleep out
+        		 * CMD 13: normal display mode on
+        		 * CMD 37: set scroll entry point
+        		 *   DAT 00:  scroll entry point
+        		 * CMD 3A: interface pixel format
+        		 *   DAT 05: 16 bit/pixel
+        		 * CMD 2A: column address set
+        		 *   DAT 0    : xs
+        		 *   DAT 98-1 : xe
+        		 * CMD 2B: page address set
+        		 *   DAT 0    : ys
+        		 *   DAT 70-1 : ye
+        		 */
+
                                0x36,
                                0x29, 0xBA, 0x07,
                                0x15, 0x25, 0x3f,
@@ -239,9 +270,12 @@ static void _helper_hline(uint16_t color){
         _helper_pixel16(color);
 }
 
-#define THECOLOR_R 0x0
-#define THECOLOR_G 0x60
-#define THECOLOR_B 0x0
+#define COLORPACK_RGB565(r,g,b) (((r&0xF8) << 8) | ((g&0xFC)<<3) | ((b&0xF8) >> 3))
+
+static const uint16_t COLOR_FG =    COLORPACK_RGB565(0x00, 0x60, 0x00);
+static const uint16_t COLOR_BG =    COLORPACK_RGB565(0xff, 0xff, 0xff);
+static const uint16_t COLOR_FRAME = COLORPACK_RGB565(0x00, 0x00, 0x80);
+
 
 void lcdDisplay(void) {
     char byte;
@@ -266,25 +300,17 @@ void lcdDisplay(void) {
           }
       }
     } else { /* displayType==DISPLAY_N1600 */
-      unsigned char r=THECOLOR_R,g=THECOLOR_G,b=THECOLOR_B;
-      unsigned char br=0xFF, bg=0xFF, bb=0xFF;
-      unsigned char frame_r=0x00, frame_g=0x00, frame_b=0x80;
-      uint16_t color,framecolor,backcolor;
       uint16_t x,y;
       bool px;
-      uint16_t actualcolor;
-      color = ((r&0xF8) << 8) | ((g&0xFC)<<3) | ((b&0xF8) >> 3);
-      framecolor= ((frame_r&0xF8) << 8) | ((frame_g&0xFC)<<3) | ((frame_b&0xF8) >> 3);
-      backcolor= ((br&0xF8) << 8) | ((bg&0xFC)<<3) | ((bb&0xF8) >> 3);
  
       lcdWrite(TYPE_CMD,0x2C);
   
       //top line of the frame...
-      _helper_hline(framecolor);
+      _helper_hline(COLOR_FRAME);
   
       for(y=RESY;y>0;y--){
           //left line of the frame
-          _helper_pixel16(framecolor);
+          _helper_pixel16(COLOR_FRAME);
   
           for(x=RESX;x>0;x--){
               if(GLOBAL(lcdmirror))
@@ -292,17 +318,19 @@ void lcdDisplay(void) {
               else
                   px=lcdGetPixel(x-1,y-1);
                   
-              if((!px)^(!GLOBAL(lcdinvert))) actualcolor=color;
-              else actualcolor=backcolor; /* white */
+              if((!px)^(!GLOBAL(lcdinvert))) {
+            	  _helper_pixel16(COLOR_FG); /* foreground */
+              } else {
+            	  _helper_pixel16(COLOR_BG); /* background */
+              }
   
-              _helper_pixel16(actualcolor);
           }
           //right line of the frame
-          _helper_pixel16(framecolor);
+          _helper_pixel16(COLOR_FRAME);
       }
       
       //bottom line of the frame
-      _helper_hline(framecolor);
+      _helper_hline(COLOR_FRAME);
       }
     lcd_deselect();
 }

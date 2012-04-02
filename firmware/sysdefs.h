@@ -36,10 +36,10 @@
 */
 /**************************************************************************/
 
-#ifndef _SYSDEFS_H_
-#define _SYSDEFS_H_
+#ifndef _GLOBAL_SYSDEFS_H_
+#define _GLOBAL_SYSDEFS_H_
 
-#include <stdio.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -53,18 +53,9 @@ typedef volatile uint16_t REG16;
 typedef volatile uint32_t REG32;
 typedef unsigned char byte_t;
 
-#define pREG8  (REG8 *)
-#define pREG16 (REG16 *)
-#define pREG32 (REG32 *)
-
-#ifndef NULL
-#define NULL ((void *) 0)
-#endif
-
 // Save some space
 #ifndef SIMULATOR
 #define memcpy memmove
 #endif
 
 #endif
-
