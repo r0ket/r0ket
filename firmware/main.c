@@ -50,6 +50,7 @@ void main(void) {
     // initialise basic badge functions
     rbInit();
 
+    initUUID(); // Cache UUID values.
   
     lcdInit(); // display
 
@@ -80,5 +81,5 @@ void main(void) {
 }
 
 int getrelease(void){
-    return 0x0000010d;
+    return 0x0000010e;
 };

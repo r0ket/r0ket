@@ -36,16 +36,10 @@ uint32_t initUUID(void){
 };
 
 uint32_t GetUUID32(void){
-    if(uuid32==0){
-        initUUID();
-    };
     return uuid32;
 };
 
 uint16_t GetUUID16(void){
-    if(uuid32==0){
-        initUUID();
-    };
     return uuid16;
 };
 
