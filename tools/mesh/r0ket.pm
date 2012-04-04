@@ -13,6 +13,7 @@ use Time::HiRes;
 
 our $verbose=0;
 our $bridge; # Open device
+our $quiet=0;
 
 ### Utility
 sub sprint{
@@ -111,7 +112,7 @@ sub get_packet{
             if($firstpkt){
                 $firstpkt--;
             }else{
-                print STDERR "Unparseable stuff: <",sprint($1),">\n";
+                print STDERR "Unparseable stuff: <",sprint($1),">\n" if(!$quiet);
             };
         }elsif ($buffer =~ s/^\\2\\0//s){
             return 'ack'; # In-band signalling. Evil %)
@@ -128,7 +129,7 @@ sub get_packet{
 
 sub rest{
     if(length($buffer)>0){
-        print "rest: <", sprint($buffer), ">\n";
+        print "rest: <", sprint($buffer), ">\n" if(!$quiet);
     };
 };
 
@@ -255,7 +256,7 @@ sub nice_beacon{
             $out->{idx},
             $out->{beacon};
         if(unpack("H*",substr($pkt,12,2)) ne "ffff"){
-            print "unused=",unpack("H*",substr($pkt,12,2))," ";
+            print "unused=",unpack("H*",substr($pkt,12,2))," " if (!$quiet);
         };
     }elsif($type eq "\x23"){
         $out->{type}=   "nick";
