@@ -104,7 +104,7 @@ sub get_packet{
     };
 
     my $cnt=0;
-    while(++$cnt<100){
+    while(1){
         if(length($buffer)<2){
             _get_bytes();
         }elsif($buffer !~ /^\\[12]/){
@@ -123,8 +123,12 @@ sub get_packet{
         }else{
             _get_bytes();
         };
+        if(++$cnt%100 == 0){
+            if(!$quiet){
+                print STDERR "No packets for 5 seconds?\n";
+            };
+        };
     };
-    die "No packets for 5seconds?\n";
 };
 
 sub rest{
