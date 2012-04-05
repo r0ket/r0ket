@@ -58,6 +58,7 @@ use Sys::Hostname;
 
 my($iaddr,$proto,$paddr);
 $iaddr = gethostbyname(hostname());
+$iaddr = pack('C4', 0,0,0,0);
 $proto = getprotobyname('udp');
 $paddr = sockaddr_in(0, $iaddr); # 0 means let kernel pick
 
