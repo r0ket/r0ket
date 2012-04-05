@@ -69,6 +69,8 @@ my $hispaddr = sockaddr_in($port, $hisiaddr);
 
 ###send(SOCKET, 0, 0, $hispaddr);
 
+my $xterm=0;
+my $screen=1;
 
 my $crcerr=0;
 my $errors=0;
@@ -82,7 +84,29 @@ if($verbose){
         $dev=~s!/dev/!!;
     };
     print "OpenBeacon Reader $id sending [$dev] to [$server:$port]\n";
+    if($xterm){
+        print "\e]2;",
+              "$id\[$dev] -> $server:$port @ ", 
+              strftime("%Y-%m-%d %H:%M:%S ",localtime),
+              "\a";
+    }elsif($screen){
+        print "\ek",
+              "$id\[$dev]", 
+              "\e\\";
+    };
     print "\n";
+};
+
+sub interrupt {
+    if($xterm){
+        print "\e]2;", "<exit>", "\a";
+    }elsif($screen){
+        print "\ek", `hostname`, "\e\\";
+    };
+    exit;
+}
+if($verbose){
+    $SIG{INT} = \&interrupt;
 };
 my $lasttime=time;
 my $llasttime=time;
