@@ -288,11 +288,7 @@ sub nice_beacon{
 };
 
 sub r0ket_init{
-    my $ser;
-    if ($ARGV[0] eq "-s"){
-        shift;
-        $ser=shift;
-    };
+    my $ser=shift;
     if(!defined $ser){
         if (defined $ENV{R0KETBRIDGE} && -e $ENV{R0KETBRIDGE}){
             $ser=$ENV{R0KETBRIDGE}
@@ -305,6 +301,7 @@ sub r0ket_init{
     if($verbose){
         print "using: $ser\n";
     };
+    return $ser;
 };
 
 sub send_raw {

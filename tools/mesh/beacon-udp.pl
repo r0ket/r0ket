@@ -22,6 +22,7 @@ my $verbose = 0;
 my $fast    = 0;
 my $channel = 81;
 my $mac     = "0102030201";
+my $ser     = undef;
 my $help    = 0;
 my $intvl   = 2;
 my $lintvl  = 60;
@@ -29,6 +30,7 @@ GetOptions (
         "server=s"  => \$server,
         "port=n"    => \$port,
         "id=n"      => \$id,
+        "dev=s"     => \$ser,
         "fast"      => \$fast,
         "verbose"   => \$verbose,
         "channel=n" => \$channel,
@@ -40,7 +42,7 @@ if($help){
     die "Currently no help. Please check the source\n";
 };
 
-r0ket::r0ket_init();
+$ser=r0ket::r0ket_init($ser);
 
 # Default openbeacon settings.
 r0ket::set_txmac(pack("H*",$mac)); # Not really needed.
@@ -73,7 +75,13 @@ my $errors=0;
 my $ctr=0;
 my($lcrcerr,$lctr,$lerrors)=(0,0,0);
 if($verbose){
-    print "OpenBeacon Reader $id sending to [$server:$port]\n";
+    my($dev)=$ser;
+    if(!defined $dev){
+        $dev="<undef>";
+    }else{
+        $dev=~s!/dev/!!;
+    };
+    print "OpenBeacon Reader $id sending [$dev] to [$server:$port]\n";
     print "\n";
 };
 my $lasttime=time;
