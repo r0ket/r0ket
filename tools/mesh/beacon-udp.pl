@@ -7,7 +7,9 @@ use POSIX qw(strftime);
 #use Time::HiRes qw(time);
 use Digest::CRC qw(crcccitt);
 
-use lib '.';
+use FindBin;
+use lib "$FindBin::Bin/lib";
+
 use r0ket;
 
 $|=1;

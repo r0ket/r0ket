@@ -6,7 +6,8 @@ use strict;
 use Curses;
 use POSIX qw(strftime);
 
-use lib '.';
+use FindBin;
+use lib "$FindBin::Bin/lib";
 use r0ket;
 
 $|=1;
