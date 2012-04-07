@@ -186,7 +186,7 @@ if($cmd =~ /^r/){
         if($scmd eq "t"){
             $pkt.="T";
             $pkt.=chr(shift); #gen
-            $pkt.=pack("N",scalar(time)+2*60*60);
+            $pkt.=pack("N",scalar(time)+$r0ket::timediff);
 
             $pkt.=pack("N",0);
             $pkt.=pack("N",0);
@@ -197,7 +197,7 @@ if($cmd =~ /^r/){
         }elsif($scmd eq "a"){
             $pkt.="A";
             $pkt.=chr(shift); #gen
-            $pkt.=pack("N",scalar(time)+1*60*60+ 300);
+            $pkt.=pack("N",scalar(time)+$r0ket::timediff+ 300);
 
             $pkt.= pack("C",shift||0);
             $pkt.= pack("C",0);
@@ -212,7 +212,7 @@ if($cmd =~ /^r/){
         }elsif($scmd eq "b"){
             $pkt.="B";
             $pkt.=chr(shift); #gen
-            $pkt.=pack("N",scalar(time)+1*60*60+ 600);
+            $pkt.=pack("N",scalar(time)+$r0ket::timediff+ 600);
 
             $pkt.= pack("C",shift||0);
             $pkt.= pack("C",0);
@@ -227,7 +227,7 @@ if($cmd =~ /^r/){
         }elsif($scmd eq "c"){
             $pkt.="\x1";
             $pkt.=chr(shift); #gen
-            $pkt.=pack("N",scalar(time)+1*60*60+ 600);
+            $pkt.=pack("N",scalar(time)+$r0ket::timediff+ 600);
 
             $pkt.= pack("C",shift||0);
             $pkt.= pack("C",0);

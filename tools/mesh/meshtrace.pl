@@ -61,7 +61,7 @@ while(1){
             $p->{generation},
             $p->{release},
             strftime("%Y-%m-%d %H:%M:%S",gmtime $p->{time}),
-            $p->{time}-(time+3600),
+            $p->{time}-(time+$r0ket::timediff),
             r0ket::getbeacon($p->{beacon})
             );
     $win->refresh;

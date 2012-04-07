@@ -14,6 +14,7 @@ use Time::HiRes;
 our $verbose=0;
 our $bridge; # Open device
 our $quiet=0;
+our $timediff=60*60*2;
 
 ### Utility
 sub sprint{
@@ -154,7 +155,7 @@ sub nice_mesh{
 
         $out->{string}.=sprintf " t=%s (%+4d) rel=%s beacon=%s",
             strftime("%Y-%m-%d %H:%M:%S",gmtime $out->{time}),
-            $out->{time}-(Time::HiRes::time+3600),
+            $out->{time}-(Time::HiRes::time+$timediff),
             $out->{release},
             resolvebeacon($out->{beacon});
     }elsif($type eq "i"){
