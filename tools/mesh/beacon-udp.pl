@@ -152,10 +152,15 @@ while(1){
     };
     $ctr++;
 
+    my $idoff=0;
+    if(substr($pkt,12,1) eq "\xee"){
+         $idoff=1000;
+    };
+
     my $hdr= pack("CCnnNN",
             1,         # proto (BEACONLOG_SIGHTING)
             0,         # interface (we only have one antenna per "reader")
-            $id,       # readerid
+            $id+$idoff,  # readerid
             length($pkt)+16, # size
             $ctr,      # sequence
             time       # timestamp
@@ -176,6 +181,9 @@ while(1){
     }elsif($p->{type} eq "nick"){
         $typenick++;
     }else{
+        $typeunknown++;
+    };
+    if($idoff){
         $typeunknown++;
     };
 };
