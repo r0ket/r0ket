@@ -14,14 +14,19 @@ use r0ket;
 
 $|=1;
 
-r0ket::r0ket_init();
+my $ser;
+if($ARGV[0] eq "-d"){
+    shift;
+    $ser=shift;
+};
+r0ket::r0ket_init($ser);
 
 my @fh;
 my $read;
 
-if ($ARGV[0] =~ /^-?-?h/){
+if ($ARGV[0] =~ /^-?-?h/ || $#ARGV == -1){
     print STDERR "Mini-Help:\n";
-    print STDERR "-s <devicename> (or \$R0KETBRIDGE)\n";
+    print STDERR "-d <devicename> (or \$R0KETBRIDGE)\n";
     print STDERR "-w write beacon2nick file\n";
     print STDERR "\n";
     print STDERR "recv<num>: receive (number) pakets\n";
@@ -181,7 +186,7 @@ if($cmd =~ /^r/){
         if($scmd eq "t"){
             $pkt.="T";
             $pkt.=chr(shift); #gen
-            $pkt.=pack("N",scalar(time)+1*60*60);
+            $pkt.=pack("N",scalar(time)+2*60*60);
 
             $pkt.=pack("N",0);
             $pkt.=pack("N",0);

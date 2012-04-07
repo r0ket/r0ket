@@ -12,7 +12,12 @@ use r0ket;
 
 $|=1;
 
-r0ket::r0ket_init();
+my $ser;
+if($ARGV[0] eq "-d"){
+    shift;
+    $ser=shift;
+};
+r0ket::r0ket_init($ser);
 
 # Default mesh settings.
 r0ket::set_txmac("ORBIT");
