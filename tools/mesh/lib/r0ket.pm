@@ -16,11 +16,17 @@ our $bridge; # Open device
 our $quiet=0;
 our $timediff=60*60*2;
 
+my $rxlen=0; # Filter for get_pkt()
+
 ### Utility
 sub sprint{
     return join("",map {
 		if (ord($_)>30 && ord($_)<127){
-			$_;
+            if(ord($_)==92){
+                "\\\\";
+            }else{
+                $_;
+            };
 		}else{
 #			"[x".unpack("H*",$_)."]";
 			"\\".unpack("C",$_);
@@ -93,8 +99,9 @@ sub writebeacon{
 ### Packet mgmt
 
 our $buffer;
-our $firstpkt=2;
-sub get_packet{
+our $firstpkt=1;
+sub get_data{
+    my $filter=shift||0;
     sub _get_bytes{
         my $rr;
         sysread($bridge,$rr,1024);
@@ -102,25 +109,33 @@ sub get_packet{
             select(undef,undef,undef,0.05);
         };
         $buffer.=$rr;
+#        print "recv: ",unpack("H*",$rr),"\n";
     };
 
     my $cnt=0;
     while(1){
         if(length($buffer)<2){
             _get_bytes();
-        }elsif($buffer !~ /^\\[12]/){
-            $buffer=~s/^(.[^\\]*)//s;
+        }elsif($buffer !~ /^\\[1-9]/){
+            if($buffer =~ /[^\\]\\[1-9]/){
+                $buffer =~ s/^(.*?[^\\])(\\[1-9])/\2/s;
+            }else{
+                $buffer = s/(.*)//s;
+            };
             if($firstpkt){
                 $firstpkt--;
             }else{
                 print STDERR "Unparseable stuff: <",sprint($1),">\n" if(!$quiet);
             };
-        }elsif ($buffer =~ s/^\\2\\0//s){
-            return 'ack'; # In-band signalling. Evil %)
-        }elsif ($buffer =~ s/^\\1(.*?)\\0//s){
-            my $str=$1;
+        }elsif ($buffer =~ s/^\\(\d)(.*?)\\0//s){
+            my ($type,$str)=($1,$2);
             $str=~s/\\\\/\\/g; # dequote
-            return $str;
+#            print STDERR "ret:pkt[$type]=",(sprint $str),"\n";
+            if($filter==0){
+                return ($type,$str);
+            }elsif($filter==$type){
+                return $str;
+            };
         }else{
             _get_bytes();
         };
@@ -128,6 +143,16 @@ sub get_packet{
             if(!$quiet){
                 print STDERR "No packets for 5 seconds?\n";
             };
+        };
+    };
+};
+
+sub get_packet{
+    my $pkt;
+    while(1){
+        $pkt=get_data(1);
+        if($rxlen==0 || length($pkt)==$rxlen){
+            return $pkt;
         };
     };
 };
@@ -271,6 +296,7 @@ sub nice_beacon{
         $out->{string}=sprintf "NICK beacon=%s nick=%s",
             $out->{beacon},
             $out->{nick};
+        addbeacon($out->{beacon},$out->{nick});
     }else{
         $out->{string}="<?:".unpack("H*",$pkt).">";
     };
@@ -332,15 +358,16 @@ sub set_channel {
     send_pkt_num(pack("C",shift),5);
 };
 sub set_rxlen {
+    $rxlen=$_[0];
     send_pkt_num(pack("C",shift),6);
 };
 
 sub wait_ok {
-    my $pkt;
-    $pkt=get_packet();
-    while($pkt ne "ack"){
-        print "pkt=",(sprint $pkt),"\n";
-        $pkt=get_packet();
+    my ($type,$pkt);
+    ($type,$pkt)=get_data();
+    while($type ne "2"){
+        print "pkt[$type]=[",length($pkt),"]",(sprint $pkt),"\n";
+        ($type,$pkt)=get_data();
     };
     print "ok!\n";
     return 1;
