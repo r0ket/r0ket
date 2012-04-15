@@ -99,6 +99,14 @@ void main_bridge(void)
                             config.maclen[0]=serialmsg_message[0];
                             nrf_config_set(&config);
                         break;
+                        case '7':
+                            puts("\\7");
+                            char s[sizeof(uint32_t)+1];
+                            *((uint32_t*)s) =GetUUID32();
+                            s[sizeof(uint32_t)]=0;
+                            puts(s);
+                            puts("\\0");
+                        break;
                     };
                     puts("\\2\\0");
                 }
