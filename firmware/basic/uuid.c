@@ -30,7 +30,7 @@ static uint16_t __GetUUID16(void){
     return crc16 ((uint8_t *) iap_return.Result, sizeof (iap_return.Result));
 };
 
-uint32_t initUUID(void){
+void initUUID(void){
     uuid32=__GetUUID32();
     uuid16=__GetUUID16();
 };
