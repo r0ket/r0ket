@@ -103,7 +103,7 @@ int readFile(char * filename, char * data, int len){
 };
 
 int readTextFile(char * filename, char * data, int len){
-    UINT readbytes;
+    int readbytes;
 
     readbytes=readFile(filename,data,len-1);
     if(len>=0)
