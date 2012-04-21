@@ -1,3 +1,11 @@
 #!/bin/sh
-dd if=firmware.bin seek=4 of=/dev/$1 2>/dev/null
-echo "FLASH done: $1 @ $2"
+bin=frimware.bin
+if [ ! -z "$3" ] ; then
+    bin=$3
+fi
+dd if=$3 seek=4 of=/dev/$1 2>/dev/null
+if [ -z "$3" ] ; then
+    echo "FLASH done: $1 @ $2"
+else
+    echo "=== FLASH of $3 done: $1 @ $2"
+fi
