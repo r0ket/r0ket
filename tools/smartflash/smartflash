@@ -120,14 +120,13 @@ sub dwim{
 		return 1 if $done{$dev}==3;
 		my $sdev=getdev($dev);
 		$done{$dev}=3;
-        print "BRIDGE r0ket $dev, ignoring\n";
+        print "BRIDGE r0ket @ $dev, ignoring\n";
         return 0;
     };
 	print "$ve:$pr [$mf] @ ";
 	return -1;
 };
 
-my %disable;
 while(1){
 	opendir(my $dh, $DEV);
 	my @paths=grep {/^[^.]/} readdir($dh);
@@ -135,15 +134,15 @@ while(1){
 #	print "f: ",join(",",@files),"\n";
 device:
 	for my $path (@paths){
-		next if ($disable{$path});
 		next if $path =~ /^usb/;
 		next if $path =~ /:/;
 #		print "p $path\n";
 		$found{$path}=1;
-		my $res=dwim($path);
+        my $res=0;
+		$res=dwim($path) unless ($done{$path}==-1);
 		if($res==-1){
-			print "$path -- ignoring it forever\n";
-			$disable{$path}=1;
+            print "$path -- unknown device, skipping\n";
+            $done{$path}=-1;
 		};
 	};
 	for my $a (keys %done){
