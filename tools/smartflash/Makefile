@@ -27,6 +27,11 @@ setup:
 	@echo
 	@echo "Now run ./smartflash (as root)"
 
+bridge:
+	cd ../../firmware && make APP=bridge TABLE=NO USBSERIAL=YES clean all
+	cp ../../firmware/bridge.bin .
+	sudo ./smartflash bridge.bin
+
 run:
 	sudo ./smartflash
 

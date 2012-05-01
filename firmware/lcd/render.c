@@ -384,7 +384,7 @@ int DoChar(int sx, int sy, int c){
 };
 
 #define UTF8
-// decode 2 and 4-byte utf-8 strings.
+// decode 2 and 3-byte utf-8 strings.
 #define UT2(a)   ( ((a[0]&31)<<6)  + (a[1]&63) )
 #define UT3(a)   ( ((a[0]&15)<<12) + ((a[1]&63)<<6) + (a[2]&63) )
 

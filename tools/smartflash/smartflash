@@ -5,6 +5,8 @@ $|=1;
 
 my $DEV="/sys/bus/usb/devices";
 
+my $arg=$ARGV[0];
+
 sub getline{
 	my($path)=@_;
 	open(my $f,"<",$DEV."/".$path) || do {
@@ -110,15 +112,21 @@ sub dwim{
 			return 1;
 		};
 		print "flash $dev -> $sdev\n";
-		system("./flash $sdev $dev");
+		system("./flash $sdev $dev $arg");
 		$done{$dev}=2;
 		return 1;
 	};
+	if("$ve:$pr" eq "239a:1002") {
+		return 1 if $done{$dev}==3;
+		my $sdev=getdev($dev);
+		$done{$dev}=3;
+        print "BRIDGE r0ket @ $dev, ignoring\n";
+        return 0;
+    };
 	print "$ve:$pr [$mf] @ ";
 	return -1;
 };
 
-my %disable;
 while(1){
 	opendir(my $dh, $DEV);
 	my @paths=grep {/^[^.]/} readdir($dh);
@@ -126,15 +134,15 @@ while(1){
 #	print "f: ",join(",",@files),"\n";
 device:
 	for my $path (@paths){
-		next if ($disable{$path});
 		next if $path =~ /^usb/;
 		next if $path =~ /:/;
 #		print "p $path\n";
 		$found{$path}=1;
-		my $res=dwim($path);
+        my $res=0;
+		$res=dwim($path) unless ($done{$path}==-1);
 		if($res==-1){
-			print "$path -- ignoring it forever\n";
-			$disable{$path}=1;
+            print "$path -- unknown device, skipping\n";
+            $done{$path}=-1;
 		};
 	};
 	for my $a (keys %done){

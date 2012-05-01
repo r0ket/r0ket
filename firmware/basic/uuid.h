@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 uint32_t GetUUID32(void);
+void initUUID(void);
 
 #endif
 

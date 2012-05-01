@@ -9,22 +9,31 @@ use Digest::CRC qw(crcccitt);
 use POSIX qw(strftime);
 
 use FindBin;
-use lib "$FindBin::Bin";
+use lib "$FindBin::Bin/lib";
 use r0ket;
 
 $|=1;
 
-r0ket::r0ket_init();
+### Commandline options
+use Getopt::Long;
+my $ser     = undef;
+my $help    = 0;
+my $writend = 0;
+GetOptions (
+        "dev=s"     => \$ser,
+        "help"      => \$help,
+        "write"     => \$writend,
+        );
 
-my @fh;
-my $read;
+$help=1 if($ARGV[0] =~ /^[h?]/);
 
-if ($ARGV[0] =~ /^-?-?h/){
+if ($help){
     print STDERR "Mini-Help:\n";
-    print STDERR "-s <devicename> (or \$R0KETBRIDGE)\n";
+    print STDERR "-d <devicename> (or \$R0KETBRIDGE)\n";
     print STDERR "-w write beacon2nick file\n";
     print STDERR "\n";
     print STDERR "recv<num>: receive (number) pakets\n";
+    print STDERR " - r        : try to autodetect packet format\n";
     print STDERR " - r hex    : hexdump packets\n";
     print STDERR " - r ascii  : asciidump packets\n";
     print STDERR " - r beacon : parse as openbeacon\n";
@@ -47,21 +56,22 @@ if ($ARGV[0] =~ /^-?-?h/){
     print STDERR "- c tx  - set txmac\n";
     print STDERR "- c len - set rxlength\n";
     print STDERR "- c ch  - set channel\n";
-    print STDERR "- c <opt>hex - set any option via hex string\n";
+    print STDERR "- c <opt>hex - set any of the previous option via hex string\n";
+    print STDERR "- c id - read beacon id\n";
     print STDERR "\n";
     print STDERR "etc...\n";
     exit(1);
 };
 
-my $writend=0;
-if ($ARGV[0] eq "-w"){
-    shift;
-    $writend=1;
-};
-
 END{
     r0ket::writebeacon if($writend);
 };
+
+r0ket::r0ket_init($ser);
+$r0ket::verbose=1;
+
+my @fh;
+my $read;
 
 my $cmd=shift;
 
@@ -158,6 +168,10 @@ if($cmd =~ /^r/){
         r0ket::set_channel(shift);
     }elsif ($set =~ /^len/){
         r0ket::set_rxlen(shift);
+    }elsif ($set =~ /^id/){
+        r0ket::send_pkt_num("",7);
+        my $id=r0ket::get_data(7);
+        print "r0ket id: ",r0ket::hprint($id),"\n";
     }else{
         die "Unknown config argument $set\n";
     };
@@ -181,7 +195,7 @@ if($cmd =~ /^r/){
         if($scmd eq "t"){
             $pkt.="T";
             $pkt.=chr(shift); #gen
-            $pkt.=pack("N",scalar(time)+1*60*60);
+            $pkt.=pack("N",scalar(time)+$r0ket::timediff);
 
             $pkt.=pack("N",0);
             $pkt.=pack("N",0);
@@ -192,7 +206,7 @@ if($cmd =~ /^r/){
         }elsif($scmd eq "a"){
             $pkt.="A";
             $pkt.=chr(shift); #gen
-            $pkt.=pack("N",scalar(time)+1*60*60+ 300);
+            $pkt.=pack("N",scalar(time)+$r0ket::timediff+ 300);
 
             $pkt.= pack("C",shift||0);
             $pkt.= pack("C",0);
@@ -207,7 +221,7 @@ if($cmd =~ /^r/){
         }elsif($scmd eq "b"){
             $pkt.="B";
             $pkt.=chr(shift); #gen
-            $pkt.=pack("N",scalar(time)+1*60*60+ 600);
+            $pkt.=pack("N",scalar(time)+$r0ket::timediff+ 600);
 
             $pkt.= pack("C",shift||0);
             $pkt.= pack("C",0);
@@ -222,7 +236,7 @@ if($cmd =~ /^r/){
         }elsif($scmd eq "c"){
             $pkt.="\x1";
             $pkt.=chr(shift); #gen
-            $pkt.=pack("N",scalar(time)+1*60*60+ 600);
+            $pkt.=pack("N",scalar(time)+$r0ket::timediff+ 600);
 
             $pkt.= pack("C",shift||0);
             $pkt.= pack("C",0);
