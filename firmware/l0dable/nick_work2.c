@@ -133,6 +133,24 @@ static void lkReadI2C() {
     lk_in1 = lkGetI2C(LK_I2C_CR_INPUT1);
 }
 
+static void lksetLED(uint8_t led, uint8_t state)
+{
+    uint8_t reg;
+
+    if( led < 4 ){
+        reg = LK_I2C_CR_LS0;
+    }else if( led < 8 ){
+        reg = LK_I2C_CR_LS1;
+    }else if( led < 12 ){
+        reg = LK_I2C_CR_LS2;
+    }else{
+        reg = LK_I2C_CR_LS3;
+    }
+
+    lkSetI2C(reg, state << (led*2));
+}
+
+
 static void tick_lilakit(void)
 { // every 10ms
     lk_ticks++;
@@ -145,8 +163,6 @@ static void tick_lilakit(void)
 	    lkReadI2C();
     
         if ((lk_in0 & 0x02) == 0 && lk_button_mode == 0) {
-            melody_index = 0;
-            melody_timeout = 0;
 
             lk_ticks = 0;
             lk_button_mode = 1;
