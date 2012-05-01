@@ -37,8 +37,12 @@
 #define LK_I2C_LS_PWM0		0x02
 #define LK_I2C_LS_PWM1		0x03
 
-#define LK_PIEZO		RB_SPI_SS3
+#define LED_OFF LK_I2C_LS_OFF
+#define LED_ON LK_I2C_LS_ON
+#define LED_PWM0 LK_I2C_LS_PWM0
+#define LED_PWM1 LK_I2C_LS_PWM1
 
+#define LK_PIEZO		RB_SPI_SS3
 
 uint8_t lkEnabled = 0;
 uint8_t lk_button_mode = 0x00;
@@ -47,15 +51,19 @@ uint8_t lk_ls0 = 0x00;
 uint8_t lk_ls1 = 0x00;
 uint8_t lk_ls2 = 0x00;
 uint8_t lk_ls3 = 0x00;
-
 uint8_t lk_in0 = 0x00;
 uint8_t lk_in1 = 0x00;
 uint16_t lk_ticks = 0x0000;
 
+static void lksetLED(uint8_t led, uint8_t state);
+static uint32_t lkSetI2C(uint8_t cr, uint8_t value);
+static uint8_t lkGetI2C(uint8_t cr);
+static void lkUpdateI2C();
+static void lkReadI2C();
+
 static void init_lilakit(void);
 static void tick_lilakit(void);
 static void mainloop();
-void handler(void);
 
 void ram(void) {
     init_lilakit();
@@ -64,6 +72,62 @@ void ram(void) {
 
 static void mainloop(void)
 {
+
+    lksetLED(4, LED_PWM1);
+    //lksetLED(6, LED_PWM0);
+    //lksetLED(7, LED_PWM0);
+    lksetLED(13, LED_PWM0);
+    lksetLED(14, LED_PWM1);
+
+    while(getInputRaw()==BTN_NONE){
+        tick_lilakit();
+        //delayms_queue(10);    //TODO: This hangs the r0ket
+                                // but should save energy.
+        delayms(10);
+    }
+    return;
+}
+
+static void tick_lilakit(void)
+{ // every 10ms
+    lk_ticks++;
+
+    if (lkEnabled == 0) {
+	    return;
+    }
+    return; 
+    if (lk_ticks % 10 == 0) {
+	    lkReadI2C();
+    
+        if ((lk_in0 & 0x02) == 0 && lk_button_mode == 0) {
+
+            lk_ticks = 0;
+            lk_button_mode = 1;
+        
+            lk_ls1 = 0;
+            lk_ls1 |= LK_I2C_LS_ON << 4;
+            lk_ls1 |= LK_I2C_LS_ON << 6;
+            lkUpdateI2C();
+        }
+
+        if (lk_button_mode == 1 && lk_ticks > 0xFF) {
+            lk_button_mode = 0;
+            lk_ls1 = 0;
+            lk_ls1 |= LK_I2C_LS_PWM0 << 4;
+            lk_ls1 |= LK_I2C_LS_PWM1 << 6;
+            lkUpdateI2C();
+        }
+    }
+
+}
+
+static void init_lilakit(void)
+{
+    uint8_t i;
+
+    lkEnabled = (lkSetI2C(LK_I2C_CR_LS0, LK_I2C_LS_OFF << 0) == I2CSTATE_ACK); // probe i2c
+
+    //show nickname
     int dx=0;
 	int dy=0;
     
@@ -79,6 +143,36 @@ static void mainloop(void)
 	DoString(dx,dy,GLOBAL(nickname));
     lcdRefresh();
 
+    if (lkEnabled == 0) {
+	return;
+    }
+
+    // All LEDs off
+    for(i=0; i<16; i++){
+        lksetLED(i, LED_OFF);
+    }
+
+    // All PWMs off
+    lkSetI2C(LK_I2C_CR_PSC0, 0x00);
+    lkSetI2C(LK_I2C_CR_PWM0, 0x00);
+    lkSetI2C(LK_I2C_CR_PSC1, 0x00);
+    lkSetI2C(LK_I2C_CR_PWM1, 0x00);
+
+    // Prepare SS
+    //gpioSetDir(LK_PIEZO, gpioDirection_Output);
+    //gpioSetValue(LK_PIEZO, 1);
+
+    // Prepare blinking
+    lkSetI2C(LK_I2C_CR_PSC0, 0x23);
+    lkSetI2C(LK_I2C_CR_PWM0, 0x66);
+    lkSetI2C(LK_I2C_CR_PSC1, 0x75);
+    lkSetI2C(LK_I2C_CR_PWM1, 0x12);
+
+    // Enable both LEDs
+    //lk_ls1 |= LK_I2C_LS_PWM0 << 4;
+    //lk_ls1 |= LK_I2C_LS_PWM1 << 6;
+    
+
     lk_ticks = 0;
     lk_button_mode = 0x00;
     lk_ls0 = 0x00;
@@ -89,12 +183,6 @@ static void mainloop(void)
     lk_in1 = 0x00;
     lk_ticks = 0x0000;
 
-    while(getInputRaw()==BTN_NONE){
-        tick_lilakit();
-        //delayms_queue(10);    //XXX: this hangs the badge.
-        delayms(10);
-    }
-    return;
 }
 
 static uint32_t lkSetI2C(uint8_t cr, uint8_t value) {
@@ -136,99 +224,26 @@ static void lkReadI2C() {
 static void lksetLED(uint8_t led, uint8_t state)
 {
     uint8_t reg;
+    uint8_t val;
+    uint8_t pos = (led % 4)*2;
 
     if( led < 4 ){
         reg = LK_I2C_CR_LS0;
+        lk_ls0 &= ~(LK_I2C_LS_OFF << pos);
+        val = lk_ls0 = lk_ls0 | (state << pos );
     }else if( led < 8 ){
         reg = LK_I2C_CR_LS1;
+        lk_ls1 &= ~(LK_I2C_LS_OFF << pos);
+        val = lk_ls1 = lk_ls1 | (state << pos );
     }else if( led < 12 ){
         reg = LK_I2C_CR_LS2;
+        lk_ls2 &= ~(LK_I2C_LS_OFF << pos);
+        val = lk_ls2 = lk_ls2 | (state << pos );
     }else{
         reg = LK_I2C_CR_LS3;
+        lk_ls3 &= ~(LK_I2C_LS_OFF << pos);
+        val = lk_ls3 = lk_ls3 | (state << pos );
     }
 
-    lkSetI2C(reg, state << (led*2));
+    lkSetI2C(reg, val);
 }
-
-
-static void tick_lilakit(void)
-{ // every 10ms
-    lk_ticks++;
-
-    if (lkEnabled == 0) {
-	    return;
-    }
- 
-    if (lk_ticks % 10 == 0) {
-	    lkReadI2C();
-    
-        if ((lk_in0 & 0x02) == 0 && lk_button_mode == 0) {
-
-            lk_ticks = 0;
-            lk_button_mode = 1;
-        
-            lk_ls1 = 0;
-            lk_ls1 |= LK_I2C_LS_ON << 4;
-            lk_ls1 |= LK_I2C_LS_ON << 6;
-            lkUpdateI2C();
-        }
-
-        if (lk_button_mode == 1 && lk_ticks > 0xFF) {
-            lk_button_mode = 0;
-            lk_ls1 = 0;
-            lk_ls1 |= LK_I2C_LS_PWM0 << 4;
-            lk_ls1 |= LK_I2C_LS_PWM1 << 6;
-            lkUpdateI2C();
-        }
-    }
-
-}
-
-static void init_lilakit(void)
-{
-
-    lkEnabled = (lkSetI2C(LK_I2C_CR_LS0, LK_I2C_LS_OFF << 0) == I2CSTATE_ACK); // probe i2c
-    if (lkEnabled == 0) {
-	return;
-    }
-
-    // All LEDs off
-    lkSetI2C(LK_I2C_CR_LS0, LK_I2C_LS_OFF << 0);
-    lkSetI2C(LK_I2C_CR_LS0, LK_I2C_LS_OFF << 2);
-    lkSetI2C(LK_I2C_CR_LS0, LK_I2C_LS_OFF << 4);
-    lkSetI2C(LK_I2C_CR_LS0, LK_I2C_LS_OFF << 6);
-    lkSetI2C(LK_I2C_CR_LS1, LK_I2C_LS_OFF << 0);
-    lkSetI2C(LK_I2C_CR_LS1, LK_I2C_LS_OFF << 2);
-    lkSetI2C(LK_I2C_CR_LS1, LK_I2C_LS_OFF << 4);
-    lkSetI2C(LK_I2C_CR_LS1, LK_I2C_LS_OFF << 6);
-    lkSetI2C(LK_I2C_CR_LS2, LK_I2C_LS_OFF << 0);
-    lkSetI2C(LK_I2C_CR_LS2, LK_I2C_LS_OFF << 2);
-    lkSetI2C(LK_I2C_CR_LS2, LK_I2C_LS_OFF << 4);
-    lkSetI2C(LK_I2C_CR_LS2, LK_I2C_LS_OFF << 6);
-    lkSetI2C(LK_I2C_CR_LS3, LK_I2C_LS_OFF << 0);
-    lkSetI2C(LK_I2C_CR_LS3, LK_I2C_LS_OFF << 2);
-    lkSetI2C(LK_I2C_CR_LS3, LK_I2C_LS_OFF << 4);
-    lkSetI2C(LK_I2C_CR_LS3, LK_I2C_LS_OFF << 6);
-
-    // All PWMs off
-    lkSetI2C(LK_I2C_CR_PSC0, 0x00);
-    lkSetI2C(LK_I2C_CR_PWM0, 0x00);
-    lkSetI2C(LK_I2C_CR_PSC1, 0x00);
-    lkSetI2C(LK_I2C_CR_PWM1, 0x00);
-
-    // Prepare SS
-    gpioSetDir(LK_PIEZO, gpioDirection_Output);
-    gpioSetValue(LK_PIEZO, 1);
-
-    // Prepare blinking
-    lkSetI2C(LK_I2C_CR_PSC0, 0x23);
-    lkSetI2C(LK_I2C_CR_PWM0, 0x66);
-    lkSetI2C(LK_I2C_CR_PSC1, 0x75);
-    lkSetI2C(LK_I2C_CR_PWM1, 0x12);
-
-    // Enable both LEDs
-    lk_ls1 |= LK_I2C_LS_PWM0 << 4;
-    lk_ls1 |= LK_I2C_LS_PWM1 << 6;
-    lkSetI2C(LK_I2C_CR_LS1, lk_ls1);
-}
-
