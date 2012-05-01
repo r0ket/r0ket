@@ -322,7 +322,7 @@ sub r0ket_init{
         };
     };
     if(!defined $ser){
-        do {$ser=$_ if ( -e $_ ) } for qw(/dev/ttyS3 /dev/ttyACM0);
+        do {$ser=$_ if ( -e $_ ) } for qw(/dev/ttyACM0);
     };
     open($bridge, "+<",$ser) || die "open serial: $!";
     if($verbose){
