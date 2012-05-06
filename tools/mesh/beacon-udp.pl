@@ -111,13 +111,13 @@ if($verbose){
 };
 my $lasttime=time;
 my $llasttime=time;
-my $pkt;
+my ($type,$pkt);
 my $donl=0;
 
 my($typenick,$typebeacon,$typeunknown)=(0,0,0);
 my($ltypenick,$ltypebeacon,$ltypeunknown)=(0,0,0);
 while(1){
-    $pkt=r0ket::get_packet();
+    ($type,$pkt)=r0ket::get_data(0);
 
     if($verbose){
         if(time-$lasttime >= $intvl){
@@ -145,7 +145,17 @@ while(1){
         };
     };
 
-    next if($pkt eq "ack"); # in-band signalling.
+    if($type==0){ # Read timeout -> Send Heartbeat.
+         $pkt= pack("CC13",
+                 22,        # proto (RFBPROTO_READER_ANNOUNCE)
+                 0,         # unused
+                 );
+         $pkt.=pack("n",crcccitt($pkt));
+#         print "hb: len=",length($pkt),"\n";
+    }elsif($type!=1){
+        print "Unknown packet[type=$type]: $pkt\n";
+    };
+
     if(length($pkt) != 16){  # Sanity check
         $errors++;
         next;
@@ -170,6 +180,7 @@ while(1){
     send(SOCKET, $crc.$hdr.$pkt,0,$hispaddr);
 
     next if($fast);
+    next if($type==0); # skip hearbeat packets
 
     my $p=r0ket::nice_beacon($pkt);
     if($p->{crc} ne "ok"){
