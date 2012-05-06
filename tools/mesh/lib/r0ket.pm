@@ -8,7 +8,7 @@ use IO::Select;
 package r0ket;
 
 use Digest::CRC qw(crcccitt);
-use POSIX qw(strftime);
+use POSIX qw(strftime VTIME VMIN TCSANOW);
 use Time::HiRes;
 
 our $verbose=0;
@@ -328,6 +328,14 @@ sub r0ket_init{
     if($verbose){
         print "using: $ser\n";
     };
+
+    # Set serial to non-blocking:
+    my ($term)=POSIX::Termios->new();
+    $term->getattr(fileno($bridge));
+    $term->setcc(VTIME,1);
+    $term->setcc(VMIN,0);
+    $term->setattr(fileno($bridge),TCSANOW);
+
     return $ser;
 };
 
