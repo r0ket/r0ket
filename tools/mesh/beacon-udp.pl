@@ -70,8 +70,12 @@ my $hispaddr = sockaddr_in($port, $hisiaddr);
 
 ###send(SOCKET, 0, 0, $hispaddr);
 
-my $xterm=0;
-my $screen=1;
+my $xterm=$ENV{TERM}eq"xterm"?1:0;
+my $screen=$ENV{TERM}eq"screen"?1:0;
+
+if (! -t 1){
+    $xterm=$screen=0;
+};
 
 my $crcerr=0;
 my $errors=0;
