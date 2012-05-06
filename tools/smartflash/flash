@@ -1,9 +1,12 @@
 #!/bin/sh
-bin=frimware.bin
+bin=firmware.bin
 if [ ! -z "$3" ] ; then
     bin=$3
 fi
-dd if=$3 seek=4 of=/dev/$1 2>/dev/null
+dd if=$bin seek=4 of=/dev/$1 2>/dev/null
+if [ $? != 0 ] ; then
+	echo "Flash failed: $1 @ $2"
+fi
 if [ -z "$3" ] ; then
     echo "FLASH done: $1 @ $2"
 else
