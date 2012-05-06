@@ -169,13 +169,11 @@ if($cmd =~ /^r/){
     }elsif ($set =~ /^len/){
         r0ket::set_rxlen(shift);
     }elsif ($set =~ /^id/){
-        r0ket::send_pkt_num("",7);
-        my $id=r0ket::get_data(7);
+        my $id=r0ket::get_id();
         print "r0ket id: ",r0ket::hprint($id),"\n";
     }else{
         die "Unknown config argument $set\n";
     };
-    r0ket::wait_ok();
 
 }elsif ($cmd =~ /^s/){
 	$cmd=~s/^//;

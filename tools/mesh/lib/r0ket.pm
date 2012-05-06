@@ -346,30 +346,44 @@ sub send_pkt_num {
 
 sub send_pkt {
     send_pkt_num(shift,1);
+    wait_ok(1);
 };
 
 sub set_txmac {
     send_pkt_num(shift,3);
+    wait_ok(1);
 };
 sub set_rxmac {
     send_pkt_num(shift,4);
+    wait_ok(1);
 };
 sub set_channel {
     send_pkt_num(pack("C",shift),5);
+    wait_ok(1);
 };
 sub set_rxlen {
     $rxlen=$_[0];
     send_pkt_num(pack("C",shift),6);
+    wait_ok(1);
 };
+sub get_id {
+    send_pkt_num("",7);
+    my $id=get_data(7);
+    wait_ok(1);
+    return $id;
+};
+
 
 sub wait_ok {
     my ($type,$pkt);
-    ($type,$pkt)=get_data();
-    while($type ne "2"){
-        print "pkt[$type]=[",length($pkt),"]",(sprint $pkt),"\n";
+    while(1){
         ($type,$pkt)=get_data();
+        last if ($type == 2);
+        die "wait_ok ran into timeout!\n" if($type == 0);
+
+        print "wait_ok: pkt[$type]=[",length($pkt),"]",(sprint $pkt),"\n";
     };
-    print "ok!\n";
+    print "ok!\n" unless ($quiet || $_[0]);
     return 1;
 };
 1;
