@@ -336,6 +336,10 @@ sub r0ket_init{
     $term->setcc(VMIN,0);
     $term->setattr(fileno($bridge),TCSANOW);
 
+    #empty buffer, in case there is old data
+    my $dummy;
+    sysread($bridge,$dummy,1024);
+
     return $ser;
 };
 
