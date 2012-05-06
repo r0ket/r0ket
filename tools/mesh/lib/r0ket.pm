@@ -102,32 +102,14 @@ our $buffer;
 our $firstpkt=1;
 sub get_data{
     my $filter=shift||0;
-    sub _get_bytes{
-        my $rr;
-        sysread($bridge,$rr,1024);
-        if(length($rr)<=1){
-            select(undef,undef,undef,0.05);
-        };
-        $buffer.=$rr;
-#        print "recv: ",unpack("H*",$rr),"\n";
-    };
 
-    my $cnt=0;
+    my $rin=''; # Select vector
+    my ($rout,$eout);
+    vec($rin,fileno($bridge),1) = 1;
+
     while(1){
-        if(length($buffer)<2){
-            _get_bytes();
-        }elsif($buffer !~ /^\\[1-9]/){
-            if($buffer =~ /[^\\]\\[1-9]/){
-                $buffer =~ s/^(.*?[^\\])(\\[1-9])/\2/s;
-            }else{
-                $buffer = s/(.*)//s;
-            };
-            if($firstpkt){
-                $firstpkt--;
-            }else{
-                print STDERR "Unparseable stuff: <",sprint($1),">\n" if(!$quiet);
-            };
-        }elsif ($buffer =~ s/^\\(\d)(.*?)\\0//s){
+
+        if ($buffer =~ s/^\\(\d)(.*?)\\0//s){
             my ($type,$str)=($1,$2);
             $str=~s/\\\\/\\/g; # dequote
 #            print STDERR "ret:pkt[$type]=",(sprint $str),"\n";
@@ -136,14 +118,41 @@ sub get_data{
             }elsif($filter==$type){
                 return $str;
             };
-        }else{
-            _get_bytes();
+            next; # If rejected, look for next packet.
         };
-        if(++$cnt%100 == 0){
-            if(!$quiet){
-                print STDERR "No packets for 5 seconds?\n";
+
+        if(length($buffer)>1){
+            if($buffer =~ /[^\\]\\[1-9]/){
+                $buffer =~ s/^(.*?[^\\])(\\[1-9])/\2/s;
+                if($firstpkt){
+                    $firstpkt--;
+                }else{
+                    print STDERR "Unparseable stuff: <",sprint($1),">\n" if(!$quiet);
+                };
+                redo; # Try parsing the rest.
             };
         };
+
+        my ($nfound,$timeleft) =
+            select($rout=$rin, undef, $eout=$rin, 1);
+        if($nfound==0){
+            if($filter==0){
+                return (0,'');
+            }else{
+                print STDERR "No packets for 1 second...\n";
+            };
+        };
+        if($eout eq $rin){
+            die "Error on bridge socket: $!\n";
+        };
+        if($rout eq $rin){
+            my $rr;
+            sysread($bridge,$rr,1024);
+#            print "len=",length($rr),"\n";
+            $buffer.=$rr;
+        };
+            
+#        print "recv: ",unpack("H*",$rr),"\n";
     };
 };
 
