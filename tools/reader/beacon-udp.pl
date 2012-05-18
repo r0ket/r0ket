@@ -10,6 +10,7 @@ use Digest::CRC qw(crcccitt);
 
 use FindBin;
 use lib "$FindBin::Bin/lib";
+use lib "$FindBin::Bin/../mesh/lib";
 use r0ket;
 
 $|=1;
@@ -162,14 +163,15 @@ while(1){
 
     if(length($pkt) != 16){  # Sanity check
         $errors++;
+        print STDERR "Length check\n";
         next;
     };
     $ctr++;
 
     my $idoff=0;
-    if(substr($pkt,12,1) eq "\xee"){
-         $idoff=1000;
-    };
+#    if(substr($pkt,12,1) eq "\xee"){
+#         $idoff=1000;
+#    };
 
     my $hdr= pack("CCnnNN",
             1,         # proto (BEACONLOG_SIGHTING)
@@ -198,8 +200,8 @@ while(1){
     }else{
         $typeunknown++;
     };
-    if($idoff){
-        $typeunknown++;
-    };
+#    if($idoff){
+#        $typeunknown++;
+#    };
 };
 r0ket::rest();
