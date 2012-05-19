@@ -4,11 +4,12 @@
 
 use strict;
 
-use IO::Select;
 package r0ket;
+use IO::Select;
+use Socket;
 
 use Digest::CRC qw(crcccitt);
-use POSIX qw(strftime VTIME VMIN TCSANOW);
+use POSIX qw(strftime :termios_h);
 use Time::HiRes;
 
 our $verbose=0;
@@ -98,14 +99,16 @@ sub writebeacon{
 
 ### Packet mgmt
 
-our $buffer;
+my $buffer;
 our $firstpkt=1;
 sub get_data{
     my $filter=shift||0;
 
     my $rin=''; # Select vector
+    my $ein=''; # Select vector
     my ($rout,$eout);
     vec($rin,fileno($bridge),1) = 1;
+    vec($ein,fileno($bridge),1) = 1;
 
     while(1){
 
@@ -118,6 +121,7 @@ sub get_data{
             }elsif($filter==$type){
                 return $str;
             };
+            print "got a 2: ",length($str)," $str \n" if ($type==2);
             next; # If rejected, look for next packet.
         };
 
@@ -132,9 +136,8 @@ sub get_data{
                 redo; # Try parsing the rest.
             };
         };
-
         my ($nfound,$timeleft) =
-            select($rout=$rin, undef, $eout=$rin, 1);
+            select($rout=$rin, undef, $eout=$ein, 1);
         if($nfound==0){
             if($filter==0){
                 return (0,'');
@@ -142,17 +145,18 @@ sub get_data{
                 print STDERR "No packets for 1 second...\n";
             };
         };
-        if($eout eq $rin){
+        if($eout eq $ein){ # Doesn't get triggered?
             die "Error on bridge socket: $!\n";
         };
         if($rout eq $rin){
-            my $rr;
+            my $rr="";
             sysread($bridge,$rr,1024);
 #            print "len=",length($rr),"\n";
             $buffer.=$rr;
+            die "Nothing to read?" if(length($rr)==0); # Probably device gone.
+#            print "recv: ",unpack("H*",$rr),"\n";
         };
             
-#        print "recv: ",unpack("H*",$rr),"\n";
     };
 };
 
@@ -330,6 +334,25 @@ sub r0ket_init{
             $ser=$ENV{R0KETBRIDGE}
         };
     };
+if($ser =~ /:/){
+    my ($remote, $port, $iaddr, $paddr, $proto, $line);
+
+    $ser =~ /(.*):(.*)/;
+    $remote  = $1;
+    $port    = $2;
+    $iaddr   = inet_aton($remote)       || die "no host: $remote";
+    $paddr   = sockaddr_in($port, $iaddr);
+
+    $proto   = getprotobyname("tcp");
+    use Fcntl;
+    socket($bridge, PF_INET, SOCK_STREAM, $proto)  || die "socket: $!";
+    connect($bridge, $paddr)                       || die "connect: $!";
+
+    my $old_flags = fcntl($bridge, F_GETFL, 0)
+        or die "can't get flags: $!";
+    fcntl($bridge, F_SETFL, $old_flags | O_NONBLOCK) 
+        or die "can't set non blocking: $!";
+}else{
     if(!defined $ser){
         do {$ser=$_ if ( -e $_ ) } for qw(/dev/ttyACM0);
     };
@@ -343,7 +366,9 @@ sub r0ket_init{
     $term->getattr(fileno($bridge));
     $term->setcc(VTIME,1);
     $term->setcc(VMIN,0);
+    $term->setcc(ECHO,0);
     $term->setattr(fileno($bridge),TCSANOW);
+};
 
     #empty buffer, in case there is old data
     my $dummy;
@@ -389,7 +414,7 @@ sub set_rxlen {
 };
 sub get_id {
     send_pkt_num("",7);
-    my $id=get_data(7);
+    my $id=unpack("H*",get_data(7));
     wait_ok(1);
     return $id;
 };
