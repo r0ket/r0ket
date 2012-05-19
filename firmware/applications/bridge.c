@@ -62,6 +62,8 @@ void main_bridge(void)
     char input[64];
     char led1=0;
     char led2=0;
+    char led3=0;
+    int ctr=0;
 
     usbCDCInit();
     delayms(500);
@@ -124,6 +126,10 @@ void main_bridge(void)
             dump_encoded(len, buf);
             puts("\\0");
         }
+        if(ctr++>10000){
+            ctr=0;
+            gpioSetValue (RB_LED1, led3);led3=1-led3;
+        };
     }
 }
 
@@ -137,7 +143,11 @@ void dump_encoded(int len, uint8_t *data)
         }
         buf[j++] = data[i];
     }
+    IOCON_PIO1_11 = 0x0;
+    gpioSetDir(RB_LED3, gpioDirection_Output);
+    gpioSetValue (RB_LED3, 1);
     CDC_WrInBuf((char*)buf, &j);
+    gpioSetValue (RB_LED3, 0);
 }
 
 void tick_bridge(void){
