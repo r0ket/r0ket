@@ -60,6 +60,8 @@ void main_bridge(void)
     GLOBAL(lcdbacklight)=10;
     GLOBAL(privacy) = 3;
     char input[64];
+    char led1=0;
+    char led2=0;
 
     usbCDCInit();
     delayms(500);
@@ -71,6 +73,7 @@ void main_bridge(void)
         int l, i, status;
         CDC_OutBufAvailChar (&l);
         if(l>0){
+            gpioSetValue (RB_LED0, led1);led1=1-led1;
             CDC_RdOutBuf (input, &l);
             for(i=0; i<l; i++){
                 uint8_t cmd = serialmsg_put(input[i]);
@@ -116,6 +119,7 @@ void main_bridge(void)
         uint8_t buf[32];
         len=nrf_rcv_pkt_poll(sizeof(buf),buf);
         if( len > 0 ){
+            gpioSetValue (RB_LED2, led2);led2=1-led2;
             puts("\\1");
             dump_encoded(len, buf);
             puts("\\0");
