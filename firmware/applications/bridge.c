@@ -124,9 +124,13 @@ void main_bridge(void)
         len=nrf_rcv_pkt_poll(sizeof(buf),buf);
         gpioSetValue (RB_LED2, 0);
         if( len > 0 ){
+    IOCON_PIO1_11 = 0x0;
+    gpioSetDir(RB_LED3, gpioDirection_Output);
+    gpioSetValue (RB_LED3, 1);
             puts("\\1");
             dump_encoded(len, buf);
             puts("\\0");
+    gpioSetValue (RB_LED3, 0);
         }
         if(ctr++>10000){
             ctr=0;
@@ -145,11 +149,7 @@ void dump_encoded(int len, uint8_t *data)
         }
         buf[j++] = data[i];
     }
-    IOCON_PIO1_11 = 0x0;
-    gpioSetDir(RB_LED3, gpioDirection_Output);
-    gpioSetValue (RB_LED3, 1);
     CDC_WrInBuf((char*)buf, &j);
-    gpioSetValue (RB_LED3, 0);
 }
 
 void tick_bridge(void){
