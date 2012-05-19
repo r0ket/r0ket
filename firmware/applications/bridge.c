@@ -75,8 +75,9 @@ void main_bridge(void)
         int l, i, status;
         CDC_OutBufAvailChar (&l);
         if(l>0){
-            gpioSetValue (RB_LED0, led1);led1=1-led1;
+            gpioSetValue (RB_LED0, 1);
             CDC_RdOutBuf (input, &l);
+            gpioSetValue (RB_LED0, 0);
             for(i=0; i<l; i++){
                 uint8_t cmd = serialmsg_put(input[i]);
                 if( cmd != SERIAL_NONE ){
@@ -119,9 +120,10 @@ void main_bridge(void)
         }
         int len;
         uint8_t buf[32];
+        gpioSetValue (RB_LED2, 1);
         len=nrf_rcv_pkt_poll(sizeof(buf),buf);
+        gpioSetValue (RB_LED2, 0);
         if( len > 0 ){
-            gpioSetValue (RB_LED2, led2);led2=1-led2;
             puts("\\1");
             dump_encoded(len, buf);
             puts("\\0");
