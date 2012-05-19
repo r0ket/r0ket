@@ -118,9 +118,6 @@ int nrf_rcv_pkt_poll(int maxsize, uint8_t * pkt){
 
     if((status & R_STATUS_RX_P_NO) == R_STATUS_RX_FIFO_EMPTY){
         if( (status & R_STATUS_RX_DR) == R_STATUS_RX_DR){
-#ifdef USB_CDC
-            puts("FIFO empty, but RX?\r\n");
-#endif
             nrf_write_reg(R_STATUS,R_STATUS_RX_DR);
         };
         return 0;
