@@ -73,6 +73,17 @@ $r0ket::verbose=1;
 my @fh;
 my $read;
 
+my @args=@ARGV;
+my $sidx=0;
+for my $eidx (0..$#args){
+    if($args[$eidx] eq ","){
+        dwim(@args[$sidx..$eidx-1]);
+        $sidx=$eidx+1;
+    }
+};
+dwim(@args[$sidx..$#args]);
+        
+sub dwim{
 my $cmd=shift;
 
 if($cmd =~ /^r/){
@@ -270,6 +281,7 @@ if($cmd =~ /^r/){
 	};
 }else{
     die "Option not understood\n";
+};
 };
 
 #if (@fh = $sel->can_read(10)) {
