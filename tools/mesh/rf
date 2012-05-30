@@ -181,7 +181,7 @@ if($cmd =~ /^r/){
         r0ket::set_rxlen(shift);
     }elsif ($set =~ /^id/){
         my $id=r0ket::get_id();
-        print "r0ket id: ",r0ket::hprint($id),"\n";
+        print "r0ket id: ",$id,"\n";
     }else{
         die "Unknown config argument $set\n";
     };
