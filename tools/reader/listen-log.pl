@@ -26,7 +26,8 @@ while (1){
     ($port, $hisiaddr) = sockaddr_in($hispaddr);
 #    $host = gethostbyaddr($hisiaddr, AF_INET);
     $host=join(".",unpack("CCCC",$hisiaddr));
-    $buf =~ y!a-zA-Z0-9.:,; _()[]{}?-!!cd;
+    chomp($buf);
+    $buf =~ y!a-zA-Z0-9.:,; _()[]{}<>/?-!!cd;
     print substr(scalar(localtime),11,8)," ",$host," ",$buf,"\n";
 };
 
