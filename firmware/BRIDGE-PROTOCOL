@@ -8,12 +8,17 @@ r->h: \2\0
 Settings:
 h->r:\3<TXMAC>\0
 r->h: \2\0
+
 h->r:\4<RXMAX>\0
 r->h: \2\0
+
 h->r:\5<CHANNEL>\0
 r->h: \2\0
-h->r:\6<MACLEN>\0
+
+h->r:\6<RXLEN>\0
 r->h: \2\0
+
 h->r:\7\0
 r->h: \7<UUID>\0
+r->h: \2\0
 
