@@ -23,7 +23,7 @@
 
 #define BUFSIZE 100
 #define PORT 2342
-#define SRV_IP "127.0.0.1"
+char *SRV_IP="127.0.0.1";
 
 #define TYPE_UDP
 #undef TYPE_TCP
@@ -253,12 +253,17 @@ int main(int argc, char ** argv){
     time(&ot);
 
 	/* The big getopt loop */
-	while ((c = getopt(argc, argv, "d:")) != EOF)
+	while ((c = getopt(argc, argv, "s:d:")) != EOF)
 		switch (c)
 		{
 			case 'd':
 				device=(char *)malloc(strlen(optarg)+2);
 				strcpy(device,optarg);
+				break;
+
+			case 's':
+				SRV_IP=(char *)malloc(strlen(optarg)+2);
+				strcpy(SRV_IP,optarg);
 				break;
 
 			default:
