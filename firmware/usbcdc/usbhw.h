@@ -34,6 +34,8 @@
 #define USB_ERR_BTSTF       0x0040  /* Bit Stuff Error */
 #define USB_ERR_TGL         0x0080  /* Toggle Bit Error */
 
+extern volatile uint8_t usbunderrun;
+
 /* USB Hardware Functions */
 extern void  USBIOClkConfig (void);
 extern void  USB_Init       (void);

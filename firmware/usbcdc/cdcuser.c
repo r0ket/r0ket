@@ -165,7 +165,7 @@ int CDC_WrInBuf (const char *buffer, int *length)
   //if( CDC_DepInEmpty && CDC_BUF_COUNT(CDC_InBuf) ){
   if( CDC_DepInEmpty ){
     CDC_DepInEmpty = 0;
-    CDC_BulkIn(); 
+    CDC_BulkIn();
   }
   USB_DEVINTEN  = DEV_STAT_INT | (0xFF<<1) | (USB_SOF_EVENT   ? FRAME_INT : 0);
 

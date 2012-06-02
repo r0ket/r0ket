@@ -30,6 +30,7 @@
 
 #include "usb/usbmsc.h"
 
+volatile uint8_t usbunderrun = 0;
 /*    
  *    USB and IO Clock configuration only. 
  *    The same as call PeriClkIOInit(IOCON_USB); 
@@ -475,6 +476,11 @@ uint32_t USB_WriteEP (uint32_t EPNum, uint8_t *pData, uint32_t cnt)
   //this seems rather brutal...
   //disable all usb related interrupts or WrCmd might block 
   USB_DEVINTEN = 0;
+  
+  if( EPNum == 0x83 && cnt < 64 )
+    usbunderrun = 1;
+  if( EPNum == 0x83 && cnt == 0 )
+    while(1);
 
   USB_CTRL = ((EPNum & 0x0F) << 2) | CTRL_WR_EN;
   /* 3 clock cycles to fetch the packet length from RAM. */ 
@@ -523,8 +529,25 @@ uint32_t USB_GetFrame (void)
 void USB_IRQHandler (void)
 {
   uint32_t disr, val, n, m;
-
+  static uint8_t led1 = 1;
   disr = USB_DEVINTST;                      /* Device Interrupt Status */
+
+#if USB_SOF_EVENT
+  /* Start of Frame Interrupt */
+  if (disr & FRAME_INT) 
+  {
+    //USB_DEVINTCLR = FRAME_INT;
+    gpioSetValue (RB_LED1, led1);led1=1-led1;
+    USB_SOF_Event();
+    if( usbunderrun ){
+        usbunderrun = 0;
+        CDC_BulkIn();
+    }
+    // SOFIRQCount++;
+  }
+#endif
+
+
   USB_DEVINTCLR = disr;
 
   /* Device Status Interrupt (Reset, Connect change, Suspend/Resume) */
@@ -558,17 +581,6 @@ void USB_IRQHandler (void)
     }
     goto isr_end;
   }
-
-#if USB_SOF_EVENT
-  /* Start of Frame Interrupt */
-  if (disr & FRAME_INT) 
-  {
-    USB_DEVINTCLR = FRAME_INT;
-    USB_SOF_Event();
-    // SOFIRQCount++;
-  }
-#endif
-
 #if USB_ERROR_EVENT
   /* NO error interrupt anymore, below code can be used
   as example to get error status from command engine. */
