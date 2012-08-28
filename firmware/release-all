@@ -41,8 +41,8 @@ export FINAL=y
 $MAKE clean 
 ./l0dable/mktable.pl
 $MAKE APP=final
-cp firmware.elf $TARG/final.elf
-cp firmware.bin $TARG/final.bin
+cp final.elf $TARG/final.elf
+cp final.bin $TARG/final.bin
 
 echo "###"
 echo "### Gathering files"
