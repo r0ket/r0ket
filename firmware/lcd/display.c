@@ -13,6 +13,20 @@
 #define DISPLAY_N1200 0
 #define DISPLAY_N1600 1
 
+#define MODE 8 /* 8 or 16 */
+
+#if MODE == 8
+#define putpix(x) _helper_pixel8(x)
+#define px_INIT_MODE 2
+#define px_PACK(r,g,b) COLORPACK_RGB332(r,g,b)
+#define px_type uint8_t
+#else
+#define putpix(x) _helper_pixel16(x)
+#define px_INIT_MODE 5
+#define px_PACK(r,g,b) COLORPACK_RGB565(r,g,b)
+#define px_type uint16_t
+#endif
+
 /**************************************************************************/
 /* Utility routines to manage nokia display */
 /**************************************************************************/
@@ -204,7 +218,7 @@ void lcdInit(void) {
         		 *   DAT 70-2 : ye
         		 */
             0x01, 0x11, 0x29, 0x03, 0x13, 
-            0x3A, 0x02, 
+            0x3A, px_INIT_MODE, 
             0x2A, 1, 98-2, 
             0x2B, 1, 70-2
         };
@@ -251,18 +265,22 @@ bool lcdGetPixel(char x, char y){
     return byte & (1 << y_off);
 }
 
-
-// Color display hepler functions
+// Color display helper functions
 static inline void _helper_pixel8(uint8_t color1){
     lcdWrite(TYPE_DATA, color1);
+}
+
+static void _helper_pixel16(uint16_t color){
+    lcdWrite(TYPE_DATA,color>>8);
+    lcdWrite(TYPE_DATA,color&0xFF);
 }
 
 #define COLORPACK_RGB565(r,g,b) (((r&0xF8) << 8) | ((g&0xFC)<<3) | ((b&0xF8) >> 3))
 #define COLORPACK_RGB444(r,g,b) ( ((r&0xF0)<<4) | (g&0xF0) | ((b&0xF0)>>4) )
 #define COLORPACK_RGB332(r,g,b) ( (((r>>5)&0x7)<<5) | (((g>>5)&0x7)<<2) | ((b>>6)&0x3) )
 
-static const uint8_t COLOR_FG =   COLORPACK_RGB332(0x00, 0x60, 0x00);
-static const uint8_t COLOR_BG =   COLORPACK_RGB332(0xff, 0xff, 0xff);
+static const px_type COLOR_FG =   px_PACK(0x00, 0x00, 0x00);
+static const px_type COLOR_BG =   px_PACK(0xff, 0xff, 0xff);
 
 void lcdDisplay(void) {
     char byte;
@@ -298,8 +316,12 @@ void lcdDisplay(void) {
                   px=lcdGetPixel(RESX-x,y-1);
               else
                   px=lcdGetPixel(x-1,y-1);
-              
-             lcdWrite(TYPE_DATA, ((!px)^(!GLOBAL(lcdinvert))) ? COLOR_FG : COLOR_BG);
+
+	      if((!px)^(!GLOBAL(lcdinvert))) {
+		      putpix(COLOR_FG); /* foreground */
+	      } else {
+		      putpix(COLOR_BG); /* background */
+	      }
           }
       }
     };
