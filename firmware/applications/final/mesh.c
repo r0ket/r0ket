@@ -218,10 +218,10 @@ void m_choose(){
             lcdPrintln("Saal 1");
             break;
         case('F'):
-            lcdPrintln("Saal 2");
+            lcdPrintln("Saal 4");
             break;
         case('G'):
-            lcdPrintln("Saal 3");
+            lcdPrintln("Saal 6");
             break;
         case('T'):
             lcdPrintln("Time");
