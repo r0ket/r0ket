@@ -21,10 +21,17 @@
 #define px_PACK(r,g,b) COLORPACK_RGB332(r,g,b)
 #define px_type uint8_t
 #else
-#define putpix(x) _helper_pixel16(x)
-#define px_INIT_MODE 5
-#define px_PACK(r,g,b) COLORPACK_RGB565(r,g,b)
-#define px_type uint16_t
+ #if MODE == 12
+ #define putpix(x) _helper_pixel12(x)
+ #define px_INIT_MODE 3
+ #define px_PACK(r,g,b) COLORPACK_RGB444(r,g,b)
+ #define px_type uint16_t
+ #else
+ #define putpix(x) _helper_pixel16(x)
+ #define px_INIT_MODE 5
+ #define px_PACK(r,g,b) COLORPACK_RGB565(r,g,b)
+ #define px_type uint16_t
+ #endif
 #endif
 
 /**************************************************************************/
@@ -217,15 +224,28 @@ void lcdInit(void) {
         		 *   DAT 1    : ys
         		 *   DAT 70-2 : ye
         		 */
-            0x01, 0x11, 0x29, 0x03, 0x13, 
+            0x11, 
+            0x29, 
+            0x03, 
+            0x13, 
             0x3A, px_INIT_MODE, 
             0x2A, 1, 98-2, 
             0x2B, 1, 70-2
         };
-        uint16_t initseq_c = ~ 0x4BF; // 0b0000 0100 1011 1111
-                                      // read from right to left,
-                                      // commands:1, data:0
+        uint16_t initseq_c = ~  (  /* comands: 1, data: 0 */
+                (1<<0) |
+                (1<<1) |
+                (1<<2) |
+                (1<<3) |
+                (1<<4) | (0<< 5) |
+                (1<<6) | (0<< 7) | (0<< 8) |
+                (1<<9) | (0<<10) | (0<<11) |
+                0);
         int i = 0;
+
+        lcdWrite(0, 0x01); /* most color displays need the pause */
+        delayms(10);
+
         while(i<sizeof(initseq_d)){
             lcdWrite(initseq_c&1, initseq_d[i++]);
             initseq_c = initseq_c >> 1;
@@ -268,6 +288,19 @@ bool lcdGetPixel(char x, char y){
 // Color display helper functions
 static inline void _helper_pixel8(uint8_t color1){
     lcdWrite(TYPE_DATA, color1);
+}
+
+static void _helper_pixel12(uint16_t color){
+    static char odd=0;
+    static char rest;
+    if(odd){
+        lcdWrite(TYPE_DATA,(rest<<4) | (color>>8));
+        lcdWrite(TYPE_DATA,color&0xff);
+    }else{
+        lcdWrite(TYPE_DATA,(color>>4)&0xff);
+        rest=(color&0x0f);
+    };
+    odd=1-odd;
 }
 
 static void _helper_pixel16(uint16_t color){
