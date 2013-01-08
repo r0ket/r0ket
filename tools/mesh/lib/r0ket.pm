@@ -15,7 +15,10 @@ use Time::HiRes;
 our $verbose=0;
 our $bridge; # Open device
 our $quiet=0;
-our $timediff=60*60*2;
+
+use Time::Local qw(timegm timelocal);
+my @t = localtime(time);
+our $timediff = timegm(@t) - timelocal(@t);
 
 my $rxlen=0; # Filter for get_pkt()
 
@@ -442,4 +445,3 @@ sub wait_ok {
     return 1;
 };
 1;
-

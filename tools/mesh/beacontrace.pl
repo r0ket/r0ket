@@ -92,12 +92,12 @@ while(1){
     if(time>$lasttime+UPDATE){
         for my $b (sort keys %bdata){
             $win->addstr($line++,0,
-                    sprintf "%s | bt=%s idx=%8s | %s | %s",
+                    sprintf "%s | bt=%s idx=%9s | %s | %s",
                     $b,
                     $bdata{$b}{beacon}->{button},
                     $bdata{$b}{beacon}->{idx},
                     do_str($bdata{$b}{stats}),
-                    $bdata{$b}{nick}."   "
+                    $bdata{$b}{nick}."         "
                     );
         };
         $win_top->addstr(1,20,sprintf" cnt=%2d, crc=%d",scalar(keys %bdata),$crcerr);
