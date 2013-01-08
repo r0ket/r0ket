@@ -88,19 +88,21 @@ void main_bridge(void)
                         break;
                         case '3':
                             memcpy(config.txmac, serialmsg_message, 5);
-                            nrf_config_set(&config);
+                            nrf_write_long(C_W_REGISTER|R_TX_ADDR,5,config.txmac);
                         break;
                         case '4':
                             memcpy(config.mac0, serialmsg_message, 5);
-                            nrf_config_set(&config);
+                            nrf_write_long(C_W_REGISTER|R_RX_ADDR_P0,5,config.mac0);
+                            nrf_write_reg(R_EN_RXADDR,1);
                         break;
                         case '5':
                             config.channel=serialmsg_message[0];
-                            nrf_config_set(&config);
+                            nrf_set_channel(config.channel);
+                            nrf_cmd(C_FLUSH_RX);
                         break;
                         case '6':
                             config.maclen[0]=serialmsg_message[0];
-                            nrf_config_set(&config);
+                            nrf_write_reg(R_RX_PW_P0,config.maclen[0]);
                         break;
                         case '7':
                             puts("\\7");
@@ -110,6 +112,20 @@ void main_bridge(void)
                             puts(s);
                             puts("\\0");
                         break;
+                        case '8': /* set mac width */
+                            nrf_write_reg(R_SETUP_AW,serialmsg_message[0]);
+                        break;
+                        case '9': // Dis/Enable CRC
+                            nrf_write_reg(R_CONFIG, R_CONFIG_PRIM_RX|R_CONFIG_PWR_UP|
+                                    ((serialmsg_message[0]&1)?R_CONFIG_EN_CRC :0)|
+                                    ((serialmsg_message[0]&2)?R_CONFIG_CRCO :0)
+                                    
+                                    );
+                            /* maybe add enhanced shockburst stuff here */
+                            nrf_cmd(C_FLUSH_RX);
+                            nrf_write_reg(R_STATUS,0);
+                        break;
+
                     };
                     puts("\\2\\0");
                 }

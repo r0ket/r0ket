@@ -22,3 +22,8 @@ h->r:\7\0
 r->h: \7<UUID>\0
 r->h: \2\0
 
+h->r:\8<MACLEN>\0 # As in R_SETUP_AW (1=3byte mac..3=5byte mac)
+r->h: \2\0
+
+h->r:\9<CONFIG>\0 # Bit 0=1: enable crc, Bit 1=1: 2-byte crc
+r->h: \2\0
