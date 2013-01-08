@@ -418,6 +418,15 @@ sub get_id {
     wait_ok(1);
     return $id;
 };
+sub set_mac_width {
+    send_pkt_num(pack("C",(shift)-2),8);
+    wait_ok(1);
+};
+
+sub set_config {
+    send_pkt_num(pack("C",shift),9);
+    wait_ok(1);
+};
 
 
 sub wait_ok {
@@ -433,3 +442,4 @@ sub wait_ok {
     return 1;
 };
 1;
+

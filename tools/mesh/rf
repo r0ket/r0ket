@@ -51,13 +51,16 @@ if ($help){
     print STDERR "- p b - preset openbeacon\n";
     print STDERR "- p a - preset game announce\n";
     print STDERR "- p r - preset sample game\n";
+    print STDERR "- p s - preset for sniffing\n";
     print STDERR "config: config rf chip\n";
     print STDERR "- c rx  - set rxmac\n";
     print STDERR "- c tx  - set txmac\n";
     print STDERR "- c len - set rxlength\n";
     print STDERR "- c ch  - set channel\n";
     print STDERR "- c <opt>hex - set any of the previous option via hex string\n";
-    print STDERR "- c id - read beacon id\n";
+    print STDERR "- c id  - read beacon id\n";
+    print STDERR "- c w   - set mac width (2-5)\n";
+    print STDERR "- c cfg - config (crc)\n";
     print STDERR "\n";
     print STDERR "etc...\n";
     exit(1);
@@ -145,23 +148,37 @@ if($cmd =~ /^r/){
     if ($sub =~/^m/i){ # Default mesh settings.
         r0ket::set_txmac("ORBIT");
         r0ket::set_rxmac("ORBIT");
+        r0ket::set_mac_width(5);
         r0ket::set_channel(83);
         r0ket::set_rxlen(32);
+        r0ket::set_config(1);
     }elsif ($sub =~/^b/i){ # Default OpenBeacon settings
         r0ket::set_txmac(pack("H*","0102030201"));
         r0ket::set_rxmac(pack("H*","0102030201"));
+        r0ket::set_mac_width(5);
         r0ket::set_channel(81);
         r0ket::set_rxlen(16);
+        r0ket::set_config(1);
     }elsif ($sub =~/^a/i){ # Default rem0te announce settings
         r0ket::set_txmac("REM0T");
         r0ket::set_rxmac("REM0T");
+        r0ket::set_mac_width(5);
         r0ket::set_channel(87);
         r0ket::set_rxlen(32);
+        r0ket::set_config(1);
     }elsif ($sub =~/^r/i){ # Default bpong game settings
         r0ket::set_txmac("BPONG");
         r0ket::set_rxmac("BPONG");
+        r0ket::set_mac_width(5);
         r0ket::set_channel(91);
         r0ket::set_rxlen(32);
+        r0ket::set_config(1);
+    }elsif ($sub =~/^s/i){ # Sniffing
+       r0ket::set_rxmac(pack("H*","5500000000"));
+        r0ket::set_rxlen(32);
+        r0ket::set_channel(shift);
+        r0ket::set_mac_width(2);
+        r0ket::set_config(0);
     }else{
         die "Unkown preset $sub\n";
     };
@@ -182,6 +199,10 @@ if($cmd =~ /^r/){
     }elsif ($set =~ /^id/){
         my $id=r0ket::get_id();
         print "r0ket id: ",$id,"\n";
+    }elsif ($set =~ /^w(idth)?/){
+        my $id=r0ket::set_mac_width(shift);
+    }elsif ($set =~ /^cfg?/){
+        my $id=r0ket::set_config(shift);
     }else{
         die "Unknown config argument $set\n";
     };
@@ -288,3 +309,5 @@ if($cmd =~ /^r/){
 #  sysread($fh[0],$read,1024);
 #}
 #print "PostRead: <", sprint($read), ">\n";
+
+
