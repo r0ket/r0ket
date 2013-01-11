@@ -162,6 +162,10 @@ if($cmd =~ /^h/ || $help){
         }elsif($fmt =~ /^g/){
             my $p=r0ket::nice_game($str);
             print $p->{string};
+        }elsif($fmt =~ /^(s|sniff)/){
+            my $len=shift || 5;
+            print unpack("H*",substr($str,0,$len));
+            print " <",unpack("H*",substr($str,$len)),">";
         }elsif($fmt =~ /^(x|hex)/){
             my $pkt_crc=  unpack("n",substr($str,length($str)-2,2));
             my $calc_crc= crcccitt(substr($str,0,length($str)-2));
