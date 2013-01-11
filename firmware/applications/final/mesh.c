@@ -93,6 +93,21 @@ int choose(char * texts, int8_t menuselection){
 
 /***********************************************************************/
 
+static const char * expandmesh(char pkt){
+    switch(pkt){
+        case('A'): return "Message";
+        case('E'): return "Saal 1";
+        case('F'): return "Saal 2";
+        case('G'): return "Saal 3";
+        case('T'): return "Time";
+        case('i'): return "Invaders";
+        case('j'): return "Jump";
+        case('r'): return "r0type";
+        case('s'): return "Snake";
+    };
+    return "";
+}
+
 char *meshmsgs(void){
     static char msgtypes[MESHBUFSIZE+1];
     memset(msgtypes,'_',MESHBUFSIZE);
@@ -104,11 +119,7 @@ char *meshmsgs(void){
         hi=0xff;
         for(int i=0;i<MESHBUFSIZE;i++){
             if(meshbuffer[i].flags&MF_USED){
-                if(MO_TYPE(meshbuffer[i].pkt)=='E' ||
-                   MO_TYPE(meshbuffer[i].pkt)=='F' ||
-                   MO_TYPE(meshbuffer[i].pkt)=='G' ||
-                   MO_TYPE(meshbuffer[i].pkt)=='T' ||
-                   MO_TYPE(meshbuffer[i].pkt)=='i')
+                if(*expandmesh(MO_TYPE(meshbuffer[i].pkt)))
                     if(MO_TYPE(meshbuffer[i].pkt)>lo)
                         if(MO_TYPE(meshbuffer[i].pkt)<hi)
                             hi=MO_TYPE(meshbuffer[i].pkt);
@@ -123,7 +134,7 @@ char *meshmsgs(void){
     };
 
     return msgtypes;
-};
+}
 
 #if 0
 static inline uint32_t popcount(uint32_t *buf, uint8_t n){
@@ -158,42 +169,8 @@ void m_choose(){
     char *mm=meshmsgs();
     char *tmm=mm;
     while(*mm){
-        switch(*mm){
-#if 0
-            case('A'):
-                strcpy(p,"Message");
-                break;
-#endif
-            case('E'):
-                strcpy(p,"Saal 1");
-                break;
-            case('F'):
-                strcpy(p,"Saal 2");
-                break;
-            case('G'):
-                strcpy(p,"Saal 3");
-                break;
-            case('T'):
-                strcpy(p,"Time");
-                break;
-            case('i'):
-                strcpy(p,"Invaders");
-                break;
-#if 0
-            case('j'):
-                strcpy(p,"Jump");
-                break;
-            case('r'):
-                strcpy(p,"r0type");
-                break;
-            case('s'):
-                strcpy(p,"Snake");
-                break;
-#endif
-            default:
-                p[0]=*mm;
-                p[1]=0;
-        };
+        strcpy(p,expandmesh(*mm));
+
         while(*p++);
         mm++;
     };
@@ -210,37 +187,7 @@ void m_choose(){
             if(MO_TYPE(meshbuffer[z].pkt)==tmm[i])
                 j=z;
 
-    switch(tmm[i]){
-        case('A'):
-            lcdPrintln("Message");
-            break;
-        case('E'):
-            lcdPrintln("Saal 1");
-            break;
-        case('F'):
-            lcdPrintln("Saal 4");
-            break;
-        case('G'):
-            lcdPrintln("Saal 6");
-            break;
-        case('T'):
-            lcdPrintln("Time");
-            break;
-        case('i'):
-            lcdPrintln("Invaders");
-            break;
-#if 0
-        case('j'):
-            strcpy(p,"Jump");
-            break;
-        case('r'):
-            strcpy(p,"r0type");
-            break;
-        case('s'):
-            strcpy(p,"Snake");
-            break;
-#endif
-    };
+    lcdPrintln(expandmesh(tmm[i]));
     if(tmm[i]>='a' && tmm[i]<='z'){
         lcdPrintln(IntToStr(MO_TIME(meshbuffer[j].pkt),10,0));
     }else{
@@ -293,7 +240,7 @@ void m_choose(){
     lcdRefresh();
     getInputWaitRelease();
     };
-};
+}
 
 
 void tick_mesh(void){
@@ -304,5 +251,5 @@ void tick_mesh(void){
             gpioSetValue (RB_LED1, 1); 
             meshmsg=0;
         };
-};
+}
 
