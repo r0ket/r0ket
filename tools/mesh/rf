@@ -27,7 +27,30 @@ GetOptions (
 
 $help=1 if($ARGV[0] =~ /^[h?]/);
 
-if ($help){
+END{
+    r0ket::writebeacon if($writend);
+};
+
+r0ket::r0ket_init($ser);
+$r0ket::verbose=1;
+
+my @fh;
+my $read;
+
+my @args=@ARGV;
+my $sidx=0;
+for my $eidx (0..$#args){
+    if($args[$eidx] eq ","){
+        dwim(@args[$sidx..$eidx-1]);
+        $sidx=$eidx+1;
+    }
+};
+dwim(@args[$sidx..$#args]);
+        
+sub dwim{
+my $cmd=shift;
+
+if($cmd =~ /^h/ || $help){
     print STDERR "Mini-Help:\n";
     print STDERR "-d <devicename> (or \$R0KETBRIDGE)\n";
     print STDERR "-w write beacon2nick file\n";
@@ -63,33 +86,46 @@ if ($help){
     print STDERR "- c cfg - config (crc)\n";
     print STDERR "\n";
     print STDERR "etc...\n";
-    exit(1);
-};
-
-END{
-    r0ket::writebeacon if($writend);
-};
-
-r0ket::r0ket_init($ser);
-$r0ket::verbose=1;
-
-my @fh;
-my $read;
-
-my @args=@ARGV;
-my $sidx=0;
-for my $eidx (0..$#args){
-    if($args[$eidx] eq ","){
-        dwim(@args[$sidx..$eidx-1]);
-        $sidx=$eidx+1;
-    }
-};
-dwim(@args[$sidx..$#args]);
-        
-sub dwim{
-my $cmd=shift;
-
-if($cmd =~ /^r/){
+}elsif ($cmd =~ /^p/){ # Preset
+    my $sub=shift;
+    if ($sub =~/^m/i){ # Default mesh settings.
+        r0ket::set_txmac("ORBIT");
+        r0ket::set_rxmac("ORBIT");
+        r0ket::set_mac_width(5);
+        r0ket::set_channel(83);
+        r0ket::set_rxlen(32);
+        r0ket::set_config(1);
+    }elsif ($sub =~/^b/i){ # Default OpenBeacon settings
+        r0ket::set_txmac(pack("H*","0102030201"));
+        r0ket::set_rxmac(pack("H*","0102030201"));
+        r0ket::set_mac_width(5);
+        r0ket::set_channel(81);
+        r0ket::set_rxlen(16);
+        r0ket::set_config(1);
+    }elsif ($sub =~/^a/i){ # Default rem0te announce settings
+        r0ket::set_txmac("REM0T");
+        r0ket::set_rxmac("REM0T");
+        r0ket::set_mac_width(5);
+        r0ket::set_channel(87);
+        r0ket::set_rxlen(32);
+        r0ket::set_config(1);
+    }elsif ($sub =~/^r/i){ # Default bpong game settings
+        r0ket::set_txmac("BPONG");
+        r0ket::set_rxmac("BPONG");
+        r0ket::set_mac_width(5);
+        r0ket::set_channel(91);
+        r0ket::set_rxlen(32);
+        r0ket::set_config(1);
+    }elsif ($sub =~/^s/i){ # Sniffing
+        r0ket::set_rxmac(pack("H*","5500000000"));
+        r0ket::set_rxlen(32);
+        r0ket::set_channel(shift);
+        r0ket::set_mac_width(2);
+        r0ket::set_config(0);
+    }else{
+        die "Unkown preset $sub\n";
+    };
+}elsif ($cmd =~ /^r/){ # Receive (and decode)
     r0ket::readbeacon();
 	$cmd=~s/r(ecv)?//;
 	$cmd=100 if $cmd+0==0;
@@ -143,45 +179,6 @@ if($cmd =~ /^r/){
         next;
     };
     r0ket::rest();
-}elsif ($cmd =~ /^p/){ # Preset
-    my $sub=shift;
-    if ($sub =~/^m/i){ # Default mesh settings.
-        r0ket::set_txmac("ORBIT");
-        r0ket::set_rxmac("ORBIT");
-        r0ket::set_mac_width(5);
-        r0ket::set_channel(83);
-        r0ket::set_rxlen(32);
-        r0ket::set_config(1);
-    }elsif ($sub =~/^b/i){ # Default OpenBeacon settings
-        r0ket::set_txmac(pack("H*","0102030201"));
-        r0ket::set_rxmac(pack("H*","0102030201"));
-        r0ket::set_mac_width(5);
-        r0ket::set_channel(81);
-        r0ket::set_rxlen(16);
-        r0ket::set_config(1);
-    }elsif ($sub =~/^a/i){ # Default rem0te announce settings
-        r0ket::set_txmac("REM0T");
-        r0ket::set_rxmac("REM0T");
-        r0ket::set_mac_width(5);
-        r0ket::set_channel(87);
-        r0ket::set_rxlen(32);
-        r0ket::set_config(1);
-    }elsif ($sub =~/^r/i){ # Default bpong game settings
-        r0ket::set_txmac("BPONG");
-        r0ket::set_rxmac("BPONG");
-        r0ket::set_mac_width(5);
-        r0ket::set_channel(91);
-        r0ket::set_rxlen(32);
-        r0ket::set_config(1);
-    }elsif ($sub =~/^s/i){ # Sniffing
-       r0ket::set_rxmac(pack("H*","5500000000"));
-        r0ket::set_rxlen(32);
-        r0ket::set_channel(shift);
-        r0ket::set_mac_width(2);
-        r0ket::set_config(0);
-    }else{
-        die "Unkown preset $sub\n";
-    };
 }elsif ($cmd =~ /^c/){
     my $set=shift;
 
@@ -309,5 +306,3 @@ if($cmd =~ /^r/){
 #  sysread($fh[0],$read,1024);
 #}
 #print "PostRead: <", sprint($read), ">\n";
-
-
