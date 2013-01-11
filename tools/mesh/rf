@@ -122,6 +122,12 @@ if($cmd =~ /^h/ || $help){
         r0ket::set_channel(shift);
         r0ket::set_mac_width(2);
         r0ket::set_config(0);
+    }elsif ($sub =~/^k/i){ # Keyboard
+        r0ket::set_channel(shift||25);
+        r0ket::set_rxmac(pack("H*",shift||"9246075c59"));
+        r0ket::set_rxlen(20);
+        r0ket::set_mac_width(5);
+        r0ket::set_config(0);
     }else{
         die "Unkown preset $sub\n";
     };
@@ -146,6 +152,8 @@ if($cmd =~ /^h/ || $help){
                 };
             }elsif(substr($str,0,1)eq "\x20"){
                 $fmt="g_";
+            }elsif(substr($str,0,1)eq "\xbd"){
+                $fmt="k_";
             }elsif(length($str)==32){
                 $fmt="m_";
             }else{
@@ -166,6 +174,56 @@ if($cmd =~ /^h/ || $help){
             my $len=shift || 5;
             print unpack("H*",substr($str,0,$len));
             print " <",unpack("H*",substr($str,$len)),">";
+        }elsif($fmt =~ /^k/){
+            $str^="\xff"x length($str); # invert data
+#            print "[".unpack("H*",$str)."] ";
+
+            my $key;
+            if(defined $arg){
+                $key=pack("H*",$arg) ^ pack("H*","ff"x5);
+            };
+
+            my $bin= unpack("B*",$str);
+            my ($pl,$pid,$ack)= $bin=~/^(......)(..)(.)/; # Get that 9-bit-field
+            $str=pack("B*",substr($bin,9,-7)); # Put the rest in proper bytes again
+
+            print "(",unpack("C",pack("B*","00".$pl))," ",
+                  unpack("C",pack("B*","000000".$pid))," ",
+                  $ack,") ";
+
+            my $hdr=substr($str,0,4,"");
+            my $pkt_crc=substr($str,-2,2,"");
+
+            print unpack("H*",$hdr),":";
+            if(defined $key){
+                my $dec=$str^($key x 3);
+                $dec=substr($dec,0,length($str));
+                print "<".join(",",
+                       unpack "H2"x length($dec) ,$dec
+                        ).">";
+
+# check in-packet checksum
+                my $cksum=0xff;
+                for (unpack("C"x length($hdr.$dec),$hdr.$dec)){
+                    $cksum^=$_;
+                };
+                if($cksum){
+                    print "[CK=$cksum!]";
+                };
+# check chip-crc-checksum
+                my $crc=crcccitt(scalar reverse $key);
+                $crc=crcccitt(pack("B*",$pl.$pid),$crc);
+                my $bit=(($crc&(1<<15))>0);
+                $crc=($crc<<1)&0xffff;
+                $crc^=0x1021 if ($bit^$ack);
+                $crc=crcccitt($hdr.$str,$crc);
+                if($crc != unpack("n",$pkt_crc)){
+                    printf "[CRC=%04x]",$crc;
+                };
+            }else{
+                print unpack("H*",$str);
+            };
+            print ":",unpack("H*",$pkt_crc);
         }elsif($fmt =~ /^(x|hex)/){
             my $pkt_crc=  unpack("n",substr($str,length($str)-2,2));
             my $calc_crc= crcccitt(substr($str,0,length($str)-2));
