@@ -55,35 +55,39 @@ if($cmd =~ /^h/ || $help){
     print STDERR "-d <devicename> (or \$R0KETBRIDGE)\n";
     print STDERR "-w write beacon2nick file\n";
     print STDERR "\n";
+    print STDERR "preset: config per preset\n";
+    print STDERR "- p m            - preset minimesh\n";
+    print STDERR "- p b            - preset openbeacon\n";
+    print STDERR "- p a            - preset game announce\n";
+    print STDERR "- p r            - preset sample game\n";
+    print STDERR "- p s <ch>       - preset for sniffing on channel <ch>\n";
+    print STDERR "- p k <ch> <key> - preset for sniffing keyboard. Edit source for mac/channel\n";
+    print STDERR "\n";
     print STDERR "recv<num>: receive (number) pakets\n";
-    print STDERR " - r        : try to autodetect packet format\n";
-    print STDERR " - r hex    : hexdump packets\n";
-    print STDERR " - r ascii  : asciidump packets\n";
-    print STDERR " - r beacon : parse as openbeacon\n";
-    print STDERR " - r mesh   : parse as mesh packet\n";
-    print STDERR " - r game   : parse as game packet(incomplete)\n";
+    print STDERR "- r              - try to autodetect packet format\n";
+    print STDERR "- r x|hex        - hexdump packets\n";
+    print STDERR "- r ascii        - asciidump packets\n";
+    print STDERR "- r beacon       - parse as openbeacon\n";
+    print STDERR "- r mesh         - parse as mesh packet\n";
+    print STDERR "- r game         - parse as game packet(incomplete)\n";
+    print STDERR "- r sniff <len>  - parse as sniffed MACs\n";
+    print STDERR "- r key <key>    - parse as keyboard packets (w/encryption key)\n";
     print STDERR "\n";
     print STDERR "send<num>: send packet (number) times\n";
-    print STDERR " - s raw <hex>: send raw hex packet\n";
-    print STDERR " - s hex <hex>: send packet with crc16\n";
-    print STDERR " - s mesh t <gen>: send mesh time packet\n";
-    print STDERR " - s mesh <other>, see source :-)\n";
+    print STDERR "- s raw <hex>    - send raw hex packet\n";
+    print STDERR "- s hex <hex>    - send packet with crc16\n";
+    print STDERR "- s mesh t <gen> - send mesh time packet\n";
+    print STDERR "- s mesh <other> - see source :-)\n";
     print STDERR "\n";
-    print STDERR "preset: config per preset\n";
-    print STDERR "- p m - preset minimesh\n";
-    print STDERR "- p b - preset openbeacon\n";
-    print STDERR "- p a - preset game announce\n";
-    print STDERR "- p r - preset sample game\n";
-    print STDERR "- p s - preset for sniffing\n";
-    print STDERR "config: config rf chip\n";
-    print STDERR "- c rx  - set rxmac\n";
-    print STDERR "- c tx  - set txmac\n";
-    print STDERR "- c len - set rxlength\n";
-    print STDERR "- c ch  - set channel\n";
+    print STDERR "config: config rf chip directly\n";
+    print STDERR "- c rx       - set rxmac\n";
+    print STDERR "- c tx       - set txmac\n";
+    print STDERR "- c len      - set rxlength\n";
+    print STDERR "- c ch       - set channel\n";
+    print STDERR "- c w        - set mac width (2-5)\n";
+    print STDERR "- c cfg      - config (crc)\n";
+    print STDERR "- c id       - read beacon id\n";
     print STDERR "- c <opt>hex - set any of the previous option via hex string\n";
-    print STDERR "- c id  - read beacon id\n";
-    print STDERR "- c w   - set mac width (2-5)\n";
-    print STDERR "- c cfg - config (crc)\n";
     print STDERR "\n";
     print STDERR "etc...\n";
 }elsif ($cmd =~ /^p/){ # Preset
@@ -161,20 +165,20 @@ if($cmd =~ /^h/ || $help){
             };
         };
 
-        if($fmt =~ /^m/){
+        if($fmt =~ /^m(esh)?/){
             my $p=r0ket::nice_mesh($str);
             print $p->{string};
-        }elsif($fmt =~ /^b/){
+        }elsif($fmt =~ /^b(eacon)?/){
             my $p=r0ket::nice_beacon($str);
             print $p->{string};
-        }elsif($fmt =~ /^g/){
+        }elsif($fmt =~ /^g(ame)?/){
             my $p=r0ket::nice_game($str);
             print $p->{string};
-        }elsif($fmt =~ /^(s|sniff)/){
+        }elsif($fmt =~ /^s(niff)?/){
             my $len=shift || 5;
             print unpack("H*",substr($str,0,$len));
             print " <",unpack("H*",substr($str,$len)),">";
-        }elsif($fmt =~ /^k/){
+        }elsif($fmt =~ /^k(ey)?/){
             $str^="\xff"x length($str); # invert data
 #            print "[".unpack("H*",$str)."] ";
 
