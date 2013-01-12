@@ -101,11 +101,14 @@ for my $idx (0..$#symb){
 	};
 
     if($variable{$_}){
-        print C "\&$_,";
+        print C "__extension__(void*)\&$_,";
     }else{
-        print C "$_,";
+        print C "__extension__(void*)$_,";
     };
-    print I "#define $_ ($types{$_}(TheTable[$idx]))";
+    if($_ eq "notimplemented"){
+        print I "#undef $_";
+    };
+    print I "#define $_ __extension__($types{$_}(TheTable[$idx]))";
 	if($_ eq "memcpy" || $_ eq "memmove"){
 		$memcpy=$idx
 	};
