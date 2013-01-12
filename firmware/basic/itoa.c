@@ -12,7 +12,7 @@ const char* IntToStrX(unsigned int num, unsigned int mxlen){
 		num/=16;
 	};
 	return &s[len+1];
-};
+}
 #undef LEN
 
 #define LEN 11
@@ -54,5 +54,5 @@ const char* IntToStr(int num, unsigned int mxlen, char flag){
 		s[len]=' ';
     };
 	return &s[len];
-};
+}
 #undef LEN

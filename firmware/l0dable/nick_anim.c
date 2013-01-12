@@ -8,4 +8,4 @@
 
 void ram(void) {
     lcdShowAnim("nick.lcd",500);
-};
+}

@@ -20,7 +20,7 @@
 void init_mesh(void){
     nrf_init();
     initMesh();
-};
+}
 
 int choose(char * texts, int8_t menuselection){
     uint8_t numentries = 0;

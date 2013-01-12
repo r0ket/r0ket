@@ -36,12 +36,12 @@ void LightCheck(void){
         _isnight=1;
 
     }
-};
+}
 
 uint32_t GetLight(void){
     return light/SAMPCT;
-};
+}
 
 char isNight(void){
     return _isnight;
-};
+}

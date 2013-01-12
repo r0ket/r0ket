@@ -17,7 +17,7 @@ void m_time(void);
 
 void ram(void) {
 	m_time();
-};
+}
 
 void m_time_details(int select) {
     getInputWaitRelease();
@@ -184,4 +184,4 @@ void m_time(void){
 	if (key != BTN_NONE)
 		getInputWaitRelease();
     }
-};
+}

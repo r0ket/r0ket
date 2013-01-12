@@ -26,7 +26,7 @@ uint32_t htonl(uint32_t v){
     __asm("rev %[value], %[value];" \
             : [value] "+r" (v) : );
     return v;
-};
+}
 #endif
 
 

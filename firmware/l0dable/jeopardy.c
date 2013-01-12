@@ -115,7 +115,7 @@ void ram(void)
         nrf_snd_pkt_crc(sizeof(a),(uint8_t*)&a);
     }
     GLOBAL(privacy) = priv;
-};
+}
 
 
 void setJeopardy()

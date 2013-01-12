@@ -262,7 +262,7 @@ void lcdFill(char f){
         lcdBuffer[x]=f;
     }
 #endif
-};
+}
 
 void lcdSetPixel(char x, char y, bool f){
     if (x<0 || x> RESX || y<0 || y > RESY)
@@ -379,7 +379,7 @@ void lcdSetContrast(int c) {
         };
     }
     lcd_deselect();
-};
+}
 
 void lcdSetInvert(int c) {
     lcd_select();
@@ -387,7 +387,7 @@ void lcdSetInvert(int c) {
 //  if(displayType==DISPLAY_N1200)
         lcdWrite(TYPE_CMD,(c&1)+0xa6);
     lcd_deselect();
-};
+}
 
 /* deprecated */
 void __attribute__((__deprecated__)) lcdToggleFlag(int flag) {

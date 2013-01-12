@@ -476,4 +476,4 @@ void gpioSetPullup (volatile uint32_t *ioconReg, gpioPullupMode_t mode)
   *ioconReg |= mode;
 
   // ToDo: Re-enable interrupts?
-};
+}

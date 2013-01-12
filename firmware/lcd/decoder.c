@@ -22,7 +22,7 @@
 			val=byte&0x0f;
 		};
 		return val;
-	};
+	}
 
 	// Local function: Unpack "long run".
 	int upl(int off){
@@ -36,7 +36,7 @@
 			retval+=gnn();
 		};
 		return retval;
-	};
+	}
 
 
 uint8_t * pk_decode(const uint8_t * ldata,int * len){
@@ -121,4 +121,4 @@ uint8_t * pk_decode(const uint8_t * ldata,int * len){
 		
 	*len=(bufptr-charBuf)/height; // return size of output buffer.
 	return charBuf;
-};
+}

@@ -147,7 +147,7 @@ void ram(void){
     }
     draw_splash();
 	}
-};
+}
 
 static bool screen_intro(void) {
 	char key=0;

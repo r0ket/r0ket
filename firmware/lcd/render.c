@@ -23,7 +23,7 @@ void setIntFont(const struct FONT_DEF * newfont){
     memcpy(&efont.def,newfont,sizeof(struct FONT_DEF));
     efont.type=FONT_INTERNAL;
     font=&efont.def;
-};
+}
 
 void setExtFont(const char *fname){
     if(strlen(fname)>8+4)
@@ -33,13 +33,13 @@ void setExtFont(const char *fname){
 
     efont.type=FONT_EXTERNAL;
     font=NULL;
-};
+}
 
 int getFontHeight(void){
     if(font)
       return font->u8Height;
     return 8; // XXX: Should be done right.
-};
+}
 
 static uint8_t read_byte (void)
 {
@@ -142,7 +142,7 @@ int _getFontData(int type, int offset){
 
     /* NOTREACHED */
     return 0;
-};
+}
 
 static int _getIndex(int c){
 #define ERRCHR (font->u8FirstChar+1)
@@ -175,7 +175,7 @@ static int _getIndex(int c){
     };
     c-=font->u8FirstChar;
     return c;
-};
+}
 
 uint8_t charBuf[MAXCHR];
 
@@ -381,7 +381,7 @@ int DoChar(int sx, int sy, int c){
 		};
 	};
 	return sx+(width+postblank);
-};
+}
 
 #define UTF8
 // decode 2 and 3-byte utf-8 strings.
@@ -405,7 +405,7 @@ int DoString(int sx, int sy, const char *s){
 		sx=DoChar(sx,sy,*c);
 	};
 	return sx;
-};
+}
 
 int DoInt(int sx, int sy, int num){
 #define mxlen 5
@@ -440,7 +440,7 @@ int DoInt(int sx, int sy, int num){
         o++;
 	return DoString(sx,sy,o);
 #undef mxlen
-};
+}
 
 #define MAX 8
 int DoIntXn(int sx, int sy, unsigned int num, unsigned int mxlen){
@@ -454,17 +454,17 @@ int DoIntXn(int sx, int sy, unsigned int num, unsigned int mxlen){
 		num/=16;
 	};
 	return DoString(sx,sy,s);
-};
+}
 #undef MAX
 
 int DoIntX(int sx, int sy, unsigned int num){
     return DoIntXn(sx, sy, num, 8);
-};
+}
 
 int DoCharX(int sx, int sy, unsigned char num){
     return DoIntXn(sx, sy, num, 2);
-};
+}
 
 int DoShortX(int sx, int sy, uint16_t num){
     return DoIntXn(sx, sy, num, 4);
-};
+}

@@ -27,7 +27,7 @@ void msc_menu(void){
     DoString(0,16,"MSC Disabled.");
     usbMSCOff();
     fsReInit();
-};
+}
 
 #if 0
 // //# MENU lcdread
@@ -49,7 +49,7 @@ void lcdrtest(void){
 
 void blink_led0(void){
     gpioSetValue (RB_LED0, 1-gpioGetValue(RB_LED0));
-};
+}
 
 void tick_alive(void){
     static int foo=0;
@@ -65,7 +65,7 @@ void tick_alive(void){
             blink_led0();
 	};
     return;
-};
+}
 
 
 // //# MENU img img
@@ -75,11 +75,11 @@ void t_img(void){
     lcdLoadImage(fname);
     lcdRefresh();
     getInputWait();
-};
+}
 
 // //# MENU img anim
 void t_ani(void){
     char fname[FILENAMELEN];
     selectFile(fname, "LCD");
     lcdShowAnim(fname,1000);
-};
+}

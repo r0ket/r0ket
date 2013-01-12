@@ -60,14 +60,14 @@ void init_nick(void){
 	readTextFile("nick.cfg",GLOBAL(nickname),MAXNICK);
 	readTextFile("font.cfg",GLOBAL(nickfont),FILENAMELEN);
 	readTextFile("l0nick.cfg",GLOBAL(nickl0),FILENAMELEN);
-};
+}
 
 //# MENU nick editNick
 void doNick(void){
 	input("Nickname:", GLOBAL(nickname), 32, 127, MAXNICK-1);
 	writeFile("nick.cfg",GLOBAL(nickname),strlen(GLOBAL(nickname)));
 	getInputWait();
-};
+}
 
 //# MENU nick changeFont
 void doFont(void){
@@ -86,7 +86,7 @@ void doFont(void){
     lcdDisplay();
     setIntFont(&Font_7x8);
     while(!getInputRaw())delayms(10);
-};
+}
 
 //# MENU nick chooseAnim
 void doAnim(void){
@@ -100,4 +100,4 @@ void doAnim(void){
     GLOBAL(l0nick)=1;
     saveConfig();
     getInputWaitRelease();
-};
+}

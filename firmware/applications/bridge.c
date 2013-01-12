@@ -158,7 +158,7 @@ void dump_encoded(int len, uint8_t *data)
 
 void tick_bridge(void){
     return;
-};
+}
 
 inline void xmit_spi(uint8_t dat) {
     sspSend(0, (uint8_t*) &dat, 1);
@@ -193,7 +193,7 @@ char snd_pkt_no_crc(int size, uint8_t * pkt)
     CE_LOW();
 
     return nrf_cmd_status(C_NOP);
-};
+}
 
 void serialmsg_init(void)
 {

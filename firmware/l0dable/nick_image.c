@@ -10,4 +10,4 @@ void ram(void) {
     lcdLoadImage("nick.lcd");
     lcdRefresh();
     getInputWait();
-};
+}

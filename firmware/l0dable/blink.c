@@ -12,4 +12,4 @@ void ram(void){
 		delayms(50);
 	};
     gpioSetValue (RB_LED1, x); 
-};
+}

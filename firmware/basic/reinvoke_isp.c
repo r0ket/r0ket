@@ -72,7 +72,7 @@ void EnableWatchdog(uint32_t ms){
 	// frob watchdog once.
 	WDT_WDFEED = WDT_WDFEED_FEED1;
 	WDT_WDFEED = WDT_WDFEED_FEED2;
-};
+}
 
 void ISPandReset(void){
 #if CFG_USBMSC
@@ -89,5 +89,5 @@ void ISPandReset(void){
 #endif
     EnableWatchdog(1000*15);
     ReinvokeISP();
-};
+}
 

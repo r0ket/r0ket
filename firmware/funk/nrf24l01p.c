@@ -27,20 +27,20 @@ void nrf_cmd(uint8_t cmd){
     CS_LOW();
     xmit_spi(cmd);
     CS_HIGH();
-};
+}
 
 uint8_t nrf_cmd_status(uint8_t cmd){
     CS_LOW();
     sspSendReceive(0, &cmd, 1);
     CS_HIGH();
     return cmd;
-};
+}
 
 void nrf_cmd_rw_long(uint8_t* data, int len){
     CS_LOW();
     sspSendReceive(0,data,len);
     CS_HIGH();
-};
+}
 
 
 void nrf_write_reg(const uint8_t reg, const uint8_t val){
@@ -48,7 +48,7 @@ void nrf_write_reg(const uint8_t reg, const uint8_t val){
     xmit_spi(C_W_REGISTER | reg);
     xmit_spi(val);
     CS_HIGH();
-};
+}
 
 uint8_t nrf_read_reg(const uint8_t reg){
     uint8_t val;
@@ -57,7 +57,7 @@ uint8_t nrf_read_reg(const uint8_t reg){
     rcv_spi(&val);
     CS_HIGH();
     return val;
-};
+}
 
 void nrf_read_long(const uint8_t cmd, int len, uint8_t* data){
     CS_LOW();
@@ -66,14 +66,14 @@ void nrf_read_long(const uint8_t cmd, int len, uint8_t* data){
         data[i] = 0x00;
     sspSendReceive(0,data,len);
     CS_HIGH();
-};
+}
 
 void nrf_read_pkt(int len, uint8_t* data){
     CS_LOW();
     xmit_spi(C_R_RX_PAYLOAD);
     sspReceive(0,data,len);
     CS_HIGH();
-};
+}
 
 void nrf_read_pkt_crc(int len, uint8_t* data, uint8_t* crc){
     CS_LOW();
@@ -81,14 +81,14 @@ void nrf_read_pkt_crc(int len, uint8_t* data, uint8_t* crc){
     sspReceive(0,data,len);
     sspReceive(0,crc,2);
     CS_HIGH();
-};
+}
 
 void nrf_write_long(const uint8_t cmd, int len, const uint8_t* data){
     CS_LOW();
     xmit_spi(cmd);
     sspSend(0,data,len);
     CS_HIGH();
-};
+}
 
 #define nrf_write_reg_long(reg, len, data) \
     nrf_write_long(C_W_REGISTER|(reg), len, data)
@@ -106,7 +106,7 @@ void nrf_rcv_pkt_start(void){
     nrf_write_reg(R_STATUS,0);
 
     CE_HIGH();
-};
+}
 
 int nrf_rcv_pkt_poll(int maxsize, uint8_t * pkt){
     uint8_t len;
@@ -140,7 +140,7 @@ int nrf_rcv_pkt_poll(int maxsize, uint8_t * pkt){
     nrf_read_pkt(len,pkt);
 
     return len;
-};
+}
 
 int nrf_rcv_pkt_poll_dec(int maxsize, uint8_t * pkt, uint32_t const key[4]){
     int len;
@@ -161,13 +161,13 @@ int nrf_rcv_pkt_poll_dec(int maxsize, uint8_t * pkt, uint32_t const key[4]){
         return -3; // CRC failed
     };
     return len;
-};
+}
 
 void nrf_rcv_pkt_end(void){
     CE_LOW();
     nrf_cmd(C_FLUSH_RX);
     nrf_write_reg(R_STATUS,R_STATUS_RX_DR);
-};
+}
 
 // High-Level:
 int nrf_rcv_pkt_time_encr(int maxtime, int maxsize, uint8_t * pkt, uint32_t const key[4]){
@@ -231,7 +231,7 @@ int nrf_rcv_pkt_time_encr(int maxtime, int maxsize, uint8_t * pkt, uint32_t cons
         return 0; // timeout
 
     return len;
-};
+}
 
 
 char nrf_snd_pkt_crc_encr(int size, uint8_t * pkt, uint32_t const key[4]){
@@ -261,7 +261,7 @@ char nrf_snd_pkt_crc_encr(int size, uint8_t * pkt, uint32_t const key[4]){
     CE_LOW();
 
     return nrf_cmd_status(C_NOP);
-};
+}
 
 void nrf_set_rx_mac(int pipe, int rxlen, int maclen, const uint8_t * mac){
 #ifdef SAFE
@@ -278,7 +278,7 @@ void nrf_set_rx_mac(int pipe, int rxlen, int maclen, const uint8_t * mac){
     nrf_write_reg(R_EN_RXADDR, 
             nrf_read_reg(R_EN_RXADDR) | (1<<pipe)
             );
-};
+}
 
 void nrf_set_tx_mac(int maclen, const uint8_t * mac){
 #ifdef SAFE
@@ -286,7 +286,7 @@ void nrf_set_tx_mac(int maclen, const uint8_t * mac){
     assert(mac!=NULL);
 #endif
     nrf_write_reg_long(R_TX_ADDR,maclen,mac);
-};
+}
 
 void nrf_disable_pipe(int pipe){
 #ifdef SAFE
@@ -295,14 +295,14 @@ void nrf_disable_pipe(int pipe){
     nrf_write_reg(R_EN_RXADDR, 
             nrf_read_reg(R_EN_RXADDR) & ~(1<<pipe)
             );
-};
+}
 
 void nrf_set_channel(int channel){
 #ifdef SAFE
     assert(channel &~R_RF_CH_BITS ==0);
 #endif
     nrf_write_reg(R_RF_CH, channel);
-};
+}
 
 void nrf_config_set(nrfconfig config){
     nrf_write_reg(R_SETUP_AW,R_SETUP_AW_5);
@@ -323,7 +323,7 @@ void nrf_config_set(nrfconfig config){
     nrf_write_reg_long(R_TX_ADDR,5,config->txmac);
 
     nrf_write_reg(R_EN_RXADDR,(1<<config->nrmacs)-1);
-};
+}
 
 void nrf_config_get(nrfconfig config){
 //    nrf_write_reg(R_SETUP_AW,R_SETUP_AW_5);
@@ -359,13 +359,13 @@ void nrf_config_get(nrfconfig config){
 
     nrf_read_long(R_TX_ADDR,5,config->txmac);
 
-};
+}
 
 void nrf_set_strength(unsigned char strength){
     if(strength>3)
         strength=3;
     nrf_write_reg(R_RF_SETUP,DEFAULT_SPEED|(strength<<1));
-};
+}
 
 void nrf_init() {
     // Enable SPI correctly
@@ -394,7 +394,7 @@ void nrf_init() {
 
     // Clear MAX_RT, just in case.
     nrf_write_reg(R_STATUS,R_STATUS_MAX_RT);
-};
+}
 
 void nrf_off() {
     nrf_write_reg(R_CONFIG,
@@ -402,7 +402,7 @@ void nrf_off() {
             R_CONFIG_MASK_TX_DS|
             R_CONFIG_MASK_MAX_RT
             ); // Most important: no R_CONFIG_PWR_UP
-};
+}
 
 void nrf_startCW() {
     // Enable SPI correctly
@@ -433,4 +433,4 @@ void nrf_check_reset(void){
         _nrfresets++;
         nrf_init();
     };
-};
+}

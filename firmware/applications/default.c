@@ -30,16 +30,16 @@ void main_default(void) {
     randomInit();
 
     return;
-};
+}
 
 
 
 static void queue_setinvert(void){
     lcdSetInvert(1);
-};
+}
 static void queue_unsetinvert(void){
     lcdSetInvert(0);
-};
+}
 
 #define EVERY(x,y) if((ctr+y)%(x/SYSTICKSPEED)==0)
 
@@ -125,4 +125,4 @@ void tick_default(void) {
         push_queue(nrf_check_reset);
     };
     return;
-};
+}

@@ -21,25 +21,25 @@ static uint32_t __GetUUID32(void){
         return block[0];
     }
     return 0;
-};
+}
 
 // What OpenBeacon used. Do we want this?
 static uint16_t __GetUUID16(void){
     IAP_return_t iap_return;
     iap_return = iapReadSerialNumber();
     return crc16 ((uint8_t *) iap_return.Result, sizeof (iap_return.Result));
-};
+}
 
 void initUUID(void){
     uuid32=__GetUUID32();
     uuid16=__GetUUID16();
-};
+}
 
 uint32_t GetUUID32(void){
     return uuid32;
-};
+}
 
 uint16_t GetUUID16(void){
     return uuid16;
-};
+}
 

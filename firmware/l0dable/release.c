@@ -18,4 +18,4 @@ void ram(void) {
     lcdPrintln(IntToStrX(getrelease(),8));
     lcdRefresh();
     while(!getInputRaw())work_queue();
-};
+}

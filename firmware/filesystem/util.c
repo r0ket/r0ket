@@ -75,12 +75,12 @@ void fsInit(){
         usbMSCInit();
         while(1);
     }
-};
+}
 
 void fsReInit(){
     f_mount(0, NULL);
     f_mount(0, &FatFs);
-};
+}
 
 int readFile(char * filename, char * data, int len){
     FIL file;
@@ -100,7 +100,7 @@ int readFile(char * filename, char * data, int len){
     f_close(&file);
 
 	return readbytes;
-};
+}
 
 int readTextFile(char * filename, char * data, int len){
     int readbytes;
@@ -116,7 +116,7 @@ int readTextFile(char * filename, char * data, int len){
         data[--readbytes]=0;
     };
     return readbytes;
-};
+}
 
 
 int writeFile(char * filename, char * data, int len){
@@ -136,5 +136,5 @@ int writeFile(char * filename, char * data, int len){
     f_close(&file);
 
 	return writebytes;
-};
+}
 

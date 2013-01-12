@@ -54,4 +54,4 @@ struct tm * mygmtime(register const time_t time) {
 // I know it's broken. Sorry
 time_t getSeconds(void){
     return _timet+(getTimer()*SYSTICKSPEED/1000);
-};
+}

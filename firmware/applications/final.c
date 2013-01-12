@@ -52,6 +52,6 @@ void main_final(void) {
         work_queue();
         fancyNickname();
     };
-};
+}
 
 void tick_final(void);

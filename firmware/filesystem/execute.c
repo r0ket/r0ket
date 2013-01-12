@@ -85,7 +85,7 @@ uint8_t execute_file (const char * fname){
     dst();
     return 0;
 
-};
+}
 
 /**************************************************************************/
 
@@ -97,5 +97,5 @@ void executeSelect(const char *ext){
 
     if( selectFile(filename+2,ext) == 0)
         execute_file(filename);
-};
+}
 

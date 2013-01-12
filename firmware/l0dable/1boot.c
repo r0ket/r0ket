@@ -67,7 +67,7 @@ void ram(void){
 	menuflags&= (~(MENU_JUSTONCE|MENU_BIG));
 	writeFile("nick.cfg",GLOBAL(nickname),strlen(GLOBAL(nickname)));
 	saveConfig();
-};
+}
 
 static void green() {
 	GLOBAL(daytrig) = 155;

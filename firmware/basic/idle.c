@@ -44,7 +44,7 @@ uint8_t work_queue_minimal(void){
     };
     /* NOTREACHED */
     return 0;
-};
+}
 
 void work_queue(void){
 
@@ -54,7 +54,7 @@ void work_queue(void){
 	};
 
     while(work_queue_minimal());
-};
+}
 
 
 uint8_t delayms_queue_plus(uint32_t ms, uint8_t final){
@@ -71,7 +71,7 @@ uint8_t delayms_queue_plus(uint32_t ms, uint8_t final){
         while(work_queue_minimal());
     };
     return ret;
-};
+}
 
 void delayms_queue(uint32_t ms){
 	int end=_timectr+ms/SYSTICKSPEED;
@@ -82,7 +82,7 @@ void delayms_queue(uint32_t ms){
 			work_queue();
 		};
 	} while (end >_timectr);
-};
+}
 
 void delayms_power(uint32_t ms){
     ms/=SYSTICKSPEED;
@@ -90,7 +90,7 @@ void delayms_power(uint32_t ms){
 	do {
         WFI;
 	} while (ms >_timectr);
-};
+}
 
 int push_queue(void (*new)(void)){
 	int end;
@@ -106,7 +106,7 @@ int push_queue(void (*new)(void)){
 	the_queue.qend=end;
 
 	return 0;
-};
+}
 
 int push_queue_plus(uint8_t (*new)(uint8_t)){
 	int end;
@@ -123,4 +123,4 @@ int push_queue_plus(uint8_t (*new)(uint8_t)){
 	the_queue.qend=end;
 
 	return 0;
-};
+}

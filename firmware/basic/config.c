@@ -50,7 +50,7 @@ void applyConfig(){
         enableConfig(CFG_TYPE_DEVEL,1);
     if(isNight())
         backlightSetBrightness(GLOBAL(lcdbacklight));
-};
+}
 
 int saveConfig(void){
     FIL file;            /* File object */
@@ -98,7 +98,7 @@ int saveConfig(void){
 		return 1;
 	};
 	return 0;
-};
+}
 
 int readConfig(void){
     FIL file;            /* File object */
@@ -130,7 +130,7 @@ int readConfig(void){
 
     applyConfig();
     return 0;
-};
+}
 
 void enableConfig(char type,char enable){
     CONF_ITER{

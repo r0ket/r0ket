@@ -37,13 +37,13 @@ void VoltageCheck(void){
 	    PMU_PMUCTRL = PMU_PMUCTRL_DPDEN_DEEPPOWERDOWN;
 	    __asm volatile ("WFI");
     };
-};
+}
 
 uint32_t GetVoltage(void){
     return voltage/8;
     //return voltage;
-};
+}
 
 uint8_t GetChrgStat(void){
     return !chrg;
-};
+}

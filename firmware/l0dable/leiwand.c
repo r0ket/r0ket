@@ -207,7 +207,7 @@ void leiwandDisplay(void) {
 
 void tick_scroll(void){
     return;
-};
+}
 
 void incBacklight(void) {
     /*

@@ -45,6 +45,6 @@ uint8_t lcdShowAnim(char *fname, uint32_t framems) {
 		work_queue();
 
     return 0;
-};
+}
 
 

@@ -48,7 +48,7 @@ uint8_t getInputWait(void) {
         work_queue();
     delayms_queue(10); /* Delay a little more to debounce */
     return key;
-};
+}
 
 uint8_t getInputWaitTimeout(int timeout) {
     uint8_t key;
@@ -62,7 +62,7 @@ uint8_t getInputWaitTimeout(int timeout) {
     };
     delayms_queue(10); /* Delay a little more to debounce */
     return key;
-};
+}
 
 uint8_t getInputWaitRepeat(void) {
     static uint8_t oldkey=BTN_NONE;
@@ -97,12 +97,12 @@ uint8_t getInputWaitRepeat(void) {
     delayms_queue(10); /* Delay a little more to debounce */
     oldkey=key;
     return key;
-};
+}
 
 void getInputWaitRelease(void) {
     while (getInputRaw()!=BTN_NONE)
         work_queue();
     delayms_queue(10); /* Delay a little more to debounce */
-};
+}
 
 

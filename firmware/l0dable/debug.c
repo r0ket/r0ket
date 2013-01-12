@@ -44,7 +44,7 @@ static const struct MENU submenu_debug={ "debug", {
 
 void ram(void) {
 	handleMenu(&submenu_debug);
-};
+}
 
 //# MENU debug ChkLight
 void ChkLight(void) {
@@ -150,7 +150,7 @@ void Qstatus(void) {
     };
     dy+=16;
     dx=DoString(0,dy,"Done.");
-};
+}
 
 //# MENU debug ShowSP
 void getsp(void) {
@@ -167,7 +167,7 @@ void getsp(void) {
     };
     dy+=16;
     dx=DoString(0,dy,"Done.");
-};
+}
 
 void m_time_details(int select) {
     getInputWaitRelease();
@@ -303,7 +303,7 @@ void m_time(void){
         if (key != BTN_NONE)
             getInputWaitRelease();
     }
-};
+}
 
 void ChkFunk(){
     lcdPrint("st: ");
@@ -316,7 +316,7 @@ void ChkFunk(){
     lcdPrintln(IntToStr(_nrfresets,3,0));
     lcdRefresh();
     while(!getInputRaw())work_queue();
-};
+}
 
 // //# MENU lcdread
 void lcdrtest(void){
@@ -332,7 +332,7 @@ void lcdrtest(void){
     lcdInit();
     lcdRefresh();
     while(!getInputRaw())delayms(10);
-};
+}
 
 void release(){
     lcdPrintln("r0ket");
@@ -340,4 +340,4 @@ void release(){
     lcdPrintln(IntToStrX(getrelease(),8));
     lcdRefresh();
     while(!getInputRaw())work_queue();
-};
+}

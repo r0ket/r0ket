@@ -14,7 +14,7 @@ uint16_t crc16(uint8_t * buf, int len){
 		crc ^= ((crc & 0xff) << 4) << 1;
 	};
 	return crc;
-};
+}
 
 /* Note:
    It is best not to alter this code. For example, (crc<<8)<<4 does

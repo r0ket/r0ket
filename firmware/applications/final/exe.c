@@ -22,9 +22,9 @@ static void execute_it (const char *type)
 //# MENU execute
 void execute_menu(void){
   execute_it ("C0D");
-};
+}
 
 //# MENU |devel
 void execute_devel(void){
   execute_it ("INT");
-};
+}

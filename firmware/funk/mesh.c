@@ -30,7 +30,7 @@ static int mesh_gt(char curgen, char newgen){
 	if(newgen==0)
 		return 0;
     return (dif>128);
-};
+}
 
 void initMesh(void){
     for(int i=0;i<MESHBUFSIZE;i++){
@@ -40,7 +40,7 @@ void initMesh(void){
     meshbuffer[0].pkt[0]='T';
     MO_TIME_set(meshbuffer[0].pkt,getSeconds());
     meshbuffer[0].flags=MF_USED;
-};
+}
 
 #define MP_OK     0
 #define MP_SEND   1
@@ -76,7 +76,7 @@ int mesh_sanity(uint8_t * pkt){
         return MP_IGNORE;
     };
     return MP_OK;
-};
+}
 
 MPKT * meshGetMessage(uint8_t type){
     int free=-1;
@@ -100,7 +100,7 @@ MPKT * meshGetMessage(uint8_t type){
         meshbuffer[free].flags=MF_USED;
     };
     return &meshbuffer[free];
-};
+}
 
 void meshPanic(uint8_t * pkt,int bufno){
 #if 0
@@ -129,7 +129,7 @@ void meshPanic(uint8_t * pkt,int bufno){
     };
     done=1;
 #endif
-};
+}
 
 void mesh_cleanup(void){
     time_t now=getSeconds();
@@ -154,7 +154,7 @@ void mesh_cleanup(void){
             };
         };
     };
-};
+}
 
 void mesh_sendloop(void){
     int ctr=0;
@@ -200,7 +200,7 @@ void mesh_sendloop(void){
     };
 
     nrf_config_set(&oldconfig);
-};
+}
 
 void mesh_recvqloop_setup(void){
 
@@ -212,7 +212,7 @@ void mesh_recvqloop_setup(void){
     mesh_cleanup();
 
     nrf_rcv_pkt_start();
-};
+}
 
 static inline uint32_t popcount(uint32_t *buf, uint8_t n){
     int cnt=0;
@@ -335,7 +335,7 @@ uint8_t mesh_recvqloop_work(void){
         mpkt->flags=MF_USED;
 
         return 1;
-};
+}
 
 void mesh_recvqloop_end(void){
     nrf_rcv_pkt_end();
@@ -355,7 +355,7 @@ void mesh_recvloop(void){ /* unused: replaced by mesh_recvloop_plus */
         };
     }while(getTimer()<recvend && pktctr<MESHBUFSIZE);
     mesh_recvqloop_end();
-};
+}
 
 uint8_t mesh_recvloop_plus(uint8_t state){
     static int recvend=0;
@@ -378,7 +378,7 @@ uint8_t mesh_recvloop_plus(uint8_t state){
                 state=QS_END;
     };
     return state;
-};
+}
 
 void mesh_systick(void){
     static int rcvctr=0;
@@ -395,5 +395,4 @@ void mesh_systick(void){
         sendctr=M_SENDINT/SYSTICKSPEED/2;
         sendctr+=getRandom()%(sendctr*2);
     };
-};
-
+}

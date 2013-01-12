@@ -89,7 +89,7 @@ for (sort keys %menu){
     if(ref $menu{$_} eq "HASH"){
         print qq!void run_submenu_$_(void) {!;
         print qq!\thandleMenu(&submenu_$_);!;
-        print qq!};!;
+        print qq!}!;
     };
 };
 
@@ -113,11 +113,11 @@ print qq!inline void tick_$app(void) {!;
 for (sort @ticks){
     print qq!\t$_();!;
 };
-print qq!};!;
+print qq!}!;
 
 print qq!inline void init_$app(void) {!;
 for (sort @inits){
     print qq!\t$_();!;
 };
-print qq!};!;
+print qq!}!;
 

@@ -20,7 +20,7 @@ void do_openbeacon(){
 void init_beacon(void){
     nrf_init();
     openbeaconSetup();
-};
+}
 
 void tick_beacon(void){
     static int beaconctr=0;
@@ -32,5 +32,5 @@ void tick_beacon(void){
         beaconctr=B_INTERVAL/SYSTICKSPEED/2;
         beaconctr+=getRandom()%(beaconctr*2);
     };
-};
+}
 

@@ -125,7 +125,7 @@ void ram(void)
         playGame();
     }
     GLOBAL(privacy) = priv;
-};
+}
 
 void playGame(void)
 {
