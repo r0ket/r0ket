@@ -271,7 +271,7 @@ if($cmd =~ /^h/ || $help){
     };
 
 }elsif ($cmd =~ /^s/){
-	$cmd=~s/^//;
+	$cmd=~s/^s//;
 	$cmd=1 if $cmd==0;
 
     my $pkt;
