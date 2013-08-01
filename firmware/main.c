@@ -77,9 +77,9 @@ void main(void) {
             saveConfig();
     }
 
-	wrapper(); // see module/ subdirectory
+	wrapper(); // see applications/ subdirectory
 }
 
 int getrelease(void){
-    return 0x0000010f;
+    return 0x00000110;
 }
