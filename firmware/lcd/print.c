@@ -7,7 +7,7 @@
 int x=0;
 int y=0;
 
-void checkScroll(void){
+static void checkScroll(void){
   if(y+font->u8Height>RESY){
       lcdShift(0,y+font->u8Height-RESY,false);
       y=RESY-font->u8Height;

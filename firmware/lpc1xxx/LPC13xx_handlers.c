@@ -48,24 +48,24 @@ void irq_undefined() {
   while(1);
 }
 
-void I2C_IRQHandler(void)       WEAK_ALIAS(irq_undefined);
-void TIMER16_0_IRQHandler(void) WEAK_ALIAS(irq_undefined);
-void TIMER16_1_IRQHandler(void) WEAK_ALIAS(irq_undefined);
-void TIMER32_0_IRQHandler(void) WEAK_ALIAS(irq_undefined);
-void TIMER32_1_IRQHandler(void) WEAK_ALIAS(irq_undefined);
-void SSP_IRQHandler(void)       WEAK_ALIAS(irq_undefined);
-void UART_IRQHandler(void)      WEAK_ALIAS(irq_undefined);
-void USB_IRQHandler(void)       WEAK_ALIAS(irq_undefined);
-void USB_FIQHandler(void)       WEAK_ALIAS(irq_undefined);
-void ADC_IRQHandler(void)       WEAK_ALIAS(irq_undefined);
-void WDT_IRQHandler(void)       WEAK_ALIAS(irq_undefined);
-void BOD_IRQHandler(void)       WEAK_ALIAS(irq_undefined);
-void FMC_IRQHandler(void)       WEAK_ALIAS(irq_undefined);
-void PIOINT3_IRQHandler(void)   WEAK_ALIAS(irq_undefined);
-void PIOINT2_IRQHandler(void)   WEAK_ALIAS(irq_undefined);
-void PIOINT1_IRQHandler(void)   WEAK_ALIAS(irq_undefined);
-void PIOINT0_IRQHandler(void)   WEAK_ALIAS(irq_undefined);
-void WAKEUP_IRQHandler(void)    WEAK_ALIAS(irq_undefined);
+void I2C_IRQHandler(void)       WEAK_ALIAS(irq_undefined)
+void TIMER16_0_IRQHandler(void) WEAK_ALIAS(irq_undefined)
+void TIMER16_1_IRQHandler(void) WEAK_ALIAS(irq_undefined)
+void TIMER32_0_IRQHandler(void) WEAK_ALIAS(irq_undefined)
+void TIMER32_1_IRQHandler(void) WEAK_ALIAS(irq_undefined)
+void SSP_IRQHandler(void)       WEAK_ALIAS(irq_undefined)
+void UART_IRQHandler(void)      WEAK_ALIAS(irq_undefined)
+void USB_IRQHandler(void)       WEAK_ALIAS(irq_undefined)
+void USB_FIQHandler(void)       WEAK_ALIAS(irq_undefined)
+void ADC_IRQHandler(void)       WEAK_ALIAS(irq_undefined)
+void WDT_IRQHandler(void)       WEAK_ALIAS(irq_undefined)
+void BOD_IRQHandler(void)       WEAK_ALIAS(irq_undefined)
+void FMC_IRQHandler(void)       WEAK_ALIAS(irq_undefined)
+void PIOINT3_IRQHandler(void)   WEAK_ALIAS(irq_undefined)
+void PIOINT2_IRQHandler(void)   WEAK_ALIAS(irq_undefined)
+void PIOINT1_IRQHandler(void)   WEAK_ALIAS(irq_undefined)
+void PIOINT0_IRQHandler(void)   WEAK_ALIAS(irq_undefined)
+void WAKEUP_IRQHandler(void)    WEAK_ALIAS(irq_undefined)
 
 /*****************************************************************************
  * Forward undefined fault handlers to an infinite loop function. The Handlers
@@ -77,15 +77,15 @@ void fault_undefined() {
   while(1);
 }
 
-void NMI_Handler(void)          WEAK_ALIAS(fault_undefined);
-void HardFault_Handler(void)    WEAK_ALIAS(fault_undefined);
-void MemManage_Handler(void)    WEAK_ALIAS(fault_undefined);
-void BusFault_Handler(void)     WEAK_ALIAS(fault_undefined);
-void UsageFault_Handler(void)   WEAK_ALIAS(fault_undefined);
-void SVCall_Handler(void)       WEAK_ALIAS(fault_undefined);
-void DebugMon_Handler(void)     WEAK_ALIAS(fault_undefined);
-void PendSV_Handler(void)       WEAK_ALIAS(fault_undefined);
-void SysTick_Handler(void)      WEAK_ALIAS(fault_undefined);
+void NMI_Handler(void)          WEAK_ALIAS(fault_undefined)
+void HardFault_Handler(void)    WEAK_ALIAS(fault_undefined)
+void MemManage_Handler(void)    WEAK_ALIAS(fault_undefined)
+void BusFault_Handler(void)     WEAK_ALIAS(fault_undefined)
+void UsageFault_Handler(void)   WEAK_ALIAS(fault_undefined)
+void SVCall_Handler(void)       WEAK_ALIAS(fault_undefined)
+void DebugMon_Handler(void)     WEAK_ALIAS(fault_undefined)
+void PendSV_Handler(void)       WEAK_ALIAS(fault_undefined)
+void SysTick_Handler(void)      WEAK_ALIAS(fault_undefined)
 
 /******************************************************************************
  * Forward undefined IRQ handlers to an infinite loop function. The Handlers
