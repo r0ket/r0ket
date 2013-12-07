@@ -141,3 +141,6 @@ o_transform
 getrelease
 nrf_set_strength
 #Add stuff here
+nrf_rcv_pkt_poll
+nrf_cmd
+nrf_write_reg
