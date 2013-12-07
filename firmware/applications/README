@@ -1,7 +1,8 @@
-Call make as 
+Every .c file here represents a r0ket firmware.
+(additional source files may be in a subdirectory with the same name)
 
-make APP=menutest
+Call make as "make APP=filename" to build one.
 
-to build a specific module.
+Default filename is "final", the official r0ket firmware.
 
-The module defaults to $(USERNAME) so everyone can have its own default module
+Have fun.
