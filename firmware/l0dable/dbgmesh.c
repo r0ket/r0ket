@@ -37,11 +37,11 @@ void m_time_details(int select) {
             lcdNl();
 
             lcdPrint("Gen: ");
-            lcdPrintInt(MO_GEN(pkt) & 0xff);
+            lcdPrint(IntToStr(MO_GEN(pkt) & 0xff,3,0));
             lcdNl();
 
             lcdPrint("Time: ");
-            lcdPrintInt(MO_TIME(pkt) & 0xffff);
+            lcdPrint(IntToStr(MO_TIME(pkt) & 0xffff,5,0));
             lcdNl();
             lcdPrint("Body: ");
             lcdNl();
@@ -64,7 +64,7 @@ void m_time_details(int select) {
                     }
 
                     lcdPrint("\\");
-                    lcdPrintInt(*body & 0xff);
+                    lcdPrint(IntToStr(*body & 0xff,3,0));
                     x += 2;
                     if (*body > 9)
                         x++;
@@ -128,22 +128,22 @@ void m_time(void){
 	};
 
         lcdPrint("Gen:");
-        lcdPrint(IntToStrX(meshgen,2));
+        lcdPrint(IntToStr(meshgen,2,F_HEX));
 	lcdPrint(" ");
 	lcdPrint(GLOBAL(nickname));
         lcdNl();
         lcdPrint("Inc:");
-        lcdPrintInt(meshincctr);
+        lcdPrint(IntToStr(meshincctr,3,0));
 
         lcdPrint(" SP:");
         __asm(  "mov %0, sp\n" : "=r" (sp) :);
-        lcdPrint(IntToStrX(sp,4));
+        lcdPrint(IntToStr(sp,4,F_HEX));
 
         lcdNl();
         lcdPrint("Nice:");
-        lcdPrintInt(meshnice);
+        lcdPrint(IntToStr(meshnice,3,0));
 	lcdPrint(" R:");
-	lcdPrint(IntToStrX(getrelease()%0xfff,3));
+	lcdPrint(IntToStr(getrelease()%0xfff,3,F_HEX));
         lcdNl();
         lcdRefresh();
 

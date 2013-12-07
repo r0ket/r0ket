@@ -123,13 +123,13 @@ void uuid(void) {
     iap_return = iapReadSerialNumber();
     lcdClear();
     lcdPrintln("UUID:");
-    lcdPrintln(IntToStrX(iap_return.Result[0],8));
-    lcdPrintln(IntToStrX(iap_return.Result[1],8));
-    lcdPrintln(IntToStrX(iap_return.Result[2],8));
-    lcdPrintln(IntToStrX(iap_return.Result[3],8));
+    lcdPrintln(IntToStr(iap_return.Result[0],8,F_HEX));
+    lcdPrintln(IntToStr(iap_return.Result[1],8,F_HEX));
+    lcdPrintln(IntToStr(iap_return.Result[2],8,F_HEX));
+    lcdPrintln(IntToStr(iap_return.Result[3],8,F_HEX));
     lcdNl();
     lcdPrintln("Bacon ID:");
-    lcdPrintln(IntToStrX(GetUUID32(),8));
+    lcdPrintln(IntToStr(GetUUID32(),8,F_HEX));
     lcdRefresh();
     while(!getInputRaw())work_queue();
 }
@@ -187,11 +187,11 @@ void m_time_details(int select) {
             lcdNl();
 
             lcdPrint("Gen: ");
-            lcdPrintInt(MO_GEN(pkt) & 0xff);
+            lcdPrint(IntToStr(MO_GEN(pkt) & 0xff,3,0));
             lcdNl();
 
             lcdPrint("Time: ");
-            lcdPrintInt(MO_TIME(pkt) & 0xffff);
+            lcdPrint(IntToStr(MO_TIME(pkt) & 0xffff,5,0));
             lcdNl();
             lcdPrint("Body: ");
             lcdNl();
@@ -214,7 +214,7 @@ void m_time_details(int select) {
                     }
 
                     lcdPrint("\\");
-                    lcdPrintInt(*body & 0xff);
+                    lcdPrint(IntToStr(*body & 0xff,3,0));
                     x += 2;
                     if (*body > 9)
                         x++;
@@ -270,13 +270,13 @@ void m_time(void){
         lcdNl();
 
         lcdPrint("Gen:");
-        lcdPrintInt(meshgen);
+        lcdPrint(IntToStr(meshgen,3,0));
         lcdNl();
         lcdPrint("Inc:");
-        lcdPrintInt(meshincctr);
+        lcdPrint(IntToStr(meshincctr,3,0));
         lcdNl();
         lcdPrint("Nice:");
-        lcdPrintInt(meshnice);
+        lcdPrint(IntToStr(meshnice,3,0));
         lcdNl();
         lcdRefresh();
 
@@ -307,11 +307,11 @@ void m_time(void){
 
 void ChkFunk(){
     lcdPrint("st: ");
-    lcdPrintln(IntToStrX(nrf_read_reg(R_STATUS),2));
+    lcdPrintln(IntToStr(nrf_read_reg(R_STATUS),2,F_HEX));
     lcdPrint("fifost:");
-    lcdPrintln(IntToStrX(nrf_read_reg(R_FIFO_STATUS),2));
+    lcdPrintln(IntToStr(nrf_read_reg(R_FIFO_STATUS),2,F_HEX));
     lcdPrint("cfg:");
-    lcdPrintln(IntToStrX(nrf_read_reg(R_CONFIG),2));
+    lcdPrintln(IntToStr(nrf_read_reg(R_CONFIG),2,F_HEX));
     lcdPrintln("Resets:");
     lcdPrintln(IntToStr(_nrfresets,3,0));
     lcdRefresh();
@@ -321,12 +321,12 @@ void ChkFunk(){
 // //# MENU lcdread
 void lcdrtest(void){
     lcdClear();
-    lcdPrint("ID1:"); lcdPrintInt(lcdRead(128+64+16+8  +2  )); lcdNl();
-    lcdPrint("ID2:"); lcdPrintInt(lcdRead(128+64+16+8  +2+1)); lcdNl();
-    lcdPrint("ID3:"); lcdPrintInt(lcdRead(128+64+16+8+4    )); lcdNl();
-    lcdPrint("ID4:"); lcdPrintInt(lcdRead(128+64+16+8+4  +1)); lcdNl();
-    lcdPrint("Tmp:"); lcdPrintInt(lcdRead(128+64+16+8+4+2  )); lcdNl(); 
-    lcdPrint("VM:");  lcdPrintInt(lcdRead(128+64+16+8+4+2+1)); lcdNl(); 
+    lcdPrint("ID1:"); lcdPrint(IntToStr(lcdRead(128+64+16+8  +2  ),3,0)); lcdNl();
+    lcdPrint("ID2:"); lcdPrint(IntToStr(lcdRead(128+64+16+8  +2+1),3,0)); lcdNl();
+    lcdPrint("ID3:"); lcdPrint(IntToStr(lcdRead(128+64+16+8+4    ),3,0)); lcdNl();
+    lcdPrint("ID4:"); lcdPrint(IntToStr(lcdRead(128+64+16+8+4  +1),3,0)); lcdNl();
+    lcdPrint("Tmp:"); lcdPrint(IntToStr(lcdRead(128+64+16+8+4+2  ),3,0)); lcdNl(); 
+    lcdPrint("VM:");  lcdPrint(IntToStr(lcdRead(128+64+16+8+4+2+1),3,0)); lcdNl(); 
     //    lcd_select(); mylcdWrite(0,128+32+8+4+1); lcd_deselect();
     delayms(10);
     lcdInit();
@@ -337,7 +337,7 @@ void lcdrtest(void){
 void release(){
     lcdPrintln("r0ket");
     lcdPrintln("Release: ");
-    lcdPrintln(IntToStrX(getrelease(),8));
+    lcdPrintln(IntToStr(getrelease(),4,F_HEX));
     lcdRefresh();
     while(!getInputRaw())work_queue();
 }

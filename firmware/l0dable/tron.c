@@ -80,7 +80,7 @@ void ram() {
 			lcdPrint("!");
 			lcdNl();
 			lcdNl();
-			lcdPrintInt(p);
+			lcdPrint(IntToStr(p,5,0));
 			lcdPrintln(" points");
 			lcdDisplay();
 

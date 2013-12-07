@@ -17,8 +17,10 @@ lcdGetPixel
 lcdLoadImage
 lcdNl
 lcdPrint
-lcdPrintInt
-lcdPrintIntHex
+#lcdPrintInt
+notimplemented
+#lcdPrintIntHex
+notimplemented
 lcdPrintln
 lcdRefresh
 lcdSetPixel

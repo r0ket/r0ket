@@ -138,10 +138,10 @@ static uint8_t mainloop() {
 			lcdPrintln("");
 			lcdPrintln("Counts:");
 			lcdPrint(" ");
-			lcdPrintInt(IntCtr);
+			lcdPrint(IntToStr(IntCtr,4,0));
 			lcdPrintln(" total");
 			lcdPrint(" ");
-			lcdPrintInt(  perMin);
+			lcdPrint(IntToStr(perMin,4,0));
 			lcdPrintln("/min");
 			// remember: We have a 10ms Timer counter
 			if ((startTime+60 *100 ) < _timectr) {

@@ -453,9 +453,9 @@ void init()
 void print_score(void) 
 {
   lcdPrint("    ");
-  lcdPrintInt(player1.score);
+  lcdPrint(IntToStr(player1.score,3,F_LONG));
   lcdPrint("    ");
-  lcdPrintInt(player2.score);
+  lcdPrint(IntToStr(player2.score,3,F_LONG));
 }
 
 void move_player(struct player_t *player, uint8_t dir)
@@ -566,7 +566,7 @@ uint8_t check_end(void){
 		lcdPrintln("  GAME OVER");
 		lcdNl();
 		lcdPrint(" Player ");
-		lcdPrintInt(2 - (player1.score > player2.score));
+		lcdPrint(IntToStr(2 - (player1.score > player2.score),1,0));
 		lcdPrintln(" won");
 
 		lcdRefresh();

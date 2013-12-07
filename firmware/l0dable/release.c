@@ -15,7 +15,7 @@ void ram(void) {
     lcdClear();
     lcdPrintln("r0ket");
     lcdPrintln("Release: ");
-    lcdPrintln(IntToStrX(getrelease(),8));
+    lcdPrintln(IntToStr(getrelease(),4,F_HEX));
     lcdRefresh();
     while(!getInputRaw())work_queue();
 }

@@ -28,26 +28,6 @@ void lcdPrintln(const char *string){
   lcdNl();
 }
   
-void lcdPrintInt(const int num){
-  checkScroll();
-  x=DoInt(x,y,num);
-}
-
-void lcdPrintIntHex(const int num){
-  checkScroll();
-  x=DoIntX(x,y,num);
-}
-
-void lcdPrintCharHex(const uint8_t num){
-  checkScroll();
-  x=DoCharX(x,y,num);
-}
-
-void lcdPrintShortHex(const uint16_t num){
-  checkScroll();
-  x=DoShortX(x,y,num);
-}
-
 void lcdClear(){
   x=0;y=0;
   lcdFill(0);

@@ -15,7 +15,7 @@
 void ram(void) {
     lcdClear();
     lcdPrintln("OpenBeaconId:");
-    lcdPrintIntHex(GetUUID32());
+    lcdPrint(IntToStr(GetUUID32(),8,F_HEX));
     lcdRefresh();
     do{
     }while ((getInputRaw())==BTN_NONE);
