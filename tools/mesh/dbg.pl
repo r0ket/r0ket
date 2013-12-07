@@ -58,7 +58,7 @@ sub writebeacon{
 
 my $ser="<undef>";
 
-do {$ser=$_ if ( -e $_ ) } for qw(/dev/ttyS3 /dev/ttyACM0);
+do {$ser=$_ if ( -e $_ ) } for qw(/dev/ttyACM3);
 
 if ($ARGV[0] eq "-h"){
     print STDERR "Mini-Help:\n";

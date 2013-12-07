@@ -2,6 +2,8 @@
 #
 # vim:set ts=4 sw=4:
 
+# Maybe try "stty <$dev raw" if funky stuff
+
 use strict;
 
 use IO::Select;
@@ -348,6 +350,13 @@ if($cmd =~ /^h/ || $help){
 
             $pkt.=shift;
             $pkt.="\0"x(30-length($pkt));
+        }elsif($scmd eq "g"){
+            $pkt.="g";
+            $pkt.=chr(shift); #gen
+            $pkt.=pack("N",shift||42);
+
+            $pkt.=shift;
+            $pkt.="\0"x(30-length($pkt));
         }else{
             die "Unknown mesh subtype: $scmd\n";
         };
@@ -360,6 +369,7 @@ if($cmd =~ /^h/ || $help){
     print "crc: ",unpack("n",substr($pkt,length($pkt)-2,2))," ";
     print "len: ",length($pkt),"\n";
 	while($cmd-->0){
+        print "write $cmd\n";
         r0ket::send_pkt($pkt);
         r0ket::wait_ok;
 	};

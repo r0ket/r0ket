@@ -124,7 +124,7 @@ sub get_data{
             }elsif($filter==$type){
                 return $str;
             };
-            print "got a 2: ",length($str)," $str \n" if ($type==2);
+#            print "got a 2: ",length($str)," $str \n" if ($type==2);
             next; # If rejected, look for next packet.
         };
 
