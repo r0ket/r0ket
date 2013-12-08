@@ -68,7 +68,7 @@ void main_bridge(void)
     nrf_init();
     nrf_config_set(&config);
     
-    nrf_rcv_pkt_start();
+    nrf_rcv_pkt_start(R_CONFIG_EN_CRC);
     while(1){
         int l, i, status;
         CDC_OutBufAvailChar (&l);
@@ -84,7 +84,7 @@ void main_bridge(void)
                             nrf_rcv_pkt_end();
                             status=snd_pkt_no_crc(serialmsg_len, serialmsg_message);
                             //status=nrf_snd_pkt_crc(serialmsg_len, serialmsg_message);
-                            nrf_rcv_pkt_start();
+                            nrf_rcv_pkt_start(R_CONFIG_EN_CRC);
                         break;
                         case '3':
                             memcpy(config.txmac, serialmsg_message, 5);

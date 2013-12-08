@@ -365,7 +365,7 @@ static int process(char * input){
         puts_plus(" ...\r\n");
         if(t>0)
             t=getTimer()+t*1000/SYSTICKSPEED;
-        nrf_rcv_pkt_start();
+        nrf_rcv_pkt_start(R_CONFIG_EN_CRC);
         do{
             len=nrf_rcv_pkt_poll_dec(sizeof(buf),buf,funkencrypt?thekey:NULL);
             // Receive

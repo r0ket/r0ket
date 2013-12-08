@@ -214,7 +214,7 @@ void mesh_recvqloop_setup(void){
 
     mesh_cleanup();
 
-    nrf_rcv_pkt_start();
+    nrf_rcv_pkt_start(R_CONFIG_EN_CRC);
 }
 
 static inline uint32_t popcount(uint32_t *buf, uint8_t n){

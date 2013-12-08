@@ -94,12 +94,12 @@ void nrf_write_long(const uint8_t cmd, int len, const uint8_t* data){
     nrf_write_long(C_W_REGISTER|(reg), len, data)
 
 // High-Level:
-void nrf_rcv_pkt_start(void){
+void nrf_rcv_pkt_start(char config){
 
     nrf_write_reg(R_CONFIG,
             R_CONFIG_PRIM_RX| // Receive mode
             R_CONFIG_PWR_UP|  // Power on
-            R_CONFIG_EN_CRC   // CRC on, single byte
+            config            // usually enable CRC.
             );
 
     nrf_cmd(C_FLUSH_RX);
