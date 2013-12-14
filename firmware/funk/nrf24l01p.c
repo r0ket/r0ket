@@ -112,18 +112,18 @@ int nrf_rcv_pkt_poll(int maxsize, uint8_t * pkt){
     uint8_t len;
     uint8_t status=0;
 
-    for(int i=0;i<maxsize;i++) pkt[i] = 0x00; // Sanity: clear packet buffer
-
     status =nrf_cmd_status(C_NOP);
 
-    if((status & R_STATUS_RX_P_NO) == R_STATUS_RX_FIFO_EMPTY){
-        if( (status & R_STATUS_RX_DR) == R_STATUS_RX_DR){
-#ifdef USB_CDC
-            puts("FIFO empty, but RX?\r\n");
-#endif
-            nrf_write_reg(R_STATUS,R_STATUS_RX_DR);
-        };
+    if( (status & R_STATUS_RX_DR) != R_STATUS_RX_DR){ // no pkt received
         return 0;
+    };
+
+    for(int i=0;i<maxsize;i++) pkt[i] = 0x00; // Sanity: clear packet buffer
+
+    if((status & R_STATUS_RX_P_NO) == R_STATUS_RX_FIFO_EMPTY){
+        // Error: where is our packet?
+        nrf_write_reg(R_STATUS,R_STATUS_RX_DR);
+        return -2;
     };
 
     nrf_read_long(C_R_RX_PL_WID,1,&len);
