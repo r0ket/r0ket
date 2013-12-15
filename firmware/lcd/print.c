@@ -23,6 +23,11 @@ void lcdNl(void){
   x=0;y+=font->u8Height;
 }
 
+void lcdCheckNl(void){
+    if(x>RESX)
+         lcdNl();
+}
+
 void lcdPrintln(const char *string){
   lcdPrint(string);
   lcdNl();

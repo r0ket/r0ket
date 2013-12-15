@@ -17,8 +17,8 @@ lcdGetPixel
 lcdLoadImage
 lcdNl
 lcdPrint
-#lcdPrintInt
-notimplemented
+#next was lcdPrintInt
+lcdCheckNl
 #lcdPrintIntHex
 notimplemented
 lcdPrintln
