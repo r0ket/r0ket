@@ -145,6 +145,7 @@ typedef struct NRF_CFG * nrfconfig;
 
 int nrf_rcv_pkt_time_encr(int maxtime, int maxsize, uint8_t * pkt, uint32_t const k[4]);
 
+char nrf_snd_pkt(int size, uint8_t * pkt);
 #define nrf_snd_pkt_crc(size, pkt) \
     nrf_snd_pkt_crc_encr(size, pkt, NULL)
 char nrf_snd_pkt_crc_encr(int size, uint8_t * pkt, uint32_t const k[4]);

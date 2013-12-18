@@ -234,6 +234,23 @@ int nrf_rcv_pkt_time_encr(int maxtime, int maxsize, uint8_t * pkt, uint32_t cons
 }
 
 
+/* assumes all nrf setup already done */
+char nrf_snd_pkt(int size, uint8_t * pkt){
+    if(size > MAX_PKT)
+        size=MAX_PKT;
+
+    CS_LOW();
+    xmit_spi(C_W_TX_PAYLOAD);
+    sspSend(0,pkt,size);
+    CS_HIGH();
+
+    CE_HIGH();
+    delayms(1); // Send it.  (actually only needs 10us)
+    CE_LOW();
+
+    return nrf_cmd_status(C_NOP);
+};
+
 char nrf_snd_pkt_crc_encr(int size, uint8_t * pkt, uint32_t const key[4]){
 
     if(size > MAX_PKT)
@@ -251,16 +268,7 @@ char nrf_snd_pkt_crc_encr(int size, uint8_t * pkt, uint32_t const key[4]){
     if(key !=NULL)
         xxtea_encode_words((uint32_t*)pkt,size/4,key);
 
-    CS_LOW();
-    xmit_spi(C_W_TX_PAYLOAD);
-    sspSend(0,pkt,size);
-    CS_HIGH();
-
-    CE_HIGH();
-    delayms(1); // Send it.  (only needs >10ys, i think)
-    CE_LOW();
-
-    return nrf_cmd_status(C_NOP);
+    return nrf_snd_pkt(size,pkt);
 }
 
 void nrf_set_rx_mac(int pipe, int rxlen, int maclen, const uint8_t * mac){
