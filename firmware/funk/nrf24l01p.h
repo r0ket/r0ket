@@ -50,6 +50,7 @@
 #define R_RX_PW_P5		0x16
 #define R_FIFO_STATUS		0x17
 #define R_DYNPD			0x1c
+#define R_FEATURE		0x1d
 
 // Register Flags
 
@@ -123,6 +124,11 @@
 #define R_DYNPD_DPL_P2           0x04
 #define R_DYNPD_DPL_P1           0x02
 #define R_DYNPD_DPL_P0           0x01
+
+//FEATURE register definitions
+#define R_FEATURE_EN_DPL         0x04
+#define R_FEATURE_EN_ACK_PAY     0x02
+#define R_FEATURE_EN_DYN_ACK     0x01
 
 /* config structure */
 
