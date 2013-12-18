@@ -123,7 +123,6 @@ void ram(void) {
             for(i=0;i<5;i++){ /* reverse mac for crc (on-air format) */
                 mac[4-i]=chmac[1+i];
             };
-            nrf_config_set(&config);
         };
 
         n = nrf_rcv_pkt_poll(PKTLEN, buf);
@@ -344,6 +343,7 @@ void setup_sniff(char*chmac){
     nrf_rcv_pkt_start(0);
 }
 
+/* read a line from file */
 int get_line(FIL *filep, char * data, int len){
     unsigned int readbytes;
     int idx=0;
@@ -366,7 +366,6 @@ int get_line(FIL *filep, char * data, int len){
     return idx;
 }
 
-/* read a line from file */
 #define LINELEN 14
 signed char read_chmac(signed int lineno, char chmac[6]){
     FIL file;
