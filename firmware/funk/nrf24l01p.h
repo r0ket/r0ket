@@ -81,7 +81,7 @@
 #define R_EN_RXADDR_ERX_P0       0x01
 #define R_EN_RXADDR_ERX_NONE     0x00
 
-// RF_CH register definitions
+//RF_CH register definitions
 #define R_RF_CH_BITS             0x7f
 
 //RF_SETUP register definitions
@@ -103,6 +103,10 @@
 #define R_SETUP_AW_4             0x02
 #define R_SETUP_AW_5             0x03
 
+//SETUP_RETR register definitions
+#define R_SETUP_RETR_ARD(x)      (((x/250)-1)<<4)
+#define R_SETUP_RETR_ARC(x)      (x)
+
 //STATUS register definitions
 #define R_STATUS_RX_DR           0x40
 #define R_STATUS_TX_DS           0x20
@@ -111,6 +115,14 @@
 #define R_STATUS_GET_RX_P_NO(x)  ((x&R_STATUS_RX_P_NO)>>1)
 #define R_STATUS_RX_FIFO_EMPTY   0x0E
 #define R_STATUS_TX_FULL         0x01
+
+//DYNPD register definitions
+#define R_DYNPD_DPL_P5           0x20
+#define R_DYNPD_DPL_P4           0x10
+#define R_DYNPD_DPL_P3           0x08
+#define R_DYNPD_DPL_P2           0x04
+#define R_DYNPD_DPL_P1           0x02
+#define R_DYNPD_DPL_P0           0x01
 
 /* config structure */
 
