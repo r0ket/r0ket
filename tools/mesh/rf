@@ -251,7 +251,7 @@ if($cmd =~ /^h/ || $help){
     my $set=shift;
 
     if($set=~s/hex//){
-        $ARGV[0]=pack("H*",$ARGV[0]);
+        unshift @_, pack("H*",shift);
     };
     if ($set =~ /^tx/){
         r0ket::set_txmac(shift);
