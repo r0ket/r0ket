@@ -151,7 +151,7 @@ void ram(void) {
             continue;
 
         /* calulate ccitt crc over full packet,
-           including that annyoting 9-bit field */
+           including that annoying 9-bit field */
         nrfcrc=0xffff;
         nrfcrc=nrf_crc(mac,5,nrfcrc);
         nrfcrc=nrf_crc(buf,1,nrfcrc);
@@ -180,7 +180,9 @@ void ram(void) {
             if(debug<2 && pl<16)
                 continue;
             dbg_pkt(buf,nrfcrc);
-            lcdPrint("++:");
+            lcdPrint("a:");
+            lcdPrint(IntToStr(aabit,2,F_HEX));
+            lcdPrint(" ++:");
             lcdPrint(IntToStr(myctr++,4,0));
             lcdRefresh();
         };
@@ -311,14 +313,17 @@ void dbg_pkt(unsigned char * buf, crc c){
             lcdPrintln(IntToStr(buf[10]|buf[9]<<8,4,F_HEX));
 
             lcdPrint("p:");
-            for (i=11;i<=15;i++){
+            for (i=11;i<=16;i++){
                 lcdPrint(IntToStr(buf[i],2,F_HEX));
             };
             lcdPrintln("");
         };
     };
 
-    lcdPrint("crc=");
+    lcdPrint("crc:");
+    lcdPrint(IntToStr(buf[17],2,F_HEX));
+    lcdPrint(IntToStr(buf[18],2,F_HEX));
+    lcdPrint(",");
     lcdPrintln(IntToStr(c,4,F_HEX));
     lcdRefresh();
 }
