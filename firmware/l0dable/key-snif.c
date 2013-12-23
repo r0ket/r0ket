@@ -147,8 +147,14 @@ void ram(void) {
 
         pl=buf[0]>>2; /* Enhanced ShockBurst payload length */
 
-        if(pl>PKTLEN-4) /* corrupt length safety */
+        if(pl>PKTLEN-4){ /* corrupt length safety */
+            if(debug){
+                lcdPrint("Err: pl=");
+                lcdPrintln(IntToStr(pl,3,0));
+                lcdRefresh();
+            }
             continue;
+        }
 
         /* calulate ccitt crc over full packet,
            including that annoying 9-bit field */
