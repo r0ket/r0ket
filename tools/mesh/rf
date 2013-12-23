@@ -123,11 +123,11 @@ if($cmd =~ /^h/ || $help){
         r0ket::set_rxlen(32);
         r0ket::set_config(1);
     }elsif ($sub =~/^s/i){ # Sniffing
-        r0ket::set_rxmac(pack("H*","5500000000"));
+        r0ket::set_rxmac(pack("H*","AA00000000"));
         r0ket::set_rxlen(32);
         r0ket::set_channel(shift);
-        r0ket::set_mac_width(2);
-        r0ket::set_config(0);
+        r0ket::set_mac_width(2); # sets the rxmac to 5500
+        r0ket::set_config(0); #disable the crc check
     }elsif ($sub =~/^k/i){ # Keyboard
         r0ket::set_channel(shift||25);
         r0ket::set_rxmac(pack("H*",shift||"9246075c59"));
