@@ -16,6 +16,7 @@
 
 #define MAC_TABLE_SIZE 50
 #define ENTRYLEN 7
+#define PACKETLEN   25
 
 struct NRF_CFG config = {
     .channel= 81,
@@ -32,8 +33,8 @@ void configure_nrf(uint8_t channel);
 void ram(void) {
     char channel=25;
     char key;
-    unsigned char buf[25];
-    unsigned char buf2[25];
+    unsigned char buf[PACKETLEN];
+    unsigned char buf2[PACKETLEN];
     uint8_t count = 0;
 
     #if 0
@@ -60,8 +61,8 @@ void ram(void) {
 
     while(true) {
         char n;
-        n = nrf_rcv_pkt_poll(25, buf);
-        if(n!=25){
+        n = nrf_rcv_pkt_poll(sizeof(buf), buf);
+        if(n!=sizeof(buf)){
             if(n==0)
                 continue;
             lcdPrint("Err");
@@ -79,7 +80,7 @@ void ram(void) {
         uint8_t dir;
         for(dir = 0; dir < 2; dir++) {
             for(shift = 0; shift < 4; shift++) {
-                memcpy(buf2, buf, 25);
+                memcpy(buf2, buf, sizeof(buf));
                 
                 //lcdPrint(IntToStr(buf2[0],2,F_HEX));
                 //lcdPrint(IntToStr(buf2[1],2,F_HEX));
@@ -91,9 +92,9 @@ void ram(void) {
                 
                 // shift out additional preamble bits
                 if(dir == 0) {
-                    shift_buffer_left(buf2, 25, shift);
+                    shift_buffer_left(buf2, sizeof(buf2), shift);
                 } else {
-                    shift_buffer_right(buf2, 25, shift);
+                    shift_buffer_right(buf2, sizeof(buf2), shift);
                 }
                 //lcdPrintln("c"); lcdRefresh();
                 // we need to shift the payload one bit
@@ -153,36 +154,32 @@ void ram(void) {
         }
         //volatile uint32_t i;
         //for(i=0; i< 1000000; i++);
-
-        if(!found) {
-            key = getInputRaw();
-            if ( key == BTN_UP ){
-                if ( channel < 127 )
-                    channel++;
-                configure_nrf(channel);
-            } else if ( key == BTN_DOWN ){
-                if ( channel > 0 )
-                    channel--;
-                configure_nrf(channel);
-            }
-
-            delayms(100);
-            continue;
+        if(found) {
+            lcdPrint(IntToStr(count++&0x0F,1,F_HEX));
+            lcdPrint(IntToStr(dir,1,F_HEX));
+            lcdPrint(IntToStr(shift,1,F_HEX));
+            lcdPrint(" ");
+            lcdPrint(IntToStr(buf2[4],2,F_HEX));
+            lcdPrint(IntToStr(buf2[3],2,F_HEX));
+            lcdPrint(IntToStr(buf2[2],2,F_HEX));
+            lcdPrint(IntToStr(buf2[1],2,F_HEX));
+            lcdPrint(IntToStr(buf2[0],2,F_HEX));
+            lcdPrintln("");
+            lcdRefresh();
+        }
+        
+        key = getInputRaw();
+        if ( key == BTN_UP ){
+            if ( channel < 127 )
+                channel++;
+            configure_nrf(channel);
+        } else if ( key == BTN_DOWN ){
+            if ( channel > 0 )
+                channel--;
+            configure_nrf(channel);
         }
 
-        lcdPrint(IntToStr(count++&0x0F,1,F_HEX));
-        lcdPrint(IntToStr(dir,1,F_HEX));
-        lcdPrint(IntToStr(shift,1,F_HEX));
-        lcdPrint(" ");
-        lcdPrint(IntToStr(buf2[4],2,F_HEX));
-        lcdPrint(IntToStr(buf2[3],2,F_HEX));
-        lcdPrint(IntToStr(buf2[2],2,F_HEX));
-        lcdPrint(IntToStr(buf2[1],2,F_HEX));
-        lcdPrint(IntToStr(buf2[0],2,F_HEX));
-        lcdPrintln("");
-        lcdRefresh();
-
-        //break;
+        delayms(100);
     };
 
     lcdPrintln("done.");
@@ -259,21 +256,10 @@ void configure_nrf(uint8_t channel)
     lcdPrintln("");
     lcdRefresh();
 
-    gpioSetValue(RB_NRF_CE, 0); /* CE_LOW); */
     config.channel=channel;
     nrf_config_set(&config);
 
     nrf_write_reg(R_SETUP_AW,0 /*R_SETUP_AW_2*/);
-    nrf_write_reg(R_CONFIG,
-            R_CONFIG_PRIM_RX| // Receive mode
-            R_CONFIG_PWR_UP|  // Power on
-            0   // no CRC ;-)
-            );
-
-    // nrf_rcv_pkt_start(); Would enable crc.
-    nrf_cmd(C_FLUSH_RX);
-    nrf_write_reg(R_STATUS,0);
-
-    gpioSetValue(RB_NRF_CE, 1); /* CE_HIGH(); */
-
+    nrf_rcv_pkt_start(0);   //Do not enable the CRC
 }
+
