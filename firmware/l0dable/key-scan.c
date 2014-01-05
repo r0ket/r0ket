@@ -12,7 +12,15 @@
 
 #include "usetable.h"
 
-/**************************************************************************/
+/****************************************************************/
+/* r0ket l0dable to scan for a Microsoft keyboard               */
+/*                                                              */
+/* crsr right/left changes channel up/down                      */
+/* crsr up         write all found channel/mac to KBD.MAC       */
+/* crsr down       toggles auto-scan mode                       */
+/* crsr enter      exits                                        */
+/****************************************************************/
+
 
 #define MAC_TABLE_SIZE 10
 #define ENTRY_SIZE 6      // Channel + MAC
@@ -42,7 +50,7 @@ void set_scan(bool *scan, bool value);
 void write_mac_table(uint8_t *mac_table, uint8_t mac_entries);
 
 void ram(void) {
-    uint8_t channel=29;
+    uint8_t channel=1;
     char key;
     unsigned char p[PACKETLEN];
     uint8_t mac_table[MAC_TABLE_SIZE * ENTRY_SIZE];
