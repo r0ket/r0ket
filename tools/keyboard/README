@@ -1,0 +1,48 @@
+How to sniff a Microsoft wireless keyboard with the r0ket
+
+the "i just want to do it" version.
+
+To sniff it, you need to know the MAC if the keyboard and the
+channel(s) it sends on.  Typically it can send on 4 different channels
+It always starts on the same channel when booted and changes if
+there is RF interference.
+
+-- Finding the keyboard
+
+To find the channel/mac, run the key-scan.c0d l0dable.
+
+It cycles through all 99 channels and will display possible
+candidates. Make sure the keyboard transmits something continuously
+to actually find it.
+
+Easy mode is to unplug the dongle while doing this, as this will cause
+the keyboard to transmit each key press for ~ 2sec on all 4 channels while
+searching for the dongle.
+
+If you want to be more covert, press down to disable auto-scan and
+cycle through channels manually with right|left.
+
+Once you have your channels found, press up to write them to the
+dataflash as "KBD.MAC". - An example of this file can be found in
+this directory.
+
+-- Sniffing the keyboard
+
+To sniff, run key-snif.c0d.
+
+This requires a KBD.MAC file with channels/macs to listen to. Use
+right|left to cycle through all the entries. It will display
+key presses as soon as you find the correct/current channel/MAC.
+Press up to enable writing scancodes to SNIFF.OUT in case you want
+to capture the input. 
+
+Use keyparse.pl in this directory to parse SNIFF.OUT after you got it
+from the r0ket.
+
+Pressing down toggles the debug modes and displays the sniffed packets
+contents -- you probably don't need that.
+
+-- Sending keys is not really working yet.
+
+The poof of concept key-send.c0d currently allows you to send an "a"
+after you remove and re-plug the dongle.

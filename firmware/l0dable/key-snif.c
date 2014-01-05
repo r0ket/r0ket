@@ -45,7 +45,7 @@ void ram(void) {
     unsigned char buf[PKTLEN+1]; // spare byte, why?
     unsigned char mac[5];
     uint8_t key = BTN_NONE;
-    int debug=1;
+    int debug=0;
     int i;
     int ctr=0;
     int lineno=1;
@@ -170,14 +170,14 @@ void ram(void) {
         /* keyboard packet handling */
 
         k=0xff;
-        if (pl == 16 || pl==8){
+        if (pl == 16 || pl==8 || pl==9){
             /* remove "Encryption" */
-            for (i=5;i<PKTLEN-2;i++){
+            for (i=5;i<=pl+1;i++){
                 buf[i]=buf[i]^config.mac0[(i-5)%5]; 
             };
 
             /* calculate Checksum */
-            for (i=1;i<PKTLEN-2-1;i++){
+            for (i=1;i<=pl;i++){
                 k^=buf[i];
             };
         };
