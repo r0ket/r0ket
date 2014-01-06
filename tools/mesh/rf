@@ -48,7 +48,8 @@ for my $eidx (0..$#args){
     }
 };
 dwim(@args[$sidx..$#args]);
-        
+r0ket::set_rx(0);
+
 sub dwim{
 my $cmd=shift;
 
@@ -139,6 +140,7 @@ if($cmd =~ /^h/ || $help){
     };
 }elsif ($cmd =~ /^r/){ # Receive (and decode)
     r0ket::readbeacon();
+    r0ket::set_rx(1);
 	$cmd=~s/r(ecv)?//;
 	$cmd=100 if $cmd+0==0;
 	my $fmt=shift || "_";
@@ -246,6 +248,7 @@ if($cmd =~ /^h/ || $help){
         $cmd--;
         next;
     };
+    r0ket::set_rx(0);
     r0ket::rest();
 }elsif ($cmd =~ /^c/){
     my $set=shift;
