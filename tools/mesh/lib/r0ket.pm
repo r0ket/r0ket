@@ -419,7 +419,6 @@ sub set_rxlen {
 sub get_id {
     send_pkt_num("",7);
     my $id=unpack("H*",get_data(7));
-    wait_ok(1);
     return $id;
 };
 sub set_mac_width {
