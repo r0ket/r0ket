@@ -32,6 +32,8 @@ END{
     r0ket::writebeacon if($writend);
 };
 
+$SIG{INT}=sub { exit }; # Make ^c call END{} handler
+
 $r0ket::verbose=1;
 r0ket::r0ket_init($ser);
 
