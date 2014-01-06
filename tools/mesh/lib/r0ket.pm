@@ -370,6 +370,7 @@ if($ser =~ /:/){
     $term->setcc(VTIME,1);
     $term->setcc(VMIN,0);
     $term->setcc(ECHO,0);
+    $term->setlflag($term->getlflag()&~(ECHO | ECHOK | ICANON));
     $term->setattr(fileno($bridge),TCSANOW);
 };
 
