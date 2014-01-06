@@ -1,8 +1,7 @@
 #!/usr/bin/perl
 #
 # vim:set ts=4 sw=4:
-
-# Maybe try "stty <$dev raw" if funky stuff
+#
 
 use strict;
 
@@ -33,8 +32,8 @@ END{
     r0ket::writebeacon if($writend);
 };
 
-r0ket::r0ket_init($ser);
 $r0ket::verbose=1;
+r0ket::r0ket_init($ser);
 
 my @fh;
 my $read;
@@ -64,7 +63,7 @@ if($cmd =~ /^h/ || $help){
     print STDERR "- p a            - preset game announce\n";
     print STDERR "- p r            - preset sample game\n";
     print STDERR "- p s <ch>       - preset for sniffing on channel <ch>\n";
-    print STDERR "- p k <ch> <key> - preset for sniffing keyboard. Edit source for mac/channel\n";
+    print STDERR "- p k <ch> <mac> - preset for sniffing keyboard.\n";
     print STDERR "\n";
     print STDERR "recv<num>: receive (number) pakets\n";
     print STDERR "- r              - try to autodetect packet format\n";
@@ -126,12 +125,12 @@ if($cmd =~ /^h/ || $help){
     }elsif ($sub =~/^s/i){ # Sniffing
         r0ket::set_rxmac(pack("H*","AA00000000"));
         r0ket::set_rxlen(32);
-        r0ket::set_channel(shift);
+        r0ket::set_channel(shift||29);
         r0ket::set_mac_width(2); # sets the rxmac to 5500
         r0ket::set_config(0); #disable the crc check
     }elsif ($sub =~/^k/i){ # Keyboard
-        r0ket::set_channel(shift||25);
-        r0ket::set_rxmac(pack("H*",shift||"9246075c59"));
+        r0ket::set_channel(shift||29);
+        r0ket::set_rxmac(pack("H*",shift||"6db9f8a3a6"));
         r0ket::set_rxlen(20);
         r0ket::set_mac_width(5);
         r0ket::set_config(0);
@@ -179,16 +178,13 @@ if($cmd =~ /^h/ || $help){
             my $p=r0ket::nice_game($str);
             print $p->{string};
         }elsif($fmt =~ /^s(niff)?/){
-            my $len=shift || 5;
+            my $len=$arg || 5;
             print unpack("H*",substr($str,0,$len));
             print " <",unpack("H*",substr($str,$len)),">";
         }elsif($fmt =~ /^k(ey)?/){
-            $str^="\xff"x length($str); # invert data
-#            print "[".unpack("H*",$str)."] ";
-
             my $key;
             if(defined $arg){
-                $key=pack("H*",$arg) ^ pack("H*","ff"x5);
+                $key=pack("H*",$arg);
             };
 
             my $bin= unpack("B*",$str);
@@ -380,8 +376,3 @@ if($cmd =~ /^h/ || $help){
     die "Option not understood\n";
 };
 };
-
-#if (@fh = $sel->can_read(10)) {
-#  sysread($fh[0],$read,1024);
-#}
-#print "PostRead: <", sprint($read), ">\n";
