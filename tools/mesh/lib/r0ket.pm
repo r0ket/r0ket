@@ -9,7 +9,7 @@ use IO::Select;
 use Socket;
 
 use Digest::CRC qw(crcccitt);
-use POSIX qw(strftime :termios_h);
+use POSIX qw(strftime :termios_h :errno_h);
 use Time::HiRes;
 
 our $verbose=0;
@@ -153,7 +153,14 @@ sub get_data{
         };
         if($rout eq $rin){
             my $rr="";
-            sysread($bridge,$rr,1024);
+            my $rv=sysread($bridge,$rr,1024);
+
+            if(!defined($rv) || $rv==0){
+                if($! != EAGAIN){
+                    die "Device vanished\n";
+                };
+            };
+
 #            print "len=",length($rr),"\n";
             $buffer.=$rr;
             die "Nothing to read?" if(length($rr)==0); # Probably device gone.
