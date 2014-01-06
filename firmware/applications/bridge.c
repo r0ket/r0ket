@@ -62,6 +62,7 @@ void main_bridge(void)
     char input[64];
     char led1=0;
     char led2=0;
+    char ok;
 
     usbCDCInit();
     delayms(500);
@@ -78,6 +79,7 @@ void main_bridge(void)
             for(i=0; i<l; i++){
                 uint8_t cmd = serialmsg_put(input[i]);
                 if( cmd != SERIAL_NONE ){
+                    ok=1;
                     switch( cmd ){
                         case '1':
                             // can we loose packets here?
@@ -111,6 +113,7 @@ void main_bridge(void)
                             s[sizeof(uint32_t)]=0;
                             puts(s);
                             puts("\\0");
+                            ok=0; // No need to send OK
                         break;
                         case '8': /* set mac width */
                             nrf_write_reg(R_SETUP_AW,serialmsg_message[0]);
@@ -126,8 +129,22 @@ void main_bridge(void)
                             nrf_write_reg(R_STATUS,0);
                         break;
 
+                        default:
+                            ok=0;
+                            puts("\\9Error cmd=");
+                            putchr(cmd);
+                            if(serialmsg_len>0){
+                                puts(", arg=");
+                                CDC_WrInBuf(serialmsg_message, &serialmsg_len);
+                            }else{
+                                puts(", len=0");
+                            };
+                            puts("\\0");
                     };
-                    puts("\\2\\0");
+
+                    if(ok){
+                        puts("\\2\\0");
+                    };
                 }
             }
         }
