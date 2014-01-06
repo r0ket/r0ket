@@ -140,8 +140,11 @@ void m_time(void){
         lcdPrint(IntToStr(sp,4,F_HEX));
 
         lcdNl();
-        lcdPrint("Nice:");
+        lcdPrint("N:");
         lcdPrint(IntToStr(meshnice,3,0));
+        lcdPrint(" P:");
+        lcdPrintInt(GLOBAL(privacy));
+
 	lcdPrint(" R:");
 	lcdPrint(IntToStr(getrelease()%0xfff,3,F_HEX));
         lcdNl();
