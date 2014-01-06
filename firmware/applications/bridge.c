@@ -63,13 +63,14 @@ void main_bridge(void)
     char led1=0;
     char led2=0;
     char ok;
+    char configflags=R_CONFIG_EN_CRC;
+    char receiving=2; // Backward compat. 0 would be sane default.
 
     usbCDCInit();
     delayms(500);
     nrf_init();
     nrf_config_set(&config);
     
-    nrf_rcv_pkt_start(R_CONFIG_EN_CRC);
     while(1){
         int l, i, status;
         CDC_OutBufAvailChar (&l);
@@ -83,10 +84,14 @@ void main_bridge(void)
                     switch( cmd ){
                         case '1':
                             // can we loose packets here?
-                            nrf_rcv_pkt_end();
+                            if(receiving==1){
+                                nrf_rcv_pkt_end();
+                            };
                             status=snd_pkt_no_crc(serialmsg_len, serialmsg_message);
                             //status=nrf_snd_pkt_crc(serialmsg_len, serialmsg_message);
-                            nrf_rcv_pkt_start(R_CONFIG_EN_CRC);
+                            if(receiving==1){
+                                nrf_rcv_pkt_start(configflags);
+                            };
                         break;
                         case '3':
                             memcpy(config.txmac, serialmsg_message, 5);
@@ -119,14 +124,21 @@ void main_bridge(void)
                             nrf_write_reg(R_SETUP_AW,serialmsg_message[0]);
                         break;
                         case '9': // Dis/Enable CRC
-                            nrf_write_reg(R_CONFIG, R_CONFIG_PRIM_RX|R_CONFIG_PWR_UP|
+                            configflags=
                                     ((serialmsg_message[0]&1)?R_CONFIG_EN_CRC :0)|
                                     ((serialmsg_message[0]&2)?R_CONFIG_CRCO :0)
                                     
-                                    );
+                                    ;
                             /* maybe add enhanced shockburst stuff here */
-                            nrf_cmd(C_FLUSH_RX);
-                            nrf_write_reg(R_STATUS,0);
+                        break;
+                        case 'r': // Dis/Enable Receiving
+                            if(serialmsg_message[0]&1){
+                                nrf_rcv_pkt_start(0);
+                                receiving=1;
+                            }else{
+                                nrf_rcv_pkt_end();
+                                receiving=0;
+                            };
                         break;
 
                         default:
@@ -144,6 +156,10 @@ void main_bridge(void)
 
                     if(ok){
                         puts("\\2\\0");
+                    };
+                    if(receiving==2){
+                        nrf_rcv_pkt_start(configflags);
+                        receiving=1;
                     };
                 }
             }
