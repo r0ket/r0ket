@@ -16,8 +16,13 @@ int puts(const char * str){
     return 0;
 }
 
-int puts_plus(const char * str){
-    return puts(str);
+int putchr(const char chr){
+    if(!USB_Configuration)
+        return -1;
+
+    int len = 1;
+    CDC_WrInBuf(&chr, &len);
+    return 0;
 }
 
 void usbCDCInit(){
