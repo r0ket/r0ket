@@ -269,6 +269,8 @@ if($cmd =~ /^h/ || $help){
         my $id=r0ket::set_mac_width(shift);
     }elsif ($set =~ /^cfg?/){
         my $id=r0ket::set_config(shift);
+    }elsif ($set =~ /^s(peed)?/){
+        my $id=r0ket::set_speed(shift);
     }else{
         die "Unknown config argument $set\n";
     };

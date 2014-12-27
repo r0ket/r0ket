@@ -438,6 +438,11 @@ sub set_config {
     wait_ok(1);
 };
 
+sub set_speed {
+    send_pkt_num(pack("C",shift),'s');
+    wait_ok(1);
+};
+
 sub set_rx {
     send_pkt_num(pack("C",shift),'r');
     wait_ok(1)
