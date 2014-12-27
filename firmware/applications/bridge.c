@@ -63,6 +63,8 @@ void main_bridge(void)
     char led1=0;
     char led2=0;
     char ok;
+    char setup=R_RF_SETUP_RF_PWR_3|R_RF_SETUP_DR_2M;
+
     char configflags=R_CONFIG_EN_CRC;
     char receiving=2; // Backward compat. 0 would be sane default.
 
@@ -140,6 +142,21 @@ void main_bridge(void)
                                 receiving=0;
                             };
                         break;
+                        case 's': // set rf speed
+                            setup=R_RF_SETUP_RF_PWR_3;
+                            switch(serialmsg_message[0]&3){
+                                case 0:
+                                    setup|=R_RF_SETUP_DR_250K;
+                                    break;
+                                case 1:
+                                    setup|=R_RF_SETUP_DR_1M;
+                                    break;
+                                case 2:
+                                    setup|=R_RF_SETUP_DR_2M;
+                                    break;
+                            };
+                            nrf_write_reg(R_RF_SETUP,setup);
+                            break;
 
                         default:
                             ok=0;
