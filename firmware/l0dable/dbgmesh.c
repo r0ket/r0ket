@@ -143,7 +143,7 @@ void m_time(void){
         lcdPrint("N:");
         lcdPrint(IntToStr(meshnice,3,0));
         lcdPrint(" P:");
-        lcdPrintInt(GLOBAL(privacy));
+        lcdPrint(IntToStr(GLOBAL(privacy),2,0));
 
 	lcdPrint(" R:");
 	lcdPrint(IntToStr(getrelease()%0xfff,3,F_HEX));
