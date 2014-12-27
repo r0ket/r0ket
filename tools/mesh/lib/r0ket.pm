@@ -103,7 +103,6 @@ sub writebeacon{
 ### Packet mgmt
 
 my $buffer;
-our $firstpkt=1;
 sub get_data{
     my $filter=shift||0;
 
@@ -115,27 +114,25 @@ sub get_data{
 
     while(1){
 
-        if ($buffer =~ s/^\\(\d)(.*?)\\0//s){
+        if ($buffer =~ s/^\\([1-9])(.*?)\\0//s){
             my ($type,$str)=($1,$2);
             $str=~s/\\\\/\\/g; # dequote
 #            print STDERR "ret:pkt[$type]=",(sprint $str),"\n";
             if($filter==0){
                 return ($type,$str);
             }elsif($filter==$type){
+                return ($type,$str);
                 return $str;
             };
 #            print "got a 2: ",length($str)," $str \n" if ($type==2);
+            print "rejected a $type: ",length($str)," $str \n";
             next; # If rejected, look for next packet.
         };
 
         if(length($buffer)>1){
             if($buffer =~ /[^\\]\\[1-9]/){
                 $buffer =~ s/^(.*?[^\\])(\\[1-9])/\2/s;
-                if($firstpkt){
-                    $firstpkt--;
-                }else{
-                    print STDERR "Unparseable stuff: <",sprint($1),">\n" if(!$quiet);
-                };
+                print STDERR "Unparseable stuff: ",length($1)," <",sprint($1),">\n" if(!$quiet);
                 redo; # Try parsing the rest.
             };
         };
@@ -161,8 +158,8 @@ sub get_data{
                 };
             };
 
-#            print "len=",length($rr),"\n";
             $buffer.=$rr;
+#            print "len=",length($buffer),"\n";
             die "Nothing to read?" if(length($rr)==0); # Probably device gone.
 #            print "recv: ",unpack("H*",$rr),"\n";
         };
@@ -177,6 +174,7 @@ sub get_packet{
         if($rxlen==0 || length($pkt)==$rxlen){
             return $pkt;
         };
+        print "Rejected pkt with len=",length($pkt),"\n";
     };
 };
 
@@ -384,6 +382,7 @@ if($ser =~ /:/){
     #empty buffer, in case there is old data
     my $dummy;
     sysread($bridge,$dummy,1024);
+print "Threw away ",length($dummy)," bytes old data\n" if($verbose);
 
     return $ser;
 };

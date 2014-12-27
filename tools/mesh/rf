@@ -374,7 +374,7 @@ if($cmd =~ /^h/ || $help){
 	while($cmd-->0){
         print "write $cmd\n";
         r0ket::send_pkt($pkt);
-        r0ket::wait_ok;
+#        r0ket::wait_ok;
 	};
 }else{
     die "Option not understood\n";
