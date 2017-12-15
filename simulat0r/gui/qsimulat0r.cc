@@ -1,5 +1,6 @@
 #include <iostream>
 #include <time.h>
+#include <unistd.h>
 #include <QApplication>
 #include <QImage>
 #include <QKeyEvent>
